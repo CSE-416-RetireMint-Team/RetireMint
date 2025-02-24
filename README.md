@@ -1,3 +1,2 @@
-# RetireMe
-
-CSE 416 RetireMint Team
+# RetireMint
+CSE 416 Team Project
