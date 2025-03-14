@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const InvestmentSchema = require('./Investments');      
-const EventSeriesSchema = require('./EventSeries');     
-const SimulationSettingsSchema = require('./SimulationSettings'); 
 
 const ScenarioSchema = new Schema({
   name: { 
@@ -21,45 +18,40 @@ const ScenarioSchema = new Schema({
   spouseBirthYear: { 
     type: Number 
   },
-  lifeExpectancy: { 
-    type: Number, 
-    required: true 
-    // Could also be expressed as a fixed value or defined via a distribution.
+  life_expectancy: { //life expectancy can be either a fixed value or sampled from a normal distribution
+    life_expectancy_method: {  
+      type: String, 
+      enum: ['fixed_value', 'normal_distribution'], 
+      required: true 
+    },
+    fixed_value: { 
+      type: Number 
+    },
+    normal_distribution: { //for normal distribution we need both mean and sd
+      mean: { type: Number },
+      standard_deviation: { type: Number }
+    },
+    // later, use this field to assign actual value during simulations
+    computed_life_expectancy: { 
+      type: Number 
+    }
+
   },
-  spouseLifeExpectancy: { 
-    type: Number 
-  },
-  financialGoal: { 
-    type: Number, 
-    required: true 
-  },
-  stateOfResidence: { 
-    type: String, 
-    required: true 
-  },
-  // a set of investments with their current values.
-  investments: [InvestmentSchema],
-  //a set of event series.
-  eventSeries: [EventSeriesSchema],
-  // Simulation Settings & Contribution Limits
-  simulationSettings: {
-    type: SimulationSettingsSchema,
-    required: true
-  },
-  // Define which other users can access this scenario.
-  sharingSettings: {
-    readOnly: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    readWrite: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-  },
-  // Reference to the owner of the scenario.
-  userId: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
-  },
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
+  spouse_life_expectancy: {
+    life_expectancy_method: { 
+      type: String, 
+      enum: ['fixed_value', 'normal_distribution'] 
+    },
+    fixed_value: { 
+      type: Number 
+    },
+    normal_distribution: {
+      mean: { type: Number },
+      standard_deviation: { type: Number }
+    },
+    computed_life_expectancy: { 
+      type: Number 
+    }
   }
 });
 
