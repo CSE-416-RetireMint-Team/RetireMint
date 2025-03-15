@@ -8,17 +8,42 @@ function New_scenario({ set_current_page }) {
     const [birth_year, set_birth_year] = useState('');
     const [spouse_birth_year, set_spouse_birth_year] = useState('');
 
+    // life expectancy for user
+    const [life_expectancy_method, set_life_expectancy_method] = useState('');
+    const [fixed_value, set_fixed_value] = useState('');
+    const [mean, set_mean] = useState('');
+    const [standard_deviation, set_standard_deviation] = useState('');
+
+    // life expectancy for spouse
+    const [spouse_life_expectancy_method, set_spouse_life_expectancy_method] = useState('');
+    const [spouse_fixed_value, set_spouse_fixed_value] = useState('');
+    const [spouse_mean, set_spouse_mean] = useState('');
+    const [spouse_standard_deviation, set_spouse_standard_deviation] = useState('');
+
+
     const submit_scenario = async () => {
-        if (!scenario_name || !scenario_type || !birth_year || (scenario_type === 'married' && !spouse_birth_year)) {
-            alert('Please fill in all required fields.');
-            return;
-        }
+        
+        const life_expectancy_data = [
+            life_expectancy_method, 
+            life_expectancy_method === 'fixed_value' ? fixed_value : null,
+            life_expectancy_method === 'normal_distribution' ? { mean, standard_deviation } : null
+        ];
+        
+        const spouse_life_expectancy_data = scenario_type === 'married' 
+            ? [
+                spouse_life_expectancy_method,
+                spouse_life_expectancy_method === 'fixed_value' ? spouse_fixed_value : null,
+                spouse_life_expectancy_method === 'normal_distribution' ? { mean: spouse_mean, standard_deviation: spouse_standard_deviation } : null
+            ] 
+            : null;
 
         await axios.post('http://localhost:8000/scenario', {
             scenario_name,
             scenario_type,
             birth_year,
             spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
+            life_expectancy: life_expectancy_data,
+            spouse_life_expectancy: spouse_life_expectancy_data
         });
     };
 
@@ -71,6 +96,82 @@ function New_scenario({ set_current_page }) {
                         value={spouse_birth_year} 
                         onChange={(e) => set_spouse_birth_year(e.target.value)} 
                     />
+                )}
+
+                <div>
+                    <h3>Life Expectancy (User)</h3>
+                    <button onClick={() => set_life_expectancy_method('fixed_value')}>
+                        Enter Fixed Age
+                    </button>
+                    <button onClick={() => set_life_expectancy_method('normal_distribution')}>
+                        Sampled from Normal Distribution
+                    </button>
+                </div>
+
+                {life_expectancy_method === 'fixed_value' && (
+                    <input 
+                        type="number" 
+                        placeholder="Enter fixed age" 
+                        value={fixed_value} 
+                        onChange={(e) => set_fixed_value(e.target.value)} 
+                    />
+                )}
+
+                {life_expectancy_method === 'normal_distribution' && (
+                    <div>
+                        <input 
+                            type="number" 
+                            placeholder="Enter mean age" 
+                            value={mean} 
+                            onChange={(e) => set_mean(e.target.value)} 
+                        />
+                        <input 
+                            type="number" 
+                            placeholder="Enter standard deviation" 
+                            value={standard_deviation} 
+                            onChange={(e) => set_standard_deviation(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+                {scenario_type === 'married' && (
+                    <>
+                        <div>
+                            <h3>Life Expectancy (Spouse)</h3>
+                            <button onClick={() => set_spouse_life_expectancy_method('fixed_value')}>
+                                Enter Fixed Age
+                            </button>
+                            <button onClick={() => set_spouse_life_expectancy_method('normal_distribution')}>
+                                Sampled from Normal Distribution
+                            </button>
+                        </div>
+
+                        {spouse_life_expectancy_method === 'fixed_value' && (
+                            <input 
+                                type="number" 
+                                placeholder="Enter spouse's fixed age" 
+                                value={spouse_fixed_value} 
+                                onChange={(e) => set_spouse_fixed_value(e.target.value)} 
+                            />
+                        )}
+
+                        {spouse_life_expectancy_method === 'normal_distribution' && (
+                            <div>
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter spouse's mean age" 
+                                    value={spouse_mean} 
+                                    onChange={(e) => set_spouse_mean(e.target.value)} 
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter spouse's standard deviation" 
+                                    value={spouse_standard_deviation} 
+                                    onChange={(e) => set_spouse_standard_deviation(e.target.value)} 
+                                />
+                            </div>
+                        )}
+                    </>
                 )}
 
                 <button onClick={submit_scenario}>Submit</button>
