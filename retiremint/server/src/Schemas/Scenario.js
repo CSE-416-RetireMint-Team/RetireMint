@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const LifeExpectancySchema = require('./LifeExpectancy');
+
 
 const ScenarioSchema = new Schema({
   name: { 
@@ -27,7 +27,12 @@ const ScenarioSchema = new Schema({
   spouseLifeExpectancy: { 
     type: Schema.Types.ObjectId, 
     ref: 'LifeExpectancy' 
-  }
+  },
+  investments: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'Investment', 
+    required: true 
+  }]
   
   
 });

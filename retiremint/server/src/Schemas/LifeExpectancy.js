@@ -5,7 +5,7 @@ const LifeExpectancySchema = new Schema({
     life_expectancy_method: {  
         type: String, 
         enum: ['fixed_value', 'normal_distribution'], 
-        //required: true 
+        required: true 
     },
     fixed_value: { 
         type: Number 

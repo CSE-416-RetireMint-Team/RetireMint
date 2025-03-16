@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from './header';
+import Investment_form from './investment_form';
 import axios from 'axios';
 
 function New_scenario({ set_current_page }) {
@@ -19,6 +20,10 @@ function New_scenario({ set_current_page }) {
     const [spouse_fixed_value, set_spouse_fixed_value] = useState('');
     const [spouse_mean, set_spouse_mean] = useState('');
     const [spouse_standard_deviation, set_spouse_standard_deviation] = useState('');
+
+    const [investments, set_investments] = useState([]); // store investments as array
+
+    
 
 
     const submit_scenario = async () => {
@@ -43,7 +48,8 @@ function New_scenario({ set_current_page }) {
             birth_year,
             spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
             life_expectancy: life_expectancy_data,
-            spouse_life_expectancy: spouse_life_expectancy_data
+            spouse_life_expectancy: spouse_life_expectancy_data,
+            investments
         });
     };
 
@@ -174,6 +180,7 @@ function New_scenario({ set_current_page }) {
                     </>
                 )}
 
+                <Investment_form investments={investments} set_investments={set_investments} />
                 <button onClick={submit_scenario}>Submit</button>
             </div>
         </div>
