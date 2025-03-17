@@ -23,7 +23,32 @@ function New_scenario({ set_current_page }) {
 
     const [investments, set_investments] = useState([]); // store investments as array
 
+    // strategy states
+    const [spending_strategies_input, set_spending_strategies_input] = useState('');
+    const [expense_withdrawal_strategies_input, set_expense_withdrawal_strategies_input] = useState('');
+    const [rmd_strategies_input, set_rmd_strategies_input] = useState('');
+    const [roth_conversion_strategies_input, set_roth_conversion_strategies_input] = useState('');
+
+    // Inflation assumption states
+    const [inflation_method, set_inflation_method] = useState('');
+    const [fix_percentage, set_fix_percentage] = useState('');
+    const [normal_mean, set_normal_mean] = useState('');
+    const [normal_sd, set_normal_sd] = useState('');
+    const [uniform_lower, set_uniform_lower] = useState('');
+    const [uniform_upper, set_uniform_upper] = useState('');
     
+    // roth optimizer states
+    const [roth_optimizer_enable, set_roth_optimizer_enable] = useState('false');
+    const [roth_optimizer_start_year, set_roth_optimizer_start_year] = useState('');
+    const [roth_optimizer_end_year, set_roth_optimizer_end_year] = useState('');
+
+    //sharing setting skip for now 
+
+    // financial goal and state of residence
+    const [financial_goal, set_financial_goal] = useState('');
+    const [state_of_residence, set_state_of_residence] = useState('');
+
+
 
 
     const submit_scenario = async () => {
@@ -42,6 +67,24 @@ function New_scenario({ set_current_page }) {
             ] 
             : null;
 
+        // construct inflation data
+        const inflation_assumption = {
+            method: inflation_method,
+            fix_percentage: inflation_method === 'fix_percentage' ? fix_percentage : null,
+            normal_percentage: inflation_method === 'normal_percentage' 
+                ? { mean: normal_mean, sd: normal_sd } 
+                : { mean: null, sd: null },
+            uniform_percentage: inflation_method === 'uniform_percentage' 
+                ? { lower_bound: uniform_lower, upper_bound: uniform_upper } 
+                : { lower_bound: null, upper_bound: null }
+        };
+
+        // construct strategies data
+        const spending_strategies = spending_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+        const expense_withdrawal_strategies = expense_withdrawal_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+        const rmd_strategies = rmd_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+        const roth_conversion_strategies = roth_conversion_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+
         await axios.post('http://localhost:8000/scenario', {
             scenario_name,
             scenario_type,
@@ -49,7 +92,18 @@ function New_scenario({ set_current_page }) {
             spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
             life_expectancy: life_expectancy_data,
             spouse_life_expectancy: spouse_life_expectancy_data,
-            investments
+            investments,
+            inflation_assumption,
+            spending_strategies,
+            expense_withdrawal_strategies,
+            rmd_strategies,
+            roth_conversion_strategies,
+            roth_optimizer_enable,
+            roth_optimizer_start_year: roth_optimizer_enable ? roth_optimizer_start_year : null,
+            roth_optimizer_end_year: roth_optimizer_enable ? roth_optimizer_end_year : null,
+            financial_goal,  
+            state_of_residence
+            
         });
     };
 
@@ -181,6 +235,141 @@ function New_scenario({ set_current_page }) {
                 )}
 
                 <Investment_form investments={investments} set_investments={set_investments} />
+
+
+                <h3>Select Inflation Method</h3>
+                <select onChange={(e) => set_inflation_method(e.target.value)} value={inflation_method}>
+                    <option value="">Select</option>
+                    <option value="fix_percentage">Fixed Percentage</option>
+                    <option value="normal_percentage">Normal Distribution</option>
+                    <option value="uniform_percentage">Uniform Distribution</option>
+                </select>
+
+                {inflation_method === 'fix_percentage' && (
+                    <input 
+                        type="number" 
+                        placeholder="Enter fixed percentage" 
+                        value={fix_percentage} 
+                        onChange={(e) => set_fix_percentage(e.target.value)} 
+                    />
+                )}
+
+                {inflation_method === 'normal_percentage' && (
+                    <div>
+                        <input 
+                            type="number" 
+                            placeholder="Enter mean" 
+                            value={normal_mean} 
+                            onChange={(e) => set_normal_mean(e.target.value)} 
+                        />
+                        <input 
+                            type="number" 
+                            placeholder="Enter standard deviation" 
+                            value={normal_sd} 
+                            onChange={(e) => set_normal_sd(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+                {inflation_method === 'uniform_percentage' && (
+                    <div>
+                        <input 
+                            type="number" 
+                            placeholder="Enter lower bound" 
+                            value={uniform_lower} 
+                            onChange={(e) => set_uniform_lower(e.target.value)} 
+                        />
+                        <input 
+                            type="number" 
+                            placeholder="Enter upper bound" 
+                            value={uniform_upper} 
+                            onChange={(e) => set_uniform_upper(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+
+                {/* strategy inputs */}
+                <h3>Strategies (Separate each strategy with ; )</h3>
+                <input 
+                    type="text" 
+                    placeholder="Enter spending strategies" 
+                    value={spending_strategies_input} 
+                    onChange={(e) => set_spending_strategies_input(e.target.value)} 
+                />
+                <input 
+                    type="text" 
+                    placeholder="Enter expense withdrawal strategies" 
+                    value={expense_withdrawal_strategies_input} 
+                    onChange={(e) => set_expense_withdrawal_strategies_input(e.target.value)} 
+                />
+                <input 
+                    type="text" 
+                    placeholder="Enter RMD strategies" 
+                    value={rmd_strategies_input} 
+                    onChange={(e) => set_rmd_strategies_input(e.target.value)} 
+                />
+                <input 
+                    type="text" 
+                    placeholder="Enter Roth conversion strategies" 
+                    value={roth_conversion_strategies_input} 
+                    onChange={(e) => set_roth_conversion_strategies_input(e.target.value)} 
+                />
+
+                {/* roth optimizer inputs */}
+                <h3>Roth Optimization</h3>
+                <label>
+                    <input 
+                        type="checkbox" 
+                        checked={roth_optimizer_enable} 
+                        onChange={(e) => set_roth_optimizer_enable(e.target.checked)} 
+                    />
+                    Enable Roth Optimization
+                </label>
+
+                {roth_optimizer_enable && (
+                    <div>
+                        <input 
+                            type="number" 
+                            placeholder="Enter Start Year" 
+                            value={roth_optimizer_start_year} 
+                            onChange={(e) => set_roth_optimizer_start_year(e.target.value)} 
+                        />
+                        <input 
+                            type="number" 
+                            placeholder="Enter End Year" 
+                            value={roth_optimizer_end_year} 
+                            onChange={(e) => set_roth_optimizer_end_year(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+                {/* financial goal */}
+                <input 
+                    type="number" 
+                    placeholder="Enter financial goal" 
+                    value={financial_goal} 
+                    onChange={(e) => set_financial_goal(e.target.value)} 
+                />
+
+                {/* state of residence */}
+                <select value={state_of_residence} onChange={(e) => set_state_of_residence(e.target.value)}>
+                    <option value="">Select your state</option>
+                    {[
+                        'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
+                        'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
+                        'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 
+                        'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 
+                        'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 
+                        'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 
+                        'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 
+                        'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
+                        'West Virginia', 'Wisconsin', 'Wyoming'
+                    ].map(state => (
+                        <option key={state} value={state}>{state}</option>
+                    ))}
+                </select>
+
                 <button onClick={submit_scenario}>Submit</button>
             </div>
         </div>

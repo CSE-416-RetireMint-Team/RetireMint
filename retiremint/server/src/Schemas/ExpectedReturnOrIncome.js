@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const ExpectedReturnOrIncomeSchema = new Schema({
     method: {
         type: String,
-        enum: ['fixed_value', 'fixed_percentage', 'normal_value', 'normal_percentage', 'gbm'], // allowed methods
+        enum: ['fixed_value', 'fixed_percentage', 'normal_value', 'normal_percentage'], // allowed methods
         required: true
     },
     fixed_value: {
@@ -23,10 +23,8 @@ const ExpectedReturnOrIncomeSchema = new Schema({
         mean: { type: Number },
         sd: { type: Number }
     },
-    gbm: {
-        mu: { type: Number },
-        sigma: { type: Number },
-        elapsed_time: { type: Number }
+    computed_value: { //this is where the actual value will be store 
+        type: Number  
     }
 });
 

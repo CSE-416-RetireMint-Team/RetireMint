@@ -22,13 +22,15 @@ const Investment = require('./src/Schemas/Investments');
 const InvestmentType = require('./src/Schemas/InvestmentType');
 const ExpectedReturn = require('./src/Schemas/ExpectedReturnOrIncome');
 const ExpectedIncome = require('./src/Schemas/ExpectedReturnOrIncome');
-
+const Inflation = require('./src/Schemas/Inflation');
+const SimulationSettings = require('./src/Schemas/SimulationSettings');
 
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
   
     const { scenario_name, scenario_type, birth_year, spouse_birth_year,life_expectancy, spouse_life_expectancy,
-        investments 
+        investments , inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,
+        roth_optimizer_enable,roth_optimizer_start_year,roth_optimizer_end_year,financial_goal, state_of_residence
     } = req.body; // extracting data from frontend
 
     // extract values from life_expectancy list
@@ -71,7 +73,6 @@ app.post('/scenario', async (req, res) => {
             fixed_percentage: inv.investment_type.expected_return.fixed_percentage,
             normal_value: inv.investment_type.expected_return.normal_value,
             normal_percentage: inv.investment_type.expected_return.normal_percentage,
-            gbm: inv.investment_type.expected_return.gbm
         }).save();
 
         // step 2: create Expected Income
@@ -81,7 +82,6 @@ app.post('/scenario', async (req, res) => {
             fixed_percentage: inv.investment_type.expected_income.fixed_percentage,
             normal_value: inv.investment_type.expected_income.normal_value,
             normal_percentage: inv.investment_type.expected_income.normal_percentage,
-            gbm: inv.investment_type.expected_income.gbm
         }).save();
 
         //step 3: create investment_type
@@ -110,6 +110,30 @@ app.post('/scenario', async (req, res) => {
         
     }));
     
+    //create inflation object
+    // Create and save Inflation object
+    const inflation = new Inflation({
+        method: inflation_assumption.method,
+        fix_percentage: inflation_assumption.fix_percentage,
+        normal_percentage: inflation_assumption.normal_percentage,
+        uniform_percentage: inflation_assumption.uniform_percentage
+    });
+
+    await inflation.save();
+
+    //simulation setting
+    const simulation_settings = new SimulationSettings({
+        inflationAssumption: inflation._id,
+        spendingStrategies: spending_strategies,
+        expenseWithdrawalStrategies: expense_withdrawal_strategies,
+        rmdStrategies: rmd_strategies,
+        rothConversionStrategies: roth_conversion_strategies,
+        rothOptimizerEnable: roth_optimizer_enable,
+        rothOptimizerStartYear: roth_optimizer_start_year,
+        rothOptimizerEndYear: roth_optimizer_end_year
+    });
+    
+    await simulation_settings.save();
 
 
 
@@ -120,7 +144,10 @@ app.post('/scenario', async (req, res) => {
         spouseBirthYear: spouse_birth_year, 
         lifeExpectancy: user_life_expectancy ? user_life_expectancy._id : null, 
         spouseLifeExpectancy: spousal_life_expectancy ? spousal_life_expectancy._id : null,
-        investments: investment_ids
+        investments: investment_ids,
+        simulationSettings: simulation_settings._id,
+        financialGoal: financial_goal,
+        stateOfResidence: state_of_residence
 
     });
     await new_scenario.save();

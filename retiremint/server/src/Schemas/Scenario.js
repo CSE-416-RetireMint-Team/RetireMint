@@ -32,7 +32,41 @@ const ScenarioSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'Investment', 
     required: true 
-  }]
+  }],
+
+  simulationSettings: {
+    type: Schema.Types.ObjectId, 
+    ref: 'SimulationSettings', 
+    required: true 
+  },
+
+
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  // skip user and sharingSettings for now
+
+  financialGoal: { 
+    type: Number, 
+    required: true 
+  },
+  stateOfResidence: { 
+    type: String, 
+    enum: [
+      'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
+      'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
+      'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 
+      'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 
+      'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 
+      'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 
+      'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 
+      'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
+      'West Virginia', 'Wisconsin', 'Wyoming'
+    ],
+    required: true
+  },
+
   
   
 });

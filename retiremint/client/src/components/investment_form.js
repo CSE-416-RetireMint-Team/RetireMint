@@ -18,16 +18,14 @@ function Investment_form({ investments, set_investments }) {
                             fixed_value: '', 
                             fixed_percentage: '', 
                             normal_value: { mean: '', sd: '' }, 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            gbm: { mu: '', sigma: '', elapsed_time: '' }
+                            normal_percentage: { mean: '', sd: '' }
                         },
                         expected_income: { 
                             return_type: 'fixed_value', //same format as expected_return
                             fixed_value: '', 
                             fixed_percentage: '', 
                             normal_value: { mean: '', sd: '' }, 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            gbm: { mu: '', sigma: '', elapsed_time: '' }
+                            normal_percentage: { mean: '', sd: '' }
                         },
                         expense_ratio: '',
                         taxability: '',
@@ -68,8 +66,8 @@ function Investment_form({ investments, set_investments }) {
                             fixed_value: '', 
                             fixed_percentage: '', 
                             normal_value: { mean: '', sd: '' }, 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            gbm: { mu: '', sigma: '', elapsed_time: '' },
+                            normal_percentage: { mean: '', sd: '' }
+                            
                         },
                     },
                 };
@@ -172,7 +170,7 @@ function Investment_form({ investments, set_investments }) {
                             <option value="fixed_percentage">Fixed Percentage</option>
                             <option value="normal_value">Fixed Value (Normal Distribution)</option>
                             <option value="normal_percentage">Percentage (Normal Distribution)</option>
-                            <option value="gbm">Geometric Brownian Motion (GBM)</option>
+        
                         </select>
 
                         {/* fixed Value (default) */}
@@ -236,30 +234,7 @@ function Investment_form({ investments, set_investments }) {
                             </>
                         )}
 
-                        {/* GBM */}
-                        {investment.investment_type.expected_return.return_type === 'gbm' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Drift (μ)"
-                                    value={investment.investment_type.expected_return.gbm.mu}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'mu', e.target.value,'expected_return')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Volatility (σ)"
-                                    value={investment.investment_type.expected_return.gbm.sigma}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'sigma', e.target.value,'expected_return')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Elapsed Time (Years)"
-                                    value={investment.investment_type.expected_return.gbm.elapsed_time}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'elapsed_time', e.target.value,'expected_return')}
-                                />
-                                <span>Years</span>
-                            </>
-                        )}
+            
                     </div>
 
                     {/* expected annual income */}
@@ -273,7 +248,7 @@ function Investment_form({ investments, set_investments }) {
                             <option value="fixed_percentage">Fixed Percentage</option>
                             <option value="normal_value">Fixed Value (Normal Distribution)</option>
                             <option value="normal_percentage">Percentage (Normal Distribution)</option>
-                            <option value="gbm">Geometric Brownian Motion (GBM)</option>
+                        
                         </select>
 
                         {/* fixed Value (default) */}
@@ -336,30 +311,7 @@ function Investment_form({ investments, set_investments }) {
                             </>
                         )}
 
-                        {/* GBM */}
-                        {investment.investment_type.expected_income.return_type === 'gbm' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Drift (μ)"
-                                    value={investment.investment_type.expected_income.gbm.mu}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'mu', e.target.value,'expected_income')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Volatility (σ)"
-                                    value={investment.investment_type.expected_income.gbm.sigma}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'sigma', e.target.value,'expected_income')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Elapsed Time (Years)"
-                                    value={investment.investment_type.expected_income.gbm.elapsed_time}
-                                    onChange={(e) => handle_double_nested_update(index, 'gbm', 'elapsed_time', e.target.value,'expected_income')}
-                                />
-                                <span>Years</span>
-                            </>
-                        )}
+                
                     </div>
 
 

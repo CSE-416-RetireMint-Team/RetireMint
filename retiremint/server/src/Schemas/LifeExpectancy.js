@@ -14,7 +14,7 @@ const LifeExpectancySchema = new Schema({
         mean: { type: Number },
         standard_deviation: { type: Number }
     },
-    computed_life_expectancy: { //this is where the actual value of life expectancy will be store 
+    computed_value: { //this is where the actual value will be store 
         type: Number  
     }
 });
