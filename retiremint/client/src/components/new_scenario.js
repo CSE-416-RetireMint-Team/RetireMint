@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './header';
 import Investment_form from './investment_form';
+import EventForm from './event_form';
 import axios from 'axios';
 
 function New_scenario({ set_current_page }) {
@@ -21,9 +22,9 @@ function New_scenario({ set_current_page }) {
     const [spouse_mean, set_spouse_mean] = useState('');
     const [spouse_standard_deviation, set_spouse_standard_deviation] = useState('');
 
-    const [investments, set_investments] = useState([]); // store investments as array
-
+    const [investments, set_investments] = useState([]); // Store investments as array
     
+    const [events, set_events] = useState([]); // Store events as an array.
 
 
     const submit_scenario = async () => {
@@ -181,6 +182,10 @@ function New_scenario({ set_current_page }) {
                 )}
 
                 <Investment_form investments={investments} set_investments={set_investments} />
+                <EventForm events={events} set_events={set_events} />
+                
+                
+                
                 <button onClick={submit_scenario}>Submit</button>
             </div>
         </div>
