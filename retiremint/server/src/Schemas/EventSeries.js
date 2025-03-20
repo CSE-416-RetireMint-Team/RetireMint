@@ -10,12 +10,14 @@ const EventSeriesSchema = new Schema({
     type: String 
   },
   startYear: { 
-    type: Number, 
+    type: Schema.Types.ObjectId,
+    ref: 'StartYear',
     required: true 
     // could be a fixed value, sampled, or defined relative to another event.
   },
   duration: { 
-    type: Number, 
+    type: Schema.Types.ObjectId,
+    ref: 'Duration',
     required: true 
     // could also come from a fixed value or a distribution.
   },
@@ -24,47 +26,23 @@ const EventSeriesSchema = new Schema({
     enum: ['income', 'expense', 'invest', 'rebalance'], 
     required: true 
   },
-  // Fields for Income/Expense types:
-  initialAmount: { 
-    type: Number 
+  income: {
+    type: Schema.Types.ObjectId,
+    ref: 'StartYear',
   },
-  expectedAnnualChange: { 
-    type: Schema.Types.Mixed 
-    // can hold either a fixed value or parameters defining a distribution.
+  expense: {
+    type: Schema.Types.ObjectId,
+    ref: 'StartYear',
   },
-  inflationAdjusted: { 
-    type: Boolean 
+  invest: {
+    type: Schema.Types.ObjectId,
+    ref: 'StartYear',
   },
-  // For married scenarios:
-  userPercentage: { 
-    type: Number 
-  },
-  spousePercentage: { 
-    type: Number 
-  },
-  // fields specific to Income events:
-  isSocialSecurity: {
-    type: Boolean,
-    // Only applicable if type === 'income'
-  },
-  isWages: {
-    type: Boolean,
-    // Only applicable if type === 'income'
-  },
-  // field specific to Expense events:
-  isDiscretionary: {
-    type: Boolean,
-    // Only applicable if type === 'expense'
-  },
-  // Fields for Invest/Rebalance types:
-  assetAllocation: { 
-    type: Schema.Types.Mixed 
-    // Can be a fixed set of percentages or a glide path structure.
-  },
-  maximumCash: { 
-    type: Number 
-    // Maximum cash to be held in the pre-defined cash investment.
+  rebalance: {
+    type: Schema.Types.ObjectId,
+    ref: 'StartYear',
   }
+
 });
 
 module.exports = mongoose.model('Event', EventSeriesSchema);
