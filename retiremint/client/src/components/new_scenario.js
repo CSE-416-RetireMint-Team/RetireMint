@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './header';
 import Investment_form from './investment_form';
+import EventForm from './event_form';
 import axios from 'axios';
 
 function New_scenario({ set_current_page }) {
@@ -22,6 +23,7 @@ function New_scenario({ set_current_page }) {
     const [spouse_standard_deviation, set_spouse_standard_deviation] = useState('');
 
     const [investments, set_investments] = useState([]); // store investments as array
+    const [events, set_events] = useState([]); // Store events as an array.
 
     // strategy states
     const [spending_strategies_input, set_spending_strategies_input] = useState('');
@@ -38,7 +40,7 @@ function New_scenario({ set_current_page }) {
     const [uniform_upper, set_uniform_upper] = useState('');
     
     // roth optimizer states
-    const [roth_optimizer_enable, set_roth_optimizer_enable] = useState('false');
+    const [roth_optimizer_enable, set_roth_optimizer_enable] = useState(false);
     const [roth_optimizer_start_year, set_roth_optimizer_start_year] = useState('');
     const [roth_optimizer_end_year, set_roth_optimizer_end_year] = useState('');
 
@@ -91,8 +93,9 @@ function New_scenario({ set_current_page }) {
             birth_year,
             spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
             life_expectancy: life_expectancy_data,
-            spouse_life_expectancy: spouse_life_expectancy_data,
+            spouse_life_expectancy: scenario_type === 'married' ? spouse_life_expectancy_data : null,
             investments,
+            events,
             inflation_assumption,
             spending_strategies,
             expense_withdrawal_strategies,
@@ -235,6 +238,7 @@ function New_scenario({ set_current_page }) {
                 )}
 
                 <Investment_form investments={investments} set_investments={set_investments} />
+                <EventForm events={events} set_events={set_events} scenario_type={scenario_type} />
 
 
                 <h3>Select Inflation Method</h3>
@@ -371,6 +375,7 @@ function New_scenario({ set_current_page }) {
                 </select>
 
                 <button onClick={submit_scenario}>Submit</button>
+                
             </div>
         </div>
     );

@@ -34,6 +34,12 @@ const ScenarioSchema = new Schema({
     required: true 
   }],
 
+  events: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'Event', 
+    required: true 
+  }],
+
   simulationSettings: {
     type: Schema.Types.ObjectId, 
     ref: 'SimulationSettings', 

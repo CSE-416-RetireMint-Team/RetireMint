@@ -24,12 +24,20 @@ const ExpectedReturn = require('./src/Schemas/ExpectedReturnOrIncome');
 const ExpectedIncome = require('./src/Schemas/ExpectedReturnOrIncome');
 const Inflation = require('./src/Schemas/Inflation');
 const SimulationSettings = require('./src/Schemas/SimulationSettings');
-
+const Event=require('./src/Schemas/EventSeries');
+const StartYear=require('./src/Schemas/StartYear');
+const Duration=require('./src/Schemas/Duration');
+const Income=require('./src/Schemas/Income');
+const Expense=require('./src/Schemas/Expense');
+const Invest=require('./src/Schemas/Invest');
+const Rebalance=require('./src/Schemas/Rebalance');
+const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
+const Allocation=require('./src/Schemas/Allocation');
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
   
     const { scenario_name, scenario_type, birth_year, spouse_birth_year,life_expectancy, spouse_life_expectancy,
-        investments , inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,
+        investments ,events, inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,
         roth_optimizer_enable,roth_optimizer_start_year,roth_optimizer_end_year,financial_goal, state_of_residence
     } = req.body; // extracting data from frontend
 
@@ -109,6 +117,128 @@ app.post('/scenario', async (req, res) => {
     
         
     }));
+
+
+
+    //create events
+    const event_ids = await Promise.all(events.map(async eve => {
+
+        const start_year = await new StartYear({
+            method: eve.start_year.return_type,
+            fixed_value: eve.start_year.fixed_value,
+            normal_value: eve.start_year.normal_value,
+            uniform_value: eve.start_year.uniform_value,
+            same_year_as_another_event: eve.start_year.same_year_as_another_event,
+            year_after_another_event_end: eve.start_year.year_after_another_event_end
+        }).save()
+
+        const duration_obj = await new Duration({
+            method: eve.duration.return_type,
+            fixed_value: eve.duration.fixed_value,
+            normal_value: eve.duration.normal_value,
+            uniform_value: eve.duration.uniform_value,
+
+        }).save()
+
+        // default all objects to null
+        let income_obj = null;
+        let expense_obj = null;
+        let invest_obj = null;
+        let rebalance_obj = null;
+
+        if(eve.event_type==="income"){
+            const expected_annual_change_for_income =await  new ExpectedAnnualChange({
+                method: eve.income.expected_annual_change.return_type,
+                fixed_value: eve.income.expected_annual_change.fixed_value,
+                fixed_percentage: eve.income.expected_annual_change.fixed_percentage,
+                normal_value: eve.income.expected_annual_change.normal_value,
+                normal_percentage: eve.income.expected_annual_change.normal_percentage,
+                uniform_value: eve.income.expected_annual_change.uniform_value,
+                uniform_percentage: eve.income.expected_annual_change.uniform_percentage,
+                
+            }).save()
+
+
+            income_obj = await new Income({
+                initial_amount: eve.income.initial_amount,
+                expected_annual_change: expected_annual_change_for_income.id,
+                inflation_adjustment: eve.income.inflation_adjustment,
+                married_percentage: eve.income.married_percentage,
+                is_social_security: eve.income.is_social_security
+    
+            }).save()
+
+        }else if(eve.event_type==="expense"){
+            const expected_annual_change_for_expense =await  new ExpectedAnnualChange({
+                method: eve.expense.expected_annual_change.return_type,
+                fixed_value: eve.expense.expected_annual_change.fixed_value,
+                fixed_percentage: eve.expense.expected_annual_change.fixed_percentage,
+                normal_value: eve.expense.expected_annual_change.normal_value,
+                normal_percentage: eve.expense.expected_annual_change.normal_percentage,
+                uniform_value: eve.expense.expected_annual_change.uniform_value,
+                uniform_percentage: eve.expense.expected_annual_change.uniform_percentage,
+                
+            }).save()
+
+            expense_obj =await  new Expense({
+                initial_amount: eve.expense.initial_amount,
+                expected_annual_change: expected_annual_change_for_expense.id,
+                inflation_adjustment: eve.expense.inflation_adjustment,
+                married_percentage: eve.expense.married_percentage,
+                is_discretionary: eve.expense.is_discretionary
+    
+            }).save()
+
+        }else if(eve.event_type==="invest"){
+
+            const invest_allocation =await  new Allocation({
+                method: eve.invest.return_type,
+                fixed_allocation: eve.invest.fixed_allocation
+                ? eve.invest.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)//turn string into array separated by ;
+                : [], //if empty
+                glide_path: eve.invest.glide_path
+                ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                : []
+            }).save()
+    
+            invest_obj =await  new Invest({
+                allocations: invest_allocation.id,
+                maximum_cash : eve.invest.maximum_cash
+    
+            }).save()
+            
+        }else if(eve.event_type==="rebalance"){
+            const rebalance_allocation =await  new Allocation({
+                method: eve.rebalance.return_type,
+                fixed_allocation: eve.rebalance.fixed_allocation
+                ? eve.rebalance.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)//turn string into array separated by ;
+                : [], //if empty
+                glide_path: eve.rebalance.glide_path
+                ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                : []
+            }).save()
+    
+            rebalance_obj =await  new Rebalance({
+                allocations: rebalance_allocation.id,
+            }).save()
+        }       
+
+
+
+        const event = await new Event({
+            name: eve.name,
+            description: eve.description,
+            startYear: start_year.id,
+            duration: duration_obj.id,
+            type: eve.event_type,
+            income: income_obj ? income_obj.id : null,
+            expense: expense_obj ? expense_obj.id : null,
+            invest: invest_obj ? invest_obj.id : null,
+            rebalance: rebalance_obj ? rebalance_obj.id : null
+
+        }).save();
+        return event._id;
+    }));
     
     //create inflation object
     // Create and save Inflation object
@@ -142,9 +272,10 @@ app.post('/scenario', async (req, res) => {
         scenarioType: scenario_type,
         birthYear: birth_year,
         spouseBirthYear: spouse_birth_year, 
-        lifeExpectancy: user_life_expectancy ? user_life_expectancy._id : null, 
+        lifeExpectancy: user_life_expectancy, 
         spouseLifeExpectancy: spousal_life_expectancy ? spousal_life_expectancy._id : null,
         investments: investment_ids,
+        events: event_ids,
         simulationSettings: simulation_settings._id,
         financialGoal: financial_goal,
         stateOfResidence: state_of_residence
