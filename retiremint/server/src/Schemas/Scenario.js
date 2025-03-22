@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const InvestmentSchema = require('./Investments');      
-const EventSeriesSchema = require('./EventSeries');     
-const SimulationSettingsSchema = require('./SimulationSettings'); 
+
 
 const ScenarioSchema = new Schema({
   name: { 
@@ -22,45 +20,61 @@ const ScenarioSchema = new Schema({
     type: Number 
   },
   lifeExpectancy: { 
-    type: Number, 
+    type: Schema.Types.ObjectId, 
+    ref: 'LifeExpectancy', 
     required: true 
-    // Could also be expressed as a fixed value or defined via a distribution.
   },
   spouseLifeExpectancy: { 
-    type: Number 
+    type: Schema.Types.ObjectId, 
+    ref: 'LifeExpectancy' 
   },
+  investments: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'Investment', 
+    required: true 
+  }],
+
+  events: [{ 
+    type: Schema.Types.ObjectId, 
+    ref: 'Event', 
+    required: true 
+  }],
+
+  simulationSettings: {
+    type: Schema.Types.ObjectId, 
+    ref: 'SimulationSettings', 
+    required: true 
+  },
+
+
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+  // skip user and sharingSettings for now
+
   financialGoal: { 
     type: Number, 
     required: true 
   },
   stateOfResidence: { 
     type: String, 
-    required: true 
-  },
-  // a set of investments with their current values.
-  investments: [InvestmentSchema],
-  //a set of event series.
-  eventSeries: [EventSeriesSchema],
-  // Simulation Settings & Contribution Limits
-  simulationSettings: {
-    type: SimulationSettingsSchema,
+    enum: [
+      'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
+      'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
+      'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 
+      'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 
+      'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 
+      'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 
+      'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 
+      'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
+      'West Virginia', 'Wisconsin', 'Wyoming'
+    ],
     required: true
   },
-  // Define which other users can access this scenario.
-  sharingSettings: {
-    readOnly: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    readWrite: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-  },
-  // Reference to the owner of the scenario.
-  userId: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
-  },
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
-  }
+
+  
+  
 });
 
 // an index on the userId to speed up queries for a user's scenarios.
