@@ -1,6 +1,7 @@
 
 
 function EventForm({events, set_events,scenario_type}) {
+
     const handle_event_count_change = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
 
@@ -300,6 +301,7 @@ function EventForm({events, set_events,scenario_type}) {
     return (
         <div>
             <label>Number of Events:</label>
+
             <input
                 type="number"
                 value={events.length}
@@ -471,6 +473,7 @@ function EventForm({events, set_events,scenario_type}) {
                     >
                         <option value="">Select Event Type</option>
                         <option value="income">Income</option>
+
                         <option value="expense">Expense</option>
                         <option value="invest">Invest</option>
                         <option value="rebalance">Rebalance</option>
@@ -810,5 +813,6 @@ function EventForm({events, set_events,scenario_type}) {
         </div>
     );
 }
+
 
 export default EventForm;
