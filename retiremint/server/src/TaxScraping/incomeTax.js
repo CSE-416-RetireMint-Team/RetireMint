@@ -1,5 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
+const IncomeTax = require('../Schemas/IncomeTax');
 
 async function scrapeIncomeTaxRates() {
   const url = 'https://www.irs.gov/filing/federal-income-tax-rates-and-brackets';
@@ -9,19 +10,12 @@ async function scrapeIncomeTaxRates() {
     const $ = cheerio.load(html);
 
     const results = [];
+    const year = new Date().getFullYear();
 
-    // Extract the year 
-    const firstHeading = $('h2:contains("tax rates for a single taxpayer")').first().text();
-    const yearMatch = firstHeading.match(/20\d{2}/);
-    const year = yearMatch ? parseInt(yearMatch[0]) : new Date().getFullYear();
-
-    // Loop through all tables
-    $('table').each((i, table) => {
+    $('table').each((_, table) => {
       const tableElement = $(table);
 
-      // Try to find heading for filing status
       let heading = tableElement.prevAll('h2, h4').first().text().trim();
-
       if (!heading) {
         heading = tableElement.closest('.collapsible-item-body')
           .closest('.collapsible-item-collapse')
@@ -35,7 +29,6 @@ async function scrapeIncomeTaxRates() {
       if (!statusMatch) return;
 
       const filingStatus = statusMatch[0].toLowerCase();
-
       const brackets = [];
 
       tableElement.find('tbody tr').each((_, row) => {
@@ -60,7 +53,18 @@ async function scrapeIncomeTaxRates() {
   }
 }
 
-//for test
-scrapeIncomeTaxRates().then(data => {
-  console.log(JSON.stringify(data, null, 2));
-});
+async function scrapeAndSaveIncomeTaxRates() {
+  const data = await scrapeIncomeTaxRates();
+
+  for (const record of data) {
+    await IncomeTax.findOneAndUpdate(
+      { year: record.year, filingStatus: record.filingStatus },
+      record,
+      { upsert: true, new: true }
+    );
+  }
+
+  console.log('Income tax data scraped and saved to MongoDB');
+}
+
+module.exports = scrapeAndSaveIncomeTaxRates;
