@@ -12,8 +12,19 @@ app.use(express.json());
 
 // connect to MongoDB database 
 mongoose.connect('mongodb://127.0.0.1:27017/retiremint')
-  .then(() => console.log('Connected to MongoDB')) 
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(async () => {
+    console.log('Connected to MongoDB');
+    await IncomeTax();
+    await StandardDeduction();
+    await CapitalGain();
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
+
 
 // scenario model
 const Scenario = require('./src/Schemas/Scenario');
@@ -33,6 +44,9 @@ const Invest=require('./src/Schemas/Invest');
 const Rebalance=require('./src/Schemas/Rebalance');
 const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
+const IncomeTax = require('./src/TaxScraping/incomeTax');
+const StandardDeduction = require('./src/TaxScraping/standardDeduction');
+const CapitalGain = require('./src/TaxScraping/capitalGain');
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
   
@@ -286,7 +300,7 @@ app.post('/scenario', async (req, res) => {
   
 });
 
-// start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// // start server
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
