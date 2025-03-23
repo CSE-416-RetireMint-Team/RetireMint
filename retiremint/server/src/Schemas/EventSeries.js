@@ -28,19 +28,19 @@ const EventSeriesSchema = new Schema({
   },
   income: {
     type: Schema.Types.ObjectId,
-    ref: 'StartYear',
+    ref: 'Income',
   },
   expense: {
     type: Schema.Types.ObjectId,
-    ref: 'StartYear',
+    ref: 'Expense',
   },
   invest: {
     type: Schema.Types.ObjectId,
-    ref: 'StartYear',
+    ref: 'Invest',
   },
   rebalance: {
     type: Schema.Types.ObjectId,
-    ref: 'StartYear',
+    ref: 'Rebalance',
   }
 
 });

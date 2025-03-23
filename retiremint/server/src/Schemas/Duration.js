@@ -8,7 +8,7 @@ const DurationSchema = new Schema({
         enum: ['fixed_value', 'normal_value', 'uniform_value'], // allowed methods
         required: true
     },
-    fix_value: {
+    fixed_value: {
         type: Number
     },
     normal_value: {

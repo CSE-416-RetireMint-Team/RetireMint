@@ -5,10 +5,10 @@ const Schema = mongoose.Schema;
 const InflationSchema = new Schema({
     method: {
         type: String,
-        enum: ['fix_percentage', 'normal_percentage', 'uniform_percentage'], // allowed methods
+        enum: ['fixed_percentage', 'normal_percentage', 'uniform_percentage'], // allowed methods
         required: true
     },
-    fix_percentage: {
+    fixed_percentage: {
         type: Number
     },
     normal_percentage: {

@@ -73,6 +73,16 @@ const ScenarioSchema = new Schema({
     required: true
   },
 
+  // shared users array
+  sharedUsers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'SharedUser'
+  }]
+
+
+
+
+
   
   
 });
