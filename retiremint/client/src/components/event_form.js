@@ -1,6 +1,7 @@
 
 
-function EventForm({events, set_events,scenario_type}) {
+
+function EventForm({events, set_events,scenario_type,set_page}) {
 
     const handle_event_count_change = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
@@ -13,7 +14,7 @@ function EventForm({events, set_events,scenario_type}) {
                     name: '',
                     description: '',
                     start_year: { 
-                        return_type: 'fixed_value', // set default return type
+                        return_type: 'fixed_value', 
                         fixed_value: '', 
                         normal_value: { mean: '', sd: '' }, 
                         uniform_value: {lower_bound: '', upper_bound: ''},
@@ -21,7 +22,7 @@ function EventForm({events, set_events,scenario_type}) {
                         year_after_another_event_end:''
                     },
                     duration: {
-                        return_type: 'fixed_value', // set default return type
+                        return_type: '', 
                         fixed_value: '', 
                         normal_value: { mean: '', sd: '' }, 
                         uniform_value: {lower_bound: '', upper_bound: ''},
@@ -62,7 +63,7 @@ function EventForm({events, set_events,scenario_type}) {
 
                     },
                     invest: {
-                        return_type: 'fixed_allocation', //default
+                        return_type: '',
                         fixed_allocation: '',
                         glide_path: '',
                         maximum_cash: ''
@@ -70,7 +71,7 @@ function EventForm({events, set_events,scenario_type}) {
 
                     },
                     rebalance:{
-                        return_type: 'fixed_allocation', //default
+                        return_type: '',
                         fixed_allocation: '',
                         glide_path: '',
 
@@ -84,223 +85,43 @@ function EventForm({events, set_events,scenario_type}) {
         });
     };
 
-    const handle_single_nested_update = (index, field, value, type) => {
-       
-        
-        set_events((prev) => {
-            const updated_events = [...prev];
-            
-            // reset structure for start_year
-            if (field === "start_year") {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: { 
-                        return_type: value.return_type, // update return type
-                        fixed_value: '', 
-                        normal_value: { mean: '', sd: '' }, 
-                        uniform_value: { lower_bound: '', upper_bound: '' },
-                        same_year_as_another_event: '',
-                        year_after_another_event_end: ''
+    const update_event = (index, field_path, new_value) => {
+        set_events((prev) =>
+            prev.map((event, i) => {
+                if (i !== index) return event; // Skip other events
+    
+                let updated_event = { ...event }; // Clone top-level event
+    
+                if (!Array.isArray(field_path)) {
+                    // Direct top-level update
+                    updated_event[field_path] = new_value;
+                } else {
+                    // Handle nested updates
+                    let target = updated_event;
+                    for (let j = 0; j < field_path.length - 1; j++) {
+                        const key = field_path[j];
+                        
+                        target[key] = { ...target[key] }; // Clone the nested object
+                        target = target[key]; // Move deeper
                     }
-                };
-            }
-            // reset structure for duration
-            else if (field === "duration") {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        return_type: value.return_type, // update return type
-                        fixed_value: '', 
-                        normal_value: { mean: '', sd: '' }, 
-                        uniform_value: { lower_bound: '', upper_bound: '' }
-                    }
-                };
-            }
-            //  handle expected_annual_change subfields correctly
-            if (field.startsWith("expected_annual_change.")) {
-                const sub_field = field.split(".")[1]; // extract "fixed_value", "normal_value", etc.
-
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        ...updated_events[index][type], 
-                        expected_annual_change: {
-                            ...updated_events[index][type].expected_annual_change, // keep other properties
-                            [sub_field]: value, // update only this field
-                        },
-                    },
-                };
-            } 
-            // handle full reset for expected_annual_change
-            else if (field === "expected_annual_change") {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        ...updated_events[index][type], 
-                        expected_annual_change: {
-                            return_type: value.return_type, // update return type
-                            fixed_value: '', 
-                            normal_value: { mean: '', sd: '' }, 
-                            uniform_value: { lower_bound: '', upper_bound: '' },
-                            fixed_percentage: '', 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            uniform_percentage: { lower_bound: '', upper_bound: '' },
-                        },
-                    },
-                };
-            }
-            // separate handling for asset_allocation for "invest" and "rebalance"
-            else if (field === "asset_allocation") {
-                if (type === "invest") {
-                    updated_events[index] = {
-                        ...updated_events[index],
-                        [type]: {
-                            return_type: value.return_type, 
-                            fixed_allocation: '', 
-                            glide_path: '', 
-                            maximum_cash: '', 
-                        },
-                    };
-                } else if (type === "rebalance") {
-                    updated_events[index] = {
-                        ...updated_events[index],
-                        [type]: {
-                            return_type: value.return_type, 
-                            fixed_allocation: '',
-                            glide_path: '', 
-                        },
-                    };
+    
+                    // Apply the final update
+                    target[field_path[field_path.length - 1]] = new_value;
                 }
-            }
-
-            else {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        ...updated_events[index][type], 
-                        [field]: value,
-                    },
-                };
-            }
-            
-            
     
-            console.log('Updated investments:', updated_events);
-            return updated_events;
-        });
+                console.log(`Updating event ${index}:`, updated_event);
+                return updated_event;
+            })
+        );
     };
     
-    const handle_double_nested_update = (index, category, field, value, type) => {
-        console.log('Updating double nested field:', { index, category, field, value, type });
-    
-        set_events((prev) => {
-            const updated_events = [...prev];
-    
-    
-            if (type === "income" || type === "expense") {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        ...updated_events[index][type], 
-                        expected_annual_change: {
-                            ...updated_events[index][type].expected_annual_change, 
-                            [category]: {
-                                ...updated_events[index][type].expected_annual_change[category], 
-                                [field]: value, 
-                            },
-                        },
-                    },
-                };
-            } else {
-        
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [type]: {
-                        ...updated_events[index][type],
-                        [category]: {
-                            ...updated_events[index][type][category],
-                            [field]: value, 
-                        },
-                    },
-                };
-            }
-    
-            console.log('Updated events after double nested update:', updated_events);
-            return updated_events;
-        });
-    };
-    
-
-    const handle_event_update = (index, field, value) => {
-        set_events((prev) => {
-            const updated_events = [...prev];
-    
-            if (field === "event_type") {
-                updated_events[index] = {
-                    ...updated_events[index],
-                    event_type: value, // set event type
-                    
-                    // reset all event types to their default structures
-                    income: {
-                        initial_amount: '',
-                        expected_annual_change: {
-                            return_type: 'fixed_value',
-                            fixed_value: '', 
-                            normal_value: { mean: '', sd: '' }, 
-                            uniform_value: { lower_bound: '', upper_bound: '' },
-                            fixed_percentage: '', 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            uniform_percentage: { lower_bound: '', upper_bound: '' },
-                        },
-                        is_social_security: false,
-                        inflation_adjustment: false,
-                        married_percentage: '' 
-                    },
-                    expense: {
-                        initial_amount: '',
-                        expected_annual_change: {
-                            return_type: 'fixed_value',
-                            fixed_value: '', 
-                            normal_value: { mean: '', sd: '' }, 
-                            uniform_value: { lower_bound: '', upper_bound: '' },
-                            fixed_percentage: '', 
-                            normal_percentage: { mean: '', sd: '' }, 
-                            uniform_percentage: { lower_bound: '', upper_bound: '' },
-                        },
-                        is_discretionary: false,
-                        inflation_adjustment: false,
-                        married_percentage: '' 
-                    },
-                    invest: {
-                        return_type: 'fixed_allocation',
-                        fixed_allocation: '',
-                        glide_path: '',
-                        maximum_cash: ''
-                    },
-                    rebalance: {
-                        return_type: 'fixed_allocation',
-                        fixed_allocation: '',
-                        glide_path: ''
-                    }
-                };
-            } else {
-                // regular update for other fields
-                updated_events[index] = {
-                    ...updated_events[index],
-                    [field]: value,
-                };
-            }
-    
-            console.log("Updated Event:", updated_events[index]);
-            return updated_events;
-        });
-    };
-    
+   
     
 
     return (
         <div>
-            <label>Number of Events:</label>
+
+            <h2>Number of Events:</h2>
 
             <input
                 type="number"
@@ -310,506 +131,806 @@ function EventForm({events, set_events,scenario_type}) {
 
             {events.map((event, index) => (
                 <div key={index}>
-                    <h3>Event {index + 1}</h3>
-                    
-                    {/* Name and Description */}
+                    <h2>Event {index + 1}</h2>
+
+                    {/* Name Input */}
+                    <h2>Name: *</h2>
                     <input 
                         type="text" 
                         placeholder="Event Name" 
                         value={event.name} 
-                        onChange={(e) => handle_event_update(index, 'name', e.target.value)}
+                        onChange={(e) => update_event(index, ['name'], e.target.value)} 
                     />
+
+                    {/* Description Input */}
+                    <h2>Description:</h2>
                     <input 
                         type="text" 
                         placeholder="Event Description" 
                         value={event.description} 
-                        onChange={(e) => handle_event_update(index, 'description', e.target.value)}
+                        onChange={(e) => update_event(index, ['description'], e.target.value)} 
                     />
 
-                    {/* start year */}
-                    <div>
-                        <label>Start Year:</label>
-                        <select 
-                            value={event.start_year.return_type} 
-                            onChange={(e) => handle_single_nested_update(index, 'start_year', { return_type: e.target.value }, 'start_year')}
-                        >
-                            <option value="fixed_value">Fixed Value</option>
-                            <option value="normal_value">Normal Distribution</option>
-                            <option value="uniform_value">Uniform Distribution</option>
-                            <option value="same_year_as_another_event">Same Year as Another Event</option>
-                            <option value="year_after_another_event_end">Year After Another Event End</option>
-                        </select>
 
-                        {/* fixed value */}
-                        {event.start_year.return_type === 'fixed_value' && (
-                            <input
-                                type="number"
-                                placeholder="Fixed Start Year"
-                                value={event.start_year.fixed_value}
-                                onChange={(e) => handle_single_nested_update(index, 'fixed_value', e.target.value, 'start_year')}
-                            />
-                        )}
-
-                        {/* normal distribution */}
-                        {event.start_year.return_type === 'normal_value' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Mean"
-                                    value={event.start_year.normal_value.mean}
-                                    onChange={(e) => handle_double_nested_update(index, 'normal_value', 'mean', e.target.value, 'start_year')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Standard Deviation"
-                                    value={event.start_year.normal_value.sd}
-                                    onChange={(e) => handle_double_nested_update(index, 'normal_value', 'sd', e.target.value, 'start_year')}
-                                />
-                            </>
-                        )}
-
-                        {/* uniform distribution */}
-                        {event.start_year.return_type === 'uniform_value' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Lower Bound"
-                                    value={event.start_year.uniform_value.lower_bound}
-                                    onChange={(e) => handle_double_nested_update(index, 'uniform_value', 'lower_bound', e.target.value, 'start_year')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Upper Bound"
-                                    value={event.start_year.uniform_value.upper_bound}
-                                    onChange={(e) => handle_double_nested_update(index, 'uniform_value', 'upper_bound', e.target.value, 'start_year')}
-                                />
-                            </>
-                        )}
-
-                        {/* same year as another event */}
-                        {event.start_year.return_type === 'same_year_as_another_event' && (
-                            <input
-                                type="text"
-                                placeholder="Event Name"
-                                value={event.start_year.same_year_as_another_event}
-                                onChange={(e) => handle_single_nested_update(index, 'same_year_as_another_event', e.target.value, 'start_year')}
-                            />
-                        )}
-
-                        {/* year after another event ends */}
-                        {event.start_year.return_type === 'year_after_another_event_end' && (
-                            <input
-                                type="text"
-                                placeholder="Event Name"
-                                value={event.start_year.year_after_another_event_end}
-                                onChange={(e) => handle_single_nested_update(index, 'year_after_another_event_end', e.target.value, 'start_year')}
-                            />
-                        )}
-
-                    </div>
-
-                    <div>
-                        <label>Duration:</label>
-                        <select 
-                            value={event.duration.return_type} 
-                            onChange={(e) => handle_single_nested_update(index, 'duration', { return_type: e.target.value }, 'duration')}
-                        >
-                            <option value="fixed_value">Fixed Value</option>
-                            <option value="normal_value">Normal Distribution</option>
-                            <option value="uniform_value">Uniform Distribution</option>
-                        </select>
-
-                        {/* fixed value */}
-                        {event.duration.return_type === 'fixed_value' && (
-                            <input
-                                type="number"
-                                placeholder="Fixed Duration"
-                                value={event.duration.fixed_value}
-                                onChange={(e) => handle_single_nested_update(index, 'fixed_value', e.target.value, 'duration')}
-                            />
-                        )}
-
-                        {/* normal distribution */}
-                        {event.duration.return_type === 'normal_value' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Mean"
-                                    value={event.duration.normal_value.mean}
-                                    onChange={(e) => handle_double_nested_update(index, 'normal_value', 'mean', e.target.value, 'duration')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Standard Deviation"
-                                    value={event.duration.normal_value.sd}
-                                    onChange={(e) => handle_double_nested_update(index, 'normal_value', 'sd', e.target.value, 'duration')}
-                                />
-                            </>
-                        )}
-
-                        {/* uniform distribution */}
-                        {event.duration.return_type === 'uniform_value' && (
-                            <>
-                                <input
-                                    type="number"
-                                    placeholder="Lower Bound"
-                                    value={event.duration.uniform_value.lower_bound}
-                                    onChange={(e) => handle_double_nested_update(index, 'uniform_value', 'lower_bound', e.target.value, 'duration')}
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Upper Bound"
-                                    value={event.duration.uniform_value.upper_bound}
-                                    onChange={(e) => handle_double_nested_update(index, 'uniform_value', 'upper_bound', e.target.value, 'duration')}
-                                />
-                            </>
-                        )}
-                    </div>
-
-                    {/* event type */}
-                    <select 
-                        value={event.event_type} 
-                        onChange={(e) => handle_event_update(index, 'event_type', e.target.value)}
+                    {/* Start Year */}
+                    <h2>Start Year: *</h2>
+                    <select
+                        value={event.start_year.return_type}
+                        onChange={(e) => update_event(index, ['start_year', 'return_type'], e.target.value)}
                     >
-                        <option value="">Select Event Type</option>
-                        <option value="income">Income</option>
-
-                        <option value="expense">Expense</option>
-                        <option value="invest">Invest</option>
-                        <option value="rebalance">Rebalance</option>
+                        <option value="fixed_value">Fixed Value</option>
+                        <option value="normal_value">Normal Distribution</option>
+                        <option value="uniform_value">Uniform Distribution</option>
+                        <option value="same_year_as_another_event">Same Year as Another Event</option>
+                        <option value="year_after_another_event_end">Year After Another Event Ends</option>
                     </select>
 
-                    {/* Show additional fields based on event type */}
-                    {(event.event_type === "income" || event.event_type === "expense") && (
+                    {/* Fixed value */}
+                    {event.start_year.return_type === 'fixed_value' && (
+                        <input
+                            type="number"
+                            placeholder="Fixed Start Year"
+                            value={event.start_year.fixed_value}
+                            onChange={(e) => update_event(index, ['start_year', 'fixed_value'], e.target.value)}
+                        />
+                    )}
+
+                    {/* Normal distribution */}
+                    {event.start_year.return_type === 'normal_value' && (
+                        <>
+                            <input
+                                type="number"
+                                placeholder="Mean"
+                                value={event.start_year.normal_value.mean}
+                                onChange={(e) => update_event(index, ['start_year', 'normal_value', 'mean'], e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                placeholder="Standard Deviation"
+                                value={event.start_year.normal_value.sd}
+                                onChange={(e) => update_event(index, ['start_year', 'normal_value', 'sd'], e.target.value)}
+                            />
+                        </>
+                    )}
+
+                    {/* Uniform distribution */}
+                    {event.start_year.return_type === 'uniform_value' && (
+                        <>
+                            <input
+                                type="number"
+                                placeholder="Lower Bound"
+                                value={event.start_year.uniform_value.lower_bound}
+                                onChange={(e) => update_event(index, ['start_year', 'uniform_value', 'lower_bound'], e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                placeholder="Upper Bound"
+                                value={event.start_year.uniform_value.upper_bound}
+                                onChange={(e) => update_event(index, ['start_year', 'uniform_value', 'upper_bound'], e.target.value)}
+                            />
+                        </>
+                    )}
+
+                    {/* Same year as another event */}
+                    {event.start_year.return_type === 'same_year_as_another_event' && (
+                        <input
+                            type="text"
+                            placeholder="Event Name"
+                            value={event.start_year.same_year_as_another_event}
+                            onChange={(e) => update_event(index, ['start_year', 'same_year_as_another_event'], e.target.value)}
+                        />
+                    )}
+
+                    {/* Year after another event ends */}
+                    {event.start_year.return_type === 'year_after_another_event_end' && (
+                        <input
+                            type="text"
+                            placeholder="Event Name"
+                            value={event.start_year.year_after_another_event_end}
+                            onChange={(e) => update_event(index, ['start_year', 'year_after_another_event_end'], e.target.value)}
+                        />
+                    )}
+
+
+                    {/* Duration */}
+                    <h2>Duration: *</h2>
+
+                    {/* Buttons to select return type */}
+                    <button onClick={() => update_event(index, ['duration', 'return_type'], 'fixed_value')}>
+                        Fixed Value
+                    </button>
+
+                    <button onClick={() => update_event(index, ['duration', 'return_type'], 'normal_value')}>
+                        Fixed Value (Normal Distribution)
+                    </button>
+
+                    <button onClick={() => update_event(index, ['duration', 'return_type'], 'uniform_value')}>
+                        Fixed Value (Uniform Distribution)
+                    </button>
+
+                    {/* Fixed value */}
+                    {event.duration.return_type === 'fixed_value' && (
+                        <input
+                            type="number"
+                            placeholder="Fixed Duration"
+                            value={event.duration.fixed_value}
+                            onChange={(e) => update_event(index, ['duration', 'fixed_value'], e.target.value)}
+                        />
+                    )}
+
+                    {/* Normal distribution */}
+                    {event.duration.return_type === 'normal_value' && (
+                        <>
+                            <input
+                                type="number"
+                                placeholder="Mean"
+                                value={event.duration.normal_value.mean}
+                                onChange={(e) => update_event(index, ['duration', 'normal_value', 'mean'], e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                placeholder="Standard Deviation"
+                                value={event.duration.normal_value.sd}
+                                onChange={(e) => update_event(index, ['duration', 'normal_value', 'sd'], e.target.value)}
+                            />
+                        </>
+                    )}
+
+                    {/* Uniform distribution */}
+                    {event.duration.return_type === 'uniform_value' && (
+                        <>
+                            <input
+                                type="number"
+                                placeholder="Lower Bound"
+                                value={event.duration.uniform_value.lower_bound}
+                                onChange={(e) => update_event(index, ['duration', 'uniform_value', 'lower_bound'], e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                placeholder="Upper Bound"
+                                value={event.duration.uniform_value.upper_bound}
+                                onChange={(e) => update_event(index, ['duration', 'uniform_value', 'upper_bound'], e.target.value)}
+                            />
+                        </>
+                    )}
+
+
+                    {/* Event Type */}
+                    <div>
+                        <h2>Event Type: *</h2>
+                        <select 
+                            value={event.event_type} 
+                            onChange={(e) => update_event(index, ['event_type'], e.target.value)}
+                        >
+                            <option value="">Select Event Type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                            <option value="invest">Invest</option>
+                            <option value="rebalance">Rebalance</option>
+                        </select>
+                    </div>
+                    
+                    {event.event_type === 'income' && (
                         <div>
-                            {/* initial amount */}
+    
+
+                            {/* Initial Amount */}
+                            <h3>Initial Amount: *</h3>
                             <input 
                                 type="number" 
                                 placeholder="Initial Amount" 
-                                value={event[event.event_type].initial_amount} 
-                                onChange={(e) => handle_single_nested_update(index, 'initial_amount', e.target.value, event.event_type)}
+                                value={event.income.initial_amount} 
+                                onChange={(e) => update_event(index, ['income', 'initial_amount'], e.target.value)} 
                             />
 
-                             {/* expected annual change type selection */}
-                            <label>Expected Annual Change Type:</label>
+                            {/* Expected Annual Change Type - Select Dropdown */}
+                            <h3>Expected Annual Change Type: *</h3>
                             <select
-                                value={event[event.event_type].expected_annual_change.return_type}
-                                onChange={(e) => handle_single_nested_update(index, 'expected_annual_change', { return_type: e.target.value }, event.event_type)}
+                                value={event.income.expected_annual_change.return_type}
+                                onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'return_type'], e.target.value)}
                             >
-                                <option value="fixed_value">Fixed Amount</option>
+                                <option value="fixed_value">Fixed Value</option>
                                 <option value="fixed_percentage">Fixed Percentage</option>
-                                <option value="normal_value">Normal Distribution (Amount)</option>
+                                <option value="normal_value">Normal Distribution (Fixed Value)</option>
                                 <option value="normal_percentage">Normal Distribution (Percentage)</option>
-                                <option value="uniform_value">Uniform Distribution (Amount)</option>
+                                <option value="uniform_value">Uniform Distribution (Fixed)</option>
                                 <option value="uniform_percentage">Uniform Distribution (Percentage)</option>
-
                             </select>
 
-                            {/* fixed value */}
-                            {event[event.event_type].expected_annual_change.return_type === "fixed_value" && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Amount"
-                                    value={event[event.event_type].expected_annual_change.fixed_value}
-                                    onChange={(e) =>
-                                        handle_single_nested_update(
-                                            index,
-                                            "expected_annual_change.fixed_value",
-                                            e.target.value,
-                                            event.event_type
-                                        )
-                                    }
+                            {/* Fixed Value */}
+                            {event.income.expected_annual_change.return_type === 'fixed_value' && (
+                                <input 
+                                    type="number" 
+                                    placeholder="Fixed Annual Change" 
+                                    value={event.income.expected_annual_change.fixed_value} 
+                                    onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'fixed_value'], e.target.value)} 
                                 />
                             )}
 
-                            {/* fixed percentage */}
-                            {event[event.event_type].expected_annual_change.return_type === "fixed_percentage" && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Percentage"
-                                    value={event[event.event_type].expected_annual_change.fixed_percentage}
-                                    onChange={(e) =>
-                                        handle_single_nested_update(
-                                            index,
-                                            "expected_annual_change.fixed_percentage",
-                                            e.target.value,
-                                            event.event_type
-                                        )
-                                    }
+                            {/* Fixed Percentage */}
+                            {event.income.expected_annual_change.return_type === 'fixed_percentage' && (
+                                <input 
+                                    type="number" 
+                                    placeholder="Fixed Percentage (%)" 
+                                    value={event.income.expected_annual_change.fixed_percentage} 
+                                    onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'fixed_percentage'], e.target.value)} 
                                 />
                             )}
 
-                            {/* normal value */}
-                            {event[event.event_type].expected_annual_change.return_type === "normal_value" && (
+                            {/* Normal Distribution (Fixed Value) */}
+                            {event.income.expected_annual_change.return_type === 'normal_value' && (
                                 <>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean"
-                                        value={event[event.event_type].expected_annual_change.normal_value.mean}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "normal_value",  // Category
-                                                "mean",          // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Mean" 
+                                        value={event.income.expected_annual_change.normal_value.mean} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'normal_value', 'mean'], e.target.value)} 
                                     />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={event[event.event_type].expected_annual_change.normal_value.sd}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "normal_value",  // Category
-                                                "sd",            // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Standard Deviation" 
+                                        value={event.income.expected_annual_change.normal_value.sd} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'normal_value', 'sd'], e.target.value)} 
                                     />
                                 </>
                             )}
 
-                            {/* normal percentage */}
-                            {event[event.event_type].expected_annual_change.return_type === "normal_percentage" && (
+                            {/* Normal Distribution (Percentage) */}
+                            {event.income.expected_annual_change.return_type === 'normal_percentage' && (
                                 <>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean"
-                                        value={event[event.event_type].expected_annual_change.normal_percentage.mean}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "normal_percentage",  // Category
-                                                "mean",               // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Mean (%)" 
+                                        value={event.income.expected_annual_change.normal_percentage.mean} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'normal_percentage', 'mean'], e.target.value)} 
                                     />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={event[event.event_type].expected_annual_change.normal_percentage.sd}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "normal_percentage",  // Category
-                                                "sd",                 // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Standard Deviation (%)" 
+                                        value={event.income.expected_annual_change.normal_percentage.sd} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'normal_percentage', 'sd'], e.target.value)} 
                                     />
                                 </>
                             )}
 
-                            {/* uniform value */}
-                            {event[event.event_type].expected_annual_change.return_type === "uniform_value" && (
+                            {/* Uniform Distribution (Fixed) */}
+                            {event.income.expected_annual_change.return_type === 'uniform_value' && (
                                 <>
-                                    <input
-                                        type="number"
-                                        placeholder="Lower Bound"
-                                        value={event[event.event_type].expected_annual_change.uniform_value.lower_bound}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "uniform_value",  // Category
-                                                "lower_bound",    // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Lower Bound" 
+                                        value={event.income.expected_annual_change.uniform_value.lower_bound} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'uniform_value', 'lower_bound'], e.target.value)} 
                                     />
-                                    <input
-                                        type="number"
-                                        placeholder="Upper Bound"
-                                        value={event[event.event_type].expected_annual_change.uniform_value.upper_bound}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "uniform_value",  // Category
-                                                "upper_bound",    // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Upper Bound" 
+                                        value={event.income.expected_annual_change.uniform_value.upper_bound} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'uniform_value', 'upper_bound'], e.target.value)} 
                                     />
                                 </>
                             )}
 
-                            {/* uniform percentage */}
-                            {event[event.event_type].expected_annual_change.return_type === "uniform_percentage" && (
+                            {/* Uniform Distribution (Percentage) */}
+                            {event.income.expected_annual_change.return_type === 'uniform_percentage' && (
                                 <>
-                                    <input
-                                        type="number"
-                                        placeholder="Lower Bound"
-                                        value={event[event.event_type].expected_annual_change.uniform_percentage.lower_bound}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "uniform_percentage",  // Category
-                                                "lower_bound",         // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Lower Bound (%)" 
+                                        value={event.income.expected_annual_change.uniform_percentage.lower_bound} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'uniform_percentage', 'lower_bound'], e.target.value)} 
                                     />
-                                    <input
-                                        type="number"
-                                        placeholder="Upper Bound"
-                                        value={event[event.event_type].expected_annual_change.uniform_percentage.upper_bound}
-                                        onChange={(e) =>
-                                            handle_double_nested_update(
-                                                index,
-                                                "uniform_percentage",  // Category
-                                                "upper_bound",         // Field
-                                                e.target.value,
-                                                event.event_type
-                                            )
-                                        }
+                                    <input 
+                                        type="number" 
+                                        placeholder="Upper Bound (%)" 
+                                        value={event.income.expected_annual_change.uniform_percentage.upper_bound} 
+                                        onChange={(e) => update_event(index, ['income', 'expected_annual_change', 'uniform_percentage', 'upper_bound'], e.target.value)} 
                                     />
                                 </>
                             )}
+
+                            {/* Social Security */}
+                            <label>
+                                <input 
+                                    type="checkbox" 
+                                    checked={event.income.is_social_security} 
+                                    onChange={(e) => update_event(index, ['income', 'is_social_security'], e.target.checked)} 
+                                />
+                                Is Social Security?
+                            </label>
 
                             {/* Inflation Adjustment */}
                             <label>
-                                <input
-                                    type="checkbox"
-                                    checked={event[event.event_type].inflation_adjustment || false}
-                                    onChange={(e) =>
-                                        handle_single_nested_update(
-                                            index,
-                                            "inflation_adjustment",
-                                            e.target.checked,
-                                            event.event_type
-                                        )
-                                    }
+                                <input 
+                                    type="checkbox" 
+                                    checked={event.income.inflation_adjustment} 
+                                    onChange={(e) => update_event(index, ['income', 'inflation_adjustment'], e.target.checked)} 
                                 />
-                                Inflation Adjustment
+                                Inflation Adjustment?
                             </label>
 
-                            {/* user's share percentage (only if scenario_type is "married") */}
-                            {scenario_type === "married" && (
-                                <input
-                                    type="number"
-                                    placeholder="Your Share Percentage"
-                                    value={event[event.event_type].married_percentage || ""}
-                                    onChange={(e) =>
-                                        handle_single_nested_update(
-                                            index,
-                                            "married_percentage",
-                                            e.target.value,
-                                            event.event_type
-                                        )
-                                    }
+                            {/* Married Percentage (only if scenario_type is married) */}
+                            {scenario_type === 'married' && (
+                                <>
+                                    <h3>Married Percentage</h3>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Married Percentage" 
+                                        value={event.income.married_percentage} 
+                                        onChange={(e) => update_event(index, ['income', 'married_percentage'], e.target.value)} 
+                                    />
+                                </>
+                            )}
+                        </div>
+                    )}
+
+
+                    {event.event_type === 'expense' && (
+                        <div>
+                    
+
+                            {/* Initial Amount */}
+                            <h3>Initial Amount: *</h3>
+                            <input 
+                                type="number" 
+                                placeholder="Initial Amount" 
+                                value={event.expense.initial_amount} 
+                                onChange={(e) => update_event(index, ['expense', 'initial_amount'], e.target.value)} 
+                            />
+
+                            {/* Expected Annual Change Type - Select Dropdown */}
+                            <h3>Expected Annual Change Type:</h3>
+                            <select
+                                value={event.expense.expected_annual_change.return_type}
+                                onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'return_type'], e.target.value)}
+                            >
+                                <option value="fixed_value">Fixed Value</option>
+                                <option value="fixed_percentage">Fixed Percentage</option>
+                                <option value="normal_value">Normal Distribution (Fixed Value)</option>
+                                <option value="normal_percentage">Normal Distribution (Percentage)</option>
+                                <option value="uniform_value">Uniform Distribution (Fixed)</option>
+                                <option value="uniform_percentage">Uniform Distribution (Percentage)</option>
+                            </select>
+
+                            {/* Fixed Value */}
+                            {event.expense.expected_annual_change.return_type === 'fixed_value' && (
+                                <input 
+                                    type="number" 
+                                    placeholder="Fixed Annual Change" 
+                                    value={event.expense.expected_annual_change.fixed_value} 
+                                    onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'fixed_value'], e.target.value)} 
                                 />
                             )}
 
-                            {/* if event_type is "income", ask whether it's Social Security */}
-                            {event.event_type === "income" && (
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={event[event.event_type].is_social_security ?? false}
-                                        onChange={(e) => handle_single_nested_update(index, "is_social_security", e.target.checked, event.event_type)}
-                                    />
-                                    Social Security Income
-                                </label>
+                            {/* Fixed Percentage */}
+                            {event.expense.expected_annual_change.return_type === 'fixed_percentage' && (
+                                <input 
+                                    type="number" 
+                                    placeholder="Fixed Percentage (%)" 
+                                    value={event.expense.expected_annual_change.fixed_percentage} 
+                                    onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'fixed_percentage'], e.target.value)} 
+                                />
                             )}
 
-                            {/* if event_type is "expense", ask whether it's Discretionary */}
-                            {event.event_type === "expense" && (
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={event[event.event_type].is_discretionary ?? false}
-                                        onChange={(e) => handle_single_nested_update(index, "is_discretionary", e.target.checked, event.event_type)}
+                            {/* Normal Distribution (Fixed Value) */}
+                            {event.expense.expected_annual_change.return_type === 'normal_value' && (
+                                <>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Mean" 
+                                        value={event.expense.expected_annual_change.normal_value.mean} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'normal_value', 'mean'], e.target.value)} 
                                     />
-                                    Discretionary Expense
-                                </label>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Standard Deviation" 
+                                        value={event.expense.expected_annual_change.normal_value.sd} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'normal_value', 'sd'], e.target.value)} 
+                                    />
+                                </>
                             )}
 
+                            {/* Normal Distribution (Percentage) */}
+                            {event.expense.expected_annual_change.return_type === 'normal_percentage' && (
+                                <>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Mean (%)" 
+                                        value={event.expense.expected_annual_change.normal_percentage.mean} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'normal_percentage', 'mean'], e.target.value)} 
+                                    />
+                                    <input 
+                                        type="number" 
+                                        placeholder="Standard Deviation (%)" 
+                                        value={event.expense.expected_annual_change.normal_percentage.sd} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'normal_percentage', 'sd'], e.target.value)} 
+                                    />
+                                </>
+                            )}
 
+                            {/* Uniform Distribution (Fixed) */}
+                            {event.expense.expected_annual_change.return_type === 'uniform_value' && (
+                                <>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Lower Bound" 
+                                        value={event.expense.expected_annual_change.uniform_value.lower_bound} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'uniform_value', 'lower_bound'], e.target.value)} 
+                                    />
+                                    <input 
+                                        type="number" 
+                                        placeholder="Upper Bound" 
+                                        value={event.expense.expected_annual_change.uniform_value.upper_bound} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'uniform_value', 'upper_bound'], e.target.value)} 
+                                    />
+                                </>
+                            )}
 
-                           
+                            {/* Uniform Distribution (Percentage) */}
+                            {event.expense.expected_annual_change.return_type === 'uniform_percentage' && (
+                                <>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Lower Bound (%)" 
+                                        value={event.expense.expected_annual_change.uniform_percentage.lower_bound} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'uniform_percentage', 'lower_bound'], e.target.value)} 
+                                    />
+                                    <input 
+                                        type="number" 
+                                        placeholder="Upper Bound (%)" 
+                                        value={event.expense.expected_annual_change.uniform_percentage.upper_bound} 
+                                        onChange={(e) => update_event(index, ['expense', 'expected_annual_change', 'uniform_percentage', 'upper_bound'], e.target.value)} 
+                                    />
+                                </>
+                            )}
 
+                            {/* Discretionary Checkbox */}
+                            <label>
+                                <input 
+                                    type="checkbox" 
+                                    checked={event.expense.is_discretionary} 
+                                    onChange={(e) => update_event(index, ['expense', 'is_discretionary'], e.target.checked)} 
+                                />
+                                Is Discretionary?
+                            </label>
 
+                            {/* Inflation Adjustment */}
+                            <label>
+                                <input 
+                                    type="checkbox" 
+                                    checked={event.expense.inflation_adjustment} 
+                                    onChange={(e) => update_event(index, ['expense', 'inflation_adjustment'], e.target.checked)} 
+                                />
+                                Inflation Adjustment?
+                            </label>
 
-
-                            
-
-                            
+                            {/* Married Percentage (only if scenario_type is married) */}
+                            {scenario_type === 'married' && (
+                                <>
+                                    <h3>Married Percentage</h3>
+                                    <input 
+                                        type="number" 
+                                        placeholder="Married Percentage" 
+                                        value={event.expense.married_percentage} 
+                                        onChange={(e) => update_event(index, ['expense', 'married_percentage'], e.target.value)} 
+                                    />
+                                </>
+                            )}
                         </div>
                     )}
-                
-                    {(event.event_type === "invest" || event.event_type === "rebalance") && (
-                        <div>
-                            {/* Asset Allocation Strategy */}
-                            <label>Asset Allocation Strategy:</label>
-                            <select
-                                value={event[event.event_type].return_type}
-                                onChange={(e) => handle_single_nested_update(index, "asset_allocation", { return_type: e.target.value }, event.event_type)}
-                            >
-                                <option value="fixed_allocation">Fixed Percentages</option>
-                                <option value="glide_path">Glide Path</option>
-                            </select>
 
-                            {/* If return_type is 'fixed_allocation', show input field for name:percentage pairs */}
-                            {event[event.event_type].return_type === "fixed_allocation" && (
-                                <div>
-                                    <label>Enter Name:Percentage pairs (e.g., name1:10;name2:20):</label>
+                    {event.event_type === 'invest' && (
+                        <div>
+                    
+
+                            {/* Return Type Selection Buttons */}
+                            <h3>Return Type: *</h3>
+                            <button 
+                                onClick={() => update_event(index, ['invest', 'return_type'], 'fixed_allocation')}
+                            >
+                                Fixed Allocation
+                            </button>
+
+                            <button 
+                                onClick={() => update_event(index, ['invest', 'return_type'], 'glide_path')}
+                            >
+                                Glide Path
+                            </button>
+
+                            {/* Fixed Allocation Input */}
+                            {event.invest.return_type === 'fixed_allocation' && (
+                                <>
+                                    <h3>Enter Name:Percentage pairs (e.g., name1:10;name2:20):</h3>
                                     <input
                                         type="text"
                                         placeholder="Enter name:percentage pairs"
-                                        value={event[event.event_type].fixed_allocation || ""}
-                                        onChange={(e) => handle_single_nested_update(index, "fixed_allocation", e.target.value, event.event_type)}
+                                        value={event.invest.fixed_allocation || ""}
+                                        onChange={(e) => update_event(index, ['invest', 'fixed_allocation'], e.target.value)}
                                     />
-                                </div>
+                                </>
                             )}
 
-                            {event[event.event_type].return_type === "glide_path" && (
-                                <div>
-                                    <label>Enter Name num1-num2 pairs (e.g., name1 10-20;name2 15-25):</label>
+                            {/* Glide Path Input */}
+                            {event.invest.return_type === 'glide_path' && (
+                                <>
+                                    <h3>Enter Name num1-num2 pairs (e.g., name1 10-20;name2 15-25):</h3>
                                     <input
                                         type="text"
                                         placeholder="Enter name num1-num2 pairs"
-                                        value={event[event.event_type].glide_path || ""}
-                                        onChange={(e) => handle_single_nested_update(index, "glide_path", e.target.value, event.event_type)}
+                                        value={event.invest.glide_path || ""}
+                                        onChange={(e) => update_event(index, ['invest', 'glide_path'], e.target.value)}
                                     />
-                                </div>
+                                </>
                             )}
 
-                            {/* if event_type is 'invest', show input for maximum_cash */}
-                            {event.event_type === "invest" && (
-                                <div>
-                                    <label>Maximum Cash:</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Enter maximum cash"
-                                        value={event[event.event_type].maximum_cash || ""}
-                                        onChange={(e) => handle_single_nested_update(index, "maximum_cash", e.target.value, event.event_type)}
-                                    />
-                                </div>
-                            )}
-
-                            
-
+                            {/* Maximum Cash Input */}
+                            <h3>Maximum Cash:</h3>
+                            <input
+                                type="number"
+                                placeholder="Enter Maximum Cash"
+                                value={event.invest.maximum_cash || ""}
+                                onChange={(e) => update_event(index, ['invest', 'maximum_cash'], e.target.value)}
+                            />
                         </div>
-
-
                     )}
 
-                   
+                    {event.event_type === 'rebalance' && (
+                        <div>
+
+                            {/* Return Type Selection Buttons */}
+                            <h3>Return Type: *</h3>
+                            <button 
+                                onClick={() => update_event(index, ['rebalance', 'return_type'], 'fixed_allocation')}
+                            >
+                                Fixed Allocation
+                            </button>
+
+                            <button 
+                                onClick={() => update_event(index, ['rebalance', 'return_type'], 'glide_path')}
+                            >
+                                Glide Path
+                            </button>
+
+                            {/* Fixed Allocation Input */}
+                            {event.rebalance.return_type === 'fixed_allocation' && (
+                                <>
+                                    <h3>Enter Name:Percentage pairs (e.g., name1:10;name2:20):</h3>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter name:percentage pairs"
+                                        value={event.rebalance.fixed_allocation || ""}
+                                        onChange={(e) => update_event(index, ['rebalance', 'fixed_allocation'], e.target.value)}
+                                    />
+                                </>
+                            )}
+
+                            {/* Glide Path Input */}
+                            {event.rebalance.return_type === 'glide_path' && (
+                                <>
+                                    <h3>Enter Name num1-num2 pairs (e.g., name1 10-20;name2 15-25):</h3>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter name num1-num2 pairs"
+                                        value={event.rebalance.glide_path || ""}
+                                        onChange={(e) => update_event(index, ['rebalance', 'glide_path'], e.target.value)}
+                                    />
+                                </>
+                            )}
+                        </div>
+                    )}
 
 
 
-                    
+
+
+
                 </div>
             ))}
+
+
+           {/* Navigation Buttons */}
+            <div>
+                <button onClick={() => set_page(2)}>Previous</button>
+                
+                <button onClick={() => {
+                    if (events.length === 0) {
+                        alert("At least one event is required.");
+                        return;
+                    }
+
+                    for (const event of events) {
+                        // Ensure the event has a name
+                        if (!event.name.trim()) {
+                            alert("Each event must have a Name.");
+                            return;
+                        }
+
+                        // Validate start_year
+                        if (!event.start_year.return_type) {
+                            alert(`Event "${event.name}" must have a Start Year Return Type.`);
+                            return;
+                        }
+
+                        switch (event.start_year.return_type) {
+                            case 'fixed_value':
+                                if (!event.start_year.fixed_value) {
+                                    alert(`Event "${event.name}" requires a Fixed Value for Start Year.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'normal_value':
+                                if (!event.start_year.normal_value.mean || !event.start_year.normal_value.sd) {
+                                    alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Start Year.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'uniform_value':
+                                if (!event.start_year.uniform_value.lower_bound || !event.start_year.uniform_value.upper_bound) {
+                                    alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Start Year.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'same_year_as_another_event':
+                                if (!event.start_year.same_year_as_another_event) {
+                                    alert(`Event "${event.name}" must specify another event for Same Year Start.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'year_after_another_event_end':
+                                if (!event.start_year.year_after_another_event_end) {
+                                    alert(`Event "${event.name}" must specify another event for Year After Another Event Ends.`);
+                                    return;
+                                }
+                                break;
+                        }
+
+                        // Validate duration
+                        if (!event.duration.return_type) {
+                            alert(`Event "${event.name}" must have a Duration Return Type.`);
+                            return;
+                        }
+
+                        switch (event.duration.return_type) {
+                            case 'fixed_value':
+                                if (!event.duration.fixed_value) {
+                                    alert(`Event "${event.name}" requires a Fixed Value for Duration.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'normal_value':
+                                if (!event.duration.normal_value.mean || !event.duration.normal_value.sd) {
+                                    alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Duration.`);
+                                    return;
+                                }
+                                break;
+
+                            case 'uniform_value':
+                                if (!event.duration.uniform_value.lower_bound || !event.duration.uniform_value.upper_bound) {
+                                    alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Duration.`);
+                                    return;
+                                }
+                                break;
+                        }
+
+                        // Ensure the event has an event type
+                        if (!event.event_type) {
+                            alert(`Event "${event.name}" must have an Event Type.`);
+                            return;
+                        }
+
+                        switch (event.event_type) {
+                            case 'income':
+                            case 'expense':
+                                const is_income = event.event_type === 'income';
+                                const event_data = is_income ? event.income : event.expense;
+                        
+                                if (!event_data.initial_amount) {
+                                    alert(`Event "${event.name}" requires an Initial Amount.`);
+                                    return;
+                                }
+                        
+                                if (!event_data.expected_annual_change.return_type) {
+                                    alert(`Event "${event.name}" must have a Return Type for Expected Annual Change.`);
+                                    return;
+                                }
+                        
+                                switch (event_data.expected_annual_change.return_type) {
+                                    case 'fixed_value':
+                                        if (!event_data.expected_annual_change.fixed_value) {
+                                            alert(`Event "${event.name}" requires a Fixed Value for Expected Annual Change.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'normal_value':
+                                        if (!event_data.expected_annual_change.normal_value.mean || !event_data.expected_annual_change.normal_value.sd) {
+                                            alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Value.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'uniform_value':
+                                        if (!event_data.expected_annual_change.uniform_value.lower_bound || !event_data.expected_annual_change.uniform_value.upper_bound) {
+                                            alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Value.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'fixed_percentage':
+                                        if (!event_data.expected_annual_change.fixed_percentage) {
+                                            alert(`Event "${event.name}" requires a Fixed Percentage for Expected Annual Change.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'normal_percentage':
+                                        if (!event_data.expected_annual_change.normal_percentage.mean || !event_data.expected_annual_change.normal_percentage.sd) {
+                                            alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Percentage.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'uniform_percentage':
+                                        if (!event_data.expected_annual_change.uniform_percentage.lower_bound || !event_data.expected_annual_change.uniform_percentage.upper_bound) {
+                                            alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Percentage.`);
+                                            return;
+                                        }
+                                        break;
+                                }
+                        
+                                if (scenario_type === 'married' && !event_data.married_percentage) {
+                                    alert(`Event "${event.name}" requires a Married Percentage because the scenario is Married.`);
+                                    return;
+                                }
+                                break;
+                        
+                            case 'invest':
+                            case 'rebalance':
+                                const is_invest = event.event_type === 'invest';
+                                const invest_data = is_invest ? event.invest : event.rebalance;
+                        
+                                if (!invest_data.return_type) {
+                                    alert(`Event "${event.name}" must have a Return Type.`);
+                                    return;
+                                }
+                        
+                                switch (invest_data.return_type) {
+                                    case 'fixed_allocation':
+                                        if (!invest_data.fixed_allocation) {
+                                            alert(`Event "${event.name}" requires Fixed Allocation details.`);
+                                            return;
+                                        }
+                                        break;
+                                    case 'glide_path':
+                                        if (!invest_data.glide_path) {
+                                            alert(`Event "${event.name}" requires Glide Path details.`);
+                                            return;
+                                        }
+                                        break;
+                                }
+                        
+                                if (is_invest && !invest_data.maximum_cash) {
+                                    alert(`Event "${event.name}" requires Maximum Cash.`);
+                                    return;
+                                }
+                                break;
+                        }
+                        
+
+                        
+
+
+                    }
+
+                    // If all events are valid, proceed to the next page
+                    set_page(4);
+                }}>
+                    Next
+                </button>
+            </div>
+
+
+
         </div>
     );
 }

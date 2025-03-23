@@ -44,15 +44,18 @@ const Invest=require('./src/Schemas/Invest');
 const Rebalance=require('./src/Schemas/Rebalance');
 const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
+
+const SharedUser=require('./src/Schemas/SharedUser');
 const IncomeTax = require('./src/TaxScraping/incomeTax');
 const StandardDeduction = require('./src/TaxScraping/standardDeduction');
 const CapitalGain = require('./src/TaxScraping/capitalGain');
+
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
   
     const { scenario_name, scenario_type, birth_year, spouse_birth_year,life_expectancy, spouse_life_expectancy,
         investments ,events, inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,
-        roth_optimizer_enable,roth_optimizer_start_year,roth_optimizer_end_year,financial_goal, state_of_residence
+        roth_optimizer_enable,roth_optimizer_start_year,roth_optimizer_end_year,financial_goal, state_of_residence,shared_users
     } = req.body; // extracting data from frontend
 
     // extract values from life_expectancy list
@@ -88,23 +91,42 @@ app.post('/scenario', async (req, res) => {
     
     const investment_ids = await Promise.all(investments.map(async inv => {
         
-        // step 1: create Expected Return
+
+        // step 1: Create Expected Return
         const expected_return = await new ExpectedReturn({
             method: inv.investment_type.expected_return.return_type,
-            fixed_value: inv.investment_type.expected_return.fixed_value,
-            fixed_percentage: inv.investment_type.expected_return.fixed_percentage,
-            normal_value: inv.investment_type.expected_return.normal_value,
-            normal_percentage: inv.investment_type.expected_return.normal_percentage,
+            fixed_value: inv.investment_type.expected_return.return_type === 'fixed_value' 
+                ? inv.investment_type.expected_return.fixed_value 
+                : null,
+            fixed_percentage: inv.investment_type.expected_return.return_type === 'fixed_percentage' 
+                ? inv.investment_type.expected_return.fixed_percentage 
+                : null,
+            normal_value: inv.investment_type.expected_return.return_type === 'normal_value' 
+                ? inv.investment_type.expected_return.normal_value 
+                : null,
+            normal_percentage: inv.investment_type.expected_return.return_type === 'normal_percentage' 
+                ? inv.investment_type.expected_return.normal_percentage 
+                : null,
         }).save();
 
-        // step 2: create Expected Income
+
+        // step 2: Create Expected Income
         const expected_income = await new ExpectedIncome({
             method: inv.investment_type.expected_income.return_type,
-            fixed_value: inv.investment_type.expected_income.fixed_value,
-            fixed_percentage: inv.investment_type.expected_income.fixed_percentage,
-            normal_value: inv.investment_type.expected_income.normal_value,
-            normal_percentage: inv.investment_type.expected_income.normal_percentage,
+            fixed_value: inv.investment_type.expected_income.return_type === 'fixed_value' 
+                ? inv.investment_type.expected_income.fixed_value 
+                : null,
+            fixed_percentage: inv.investment_type.expected_income.return_type === 'fixed_percentage' 
+                ? inv.investment_type.expected_income.fixed_percentage 
+                : null,
+            normal_value: inv.investment_type.expected_income.return_type === 'normal_value' 
+                ? inv.investment_type.expected_income.normal_value 
+                : null,
+            normal_percentage: inv.investment_type.expected_income.return_type === 'normal_percentage' 
+                ? inv.investment_type.expected_income.normal_percentage 
+                : null,
         }).save();
+
 
         //step 3: create investment_type
        
@@ -139,20 +161,37 @@ app.post('/scenario', async (req, res) => {
 
         const start_year = await new StartYear({
             method: eve.start_year.return_type,
-            fixed_value: eve.start_year.fixed_value,
-            normal_value: eve.start_year.normal_value,
-            uniform_value: eve.start_year.uniform_value,
-            same_year_as_another_event: eve.start_year.same_year_as_another_event,
-            year_after_another_event_end: eve.start_year.year_after_another_event_end
-        }).save()
+            fixed_value: eve.start_year.return_type === 'fixed_value' 
+                ? eve.start_year.fixed_value 
+                : null,
+            normal_value: eve.start_year.return_type === 'normal_value' 
+                ? eve.start_year.normal_value 
+                : null,
+            uniform_value: eve.start_year.return_type === 'uniform_value' 
+                ? eve.start_year.uniform_value 
+                : null,
+            same_year_as_another_event: eve.start_year.return_type === 'same_year_as_another_event' 
+                ? eve.start_year.same_year_as_another_event 
+                : null,
+            year_after_another_event_end: eve.start_year.return_type === 'year_after_another_event_end' 
+                ? eve.start_year.year_after_another_event_end 
+                : null,
+        }).save();
+
 
         const duration_obj = await new Duration({
             method: eve.duration.return_type,
-            fixed_value: eve.duration.fixed_value,
-            normal_value: eve.duration.normal_value,
-            uniform_value: eve.duration.uniform_value,
+            fixed_value: eve.duration.return_type === 'fixed_value' 
+                ? eve.duration.fixed_value 
+                : null,
+            normal_value: eve.duration.return_type === 'normal_value' 
+                ? eve.duration.normal_value 
+                : null,
+            uniform_value: eve.duration.return_type === 'uniform_value' 
+                ? eve.duration.uniform_value 
+                : null,
+        }).save();
 
-        }).save()
 
         // default all objects to null
         let income_obj = null;
@@ -161,16 +200,28 @@ app.post('/scenario', async (req, res) => {
         let rebalance_obj = null;
 
         if(eve.event_type==="income"){
-            const expected_annual_change_for_income =await  new ExpectedAnnualChange({
+            const expected_annual_change_for_income = await new ExpectedAnnualChange({
                 method: eve.income.expected_annual_change.return_type,
-                fixed_value: eve.income.expected_annual_change.fixed_value,
-                fixed_percentage: eve.income.expected_annual_change.fixed_percentage,
-                normal_value: eve.income.expected_annual_change.normal_value,
-                normal_percentage: eve.income.expected_annual_change.normal_percentage,
-                uniform_value: eve.income.expected_annual_change.uniform_value,
-                uniform_percentage: eve.income.expected_annual_change.uniform_percentage,
-                
-            }).save()
+                fixed_value: eve.income.expected_annual_change.return_type === 'fixed_value' 
+                    ? eve.income.expected_annual_change.fixed_value 
+                    : null,
+                fixed_percentage: eve.income.expected_annual_change.return_type === 'fixed_percentage' 
+                    ? eve.income.expected_annual_change.fixed_percentage 
+                    : null,
+                normal_value: eve.income.expected_annual_change.return_type === 'normal_value' 
+                    ? eve.income.expected_annual_change.normal_value 
+                    : null,
+                normal_percentage: eve.income.expected_annual_change.return_type === 'normal_percentage' 
+                    ? eve.income.expected_annual_change.normal_percentage 
+                    : null,
+                uniform_value: eve.income.expected_annual_change.return_type === 'uniform_value' 
+                    ? eve.income.expected_annual_change.uniform_value 
+                    : null,
+                uniform_percentage: eve.income.expected_annual_change.return_type === 'uniform_percentage' 
+                    ? eve.income.expected_annual_change.uniform_percentage 
+                    : null,
+            }).save();
+            
 
 
             income_obj = await new Income({
@@ -183,16 +234,28 @@ app.post('/scenario', async (req, res) => {
             }).save()
 
         }else if(eve.event_type==="expense"){
-            const expected_annual_change_for_expense =await  new ExpectedAnnualChange({
+            const expected_annual_change_for_expense = await new ExpectedAnnualChange({
                 method: eve.expense.expected_annual_change.return_type,
-                fixed_value: eve.expense.expected_annual_change.fixed_value,
-                fixed_percentage: eve.expense.expected_annual_change.fixed_percentage,
-                normal_value: eve.expense.expected_annual_change.normal_value,
-                normal_percentage: eve.expense.expected_annual_change.normal_percentage,
-                uniform_value: eve.expense.expected_annual_change.uniform_value,
-                uniform_percentage: eve.expense.expected_annual_change.uniform_percentage,
-                
-            }).save()
+                fixed_value: eve.expense.expected_annual_change.return_type === 'fixed_value' 
+                    ? eve.expense.expected_annual_change.fixed_value 
+                    : null,
+                fixed_percentage: eve.expense.expected_annual_change.return_type === 'fixed_percentage' 
+                    ? eve.expense.expected_annual_change.fixed_percentage 
+                    : null,
+                normal_value: eve.expense.expected_annual_change.return_type === 'normal_value' 
+                    ? eve.expense.expected_annual_change.normal_value 
+                    : null,
+                normal_percentage: eve.expense.expected_annual_change.return_type === 'normal_percentage' 
+                    ? eve.expense.expected_annual_change.normal_percentage 
+                    : null,
+                uniform_value: eve.expense.expected_annual_change.return_type === 'uniform_value' 
+                    ? eve.expense.expected_annual_change.uniform_value 
+                    : null,
+                uniform_percentage: eve.expense.expected_annual_change.return_type === 'uniform_percentage' 
+                    ? eve.expense.expected_annual_change.uniform_percentage 
+                    : null,
+            }).save();
+            
 
             expense_obj =await  new Expense({
                 initial_amount: eve.expense.initial_amount,
@@ -205,15 +268,16 @@ app.post('/scenario', async (req, res) => {
 
         }else if(eve.event_type==="invest"){
 
-            const invest_allocation =await  new Allocation({
+            const invest_allocation = await new Allocation({
                 method: eve.invest.return_type,
-                fixed_allocation: eve.invest.fixed_allocation
-                ? eve.invest.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)//turn string into array separated by ;
-                : [], //if empty
-                glide_path: eve.invest.glide_path
-                ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
-                : []
-            }).save()
+                fixed_allocation: eve.invest.return_type === 'fixed_allocation' && eve.invest.fixed_allocation
+                    ? eve.invest.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)
+                    : [],
+                glide_path: eve.invest.return_type === 'glide_path' && eve.invest.glide_path
+                    ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                    : []
+            }).save();
+            
     
             invest_obj =await  new Invest({
                 allocations: invest_allocation.id,
@@ -222,15 +286,16 @@ app.post('/scenario', async (req, res) => {
             }).save()
             
         }else if(eve.event_type==="rebalance"){
-            const rebalance_allocation =await  new Allocation({
+            const rebalance_allocation = await new Allocation({
                 method: eve.rebalance.return_type,
-                fixed_allocation: eve.rebalance.fixed_allocation
-                ? eve.rebalance.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)//turn string into array separated by ;
-                : [], //if empty
-                glide_path: eve.rebalance.glide_path
-                ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
-                : []
-            }).save()
+                fixed_allocation: eve.rebalance.return_type === 'fixed_allocation' && eve.rebalance.fixed_allocation
+                    ? eve.rebalance.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)
+                    : [],
+                glide_path: eve.rebalance.return_type === 'glide_path' && eve.rebalance.glide_path
+                    ? eve.rebalance.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                    : []
+            }).save();
+            
     
             rebalance_obj =await  new Rebalance({
                 allocations: rebalance_allocation.id,
@@ -258,7 +323,7 @@ app.post('/scenario', async (req, res) => {
     // Create and save Inflation object
     const inflation = new Inflation({
         method: inflation_assumption.method,
-        fix_percentage: inflation_assumption.fix_percentage,
+        fixed_percentage: inflation_assumption.fixed_percentage,
         normal_percentage: inflation_assumption.normal_percentage,
         uniform_percentage: inflation_assumption.uniform_percentage
     });
@@ -279,6 +344,19 @@ app.post('/scenario', async (req, res) => {
     
     await simulation_settings.save();
 
+    //share setting
+
+    let shared_users_list = []; // array to store SharedUser objects
+
+    if (shared_users && shared_users.length > 0) {
+        // create and store SharedUser objects
+        shared_users_list = await Promise.all(shared_users.map(async user => {
+            const shared_user = new SharedUser(user);
+            await shared_user.save();
+            return shared_user._id; 
+        }));
+    }
+
 
 
     const new_scenario = new Scenario({
@@ -292,7 +370,8 @@ app.post('/scenario', async (req, res) => {
         events: event_ids,
         simulationSettings: simulation_settings._id,
         financialGoal: financial_goal,
-        stateOfResidence: state_of_residence
+        stateOfResidence: state_of_residence,
+        sharedUsers: shared_users_list
 
     });
     await new_scenario.save();
