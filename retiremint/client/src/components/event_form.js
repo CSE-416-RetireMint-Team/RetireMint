@@ -1,6 +1,8 @@
 
 
+
 function EventForm({events, set_events,scenario_type,set_page}) {
+
     const handle_event_count_change = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
 
@@ -118,7 +120,9 @@ function EventForm({events, set_events,scenario_type,set_page}) {
 
     return (
         <div>
+
             <h2>Number of Events:</h2>
+
             <input
                 type="number"
                 value={events.length}
@@ -289,6 +293,7 @@ function EventForm({events, set_events,scenario_type,set_page}) {
                             />
                         </>
                     )}
+
 
                     {/* Event Type */}
                     <div>
@@ -929,5 +934,6 @@ function EventForm({events, set_events,scenario_type,set_page}) {
         </div>
     );
 }
+
 
 export default EventForm;
