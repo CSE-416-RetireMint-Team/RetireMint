@@ -4,7 +4,7 @@ import Header from './header';
 function Dashboard({ set_current_page }) {
     return (
         <div>
-            <Header />
+            <Header set_current_page={set_current_page}/>
             <button onClick={() => set_current_page('new_scenario')}>
                 Create a New Scenario
             </button>
