@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+
 // initialize app
 const app = express();
 const port = 8000;
@@ -9,6 +10,8 @@ const port = 8000;
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // connect to MongoDB database 
 mongoose.connect('mongodb://127.0.0.1:27017/retiremint')
@@ -50,8 +53,31 @@ const IncomeTax = require('./src/TaxScraping/incomeTax');
 const StandardDeduction = require('./src/TaxScraping/standardDeduction');
 const CapitalGain = require('./src/TaxScraping/capitalGain');
 
+app.post('/login',function(req,res){
+    const CLIENT_ID = req.body.clientId;
+    const token = req.body.credential;
+    const {OAuth2Client} = require('google-auth-library');
+    const client = new OAuth2Client();
+    async function verify() {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: CLIENT_ID,  // Specify the WEB_CLIENT_ID of the app that accesses the backend
+        // Or, if multiple clients access the backend:
+        //[WEB_CLIENT_ID_1, WEB_CLIENT_ID_2, WEB_CLIENT_ID_3]
+    });
+    const payload = ticket.getPayload();
+    const userid = payload['sub'];
+    // If the request specified a Google Workspace domain:
+    // const domain = payload['hd'];
+    }
+    verify().catch(console.error);
+    console.log(`Token: ${token}`);
+    res.redirect('http://localhost:3000');
+})
+
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
+    console.log('Scenario received!');
   
     const { scenario_name, scenario_type, birth_year, spouse_birth_year,life_expectancy, spouse_life_expectancy,
         investments ,events, inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,

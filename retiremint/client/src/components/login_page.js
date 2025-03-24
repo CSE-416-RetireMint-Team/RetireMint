@@ -10,7 +10,7 @@ function LoginPage({ set_current_page }) {
                 data-client_id="682091940238-s9o9l1c59f1ucofl0mle0gn7k9vfp2cu.apps.googleusercontent.com"
                 data-context="signin"
                 data-ux_mode="popup"
-                data-login_uri="http://localhost:3000"
+                data-login_uri='http://localhost:8000/login'
                 data-auto_prompt="false">
             </div>
 
