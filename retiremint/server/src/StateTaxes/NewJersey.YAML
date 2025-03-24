@@ -1,0 +1,37 @@
+NJ:
+  standard_deduction:
+    single: 0
+    married: 0
+  brackets:
+    single:
+    - rate: 0.014
+      up_to: 20000
+    - rate: 0.0175
+      up_to: 35000
+    - rate: 0.035
+      up_to: 40000
+    - rate: 0.05525
+      up_to: 75000
+    - rate: 0.0637
+      up_to: 500000
+    - rate: 0.0897
+      up_to: 1000000
+    - rate: 0.1075
+      up_to: null
+    married:
+    - rate: 0.014
+      up_to: 20000
+    - rate: 0.0175
+      up_to: 50000
+    - rate: 0.0245
+      up_to: 70000
+    - rate: 0.035
+      up_to: 80000
+    - rate: 0.05525
+      up_to: 150000
+    - rate: 0.0637
+      up_to: 500000
+    - rate: 0.0897
+      up_to: 1000000
+    - rate: 0.1075
+      up_to: null
