@@ -1,0 +1,65 @@
+.user-profile-form {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .user-profile-form h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 22px;
+    color: #333;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+  
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #3f51b5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .submit-button:hover {
+    background-color: #303f9f;
+  }
+  
+  .submit-button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .error-text {
+    color: red;
+    font-size: 14px;
+    margin-top: -8px;
+    margin-bottom: 12px;
+  }
+  
