@@ -1,4 +1,3 @@
-// UserProfileForm.js (React without JSX)
 import React, { useState } from 'react';
 
 function UserProfileForm({ onComplete }) {
