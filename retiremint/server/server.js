@@ -67,6 +67,9 @@ app.post('/login',function(req,res){
     });
     const payload = ticket.getPayload();
     const userid = payload['sub'];
+    const email = payload['email']
+    const profile = payload['profile']
+    console.log(`Email: ${email}`);
     // If the request specified a Google Workspace domain:
     // const domain = payload['hd'];
     }
