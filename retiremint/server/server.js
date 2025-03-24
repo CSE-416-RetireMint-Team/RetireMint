@@ -49,9 +49,9 @@ const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 
 const SharedUser=require('./src/Schemas/SharedUser');
-const IncomeTax = require('./src/TaxScraping/incomeTax');
-const StandardDeduction = require('./src/TaxScraping/standardDeduction');
-const CapitalGain = require('./src/TaxScraping/capitalGain');
+const IncomeTax = require('./src/FederalTaxes/incomeTax');
+const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
+const CapitalGain = require('./src/FederalTaxes/capitalGain');
 
 app.post('/login',function(req,res){
     const CLIENT_ID = req.body.clientId;
