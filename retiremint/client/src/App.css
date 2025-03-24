@@ -9,6 +9,26 @@
   margin: 0;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.header-btn {
+  background-color: white;
+  color: #65B991;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.header-btn:hover {
+  background-color: #f0f0f0;
+}
+
+
 
 
 

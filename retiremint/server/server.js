@@ -47,36 +47,56 @@ const Invest=require('./src/Schemas/Invest');
 const Rebalance=require('./src/Schemas/Rebalance');
 const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
-
+const User = require('./src/Schemas/Users');
 const SharedUser=require('./src/Schemas/SharedUser');
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
 const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
 const CapitalGain = require('./src/FederalTaxes/capitalGain');
+const {OAuth2Client} = require('google-auth-library');
+const userRoutes = require('./src/Routes/User'); 
 
-app.post('/login',function(req,res){
+app.use('/user', userRoutes);
+
+app.post('/login',async function(req,res){
     const CLIENT_ID = req.body.clientId;
     const token = req.body.credential;
-    const {OAuth2Client} = require('google-auth-library');
     const client = new OAuth2Client();
-    async function verify() {
-    const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: CLIENT_ID,  // Specify the WEB_CLIENT_ID of the app that accesses the backend
+
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: CLIENT_ID,  // Specify the WEB_CLIENT_ID of the app that accesses the backend
         // Or, if multiple clients access the backend:
         //[WEB_CLIENT_ID_1, WEB_CLIENT_ID_2, WEB_CLIENT_ID_3]
-    });
-    const payload = ticket.getPayload();
-    const userid = payload['sub'];
-    const email = payload['email']
-    const profile = payload['profile']
-    console.log(`Email: ${email}`);
-    // If the request specified a Google Workspace domain:
-    // const domain = payload['hd'];
+        });
+    
+        const payload = ticket.getPayload();
+        const googleId = payload['sub'];
+        const email = payload['email'];
+        const name = payload['name'];
+        const picture = payload['picture'];
+    
+        console.log(`Email: ${email}`);
+        console.log(`Google ID: ${googleId}`);
+        let user = await User.findOne({ googleId });
+
+        let isFirstLogin = false;
+        if (!user) {
+            isFirstLogin = true;
+        user = new User({
+            googleId,
+            email,
+            name,
+            picture,
+        });
+        await user.save();
+        } 
+        res.redirect(`http://localhost:3000?userId=${user._id}&firstTime=${isFirstLogin}`);
+        } catch (err) {
+        console.error('Login failed:', err);
+        res.redirect('http://localhost:3000');
     }
-    verify().catch(console.error);
-    console.log(`Token: ${token}`);
-    res.redirect('http://localhost:3000');
-})
+});
 
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
@@ -408,7 +428,3 @@ app.post('/scenario', async (req, res) => {
   
 });
 
-// // start server
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });

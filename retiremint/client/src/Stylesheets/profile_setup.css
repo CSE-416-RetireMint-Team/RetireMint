@@ -40,7 +40,7 @@
     width: 100%;
     padding: 12px;
     font-size: 16px;
-    background-color: #3f51b5;
+    background-color: #65B991; 
     color: white;
     border: none;
     border-radius: 6px;
@@ -48,13 +48,9 @@
   }
   
   .submit-button:hover {
-    background-color: #303f9f;
+    background-color: #519d78; 
   }
   
-  .submit-button[disabled] {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
   
   .error-text {
     color: red;
@@ -62,4 +58,21 @@
     margin-top: -8px;
     margin-bottom: 12px;
   }
+
+  .skip-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #65B991; 
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  
+  .skip-button:hover {
+    background-color: #519d78;
+  }
+  
   

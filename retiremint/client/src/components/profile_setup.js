@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
+import Header from './header';
+import '../Stylesheets/profile_setup.css';
 
 function UserProfileForm({ onComplete }) {
   const [formData, setFormData] = useState({
-    birthYear: '',
-    lifeExpectancy: '',
+    DOB: '',
     state: '',
     maritalStatus: '',
-    financialGoal: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,26 +29,33 @@ function UserProfileForm({ onComplete }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      setError('User not logged in');
+      setLoading(false);
+      return;
+    }
+  
     try {
-      const res = await fetch('/api/user/profile-details', {
-        method: 'POST',
+      const res = await fetch(`http://localhost:8000/user/${userId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
+  
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.message || 'Failed to save profile');
       }
-
+  
       if (onComplete) onComplete();
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const createInput = (id, label, type = 'text', extra = {}) =>
     React.createElement('div', { className: 'form-group' }, [
@@ -86,46 +93,44 @@ function UserProfileForm({ onComplete }) {
       ),
     ]);
 
-  return React.createElement('div', { className: 'user-profile-form' }, [
-    React.createElement('h2', { key: 'title' }, 'Complete Your Profile'),
-    React.createElement(
-      'form',
-      { onSubmit: handleSubmit, key: 'form' },
-      [
-        createInput('birthYear', 'Birth Year', 'number'),
-        createInput('lifeExpectancy', 'Expected Lifespan (in years)', 'number'),
-        createSelect('state', 'State of Residence', states),
-        createSelect('maritalStatus', 'Marital Status', ['individual', 'married']),
-        createInput('financialGoal', 'Financial Goal ($)', 'number', { min: 0, step: 1000 }),
-
-        error
-          ? React.createElement('div', { className: 'error-text', key: 'error' }, error)
-          : null,
-
+    return React.createElement(React.Fragment, null, [
+      React.createElement(Header, { key: 'header' }),
+      React.createElement('div', { className: 'user-profile-form', key: 'form-container' }, [
+        React.createElement('h2', { key: 'title' }, 'Complete Your Profile'),
         React.createElement(
-          'button',
-          {
-            type: 'submit',
-            disabled: loading,
-            className: 'submit-button',
-            key: 'submit',
-          },
-          loading ? 'Saving...' : 'Save Profile'
+          'form',
+          { onSubmit: handleSubmit, key: 'form' },
+          [
+            createInput('DOB', 'Date of Birth', 'date'),
+            createSelect('state', 'State of Residence', states),
+            createSelect('maritalStatus', 'Marital Status', ['individual', 'married']),
+            error
+              ? React.createElement('div', { className: 'error-text', key: 'error' }, error)
+              : null,
+            React.createElement(
+              'button',
+              {
+                type: 'submit',
+                disabled: loading,
+                className: 'submit-button',
+                key: 'submit',
+              },
+              loading ? 'Saving...' : 'Save Profile'
+            ),
+            React.createElement(
+              'button',
+              {
+                type: 'button',
+                onClick: () => onComplete(),
+                className: 'skip-button',
+                key: 'skip',
+              },
+              'Skip for now'
+            )
+          ]
         ),
-
-        React.createElement(
-          'button',
-          {
-            type: 'button',
-            onClick: () => onComplete(),
-            className: 'skip-button',
-            key: 'skip',
-          },
-          'Skip for now'
-        )
-      ]
-    ),
-  ]);
+      ])
+    ]);    
 }
 
 export default UserProfileForm;
