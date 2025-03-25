@@ -17,7 +17,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // connect to MongoDB database 
 mongoose.connect('mongodb://localhost:27017/retiremint')
   .then(async () => {
@@ -27,6 +26,7 @@ mongoose.connect('mongodb://localhost:27017/retiremint')
     await IncomeTax();
     await StandardDeduction();
     await CapitalGain();
+
     // Create 'logs' directory if it doesn't exist
     const fs = require('fs');
     const path = require('path');
@@ -549,6 +549,7 @@ app.post('/scenario', async (req, res) => {
     }
 });
 
+
 // Function to seed default tax data if none exists
 async function seedDefaultTaxData() {
   try {
@@ -637,4 +638,5 @@ async function seedDefaultTaxData() {
     console.error('Error seeding default tax data:', error);
   }
 }
+
 
