@@ -12,21 +12,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-// connect to MongoDB database 
 mongoose.connect('mongodb://127.0.0.1:27017/retiremint')
   .then(async () => {
     console.log('Connected to MongoDB');
     await IncomeTax();
     await StandardDeduction();
     await CapitalGain();
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
+
+    // Only start the server if this file is being run directly
+    if (require.main === module) {
+      app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+      });
+    }
   })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
 
 
 // scenario model
@@ -427,4 +426,7 @@ app.post('/scenario', async (req, res) => {
   
   
 });
+
+module.exports = app;
+
 
