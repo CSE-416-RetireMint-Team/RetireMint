@@ -58,7 +58,7 @@ function UserProfileForm({ onComplete }) {
   };  
 
   const createInput = (id, label, type = 'text', extra = {}) =>
-    React.createElement('div', { className: 'form-group' }, [
+    React.createElement('div', { className: 'form-group', key: id + '-group' }, [
       React.createElement('label', { htmlFor: id, key: id + '-label' }, label),
       React.createElement('input', {
         id,
@@ -71,9 +71,9 @@ function UserProfileForm({ onComplete }) {
         className: 'form-control',
       }),
     ]);
-
+  
   const createSelect = (id, label, options) =>
-    React.createElement('div', { className: 'form-group' }, [
+    React.createElement('div', { className: 'form-group', key: id + '-group' }, [
       React.createElement('label', { htmlFor: id, key: id + '-label' }, label),
       React.createElement(
         'select',
