@@ -25,16 +25,30 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, {
-      DOB: req.body.DOB,
+    const updateFields = {
+      DOB: new Date(`${req.body.DOB}T00:00:00`),
       state: req.body.state,
       maritalStatus: req.body.maritalStatus,
-    });
+      updatedAt: new Date()
+    };
 
-    res.json({ success: true });
+    const user = await User.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    res.json({
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      DOB: user.DOB,
+      state: user.state,
+      maritalStatus: user.maritalStatus,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to update profile' });
   }
 });
+
 
 module.exports = router;
