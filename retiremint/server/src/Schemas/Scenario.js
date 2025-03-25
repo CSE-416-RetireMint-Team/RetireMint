@@ -7,6 +7,11 @@ const ScenarioSchema = new Schema({
     type: String, 
     required: true 
   },
+  userId: { 
+    type: String,
+    required: true,
+    index: true
+  },
   scenarioType: { 
     type: String, 
     enum: ['individual', 'married'], 

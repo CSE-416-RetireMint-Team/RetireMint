@@ -8,24 +8,37 @@ const app = express();
 const port = 8000;
 
 // middleware
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:3000', 'https://accounts.google.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://127.0.0.1:27017/retiremint')
+// connect to MongoDB database 
+mongoose.connect('mongodb://localhost:27017/retiremint')
   .then(async () => {
-    console.log('Connected to MongoDB');
+    console.log('MongoDB connected.');
+    // Seed default tax data if needed
+    await seedDefaultTaxData();
     await IncomeTax();
     await StandardDeduction();
     await CapitalGain();
 
-    // Only start the server if this file is being run directly
-    if (require.main === module) {
-      app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-      });
+    // Create 'logs' directory if it doesn't exist
+    const fs = require('fs');
+    const path = require('path');
+    const logDir = path.join(__dirname, 'logs');
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
     }
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
   })
+  .catch(err => console.error('MongoDB connection error:', err));
 
 
 // scenario model
@@ -48,25 +61,81 @@ const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
 const SharedUser=require('./src/Schemas/SharedUser');
+const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
 const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
 const CapitalGain = require('./src/FederalTaxes/capitalGain');
 const {OAuth2Client} = require('google-auth-library');
 const userRoutes = require('./src/Routes/User'); 
+const simulationRoutes = require('./src/Routes/Simulation'); // Add simulation routes
+const TaxData = require('./src/Schemas/TaxData');
 
 app.use('/user', userRoutes);
+app.use('/simulation', simulationRoutes); // Add simulation routes
+
+// Test route to verify MongoDB connection and User model
+app.get('/api/test-db', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    const dbState = mongoose.connection.readyState;
+    let dbStatus;
+    
+    switch (dbState) {
+      case 0:
+        dbStatus = 'Disconnected';
+        break;
+      case 1:
+        dbStatus = 'Connected';
+        break;
+      case 2:
+        dbStatus = 'Connecting';
+        break;
+      case 3:
+        dbStatus = 'Disconnecting';
+        break;
+      default:
+        dbStatus = 'Unknown';
+    }
+    
+    // Test User model
+    const userCount = await User.countDocuments();
+    
+    return res.status(200).json({
+      status: 'success',
+      message: 'Database connection test successful',
+      dbStatus,
+      userCollection: {
+        count: userCount,
+        modelExists: !!User
+      }
+    });
+  } catch (error) {
+    console.error('Database test failed:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Database connection test failed',
+      error: error.message
+    });
+  }
+});
 
 app.post('/login',async function(req,res){
+    console.log('Login request received:', req.body);
     const CLIENT_ID = req.body.clientId;
     const token = req.body.credential;
+    
+    if (!token || !CLIENT_ID) {
+        console.error('Missing token or client ID');
+        return res.status(400).json({ error: 'Missing token or client ID' });
+    }
+    
     const client = new OAuth2Client();
 
     try {
+        console.log('Verifying token with Google...');
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: CLIENT_ID,  // Specify the WEB_CLIENT_ID of the app that accesses the backend
-        // Or, if multiple clients access the backend:
-        //[WEB_CLIENT_ID_1, WEB_CLIENT_ID_2, WEB_CLIENT_ID_3]
+            audience: CLIENT_ID,
         });
     
         const payload = ticket.getPayload();
@@ -75,25 +144,44 @@ app.post('/login',async function(req,res){
         const name = payload['name'];
         const picture = payload['picture'];
     
-        console.log(`Email: ${email}`);
-        console.log(`Google ID: ${googleId}`);
+        console.log(`User authenticated: ${email} (${googleId})`);
+        
         let user = await User.findOne({ googleId });
 
         let isFirstLogin = false;
         if (!user) {
             isFirstLogin = true;
-        user = new User({
-            googleId,
-            email,
-            name,
-            picture,
-        });
-        await user.save();
-        } 
-        res.redirect(`http://localhost:3000?userId=${user._id}&firstTime=${isFirstLogin}`);
-        } catch (err) {
-        console.error('Login failed:', err);
-        res.redirect('http://localhost:3000');
+            console.log(`Creating new user: ${email}`);
+            user = new User({
+                googleId,
+                email,
+                name,
+                picture,
+            });
+            await user.save();
+            console.log('New user created with ID:', user._id);
+        } else {
+            console.log(`Existing user logged in: ${email}`);
+            // Update user info in case it changed
+            user.name = name;
+            user.picture = picture;
+            await user.save();
+            console.log('User data updated, ID:', user._id);
+        }
+        
+        // Send response
+        const responseData = { 
+            userId: user._id.toString(),
+            isFirstTime: isFirstLogin,
+            name: user.name,
+            email: user.email
+        };
+        
+        console.log('Sending login response:', responseData);
+        return res.status(200).json(responseData);
+    } catch (err) {
+        console.error('Google authentication failed:', err);
+        return res.status(401).json({ error: 'Authentication failed', details: err.message });
     }
 });
 
@@ -101,9 +189,27 @@ app.post('/login',async function(req,res){
 app.post('/scenario', async (req, res) => {
     console.log('Scenario received!');
   
-    const { scenario_name, scenario_type, birth_year, spouse_birth_year,life_expectancy, spouse_life_expectancy,
-        investments ,events, inflation_assumption, spending_strategies,expense_withdrawal_strategies,rmd_strategies,roth_conversion_strategies,
-        roth_optimizer_enable,roth_optimizer_start_year,roth_optimizer_end_year,financial_goal, state_of_residence,shared_users
+    const { 
+        scenario_name, 
+        scenario_type, 
+        birth_year, 
+        spouse_birth_year,
+        life_expectancy, 
+        spouse_life_expectancy,
+        investments,
+        events, 
+        inflation_assumption, 
+        spending_strategies,
+        expense_withdrawal_strategies,
+        rmd_strategies,
+        roth_conversion_strategies,
+        roth_optimizer_enable,
+        roth_optimizer_start_year,
+        roth_optimizer_end_year,
+        financial_goal, 
+        state_of_residence,
+        shared_users,
+        userId  // Add userId to the extracted parameters
     } = req.body; // extracting data from frontend
 
     // extract values from life_expectancy list
@@ -409,7 +515,8 @@ app.post('/scenario', async (req, res) => {
 
     const new_scenario = new Scenario({
         name: scenario_name,
-        scenarioType: scenario_type,
+        userId: userId, // Add userId to the new scenario
+        scenarioType: scenario_type, 
         birthYear: birth_year,
         spouseBirthYear: spouse_birth_year, 
         lifeExpectancy: user_life_expectancy, 
@@ -420,13 +527,116 @@ app.post('/scenario', async (req, res) => {
         financialGoal: financial_goal,
         stateOfResidence: state_of_residence,
         sharedUsers: shared_users_list
-
     });
-    await new_scenario.save();
-  
-  
+    
+    try {
+        await new_scenario.save();
+        console.log('Scenario saved successfully with ID:', new_scenario._id);
+        
+        // Return the scenario ID to the client
+        res.status(201).json({
+            success: true,
+            message: 'Scenario created successfully',
+            scenarioId: new_scenario._id
+        });
+    } catch (error) {
+        console.error('Error saving scenario:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to save scenario',
+            details: error.message
+        });
+    }
 });
 
-module.exports = app;
+
+// Function to seed default tax data if none exists
+async function seedDefaultTaxData() {
+  try {
+    // Check if tax data already exists
+    const existingTaxData = await TaxData.findOne();
+    
+    if (!existingTaxData) {
+      console.log('No tax data found. Creating default tax data...');
+      
+      const currentYear = new Date().getFullYear();
+      
+      // Create default tax data for the current year
+      const defaultTaxData = new TaxData({
+        taxYear: currentYear,
+        federal: {
+          brackets: [
+            { min: 0, max: 10275, rate: 0.10 },
+            { min: 10275, max: 41775, rate: 0.12 },
+            { min: 41775, max: 89075, rate: 0.22 },
+            { min: 89075, max: 170050, rate: 0.24 },
+            { min: 170050, max: 215950, rate: 0.32 },
+            { min: 215950, max: 539900, rate: 0.35 },
+            { min: 539900, max: Number.MAX_VALUE, rate: 0.37 }
+          ],
+          standardDeductions: {
+            single: 12950,
+            married: 25900
+          },
+          capitalGains: {
+            thresholds: [40400, 445850],
+            rates: [0, 0.15, 0.20]
+          },
+          socialSecurity: [
+            { min: 0, max: 25000, taxablePercentage: 0 },
+            { min: 25000, max: 34000, taxablePercentage: 0.5 },
+            { min: 34000, max: Number.MAX_VALUE, taxablePercentage: 0.85 }
+          ]
+        },
+        state: new Map([
+          ["NY", {
+            brackets: [
+              { min: 0, max: 8500, rate: 0.04 },
+              { min: 8500, max: 11700, rate: 0.045 },
+              { min: 11700, max: 13900, rate: 0.0525 },
+              { min: 13900, max: 80650, rate: 0.055 },
+              { min: 80650, max: 215400, rate: 0.0633 },
+              { min: 215400, max: 1077550, rate: 0.0685 },
+              { min: 1077550, max: Number.MAX_VALUE, rate: 0.0882 }
+            ],
+            standardDeduction: 8000
+          }],
+          ["CA", {
+            brackets: [
+              { min: 0, max: 9325, rate: 0.01 },
+              { min: 9325, max: 22107, rate: 0.02 },
+              { min: 22107, max: 34892, rate: 0.04 },
+              { min: 34892, max: 48435, rate: 0.06 },
+              { min: 48435, max: 61214, rate: 0.08 },
+              { min: 61214, max: 312686, rate: 0.093 },
+              { min: 312686, max: 375221, rate: 0.103 },
+              { min: 375221, max: 625369, rate: 0.113 },
+              { min: 625369, max: Number.MAX_VALUE, rate: 0.123 }
+            ],
+            standardDeduction: 4803
+          }],
+          ["TX", {
+            brackets: [
+              { min: 0, max: Number.MAX_VALUE, rate: 0 }
+            ],
+            standardDeduction: 0
+          }]
+        ]),
+        rmdTable: [
+          { 72: 25.6, 73: 24.7, 74: 23.8, 75: 22.9, 76: 22.0, 77: 21.2, 78: 20.3, 79: 19.5, 80: 18.7 },
+          { 81: 17.9, 82: 17.1, 83: 16.3, 84: 15.5, 85: 14.8, 86: 14.1, 87: 13.4, 88: 12.7, 89: 12.0, 90: 11.4 },
+          { 91: 10.8, 92: 10.2, 93: 9.6, 94: 9.1, 95: 8.6, 96: 8.1, 97: 7.6, 98: 7.1, 99: 6.7, 100: 6.3 }
+        ]
+      });
+      
+      await defaultTaxData.save();
+      console.log('Default tax data created successfully!');
+    } else {
+      console.log('Tax data already exists, no need to seed.');
+    }
+  } catch (error) {
+    console.error('Error seeding default tax data:', error);
+  }
+}
 
 

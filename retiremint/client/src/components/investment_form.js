@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 function Investment_form({ investments, set_investments ,set_page}) {
 
@@ -423,6 +423,9 @@ function Investment_form({ investments, set_investments ,set_page}) {
                                     return;
                                 }
                                 break;
+                            default:
+                                // No action needed for unknown fields
+                                break;
                         }
 
                         // Validate Expected Annual Income
@@ -455,6 +458,9 @@ function Investment_form({ investments, set_investments ,set_page}) {
                                     alert(`Investment "${investment.investment_type.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                     return;
                                 }
+                                break;
+                            default:
+                                // Handle unknown investment type
                                 break;
                         }
 

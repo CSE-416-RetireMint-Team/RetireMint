@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../Stylesheets/profile_view.css';
 import Header from './header';
 
-function ProfileView({ set_current_page }) {
+function ProfileView() {
   const [userData, setUserData] = useState(null);
   const [editData, setEditData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const userId = localStorage.getItem('userId');
@@ -54,7 +55,7 @@ function ProfileView({ set_current_page }) {
   
   return (
     <div>
-      <Header set_current_page={set_current_page} />
+      <Header />
       <div className="profile-container">
         <h2>Your Profile</h2>
 
@@ -105,8 +106,8 @@ function ProfileView({ set_current_page }) {
           <button className="submit-button" onClick={() => setIsEditing(true)}>Edit Profile</button>
         )}
 
-        <button className="back-button" onClick={() => set_current_page('dashboard')}>
-          Back to Dashboard
+        <button className="back-button" onClick={() => navigate('/dashboard')}>
+            Back to Dashboard
         </button>
       </div>
     </div>

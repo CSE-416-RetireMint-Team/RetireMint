@@ -1,6 +1,3 @@
-
-
-
 function EventForm({events, set_events,scenario_type,set_page}) {
 
     const handle_event_count_change = (e) => {
@@ -786,6 +783,10 @@ function EventForm({events, set_events,scenario_type,set_page}) {
                                     return;
                                 }
                                 break;
+
+                            default:
+                                // No action needed for unknown return type
+                                break;
                         }
 
                         // Validate duration
@@ -814,6 +815,10 @@ function EventForm({events, set_events,scenario_type,set_page}) {
                                     alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Duration.`);
                                     return;
                                 }
+                                break;
+
+                            default:
+                                // No action needed for unknown return type
                                 break;
                         }
 
@@ -876,6 +881,9 @@ function EventForm({events, set_events,scenario_type,set_page}) {
                                             return;
                                         }
                                         break;
+                                    default:
+                                        // No action needed for unknown return type
+                                        break;
                                 }
                         
                                 if (scenario_type === 'married' && !event_data.married_percentage) {
@@ -907,12 +915,19 @@ function EventForm({events, set_events,scenario_type,set_page}) {
                                             return;
                                         }
                                         break;
+                                    default:
+                                        // No action needed for unknown return type
+                                        break;
                                 }
                         
                                 if (is_invest && !invest_data.maximum_cash) {
                                     alert(`Event "${event.name}" requires Maximum Cash.`);
                                     return;
                                 }
+                                break;
+
+                            default:
+                                // No action needed for unknown event type
                                 break;
                         }
                         

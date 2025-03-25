@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './header';
-import Investment_form from './investment_form';
+import InvestmentForm from './investment_form';
 import EventForm from './event_form';
 import axios from 'axios';
 
-function New_scenario({ set_current_page }) {
-
+function New_scenario() {
+    const navigate = useNavigate();
+    
     //pages there will be 4 pages to break down the scenario form 
     const [page,set_page]=useState(1);
-
 
     const [scenario_name, set_scenario_name] = useState('');
     const [scenario_type, set_scenario_type] = useState('');
@@ -58,71 +59,111 @@ function New_scenario({ set_current_page }) {
     //shared users 
     const [shared_users,set_shared_users] = useState([])
 
-
-    
-
     const submit_scenario = async () => {
-        
-        //setting value to null for all unselected method 
-        const life_expectancy_data = [
-            life_expectancy_method, 
-            life_expectancy_method === 'fixed_value' ? fixed_value : null,
-            life_expectancy_method === 'normal_distribution' ? { mean, standard_deviation } : null
-        ];
-        
-        const spouse_life_expectancy_data = scenario_type === 'married' 
-            ? [
-                spouse_life_expectancy_method,
-                spouse_life_expectancy_method === 'fixed_value' ? spouse_fixed_value : null,
-                spouse_life_expectancy_method === 'normal_distribution' ? { mean: spouse_mean, standard_deviation: spouse_standard_deviation } : null
-            ] 
-            : null;
-
-        // construct inflation data
-        const inflation_assumption = {
-            method: inflation_method,
-            fixed_percentage: inflation_method === 'fixed_percentage' ? fixed_percentage : null,
-            normal_percentage: inflation_method === 'normal_percentage' 
-                ? { mean: normal_mean, sd: normal_sd } 
-                : { mean: null, sd: null },
-            uniform_percentage: inflation_method === 'uniform_percentage' 
-                ? { lower_bound: uniform_lower, upper_bound: uniform_upper } 
-                : { lower_bound: null, upper_bound: null }
-        };
-
-        // construct strategies data
-        const spending_strategies = spending_strategies_input.split(';').map(s => s.trim()).filter(s => s);
-        const expense_withdrawal_strategies = expense_withdrawal_strategies_input.split(';').map(s => s.trim()).filter(s => s);
-        const rmd_strategies = rmd_strategies_input.split(';').map(s => s.trim()).filter(s => s);
-        const roth_conversion_strategies = roth_conversion_strategies_input.split(';').map(s => s.trim()).filter(s => s);
-
-        const formatted_shared_users = shared_users.map(user => {
-            const [email, permission] = user.split(";");
-            return { email, permissions: permission }; // match schema structure
-        });
-
-        await axios.post('http://localhost:8000/scenario', {
-            scenario_name,
-            scenario_type,
-            birth_year,
-            spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
-            life_expectancy: life_expectancy_data,
-            spouse_life_expectancy: scenario_type === 'married' ? spouse_life_expectancy_data : null,
-            investments,
-            events,
-            inflation_assumption,
-            spending_strategies,
-            expense_withdrawal_strategies,
-            rmd_strategies,
-            roth_conversion_strategies,
-            roth_optimizer_enable,
-            roth_optimizer_start_year: roth_optimizer_enable ? roth_optimizer_start_year : null,
-            roth_optimizer_end_year: roth_optimizer_enable ? roth_optimizer_end_year : null,
-            financial_goal,  
-            state_of_residence,
-            shared_users: formatted_shared_users
+        try {
+            // Show loading or disable button here if you have UI for it
             
-        });
+            //setting value to null for all unselected method 
+            const life_expectancy_data = [
+                life_expectancy_method, 
+                life_expectancy_method === 'fixed_value' ? fixed_value : null,
+                life_expectancy_method === 'normal_distribution' ? { mean, standard_deviation } : null
+            ];
+            
+            const spouse_life_expectancy_data = scenario_type === 'married' 
+                ? [
+                    spouse_life_expectancy_method,
+                    spouse_life_expectancy_method === 'fixed_value' ? spouse_fixed_value : null,
+                    spouse_life_expectancy_method === 'normal_distribution' ? { mean: spouse_mean, standard_deviation: spouse_standard_deviation } : null
+                ] 
+                : null;
+
+            // construct inflation data
+            const inflation_assumption = {
+                method: inflation_method,
+                fixed_percentage: inflation_method === 'fixed_percentage' ? fixed_percentage : null,
+                normal_percentage: inflation_method === 'normal_percentage' 
+                    ? { mean: normal_mean, sd: normal_sd } 
+                    : { mean: null, sd: null },
+                uniform_percentage: inflation_method === 'uniform_percentage' 
+                    ? { lower_bound: uniform_lower, upper_bound: uniform_upper } 
+                    : { lower_bound: null, upper_bound: null }
+            };
+
+            // construct strategies data
+            const spending_strategies = spending_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+            const expense_withdrawal_strategies = expense_withdrawal_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+            const rmd_strategies = rmd_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+            const roth_conversion_strategies = roth_conversion_strategies_input.split(';').map(s => s.trim()).filter(s => s);
+
+            const formatted_shared_users = shared_users.map(user => {
+                const [email, permission] = user.split(";");
+                return { email, permissions: permission }; // match schema structure
+            });
+
+            // Step 1: Submit the scenario to get its ID
+            console.log('Submitting scenario...');
+            const userId = localStorage.getItem('userId') || 'guest';
+            const scenarioResponse = await axios.post('http://localhost:8000/scenario', {
+                scenario_name,
+                scenario_type,
+                birth_year,
+                spouse_birth_year: scenario_type === 'married' ? spouse_birth_year : null,
+                life_expectancy: life_expectancy_data,
+                spouse_life_expectancy: scenario_type === 'married' ? spouse_life_expectancy_data : null,
+                investments,
+                events,
+                inflation_assumption,
+                spending_strategies,
+                expense_withdrawal_strategies,
+                rmd_strategies,
+                roth_conversion_strategies,
+                roth_optimizer_enable,
+                roth_optimizer_start_year: roth_optimizer_enable ? roth_optimizer_start_year : null,
+                roth_optimizer_end_year: roth_optimizer_enable ? roth_optimizer_end_year : null,
+                financial_goal,  
+                state_of_residence,
+                shared_users: formatted_shared_users,
+                userId: userId // Include the userId in the scenario data
+            });
+            
+            if (!scenarioResponse.data || !scenarioResponse.data.scenarioId) {
+                console.error('No scenario ID received from server');
+                alert('Error creating scenario. Please try again.');
+                return;
+            }
+            
+            const scenarioId = scenarioResponse.data.scenarioId;
+            console.log('Scenario created with ID:', scenarioId);
+            
+            // Step 2: Run a simulation with the new scenario
+            console.log('Running simulation...');
+            const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
+                scenarioId: scenarioId,
+                numSimulations: 100, // Default to 100 simulations
+                numYears: 30, // Default to 30 years
+                userId: userId
+            });
+            
+            if (!simulationResponse.data || !simulationResponse.data.reportId) {
+                console.error('No report ID received from simulation');
+                alert('Error running simulation. Please try again.');
+                return;
+            }
+            
+            const reportId = simulationResponse.data.reportId;
+            console.log('Simulation completed, report ID:', reportId);
+            
+            // Store the latest report ID in localStorage
+            localStorage.setItem('latestReportId', reportId);
+            
+            // Navigate to the simulation results page
+            navigate(`/simulation-results/${reportId}`);
+            
+        } catch (error) {
+            console.error('Error during scenario submission or simulation:', error);
+            alert('Error: ' + (error.response?.data?.error || error.message || 'Unknown error'));
+        }
     };
 
     return (
@@ -334,7 +375,7 @@ function New_scenario({ set_current_page }) {
                 
             {page === 2 && (
                 <>
-                    <Investment_form investments={investments} set_investments={set_investments} set_page={set_page}/>
+                    <InvestmentForm investments={investments} set_investments={set_investments} set_page={set_page}/>
                 
                 </>
             )}
@@ -588,6 +629,9 @@ function New_scenario({ set_current_page }) {
                                         alert("Please enter both Lower and Upper Bound for Uniform Percentage.");
                                         return;
                                     }
+                                    break;
+                                default:
+                                    // No action needed for unknown fields
                                     break;
                             }
 
