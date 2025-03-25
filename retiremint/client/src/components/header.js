@@ -1,19 +1,29 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../Stylesheets/Header.css';
 
-function Header({ set_current_page }) {
+function Header() {
   const isLoggedIn = !!localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
-    window.location.href = '/'; 
+    localStorage.removeItem('latestReportId');
+    navigate('/login');
+  };
+
+  const navigateTo = (path) => {
+    navigate(path);
   };
 
   return (
-    <div className="header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <h1 className="header_text">Lifetime Financial Planner</h1>
+    <div className="header">
+      <h1 className="header-title" onClick={() => navigateTo('/dashboard')}>RetireMint</h1>
+      <div className="header-subtitle">Lifetime Financial Planner</div>
+      
       {isLoggedIn && (
         <div className="header-buttons">
-          <button className="header-btn" onClick={() => set_current_page('profile_view')}>Profile</button>
+          <button className="header-btn" onClick={() => navigateTo('/profile')}>Profile</button>
           <button className="header-btn" onClick={handleLogout}>Logout</button>
         </div>
       )}

@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../Schemas/Users'); 
+const User = require('../Schemas/Users');
+const Scenario = require('../Schemas/Scenario');
 
+// Get user profile
 router.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -22,7 +24,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Get user's scenarios
+router.get('/:userId/scenarios', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Find all scenarios where the userId matches
+    const scenarios = await Scenario.find({ userId });
+    
+    // Return the scenarios
+    res.status(200).json(scenarios);
+  } catch (error) {
+    console.error('Error fetching user scenarios:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch scenarios',
+      details: error.message
+    });
+  }
+});
 
+// Update user profile
 router.put('/:id', async (req, res) => {
   try {
     await User.findByIdAndUpdate(req.params.id, {
