@@ -189,7 +189,8 @@ app.post('/login',async function(req,res){
 app.post('/scenario', async (req, res) => {
     console.log('Scenario received!');
   
-    const { 
+    const {
+        scenario_id, // Only utilized if editing existing scenario. If new, an ID will be assigned to it.
         scenario_name, 
         scenario_type, 
         birth_year, 
@@ -212,6 +213,20 @@ app.post('/scenario', async (req, res) => {
         userId  // Add userId to the extracted parameters
     } = req.body; // extracting data from frontend
 
+    // open existing scenario if an edit is being attempted
+    let existing_scenario;
+    if (scenario_id) {
+        try {
+            existing_scenario = await Scenario.findById(scenario_id);
+            if (!existing_scenario) {
+                return (res.status(404).json({ error : 'Scenario to be edited not Found'}))
+            }
+        }
+        catch (error) {
+            res.status(500).json({ error: 'Error fetching scenario' });
+        }
+    }
+
     // extract values from life_expectancy list
     const [life_expectancy_method, fixed_value, normal_distribution] = life_expectancy;
 
@@ -221,9 +236,19 @@ app.post('/scenario', async (req, res) => {
         fixed_value,
         normal_distribution
     });
-
-    await user_life_expectancy.save();
-    
+    /*
+    if (existing_scenario) {
+        try {
+            await LifeExpectancy.findByIdAndUpdate(existing_scenario.lifeExpectancy, user_life_expectancy);
+        }
+        catch (error) {
+            res.status(500).json({ error: 'Error updating User Life Expectancy'});
+        }
+    }
+    else {
+    */
+        await user_life_expectancy.save();
+    //}    
     // now check for spouse 
 
     let spousal_life_expectancy = null;
@@ -237,17 +262,28 @@ app.post('/scenario', async (req, res) => {
             fixed_value: spouse_fixed_value,
             normal_distribution: spouse_normal_distribution
         });
-
-        await spousal_life_expectancy.save();
+        /*
+        if (existing_scenario) {
+            try {
+                await LifeExpectancy.findByIdAndUpdate(existing_scenario.spouseLifeExpectancy, spouse_life_expectancy);
+            }
+            catch (error) {
+                res.status(500).json({ error: 'Error updating Spouse Life Expectancy'});
+            }
+        }
+        else {*/
+            await spouse_life_expectancy.save();
+        //}    
     }
 
     // process investments from bottom-up
+
     
     const investment_ids = await Promise.all(investments.map(async inv => {
         
 
         // step 1: Create Expected Return
-        const expected_return = await new ExpectedReturn({
+        const expected_return_instance = new ExpectedReturn({
             method: inv.investment_type.expected_return.return_type,
             fixed_value: inv.investment_type.expected_return.return_type === 'fixed_value' 
                 ? inv.investment_type.expected_return.fixed_value 
@@ -261,7 +297,16 @@ app.post('/scenario', async (req, res) => {
             normal_percentage: inv.investment_type.expected_return.return_type === 'normal_percentage' 
                 ? inv.investment_type.expected_return.normal_percentage 
                 : null,
-        }).save();
+        });
+        if (existing_scenario) {
+            try {
+                ExpectedReturn.findByIdAndUpdate(existing_scenario.expectedRe)
+            }
+            catch (error) {
+
+            }
+        }
+        const expected_return = await expected_return_instance.save();
 
 
         // step 2: Create Expected Income

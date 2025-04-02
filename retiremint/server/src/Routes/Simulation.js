@@ -265,10 +265,28 @@ router.delete('/report/:reportId', async (req, res) => {
   try {
     const { reportId } = req.params;
     await Report.findByIdAndDelete(reportId);
-    res.json({ success: true });
+    return (res.json({ success: true }));
   } catch (error) {
-    console.error('Error deleting report:', error);
+    console.error('Error deleting report:' , error);
     res.status(500).json({ error: 'Error deleting report' });
+  }
+});
+
+
+router.get('/report/:reportId/scenario', async(req, res) => {
+  try {
+    const { reportId } = req.params;
+    const report = await Report.findById(reportId);
+    if (!report) {
+      return (res.status(404).json({ error: 'Report not Found' }));
+    }
+    const scenario = await Scenario.findById(report.scenarioId);
+    if (!scenario) {
+      return (res.status(404).json({ error: 'Scenario not Found' }));
+    }
+    res.json(scenario);
+  } catch (error) {
+    console.error(`Error fetching scenario from report: `, error)
   }
 });
 

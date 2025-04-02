@@ -41,7 +41,7 @@ function Dashboard() {
     }, [fetchUserData]);
 
     const handleNewScenario = () => {
-        navigate('/new-scenario');
+        navigate('/new-scenario/new');
     };
 
     const handleSelectScenario = (scenario) => {
@@ -52,6 +52,10 @@ function Dashboard() {
     const handleViewReport = (reportId) => {
         navigate(`/simulation-results/${reportId}`);
     };
+
+    const handleEditReport = async (reportId) => {
+        navigate(`/new-scenario/${reportId}`);
+    }
 
     const handleDeleteReport = async (reportId) => {
         if (window.confirm('Are you sure you want to delete this report?')) {
@@ -143,6 +147,12 @@ function Dashboard() {
                                             className="view-report-button"
                                         >
                                             View Results
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditReport(report._id)}
+                                            className='view-editbutton'
+                                        >
+                                            Edit Results    
                                         </button>
                                         <button 
                                             onClick={() => handleDeleteReport(report._id)}
