@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 function Investment_form({ investments, set_investments ,set_page}) {
 
@@ -205,7 +205,7 @@ function Investment_form({ investments, set_investments ,set_page}) {
 
                     <> {/* expected annual income */}
                         <div>
-                            <h2>Expected Annual Income: *</h2>
+                            <h2>Expected Annual Income from Interest or Dividends: *</h2>
 
                             <button onClick={() => update_investment(index, ['investment_type', 'expected_income', 'return_type'], 'fixed_value')}>
                                 Fixed Value
@@ -423,6 +423,9 @@ function Investment_form({ investments, set_investments ,set_page}) {
                                     return;
                                 }
                                 break;
+                            default:
+                                // No action needed for unknown fields
+                                break;
                         }
 
                         // Validate Expected Annual Income
@@ -455,6 +458,9 @@ function Investment_form({ investments, set_investments ,set_page}) {
                                     alert(`Investment "${investment.investment_type.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                     return;
                                 }
+                                break;
+                            default:
+                                // Handle unknown investment type
                                 break;
                         }
 

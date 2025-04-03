@@ -1,0 +1,227 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-container.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #3498db;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.dashboard-actions {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.action-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-button:hover {
+  background-color: #3e8e41;
+}
+
+.profile-button {
+  background-color: #27ae60;
+}
+
+.profile-button:hover {
+  background-color: #219653;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.scenarios-section, .reports-section {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scenarios-section h2, .reports-section h2 {
+  color: #2c3e50;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px 0;
+  color: #7f8c8d;
+}
+
+.empty-state button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.scenarios-list, .reports-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.scenario-card, .report-card {
+  background-color: white;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.scenario-card h3, .report-card h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.scenario-details, .report-details {
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.scenario-details p, .report-details p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.run-simulation-button {
+  background-color: #e67e22;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
+}
+
+.run-simulation-button:hover {
+  background-color: #d35400;
+}
+
+.report-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.view-report-button, .delete-report-button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  flex: 1;
+}
+
+.view-report-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.view-report-button:hover {
+  background-color: #2980b9;
+}
+
+.delete-report-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-report-button:hover {
+  background-color: #c0392b;
+}
+
+.simulation-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.simulation-form-container {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-button:hover {
+  color: #000;
+} 

@@ -1,0 +1,48 @@
+.profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  .profile-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 24px;
+  }
+  
+  .profile-field {
+    line-height: 2;
+    font-size: 16px;
+    color: #444;
+  }
+  
+  .profile-field p {
+    margin: 8px 0;
+  }
+  
+  .back-button {
+    margin-top: 24px;
+    width: 100%;
+    padding: 12px;
+    background-color: #65B991;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .back-button:hover {
+    background-color: #519d78;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 15px;
+    text-align: center;
+  }
+  

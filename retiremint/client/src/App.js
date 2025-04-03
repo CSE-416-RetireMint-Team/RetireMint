@@ -1,22 +1,55 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './components/dashboard';
-import New_scenario from './components/new_scenario';
+import NewScenario from './components/new_scenario';
+import LoginPage from './components/login_page';
+import UserProfileForm from './components/profile_setup';
+import ProfileView from './components/profile_view';
+import SimulationResults from './components/SimulationResults';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
-  const [current_page, set_current_page] = useState('dashboard');
-  let content;
-  if (current_page === 'dashboard') {
-    content = <Dashboard set_current_page={set_current_page} />;
-  } else if (current_page === 'new_scenario') {
-    content = <New_scenario set_current_page={set_current_page} />;
-  }
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
+    const firstTime = params.get('firstTime') === 'true';
+
+    if (userId) {
+      localStorage.setItem('userId', userId);
+      window.history.replaceState(null, '', '/');
+      setIsLoggedIn(true);
+      setIsFirstTime(firstTime);
+    } else {
+      // Check if user is already logged in
+      const storedUserId = localStorage.getItem('userId');
+      if (storedUserId) {
+        setIsLoggedIn(true);
+      }
+    }
+  }, []);
+
   return (
-    <div>
-      {content}
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={
+          isLoggedIn ? (
+            isFirstTime ? <Navigate to="/profile-setup" /> : <Navigate to="/dashboard" />
+          ) : (
+            <LoginPage />
+          )
+        } />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/new-scenario/:reportId" element={<NewScenario />} />
+        <Route path="/profile-setup" element={<UserProfileForm onComplete={() => setIsFirstTime(false)} />} />
+        <Route path="/profile" element={<ProfileView />} />
+        <Route path="/simulation-results" element={<SimulationResults />} />
+        <Route path="/simulation-results/:reportId" element={<SimulationResults />} />
+      </Routes>
+    </Router>
   );
 }
 

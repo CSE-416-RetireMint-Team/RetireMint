@@ -8,8 +8,12 @@
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.3",
+    "plotly.js": "^2.35.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-plotly.js": "^2.6.0",
+    "react-router": "^7.4.1",
+    "react-router-dom": "^6.30.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -23,6 +27,11 @@
     "extends": [
       "react-app",
       "react-app/jest"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!axios)/"
     ]
   },
   "browserslist": {
