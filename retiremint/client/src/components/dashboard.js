@@ -13,6 +13,8 @@ function Dashboard() {
     const [showSimulationForm, setShowSimulationForm] = useState(false);
     const [error, setError] = useState(null);
     const [stateWarning, setStateWarning] = useState(null);
+    const [file, setFile] = useState(null);
+
     const navigate = useNavigate();
 
     // Memoize fetchUserData to prevent infinite re-renders
@@ -99,7 +101,42 @@ function Dashboard() {
           console.error('Error downloading the file:', error);
           alert('There was an error while downloading the file. Please try again.');
         }
-      };
+    };
+
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            const fileName = selectedFile.name.toLowerCase();
+            if (fileName.endsWith('.yaml')) {
+                setFile(selectedFile);  // Valid file extension
+            } else {
+                alert('Please select a .YAML file');
+                event.target.value = null;  // Clear the input
+                setFile(null);
+            }
+        }
+    };
+    
+
+    const handleFileUpload = async () => {
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                await axios.post('http://localhost:8000/upload-state-tax-yaml', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                alert('File uploaded successfully');
+            } catch (error) {
+                console.error('Error uploading the file:', error);
+                alert('Failed to upload the file. Please try again.');
+            }
+        } else {
+            alert('Please select a file to upload.');
+        }
+    };
 
     if (loading) {
         return (
@@ -120,6 +157,11 @@ function Dashboard() {
             {stateWarning && <div className="warning-message">{stateWarning}</div>} {/* Show the warning message */}
             <button onClick={handleDownload}>Download Empty State YAML File</button>
 
+            {/* File upload section */}
+            <div className="file-upload-section">
+                <input type="file" onChange={handleFileChange} />
+                <button onClick={handleFileUpload}>Upload File</button>
+            </div>
 
             <div className="dashboard-actions">
                 <button onClick={handleNewScenario} className="action-button">
