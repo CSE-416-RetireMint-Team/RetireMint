@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 // initialize app
 const app = express();
@@ -694,5 +695,32 @@ app.get('/download-state-tax-yaml', (req, res) => {
         res.status(500).send('File download failed');
       }
     });
-  });
+});
 
+
+// Uploading files
+// Create the destination folder if it doesn't exist
+const storageDir = path.join(__dirname, 'src', 'StateTaxes');
+
+// Multer storage config
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, storageDir);
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+
+// Upload route
+app.post('/upload-state-tax-yaml', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    const fileExt = path.extname(req.file.originalname).toLowerCase();
+
+    res.status(200).send('File uploaded successfully.');
+});
