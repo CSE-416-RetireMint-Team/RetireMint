@@ -12,6 +12,7 @@ function Dashboard() {
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [showSimulationForm, setShowSimulationForm] = useState(false);
     const [error, setError] = useState(null);
+    const [stateWarning, setStateWarning] = useState(null);
     const navigate = useNavigate();
 
     // Memoize fetchUserData to prevent infinite re-renders
@@ -27,6 +28,16 @@ function Dashboard() {
                 // Fetch user's simulation reports
                 const reportsResponse = await axios.get(`http://localhost:8000/simulation/reports/${userId}`);
                 setReports(reportsResponse.data);
+
+                // Fetch user's data
+                const userResponse = await axios.get(`http://localhost:8000/user/${userId}`);
+                const userData = userResponse.data;
+
+                // Check if the user's state is in the allowed list
+                const allowedStates = ['NY', 'NJ', 'CT', 'TX'];
+                if (!allowedStates.includes(userData.state)) {
+                    setStateWarning('Your state tax file is not available. You have to fill it out. Without it, all simulations will be done without state tax.');
+                }
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -69,6 +80,27 @@ function Dashboard() {
         }
     };
 
+    const handleDownload = async () => {
+        try {
+          // Make a GET request to the backend to download the YAML file
+          const response = await axios.get('http://localhost:8000/download-state-tax-yaml', {
+            responseType: 'blob',  // Ensure the response is handled as a file
+          });
+      
+          // Create a temporary link to trigger the download
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'YAML_format.YAML';  // Name of the file to be downloaded
+          document.body.appendChild(a);  
+          a.click();  
+          a.remove();  
+        } catch (error) {
+          console.error('Error downloading the file:', error);
+          alert('There was an error while downloading the file. Please try again.');
+        }
+      };
+
     if (loading) {
         return (
             <div className="dashboard-container loading">
@@ -85,6 +117,10 @@ function Dashboard() {
             
             {error && <div className="error-message">{error}</div>}
             
+            {stateWarning && <div className="warning-message">{stateWarning}</div>} {/* Show the warning message */}
+            <button onClick={handleDownload}>Download Empty State YAML File</button>
+
+
             <div className="dashboard-actions">
                 <button onClick={handleNewScenario} className="action-button">
                     Create New Scenario
