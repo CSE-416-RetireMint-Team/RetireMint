@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
+const fs = require('fs');
+const path = require('path');
 
 // initialize app
 const app = express();
@@ -28,8 +29,7 @@ mongoose.connect('mongodb://localhost:27017/retiremint')
     await CapitalGain();
 
     // Create 'logs' directory if it doesn't exist
-    const fs = require('fs');
-    const path = require('path');
+    
     const logDir = path.join(__dirname, 'logs');
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
@@ -684,4 +684,15 @@ async function seedDefaultTaxData() {
   }
 }
 
+// Serve the YAML file from the server
+app.get('/download-state-tax-yaml', (req, res) => {
+    
+    const filePath = path.join(__dirname, 'src', 'StateTaxes', 'YAML_format.YAML');
+    res.download(filePath, 'YAML_format.YAML', (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('File download failed');
+      }
+    });
+  });
 
