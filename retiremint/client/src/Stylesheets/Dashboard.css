@@ -161,7 +161,7 @@
   margin-top: 15px;
 }
 
-.view-report-button, .delete-report-button {
+.view-report-button, .delete-report-button, .edit-report-button {
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -185,6 +185,14 @@
 
 .delete-report-button:hover {
   background-color: #c0392b;
+}
+.edit-report-button {
+  background-color: #3dd06e;
+  color: white;
+}
+
+.edit-report-button:hover {
+  background-color: #39b763;
 }
 
 .simulation-form-overlay {

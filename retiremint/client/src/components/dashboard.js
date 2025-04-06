@@ -228,7 +228,7 @@ function Dashboard() {
                                         </button>
                                         <button
                                             onClick={() => handleEditReport(report._id)}
-                                            className='view-editbutton'
+                                            className='edit-report-button'
                                         >
                                             Edit Results    
                                         </button>
