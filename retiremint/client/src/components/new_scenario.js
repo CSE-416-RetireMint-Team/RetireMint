@@ -73,15 +73,24 @@ function New_scenario() {
                 if (reportId != "new"){
                     setLoading(true);
                     console.log("Loading");
-                    const response = await axios.get(`http://localhost:8000/simulation/report/${reportId}/scenario`);
-                    console.log(response.data);
+                    const response = await axios.get(`http://localhost:8000/simulation/report/${reportId}/scenario`);                    
                     set_scenario_id(response.data._id);
                     // Update placeholder values with existing scenario data to be changed.
                     set_scenario_name(response.data.name);
                     set_scenario_type(response.data.scenarioType);
                     set_birth_year(response.data.birthYear);
                     set_spouse_birth_year(response.data.spouseBirthYear);
-                    //set_investments(response.data.investments);
+
+                    // Fetch Investments with all id's broken down and convert it to the investment format in the form.
+                    const response_investments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenario_id: response.data._id});
+                    const converted_investments = convertInvestmentFormat(response_investments.data.investments);
+                    set_investments(converted_investments);
+
+                    // Fetch Events with all id's broken down and convert it to the event format in the form.
+                    const response_events = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenario_id: response.data._id});
+                    const converted_events = convertEventFormat(response_events.data.events);
+                    set_events(converted_events);
+
                     //set_events(response.data.events);
                     //TODO: Return to spending strategies, lifeExpectancy. Stored as a separate object in DB. 
                     //set_spending_strategies_input(response.data.spendingstrategies);
@@ -730,6 +739,63 @@ function New_scenario() {
             </div>
         </div>
     );
+}
+
+// Converts investments taken from the Database to the format that the form uses to edit a scenario.
+function convertInvestmentFormat( db_investments) {
+    const new_investments = [];
+    let i = 0;
+    while (i < db_investments.length) {
+        new_investments.push({
+            investment_type: {
+                name: db_investments[i].investmentType.name,
+                description: db_investments[i].investmentType.description,
+                expected_return: { 
+                    return_type: db_investments[i].investmentType.expectedAnnualReturn.method,
+                    fixed_value: db_investments[i].investmentType.expectedAnnualReturn.fixed_value, 
+                    fixed_percentage: db_investments[i].investmentType.expectedAnnualReturn.fixed_percentage, 
+                    normal_value: db_investments[i].investmentType.expectedAnnualReturn.normal_value, 
+                    normal_percentage: db_investments[i].investmentType.expectedAnnualReturn.normal_percentage
+                },
+                expected_income: { 
+                    return_type: db_investments[i].investmentType.expectedAnnualIncome.method,
+                    fixed_value: db_investments[i].investmentType.expectedAnnualIncome.fixed_value, 
+                    fixed_percentage: db_investments[i].investmentType.expectedAnnualIncome.fixed_percentage, 
+                    normal_value: db_investments[i].investmentType.expectedAnnualIncome.normal_value, 
+                    normal_percentage: db_investments[i].investmentType.expectedAnnualIncome.normal_percentage
+                },
+                expense_ratio: db_investments[i].investmentType.expenseRatio,
+                taxability: db_investments[i].investmentType.taxability,
+            },
+            value: db_investments[i].value,
+            tax_status: db_investments[i].accountTaxStatus,
+        });
+
+        i++;
+    }
+    return new_investments;
+}
+
+
+// Converts events from the Database to the format that the form uses to edit a scenario.
+function convertEventFormat(db_events) {
+    const new_events = [];
+    let i = 0;
+    while (i < db_events.length) {
+        new_events.push({
+            name: db_events[i].name,
+            description: db_events[i].description,
+            start_year: db_events[i].startYear,
+            duration: db_events[i].duration,
+            event_type: db_events[i].type,
+            income: db_events[i].income,
+            expense: db_events[i].expense,
+            invest: db_events[i].invest,
+            rebalance: db_events[i].rebalance
+        });
+        i++;
+    }
+    return new_events;
 }
 
 export default New_scenario;
