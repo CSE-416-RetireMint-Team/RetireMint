@@ -5,21 +5,21 @@ const Schema = mongoose.Schema;
 const DurationSchema = new Schema({
     method: {
         type: String,
-        enum: ['fixed_value', 'normal_value', 'uniform_value'], // allowed methods
+        enum: ['fixedValue', 'normalValue', 'uniformValue'], // allowed methods
         required: true
     },
-    fixed_value: {
+    fixedValue: {
         type: Number
     },
-    normal_value: {
+    normalValue: {
         mean: { type: Number },
         sd: { type: Number }
     },
-    uniform_value: {
-        lower_bound: { type: Number },
-        upper_bound: { type: Number }
+    uniformValue: {
+        lowerBound: { type: Number },
+        upperBound: { type: Number }
     },
-    computed_value: { //this is where the actual value will be store 
+    computedValue: { //this is where the actual value will be store 
         type: Number  
     }
     

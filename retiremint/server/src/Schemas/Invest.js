@@ -9,7 +9,7 @@ const InvestSchema = new Schema({
         ref: 'Allocation', 
         required: true
     },
-    maximum_cash :{
+    maximumCash :{
         type: Number,
         required: true
     }

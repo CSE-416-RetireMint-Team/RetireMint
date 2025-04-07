@@ -5,27 +5,27 @@ const Schema = mongoose.Schema;
 const StartYearSchema = new Schema({
     method: {
         type: String,
-        enum: ['fixed_value', 'normal_value', 'uniform_value','same_year_as_another_event','year_after_another_event_end'], // allowed methods
+        enum: ['fixedValue', 'normalValue', 'uniformValue','sameYearAsAnotherEvent','yearAfterAnotherEventEnd'], // allowed methods
         required: true
     },
-    fixed_value: {
+    fixedValue: {
         type: Number
     },
-    normal_value: {
+    normalValue: {
         mean: { type: Number },
         sd: { type: Number }
     },
-    uniform_value: {
-        lower_bound: { type: Number },
-        upper_bound: { type: Number }
+    uniformValue: {
+        lowerBound: { type: Number },
+        upperBound: { type: Number }
     },
-    same_year_as_another_event: { 
+    sameYearAsAnotherEvent: { 
         type: String 
     },
-    year_after_another_event_end: { 
+    yearAfterAnotherEventEnd: { 
         type: String 
     },
-    computed_value: { //this is where the actual value will be store 
+    computedValue: { //this is where the actual value will be store 
         type: Number  
     }
     

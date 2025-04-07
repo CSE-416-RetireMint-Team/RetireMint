@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from './header';
-import '../Stylesheets/profile_setup.css';
+import Header from './Header';
+import '../Stylesheets/ProfileSetup.css';
 
 function UserProfileForm({ onComplete }) {
   const [formData, setFormData] = useState({
