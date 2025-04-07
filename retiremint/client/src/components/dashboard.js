@@ -17,7 +17,7 @@ function Dashboard() {
 
     const navigate = useNavigate();
 
-    // Memoize fetchUserData to prevent infinite re-renders
+    // Memoize fetchUserData to prevent infinite re-renderss
     const fetchUserData = useCallback(async () => {
         try {
             setLoading(true);
