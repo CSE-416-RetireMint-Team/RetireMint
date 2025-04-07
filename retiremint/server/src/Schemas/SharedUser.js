@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const SharedUserSchema = new Schema({
     permissions: {
         type: String,
-        enum: ['read_only', 'read_write'], 
+        enum: ['readOnly', 'readWrite'], 
         required: true
     },
     email: {

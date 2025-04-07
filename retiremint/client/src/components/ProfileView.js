@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../Stylesheets/profile_view.css';
-import Header from './header';
+import '../Stylesheets/ProfileView.css';
+import Header from './Header';
 
 function ProfileView() {
   const [userData, setUserData] = useState(null);

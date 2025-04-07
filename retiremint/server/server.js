@@ -122,10 +122,10 @@ app.get('/api/test-db', async (req, res) => {
 
 app.post('/login',async function(req,res){
     console.log('Login request received:', req.body);
-    const CLIENT_ID = req.body.clientId;
+    const clientId = req.body.clientId;
     const token = req.body.credential;
     
-    if (!token || !CLIENT_ID) {
+    if (!token || !clientId) {
         console.error('Missing token or client ID');
         return res.status(400).json({ error: 'Missing token or client ID' });
     }
@@ -136,7 +136,7 @@ app.post('/login',async function(req,res){
         console.log('Verifying token with Google...');
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: CLIENT_ID,
+            audience: clientId,
         });
     
         const payload = ticket.getPayload();
@@ -191,35 +191,35 @@ app.post('/scenario', async (req, res) => {
     console.log('Scenario received!');
   
     const {
-        scenario_id, // Only utilized if editing existing scenario. If new, an ID will be assigned to it.
-        scenario_name, 
-        scenario_type, 
-        birth_year, 
-        spouse_birth_year,
-        life_expectancy, 
-        spouse_life_expectancy,
+        scenarioIdEdit, // Only utilized if editing existing scenario. If new, an ID will be assigned to it.
+        scenarioName, 
+        scenarioType, 
+        birthYear, 
+        spouseBirthYear,
+        lifeExpectancy, 
+        spouseLifeExpectancy,
         investments,
         events, 
-        inflation_assumption, 
-        spending_strategies,
-        expense_withdrawal_strategies,
-        rmd_strategies,
-        roth_conversion_strategies,
-        roth_optimizer_enable,
-        roth_optimizer_start_year,
-        roth_optimizer_end_year,
-        financial_goal, 
-        state_of_residence,
-        shared_users,
+        inflationAssumption, 
+        spendingStrategies,
+        expenseWithdrawalStrategies,
+        rmdStrategies,
+        rothConversionStrategies,
+        rothOptimizerEnable,
+        rothOptimizerStartYear,
+        rothOptimizerEndYear,
+        financialGoal, 
+        stateOfResidence,
+        sharedUsers,
         userId  // Add userId to the extracted parameters
     } = req.body; // extracting data from frontend
 
     // open existing scenario if an edit is being attempted
-    let existing_scenario;
-    if (scenario_id) {
+    let existingScenario;
+    if (scenarioIdEdit) {
         try {
-            existing_scenario = await Scenario.findById(scenario_id);
-            if (!existing_scenario) {
+            existingScenario = await Scenario.findById(scenarioIdEdit);
+            if (!existingScenario) {
                 return (res.status(404).json({ error : 'Scenario to be edited not Found'}))
             }
         }
@@ -229,35 +229,35 @@ app.post('/scenario', async (req, res) => {
     }
     // Delete Investments/Events and any items from other schemas inside that are to be replaced. (Reasoning: The new version may have more/less Investments or Events than the original, may not be 1:1 update)
     
-    if (existing_scenario) {
+    if (existingScenario) {
         try {
-            let existing_investment;
-            for (i = 0; i < existing_scenario.investments.length; i++) {
-                existing_investment = await Investment.findById(existing_scenario.investments[i]);
-                let existing_investment_type = await InvestmentType.findById(existing_investment.investmentType);
-                await ExpectedReturn.findByIdAndDelete(existing_investment_type.expectedAnnualReturn);
-                await ExpectedIncome.findByIdAndDelete(existing_investment_type.expectedAnnualIncome);
-                await InvestmentType.findByIdAndDelete(existing_investment.investmentType);
-                await Investment.findByIdAndDelete(existing_scenario.investments[i]);
+            let existingInvestment;
+            for (i = 0; i < existingScenario.investments.length; i++) {
+                existingInvestment = await Investment.findById(existingScenario.investments[i]);
+                let existingInvestmentType = await InvestmentType.findById(existingInvestment.investmentType);
+                await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualReturn);
+                await ExpectedIncome.findByIdAndDelete(existingInvestmentType.expectedAnnualIncome);
+                await InvestmentType.findByIdAndDelete(existingInvestment.investmentType);
+                await Investment.findByIdAndDelete(existingScenario.investments[i]);
             }
-            let existing_event;
-            for (i = 0; i < existing_scenario.events.length; i++) {
-                existing_event = await Event.findById(existing_scenario.events[i]);
-                await StartYear.findByIdAndDelete(existing_event.startYear);
-                await Duration.findByIdAndDelete(existing_event.duration);
-                let income = await Income.findById(existing_event.income);
+            let existingEvent;
+            for (i = 0; i < existingScenario.events.length; i++) {
+                existingEvent = await Event.findById(existingScenario.events[i]);
+                await StartYear.findByIdAndDelete(existingEvent.startYear);
+                await Duration.findByIdAndDelete(existingEvent.duration);
+                let income = await Income.findById(existingEvent.income);
                 if (income) {
-                    await ExpectedAnnualChange.findByIdAndDelete(income.expected_annual_change);
-                    await Income.findByIdAndDelete(existing_event.income);
+                    await ExpectedAnnualChange.findByIdAndDelete(income.expectedAnnualChange);
+                    await Income.findByIdAndDelete(existingEvent.income);
                 }
-                let expense = await Expense.findById(existing_event.expense);
+                let expense = await Expense.findById(existingEvent.expense);
                 if (expense) {
-                    await ExpectedAnnualChange.findByIdAndDelete(expense.expected_annual_change);
-                    await Expense.findByIdAndDelete(existing_event.expense);
+                    await ExpectedAnnualChange.findByIdAndDelete(expense.expectedAnnualChange);
+                    await Expense.findByIdAndDelete(existingEvent.expense);
                 }
-                await Invest.findByIdAndDelete(existing_event.invest);
-                await Rebalance.findByIdAndDelete(existing_event.rebalance);
-                await Event.findByIdAndDelete(existing_scenario.events[i]);
+                await Invest.findByIdAndDelete(existingEvent.invest);
+                await Rebalance.findByIdAndDelete(existingEvent.rebalance);
+                await Event.findByIdAndDelete(existingScenario.events[i]);
             }
         }
         catch (error) {
@@ -267,46 +267,46 @@ app.post('/scenario', async (req, res) => {
     
 
 
-    // extract values from life_expectancy list
-    const [life_expectancy_method, fixed_value, normal_distribution] = life_expectancy;
+    // extract values from lifeExpectancy list
+    const [lifeExpectancyMethod, fixedValue, normalDistribution] = lifeExpectancy;
 
     // create and save user life expectancy
     // If this is a new scenario, save instead of updating.
-    let user_life_expectancy;
-    if (!existing_scenario) {
-        user_life_expectancy = new LifeExpectancy({
-            life_expectancy_method,
-            fixed_value,
-            normal_distribution
+    let userLifeExpectancy;
+    if (!existingScenario) {
+        userLifeExpectancy = new LifeExpectancy({
+            lifeExpectancyMethod,
+            fixedValue,
+            normalDistribution
         });
-        await user_life_expectancy.save();
+        await userLifeExpectancy.save();
     }
     else {
         try {
-            user_life_expectancy = await LifeExpectancy.findByIdAndUpdate(existing_scenario.lifeExpectancy, {life_expectancy_method: life_expectancy_method , fixed_value: fixed_value, normal_distribution: normal_distribution}, {new: true});
+            userLifeExpectancy = await LifeExpectancy.findByIdAndUpdate(existingScenario.lifeExpectancy, {lifeExpectancyMethod: lifeExpectancyMethod , fixedValue: fixedValue, normalDistribution: normalDistribution}, {new: true});
         }
         catch (error) {
             res.status(500).json({ error: 'Error updating User Life Expectancy' });
         }
     }    
     // now check for spouse 
-    let spousal_life_expectancy = null;
+    let spousalLifeExpectancy = null;
     // check if spouse life expectancy exists and extract values
-    if (scenario_type === 'married' && spouse_life_expectancy !== null) {
-        const [spouse_life_expectancy_method, spouse_fixed_value, spouse_normal_distribution] = spouse_life_expectancy;
+    if (scenarioType === 'married' && spouseLifeExpectancy !== null) {
+        const [spouseLifeExpectancyMethod, spouseFixedValue, spouseNormalDistribution] = spouseLifeExpectancy;
 
-        spousal_life_expectancy = new LifeExpectancy({
-            life_expectancy_method: spouse_life_expectancy_method,
-            fixed_value: spouse_fixed_value,
-            normal_distribution: spouse_normal_distribution
+        spousalLifeExpectancy = new LifeExpectancy({
+            lifeExpectancyMethod: spouseLifeExpectancyMethod,
+            fixedValue: spouseFixedValue,
+            normalDistribution: spouseNormalDistribution
         });
         // If this is a new scenario, save instead of updating.
-        if (!existing_scenario) {
-            await spouse_life_expectancy.save();
+        if (!existingScenario) {
+            await spouseLifeExpectancy.save();
         }   
         else {
             try {
-                await LifeExpectancy.findByIdAndUpdate(existing_scenario.spouseLifeExpectancy, user_life_expectancy, {new: true});
+                await LifeExpectancy.findByIdAndUpdate(existingScenario.spouseLifeExpectancy, userLifeExpectancy, {new: true});
             }
             catch (error) {
                 res.status(500).json({ error: 'Error updating Spouse Life Expectancy' });
@@ -317,65 +317,65 @@ app.post('/scenario', async (req, res) => {
     // process investments from bottom-up
 
     
-    const investment_ids = await Promise.all(investments.map(async inv => {
+    const investmentIds = await Promise.all(investments.map(async inv => {
         
         // step 1: Create Expected Return
-        const expected_return_instance = new ExpectedReturn({
-            method: inv.investment_type.expected_return.return_type,
-            fixed_value: inv.investment_type.expected_return.return_type === 'fixed_value' 
-                ? inv.investment_type.expected_return.fixed_value 
+        const expectedReturnInstance = new ExpectedReturn({
+            method: inv.investmentType.expectedReturn.returnType,
+            fixedValue: inv.investmentType.expectedReturn.returnType === 'fixedValue' 
+                ? inv.investmentType.expectedReturn.fixedValue 
                 : null,
-            fixed_percentage: inv.investment_type.expected_return.return_type === 'fixed_percentage' 
-                ? inv.investment_type.expected_return.fixed_percentage 
+            fixedPercentage: inv.investmentType.expectedReturn.returnType === 'fixedPercentage' 
+                ? inv.investmentType.expectedReturn.fixedPercentage 
                 : null,
-            normal_value: inv.investment_type.expected_return.return_type === 'normal_value' 
-                ? inv.investment_type.expected_return.normal_value 
+            normalValue: inv.investmentType.expectedReturn.returnType === 'normalValue' 
+                ? inv.investmentType.expectedReturn.normalValue 
                 : null,
-            normal_percentage: inv.investment_type.expected_return.return_type === 'normal_percentage' 
-                ? inv.investment_type.expected_return.normal_percentage 
+            normalPercentage: inv.investmentType.expectedReturn.returnType === 'normalPercentage' 
+                ? inv.investmentType.expectedReturn.normalPercentage 
                 : null,
         });
-        let expected_return;
+        let expectedReturn;
         // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
-        expected_return = await expected_return_instance.save();
+        expectedReturn = await expectedReturnInstance.save();
 
         // step 2: Create Expected Income
-        let expected_income = new ExpectedIncome({
-            method: inv.investment_type.expected_income.return_type,
-            fixed_value: inv.investment_type.expected_income.return_type === 'fixed_value' 
-                ? inv.investment_type.expected_income.fixed_value 
+        let expectedIncome = new ExpectedIncome({
+            method: inv.investmentType.expectedIncome.returnType,
+            fixedValue: inv.investmentType.expectedIncome.returnType === 'fixedValue' 
+                ? inv.investmentType.expectedIncome.fixedValue 
                 : null,
-            fixed_percentage: inv.investment_type.expected_income.return_type === 'fixed_percentage' 
-                ? inv.investment_type.expected_income.fixed_percentage 
+            fixedPercentage: inv.investmentType.expectedIncome.returnType === 'fixedPercentage' 
+                ? inv.investmentType.expectedIncome.fixedPercentage 
                 : null,
-            normal_value: inv.investment_type.expected_income.return_type === 'normal_value' 
-                ? inv.investment_type.expected_income.normal_value 
+            normalValue: inv.investmentType.expectedIncome.returnType === 'normalValue' 
+                ? inv.investmentType.expectedIncome.normalValue 
                 : null,
-            normal_percentage: inv.investment_type.expected_income.return_type === 'normal_percentage' 
-                ? inv.investment_type.expected_income.normal_percentage 
+            normalPercentage: inv.investmentType.expectedIncome.returnType === 'normalPercentage' 
+                ? inv.investmentType.expectedIncome.normalPercentage 
                 : null,
         })
-        expected_income.save();
+        expectedIncome.save();
 
-        //step 3: create investment_type
+        //step 3: create investmentType
        
-        const investment_type = new InvestmentType({
-            name: inv.investment_type.name,
-            description: inv.investment_type.description,
-            expectedAnnualReturn: expected_return._id,
-            expectedAnnualIncome: expected_income._id,
-            expenseRatio: inv.investment_type.expense_ratio,
-            taxability: inv.investment_type.taxability
+        const investmentType = new InvestmentType({
+            name: inv.investmentType.name,
+            description: inv.investmentType.description,
+            expectedAnnualReturn: expectedReturn._id,
+            expectedAnnualIncome: expectedIncome._id,
+            expenseRatio: inv.investmentType.expenseRatio,
+            taxability: inv.investmentType.taxability
         });
-        investment_type.save();
+        investmentType.save();
     
     
         // step 4 create investment
 
         const investment = await new Investment({
-            investmentType: investment_type._id,
+            investmentType: investmentType._id,
             value: inv.value,
-            accountTaxStatus: inv.tax_status
+            accountTaxStatus: inv.taxStatus
         }).save();
 
         return investment._id;
@@ -384,148 +384,148 @@ app.post('/scenario', async (req, res) => {
 
 
     //create events
-    const event_ids = await Promise.all(events.map(async eve => {
+    const eventIds = await Promise.all(events.map(async eve => {
 
-        const start_year = await new StartYear({
-            method: eve.start_year.return_type,
-            fixed_value: eve.start_year.return_type === 'fixed_value' 
-                ? eve.start_year.fixed_value 
+        const startYear = await new StartYear({
+            method: eve.startYear.returnType,
+            fixedValue: eve.startYear.returnType === 'fixedValue' 
+                ? eve.startYear.fixedValue 
                 : null,
-            normal_value: eve.start_year.return_type === 'normal_value' 
-                ? eve.start_year.normal_value 
+            normalValue: eve.startYear.returnType === 'normalValue' 
+                ? eve.startYear.normalValue 
                 : null,
-            uniform_value: eve.start_year.return_type === 'uniform_value' 
-                ? eve.start_year.uniform_value 
+            uniformValue: eve.startYear.returnType === 'uniformValue' 
+                ? eve.startYear.uniformValue 
                 : null,
-            same_year_as_another_event: eve.start_year.return_type === 'same_year_as_another_event' 
-                ? eve.start_year.same_year_as_another_event 
+            sameYearAsAnotherEvent: eve.startYear.returnType === 'sameYearAsAnotherEvent' 
+                ? eve.startYear.sameYearAsAnotherEvent 
                 : null,
-            year_after_another_event_end: eve.start_year.return_type === 'year_after_another_event_end' 
-                ? eve.start_year.year_after_another_event_end 
+            yearAfterAnotherEventEnd: eve.startYear.returnType === 'yearAfterAnotherEventEnd' 
+                ? eve.startYear.yearAfterAnotherEventEnd 
                 : null,
         }).save();
 
 
-        const duration_obj = await new Duration({
-            method: eve.duration.return_type,
-            fixed_value: eve.duration.return_type === 'fixed_value' 
-                ? eve.duration.fixed_value 
+        const durationObj = await new Duration({
+            method: eve.duration.returnType,
+            fixedValue: eve.duration.returnType === 'fixedValue' 
+                ? eve.duration.fixedValue 
                 : null,
-            normal_value: eve.duration.return_type === 'normal_value' 
-                ? eve.duration.normal_value 
+            normalValue: eve.duration.returnType === 'normalValue' 
+                ? eve.duration.normalValue 
                 : null,
-            uniform_value: eve.duration.return_type === 'uniform_value' 
-                ? eve.duration.uniform_value 
+            uniformValue: eve.duration.returnType === 'uniformValue' 
+                ? eve.duration.uniformValue 
                 : null,
         }).save();
 
 
         // default all objects to null
-        let income_obj = null;
-        let expense_obj = null;
-        let invest_obj = null;
-        let rebalance_obj = null;
+        let incomeObj = null;
+        let expenseObj = null;
+        let investObj = null;
+        let rebalanceObj = null;
 
-        if(eve.event_type==="income"){
-            const expected_annual_change_for_income = await new ExpectedAnnualChange({
-                method: eve.income.expected_annual_change.return_type,
-                fixed_value: eve.income.expected_annual_change.return_type === 'fixed_value' 
-                    ? eve.income.expected_annual_change.fixed_value 
+        if(eve.eventType==="income"){
+            const expectedAnnualChangeForIncome = await new ExpectedAnnualChange({
+                method: eve.income.expectedAnnualChange.returnType,
+                fixedValue: eve.income.expectedAnnualChange.returnType === 'fixedValue' 
+                    ? eve.income.expectedAnnualChange.fixedValue 
                     : null,
-                fixed_percentage: eve.income.expected_annual_change.return_type === 'fixed_percentage' 
-                    ? eve.income.expected_annual_change.fixed_percentage 
+                fixedPercentage: eve.income.expectedAnnualChange.returnType === 'fixedPercentage' 
+                    ? eve.income.expectedAnnualChange.fixedPercentage 
                     : null,
-                normal_value: eve.income.expected_annual_change.return_type === 'normal_value' 
-                    ? eve.income.expected_annual_change.normal_value 
+                normalValue: eve.income.expectedAnnualChange.returnType === 'normalValue' 
+                    ? eve.income.expectedAnnualChange.normalValue 
                     : null,
-                normal_percentage: eve.income.expected_annual_change.return_type === 'normal_percentage' 
-                    ? eve.income.expected_annual_change.normal_percentage 
+                normalPercentage: eve.income.expectedAnnualChange.returnType === 'normalPercentage' 
+                    ? eve.income.expectedAnnualChange.normalPercentage 
                     : null,
-                uniform_value: eve.income.expected_annual_change.return_type === 'uniform_value' 
-                    ? eve.income.expected_annual_change.uniform_value 
+                uniformValue: eve.income.expectedAnnualChange.returnType === 'uniformValue' 
+                    ? eve.income.expectedAnnualChange.uniformValue 
                     : null,
-                uniform_percentage: eve.income.expected_annual_change.return_type === 'uniform_percentage' 
-                    ? eve.income.expected_annual_change.uniform_percentage 
+                uniformPercentage: eve.income.expectedAnnualChange.returnType === 'uniformPercentage' 
+                    ? eve.income.expectedAnnualChange.uniformPercentage 
                     : null,
             }).save();
             
 
 
-            income_obj = await new Income({
-                initial_amount: eve.income.initial_amount,
-                expected_annual_change: expected_annual_change_for_income.id,
-                inflation_adjustment: eve.income.inflation_adjustment,
-                married_percentage: eve.income.married_percentage,
-                is_social_security: eve.income.is_social_security
+            incomeObj = await new Income({
+                initialAmount: eve.income.initialAmount,
+                expectedAnnualChange: expectedAnnualChangeForIncome.id,
+                inflationAdjustment: eve.income.inflationAdjustment,
+                marriedPercentage: eve.income.marriedPercentage,
+                isSocialSecurity: eve.income.isSocialSecurity
     
             }).save()
 
-        }else if(eve.event_type==="expense"){
-            const expected_annual_change_for_expense = await new ExpectedAnnualChange({
-                method: eve.expense.expected_annual_change.return_type,
-                fixed_value: eve.expense.expected_annual_change.return_type === 'fixed_value' 
-                    ? eve.expense.expected_annual_change.fixed_value 
+        }else if(eve.eventType==="expense"){
+            const expectedAnnualChangeForExpense = await new ExpectedAnnualChange({
+                method: eve.expense.expectedAnnualChange.returnType,
+                fixedValue: eve.expense.expectedAnnualChange.returnType === 'fixedValue' 
+                    ? eve.expense.expectedAnnualChange.fixedValue 
                     : null,
-                fixed_percentage: eve.expense.expected_annual_change.return_type === 'fixed_percentage' 
-                    ? eve.expense.expected_annual_change.fixed_percentage 
+                fixedPercentage: eve.expense.expectedAnnualChange.returnType === 'fixedPercentage' 
+                    ? eve.expense.expectedAnnualChange.fixedPercentage 
                     : null,
-                normal_value: eve.expense.expected_annual_change.return_type === 'normal_value' 
-                    ? eve.expense.expected_annual_change.normal_value 
+                normalValue: eve.expense.expectedAnnualChange.returnType === 'normalValue' 
+                    ? eve.expense.expectedAnnualChange.normalValue 
                     : null,
-                normal_percentage: eve.expense.expected_annual_change.return_type === 'normal_percentage' 
-                    ? eve.expense.expected_annual_change.normal_percentage 
+                normalPercentage: eve.expense.expectedAnnualChange.returnType === 'normalPercentage' 
+                    ? eve.expense.expectedAnnualChange.normalPercentage 
                     : null,
-                uniform_value: eve.expense.expected_annual_change.return_type === 'uniform_value' 
-                    ? eve.expense.expected_annual_change.uniform_value 
+                uniformValue: eve.expense.expectedAnnualChange.returnType === 'uniformValue' 
+                    ? eve.expense.expectedAnnualChange.uniformValue 
                     : null,
-                uniform_percentage: eve.expense.expected_annual_change.return_type === 'uniform_percentage' 
-                    ? eve.expense.expected_annual_change.uniform_percentage 
+                uniformPercentage: eve.expense.expectedAnnualChange.returnType === 'uniformPercentage' 
+                    ? eve.expense.expectedAnnualChange.uniformPercentage 
                     : null,
             }).save();
             
 
-            expense_obj =await  new Expense({
-                initial_amount: eve.expense.initial_amount,
-                expected_annual_change: expected_annual_change_for_expense.id,
-                inflation_adjustment: eve.expense.inflation_adjustment,
-                married_percentage: eve.expense.married_percentage,
-                is_discretionary: eve.expense.is_discretionary
+            expenseObj =await  new Expense({
+                initialAmount: eve.expense.initialAmount,
+                expectedAnnualChange: expectedAnnualChangeForExpense.id,
+                inflationAdjustment: eve.expense.inflationAdjustment,
+                marriedPercentage: eve.expense.marriedPercentage,
+                isDiscretionary: eve.expense.isDiscretionary
     
             }).save()
 
-        }else if(eve.event_type==="invest"){
+        }else if(eve.eventType==="invest"){
 
-            const invest_allocation = await new Allocation({
-                method: eve.invest.return_type,
-                fixed_allocation: eve.invest.return_type === 'fixed_allocation' && eve.invest.fixed_allocation
-                    ? eve.invest.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)
+            const investAllocation = await new Allocation({
+                method: eve.invest.returnType,
+                fixedAllocation: eve.invest.returnType === 'fixedAllocation' && eve.invest.fixedAllocation
+                    ? eve.invest.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
-                glide_path: eve.invest.return_type === 'glide_path' && eve.invest.glide_path
-                    ? eve.invest.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                glidePath: eve.invest.returnType === 'glidePath' && eve.invest.glidePath
+                    ? eve.invest.glidePath.split(';').map(s => s.trim()).filter(s => s)
                     : []
             }).save();
             
     
-            invest_obj =await  new Invest({
-                allocations: invest_allocation.id,
-                maximum_cash : eve.invest.maximum_cash
+            investObj =await  new Invest({
+                allocations: investAllocation.id,
+                maximumCash : eve.invest.maximumCash
     
             }).save()
             
-        }else if(eve.event_type==="rebalance"){
-            const rebalance_allocation = await new Allocation({
-                method: eve.rebalance.return_type,
-                fixed_allocation: eve.rebalance.return_type === 'fixed_allocation' && eve.rebalance.fixed_allocation
-                    ? eve.rebalance.fixed_allocation.split(';').map(s => s.trim()).filter(s => s)
+        }else if(eve.eventType==="rebalance"){
+            const rebalanceAllocation = await new Allocation({
+                method: eve.rebalance.returnType,
+                fixedAllocation: eve.rebalance.returnType === 'fixedAllocation' && eve.rebalance.fixedAllocation
+                    ? eve.rebalance.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
-                glide_path: eve.rebalance.return_type === 'glide_path' && eve.rebalance.glide_path
-                    ? eve.rebalance.glide_path.split(';').map(s => s.trim()).filter(s => s)
+                glidePath: eve.rebalance.returnType === 'glidePath' && eve.rebalance.glidePath
+                    ? eve.rebalance.glidePath.split(';').map(s => s.trim()).filter(s => s)
                     : []
             }).save();
             
     
-            rebalance_obj =await  new Rebalance({
-                allocations: rebalance_allocation.id,
+            rebalanceObj =await  new Rebalance({
+                allocations: rebalanceAllocation.id,
             }).save()
         }       
 
@@ -534,13 +534,13 @@ app.post('/scenario', async (req, res) => {
         const event = await new Event({
             name: eve.name,
             description: eve.description,
-            startYear: start_year.id,
-            duration: duration_obj.id,
-            type: eve.event_type,
-            income: income_obj ? income_obj.id : null,
-            expense: expense_obj ? expense_obj.id : null,
-            invest: invest_obj ? invest_obj.id : null,
-            rebalance: rebalance_obj ? rebalance_obj.id : null
+            startYear: startYear.id,
+            duration: durationObj.id,
+            type: eve.eventType,
+            income: incomeObj ? incomeObj.id : null,
+            expense: expenseObj ? expenseObj.id : null,
+            invest: investObj ? investObj.id : null,
+            rebalance: rebalanceObj ? rebalanceObj.id : null
 
         }).save();
         return event._id;
@@ -548,108 +548,108 @@ app.post('/scenario', async (req, res) => {
     
     //create inflation object
     // Create and save Inflation object
-    let existing_simulation_settings;
-    if (existing_scenario) {
+    let existingSimulationSettings;
+    if (existingScenario) {
         try {
-            existing_simulation_settings = await SimulationSettings.findById(existing_scenario.simulationSettings);
+            existingSimulationSettings = await SimulationSettings.findById(existingScenario.simulationSettings);
         }
         catch (error) {
             res.status(500).json({ error: 'Error fetching original simulation settings.' });
         }
     }
     let inflation;
-    if (!existing_simulation_settings) {
+    if (!existingSimulationSettings) {
          inflation = new Inflation({
-            method: inflation_assumption.method,
-            fixed_percentage: inflation_assumption.fixed_percentage,
-            normal_percentage: inflation_assumption.normal_percentage,
-            uniform_percentage: inflation_assumption.uniform_percentage
+            method: inflationAssumption.method,
+            fixedPercentage: inflationAssumption.fixedPercentage,
+            normalPercentage: inflationAssumption.normalPercentage,
+            uniformPercentage: inflationAssumption.uniformPercentage
         });
         await inflation.save();
     }
     else {
-        inflation = await Inflation.findByIdAndUpdate(existing_simulation_settings.inflation, inflation, {new: true});
+        inflation = await Inflation.findByIdAndUpdate(existingSimulationSettings.inflation, inflation, {new: true});
     }
 
     //simulation setting
-    let simulation_settings;
-    if (!existing_simulation_settings) {
-        simulation_settings = new SimulationSettings({
+    let simulationSettings;
+    if (!existingSimulationSettings) {
+        simulationSettings = new SimulationSettings({
             inflationAssumption: inflation._id,
-            spendingStrategies: spending_strategies,
-            expenseWithdrawalStrategies: expense_withdrawal_strategies,
-            rmdStrategies: rmd_strategies,
-            rothConversionStrategies: roth_conversion_strategies,
-            rothOptimizerEnable: roth_optimizer_enable,
-            rothOptimizerStartYear: roth_optimizer_start_year,
-            rothOptimizerEndYear: roth_optimizer_end_year
+            spendingStrategies: spendingStrategies,
+            expenseWithdrawalStrategies: expenseWithdrawalStrategies,
+            rmdStrategies: rmdStrategies,
+            rothConversionStrategies: rothConversionStrategies,
+            rothOptimizerEnable: rothOptimizerEnable,
+            rothOptimizerStartYear: rothOptimizerStartYear,
+            rothOptimizerEndYear: rothOptimizerEndYear
         });
-        await simulation_settings.save();
+        await simulationSettings.save();
     }
     else {
-        simulation_settings = await SimulationSettings.findByIdAndUpdate(existing_simulation_settings._id, simulation_settings, {new: true});
+        simulationSettings = await SimulationSettings.findByIdAndUpdate(existingSimulationSettings._id, simulationSettings, {new: true});
     }
 
     //share setting
 
-    let shared_users_list = []; // array to store SharedUser objects
-    if (shared_users && shared_users.length > 0) {
+    let sharedUsersList = []; // array to store SharedUser objects
+    if (sharedUsers && sharedUsers.length > 0) {
         // create and store SharedUser objects
-        shared_users_list = await Promise.all(shared_users.map(async user => {
-            const shared_user = new SharedUser(user);
-            await shared_user.save();
-            return shared_user._id; 
+        sharedUsersList = await Promise.all(sharedUsers.map(async user => {
+            const sharedUser = new SharedUser(user);
+            await sharedUser.save();
+            return sharedUser._id; 
         }));
     }
     
     try {
-        if (!existing_scenario) {
-            const new_scenario = new Scenario({
-                name: scenario_name,
+        if (!existingScenario) {
+            const newScenario = new Scenario({
+                name: scenarioName,
                 userId: userId, // Add userId to the new scenario
-                scenarioType: scenario_type, 
-                birthYear: birth_year,
-                spouseBirthYear: spouse_birth_year, 
-                lifeExpectancy: user_life_expectancy, 
-                spouseLifeExpectancy: spousal_life_expectancy ? spousal_life_expectancy._id : null,
-                investments: investment_ids,
-                events: event_ids,
-                simulationSettings: simulation_settings._id,
-                financialGoal: financial_goal,
-                stateOfResidence: state_of_residence,
-                sharedUsers: shared_users_list
+                scenarioType: scenarioType, 
+                birthYear: birthYear,
+                spouseBirthYear: spouseBirthYear, 
+                lifeExpectancy: userLifeExpectancy, 
+                spouseLifeExpectancy: spousalLifeExpectancy ? spousalLifeExpectancy._id : null,
+                investments: investmentIds,
+                events: eventIds,
+                simulationSettings: simulationSettings._id,
+                financialGoal: financialGoal,
+                stateOfResidence: stateOfResidence,
+                sharedUsers: sharedUsersList
             });
-            await new_scenario.save();
-            console.log('Scenario saved successfully with ID:', new_scenario._id);    
+            await newScenario.save();
+            console.log('Scenario saved successfully with ID:', newScenario._id);    
             // Return the scenario ID to the client
             res.status(201).json({
                 success: true,
                 message: 'Scenario created successfully',
-                scenarioId: new_scenario._id
+                scenarioId: newScenario._id
             });
         }
         else {
-            await Scenario.findByIdAndUpdate(existing_scenario._id, {
-                name: scenario_name,
+            await Scenario.findByIdAndUpdate(existingScenario._id, {
+                name: scenarioName,
                 userId: userId, // Add userId to the new scenario
-                scenarioType: scenario_type, 
-                birthYear: birth_year,
-                spouseBirthYear: spouse_birth_year, 
-                lifeExpectancy: user_life_expectancy, 
-                spouseLifeExpectancy: spousal_life_expectancy ? spousal_life_expectancy._id : null,
-                investments: investment_ids,
-                events: event_ids,
-                simulationSettings: simulation_settings._id,
-                financialGoal: financial_goal,
-                stateOfResidence: state_of_residence,
-                sharedUsers: shared_users_list
+                scenarioType: scenarioType, 
+                birthYear: birthYear,
+                spouseBirthYear: spouseBirthYear, 
+                lifeExpectancy: userLifeExpectancy, 
+                spouseLifeExpectancy: spousalLifeExpectancy ? spousalLifeExpectancy._id : null,
+                investments: investmentIds,
+                events: eventIds,
+                simulationSettings: simulationSettings._id,
+                financialGoal: financialGoal,
+                stateOfResidence: stateOfResidence,
+                sharedUsers: sharedUsersList
             }, {new: true});
-            console.log('Scenario updated with ID:', existing_scenario._id); 
+            console.log('Scenario updated with ID:', existingScenario._id); 
             // Return the original scenario ID to the client
             res.status(201).json({
                 success: true,  
                 message: 'Scenario created successfully',
-                scenarioId: existing_scenario._id
+                scenarioId: existingScenario._id
             });   
         }
     } catch (error) {
@@ -665,18 +665,18 @@ app.post('/scenario', async (req, res) => {
 // Returns a list of the Investment and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investments', async (req, res) => {
     try {
-        const scenario_id = req.body.scenario_id;
-        const scenario = await Scenario.findById(scenario_id);
-        const investment_ids = scenario.investments;
+        const scenarioIdEdit = req.body.scenarioIdEdit;
+        const scenario = await Scenario.findById(scenarioIdEdit);
+        const investmentIds = scenario.investments;
         const investments = [];
-        for (i = 0; i < investment_ids.length; i++) {
-            let investment = await Investment.findById(investment_ids[i]);
-            let investment_type = await InvestmentType.findById(investment.investmentType);
-            investment.investmentType = investment_type;
-            let expected_return = await ExpectedReturn.findById(investment_type.expectedAnnualReturn);
-            investment.investmentType.expectedAnnualReturn = expected_return;
-            let expected_income = await ExpectedIncome.findById(investment_type.expectedAnnualIncome);
-            investment.investmentType.expectedAnnualIncome = expected_income;
+        for (i = 0; i < investmentIds.length; i++) {
+            let investment = await Investment.findById(investmentIds[i]);
+            let investmentType = await InvestmentType.findById(investment.investmentType);
+            investment.investmentType = investmentType;
+            let expectedReturn = await ExpectedReturn.findById(investmentType.expectedAnnualReturn);
+            investment.investmentType.expectedAnnualReturn = expectedReturn;
+            let expectedIncome = await ExpectedIncome.findById(investmentType.expectedAnnualIncome);
+            investment.investmentType.expectedAnnualIncome = expectedIncome;
             investments.push(investment);
         }
         res.json({
@@ -697,27 +697,27 @@ app.post('/simulation/scenario/investments', async (req, res) => {
 // Returns a list of the Events and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/events', async (req, res) => {
     try {
-        const scenario_id = req.body.scenario_id;
-        const scenario = await Scenario.findById(scenario_id);
-        const event_ids = scenario.events;
+        const scenarioIdEdit = req.body.scenarioIdEdit;
+        const scenario = await Scenario.findById(scenarioIdEdit);
+        const eventIds = scenario.events;
         const events = [];
-        for (i = 0; i < event_ids.length; i++) {
-            let event = await Event.findById(event_ids[i]);
-            let start_year = await StartYear.findById(event.startYear);
-            event.startYear = start_year;
+        for (i = 0; i < eventIds.length; i++) {
+            let event = await Event.findById(eventIds[i]);
+            let startYear = await StartYear.findById(event.startYear);
+            event.startYear = startYear;
             let duration = await Duration.findById(event.duration);
             event.duration = duration;
             let income = await Income.findById(event.income);
             event.income = income;
             if (income) {
-                let income_expected_annual_change = await ExpectedAnnualChange.findById(income.expected_annual_change);
-                event.income.expected_annual_change = income_expected_annual_change;
+                let incomeExpectedAnnualChange = await ExpectedAnnualChange.findById(income.expectedAnnualChange);
+                event.income.expectedAnnualChange = incomeExpectedAnnualChange;
             }
             let expense = await Expense.findById(event.expense);
             event.expense = expense;
             if (expense) {
-                let expense_expected_annual_change = await ExpectedAnnualChange.findById(expense.expected_annual_change);
-                event.expense.expected_annual_change = expense_expected_annual_change;
+                let expenseExpectedAnnualChange = await ExpectedAnnualChange.findById(expense.expectedAnnualChange);
+                event.expense.expectedAnnualChange = expenseExpectedAnnualChange;
             }
             let invest = await Invest.findById(event.invest);
             event.invest = invest;

@@ -3,23 +3,23 @@ const Schema = mongoose.Schema;
 
 
 const IncomeSchema = new Schema({
-    initial_amount :{
+    initialAmount :{
         type : Number,
         required: true
     },
-    expected_annual_change :{
+    expectedAnnualChange :{
         type: Schema.Types.ObjectId,
         ref: 'ExpectedAnnualChange',
         required: true 
     },
-    inflation_adjustment: {
+    inflationAdjustment: {
         type: Boolean,
         required: true
     },
-    married_percentage: {
+    marriedPercentage: {
         type: Number
     },
-    is_social_security: {
+    isSocialSecurity: {
         type: Boolean,
         required: true
     }

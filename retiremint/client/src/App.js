@@ -1,11 +1,11 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Dashboard from './components/dashboard';
-import NewScenario from './components/new_scenario';
-import LoginPage from './components/login_page';
-import UserProfileForm from './components/profile_setup';
-import ProfileView from './components/profile_view';
+import Dashboard from './components/Dashboard';
+import NewScenario from './components/NewScenario';
+import LoginPage from './components/LoginPage';
+import UserProfileForm from './components/ProfileSetup';
+import ProfileView from './components/ProfileView';
 import SimulationResults from './components/SimulationResults';
 
 function App() {
