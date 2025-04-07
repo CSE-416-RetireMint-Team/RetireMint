@@ -205,7 +205,7 @@ function Investment_form({ investments, set_investments ,set_page}) {
 
                     <> {/* expected annual income */}
                         <div>
-                            <h2>Expected Annual Income: *</h2>
+                            <h2>Expected Annual Income from Interest or Dividends: *</h2>
 
                             <button onClick={() => update_investment(index, ['investment_type', 'expected_income', 'return_type'], 'fixed_value')}>
                                 Fixed Value

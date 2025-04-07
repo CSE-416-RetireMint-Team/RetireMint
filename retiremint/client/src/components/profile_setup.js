@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './header';
 import '../Stylesheets/profile_setup.css';
 
@@ -11,6 +12,7 @@ function UserProfileForm({ onComplete }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const states = [
     'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -50,12 +52,18 @@ function UserProfileForm({ onComplete }) {
       }
   
       if (onComplete) onComplete();
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };  
+
+  const handleSkip = () => {
+    if (onComplete) onComplete();
+    navigate('/dashboard');
+  };
 
   const createInput = (id, label, type = 'text', extra = {}) =>
     React.createElement('div', { className: 'form-group', key: id + '-group' }, [
@@ -121,7 +129,7 @@ function UserProfileForm({ onComplete }) {
               'button',
               {
                 type: 'button',
-                onClick: () => onComplete(),
+                onClick: handleSkip,
                 className: 'skip-button',
                 key: 'skip',
               },

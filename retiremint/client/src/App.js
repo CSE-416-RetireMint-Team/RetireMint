@@ -43,7 +43,7 @@ function App() {
         } />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/new-scenario" element={<NewScenario />} />
+        <Route path="/new-scenario/:reportId" element={<NewScenario />} />
         <Route path="/profile-setup" element={<UserProfileForm onComplete={() => setIsFirstTime(false)} />} />
         <Route path="/profile" element={<ProfileView />} />
         <Route path="/simulation-results" element={<SimulationResults />} />

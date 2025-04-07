@@ -12,6 +12,9 @@ function Dashboard() {
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [showSimulationForm, setShowSimulationForm] = useState(false);
     const [error, setError] = useState(null);
+    const [stateWarning, setStateWarning] = useState(null);
+    const [file, setFile] = useState(null);
+
     const navigate = useNavigate();
 
     // Memoize fetchUserData to prevent infinite re-renders
@@ -27,6 +30,16 @@ function Dashboard() {
                 // Fetch user's simulation reports
                 const reportsResponse = await axios.get(`http://localhost:8000/simulation/reports/${userId}`);
                 setReports(reportsResponse.data);
+
+                // Fetch user's data
+                const userResponse = await axios.get(`http://localhost:8000/user/${userId}`);
+                const userData = userResponse.data;
+
+                // Check if the user's state is in the allowed list
+                const allowedStates = ['NY', 'NJ', 'CT', 'TX'];
+                if (!allowedStates.includes(userData.state)) {
+                    setStateWarning('Your state tax file is not available. You have to fill it out. Without it, all simulations will be done without state tax.');
+                }
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -41,7 +54,7 @@ function Dashboard() {
     }, [fetchUserData]);
 
     const handleNewScenario = () => {
-        navigate('/new-scenario');
+        navigate('/new-scenario/new');
     };
 
     const handleSelectScenario = (scenario) => {
@@ -53,6 +66,10 @@ function Dashboard() {
         navigate(`/simulation-results/${reportId}`);
     };
 
+    const handleEditReport = async (reportId) => {
+        navigate(`/new-scenario/${reportId}`);
+    }
+
     const handleDeleteReport = async (reportId) => {
         if (window.confirm('Are you sure you want to delete this report?')) {
             try {
@@ -62,6 +79,62 @@ function Dashboard() {
                 console.error('Error deleting report:', err);
                 setError('Failed to delete the report. Please try again later.');
             }
+        }
+    };
+
+    const handleDownload = async () => {
+        try {
+          // Make a GET request to the backend to download the YAML file
+          const response = await axios.get('http://localhost:8000/download-state-tax-yaml', {
+            responseType: 'blob',  // Ensure the response is handled as a file
+          });
+      
+          // Create a temporary link to trigger the download
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'YAML_format.YAML';  // Name of the file to be downloaded
+          document.body.appendChild(a);  
+          a.click();  
+          a.remove();  
+        } catch (error) {
+          console.error('Error downloading the file:', error);
+          alert('There was an error while downloading the file. Please try again.');
+        }
+    };
+
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            const fileName = selectedFile.name.toLowerCase();
+            if (fileName.endsWith('.yaml')) {
+                setFile(selectedFile);  // Valid file extension
+            } else {
+                alert('Please select a .YAML file');
+                event.target.value = null;  // Clear the input
+                setFile(null);
+            }
+        }
+    };
+    
+
+    const handleFileUpload = async () => {
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                await axios.post('http://localhost:8000/upload-state-tax-yaml', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                alert('File uploaded successfully');
+            } catch (error) {
+                console.error('Error uploading the file:', error);
+                alert('Failed to upload the file. Please try again.');
+            }
+        } else {
+            alert('Please select a file to upload.');
         }
     };
 
@@ -81,6 +154,15 @@ function Dashboard() {
             
             {error && <div className="error-message">{error}</div>}
             
+            {stateWarning && <div className="warning-message">{stateWarning}</div>} {/* Show the warning message */}
+            <button onClick={handleDownload}>Download Empty State YAML File</button>
+
+            {/* File upload section */}
+            <div className="file-upload-section">
+                <input type="file" onChange={handleFileChange} />
+                <button onClick={handleFileUpload}>Upload File</button>
+            </div>
+
             <div className="dashboard-actions">
                 <button onClick={handleNewScenario} className="action-button">
                     Create New Scenario
@@ -143,6 +225,12 @@ function Dashboard() {
                                             className="view-report-button"
                                         >
                                             View Results
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditReport(report._id)}
+                                            className='edit-report-button'
+                                        >
+                                            Edit Results    
                                         </button>
                                         <button 
                                             onClick={() => handleDeleteReport(report._id)}

@@ -8,6 +8,7 @@ function ProfileView() {
   const [editData, setEditData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,8 +49,10 @@ function ProfileView() {
       setEditData(updated);
       setIsEditing(false);
       setError(''); 
+      setSuccess('Profile updated successfully!');
     } catch (err) {
       setError(err.message);
+      setSuccess('');
     }
   };
   
