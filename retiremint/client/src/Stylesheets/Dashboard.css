@@ -38,24 +38,23 @@
 
 .dashboard-actions {
   display: flex;
-  justify-content: center;
-  margin: 20px 0;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .action-button {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
-  background-color: #4CAF50;
+  background-color: #3498db;
   color: white;
   border: none;
+  padding: 12px 20px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 16px;
   transition: background-color 0.3s;
 }
 
 .action-button:hover {
-  background-color: #3e8e41;
+  background-color: #2980b9;
 }
 
 .profile-button {
