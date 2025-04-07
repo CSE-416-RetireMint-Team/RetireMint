@@ -1,7 +1,7 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/DashboardComp';
 import NewScenario from './components/NewScenario';
 import LoginPage from './components/LoginPage';
 import UserProfileForm from './components/ProfileSetup';

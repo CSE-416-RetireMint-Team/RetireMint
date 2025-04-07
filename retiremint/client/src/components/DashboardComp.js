@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Header from './Header';
+import Header from './HeaderComp';
 import RunSimulation from './RunSimulation';
 import '../Stylesheets/Dashboard.css';
 
