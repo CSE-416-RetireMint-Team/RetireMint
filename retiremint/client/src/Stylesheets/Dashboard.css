@@ -38,12 +38,13 @@
 
 .dashboard-actions {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
+  justify-content: center;
+  margin-bottom: 20px 0;
 }
 
 .action-button {
-  background-color: #3498db;
+  justify-content: center;
+  background-color: #3dd06e;
   color: white;
   border: none;
   padding: 12px 20px;

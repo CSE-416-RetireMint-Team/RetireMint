@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Header from './Header';
+import Header from './HeaderComp';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import axios from 'axios';
@@ -10,7 +10,7 @@ function NewScenario() {
 
     // Handling editing existing scenario (if necessary)
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    //const [error, setError] = useState(null);
     const { reportId } = useParams();
     const [scenarioIdEdit, setScenarioIdEdit] = useState(null);
 
@@ -70,7 +70,7 @@ function NewScenario() {
         console.log(reportId)
         const fetchScenario = async () => {
             try {
-                if (reportId != "new"){
+                if (reportId !== "new"){
                     setLoading(true);
                     console.log("Loading");
                     const response = await axios.get(`http://localhost:8000/simulation/report/${reportId}/scenario`);                    
