@@ -2,19 +2,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const LifeExpectancySchema = new Schema({
-    life_expectancy_method: {  
+    lifeExpectancyMethod: {  
         type: String, 
-        enum: ['fixed_value', 'normal_distribution'], 
+        enum: ['fixedValue', 'normalDistribution'], 
         required: true 
     },
-    fixed_value: { 
+    fixedValue: { 
         type: Number 
     },
-    normal_distribution: { 
+    normalDistribution: { 
         mean: { type: Number },
-        standard_deviation: { type: Number }
+        standardDeviation: { type: Number }
     },
-    computed_value: { //this is where the actual value will be store 
+    computedValue: { //this is where the actual value will be store 
         type: Number  
     }
 });

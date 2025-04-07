@@ -5,14 +5,14 @@ const Schema = mongoose.Schema;
 const AllocationSchema = new Schema({
     method: {
         type: String,
-        enum: ['fixed_allocation', 'glide_path'], // allowed methods
+        enum: ['fixedAllocation', 'glidePath'], // allowed methods
         required: true
     },
-    fixed_allocation: [{ 
+    fixedAllocation: [{ 
         type: String
     
     }],
-    glide_path: [{ 
+    glidePath: [{ 
         type: String
     
     }]

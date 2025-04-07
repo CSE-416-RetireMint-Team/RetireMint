@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Header from './header';
-import '../Stylesheets/login_page.css';
+import Header from './Header';
+import '../Stylesheets/LoginPage.css';
 
 function LoginPage() {
     const googleButtonRef = useRef(null);
