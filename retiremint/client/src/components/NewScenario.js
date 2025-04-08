@@ -91,14 +91,6 @@ function NewScenario() {
                     const convertedEvents = convertEventFormat(responseEvents.data.events);
                     setEvents(convertedEvents);
 
-                    //setEvents(response.data.events);
-                    //TODO: Return to spending strategies, lifeExpectancy. Stored as a separate object in DB. 
-                    //setSpendingStrategiesInput(response.data.spendingstrategies);
-                    //setRmdStrategiesInput(response.data.rmdStrategiesInput);
-                    //setInflationMethod(response.data.inflationMethod);
-                    //setRothOptimizerEnable(response.data.RothOptimizerEnable);
-                    //setRothRptimizerStartYear(response.data.setRothRptimizerStartYear);
-                    //setRothOptimizerEndYear(response.data.rothOptimizerEndYear);
                     setFinancialGoal(response.data.financialGoal);
                     setStateOfResidence(response.data.stateOfResidence);
                     setSharedUsers(response.data.sharedUsers);
