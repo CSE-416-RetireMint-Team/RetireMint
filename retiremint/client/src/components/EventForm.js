@@ -62,10 +62,7 @@ function EventForm({events, setEvents,scenarioType,setPage}) {
                     invest: {
                         returnType: '',
                         fixedAllocation: '',
-                        glidePath: '',
-                        maximumCash: ''
-
-
+                        glidePath: ''
                     },
                     rebalance:{
                         returnType: '',
@@ -659,15 +656,6 @@ function EventForm({events, setEvents,scenarioType,setPage}) {
                                     />
                                 </>
                             )}
-
-                            {/* Maximum Cash Input */}
-                            <h3>Maximum Cash:</h3>
-                            <input
-                                type="number"
-                                placeholder="Enter Maximum Cash"
-                                value={event.invest.maximumCash || ""}
-                                onChange={(e) => updateEvent(index, ['invest', 'maximumCash'], e.target.value)}
-                            />
                         </div>
                     )}
 
@@ -727,7 +715,7 @@ function EventForm({events, setEvents,scenarioType,setPage}) {
 
            {/* Navigation Buttons */}
             <div>
-                <button onClick={() => setPage(2)}>Previous</button>
+                <button onClick={() => setPage(3)}>Previous</button>
                 
                 <button onClick={() => {
                     if (events.length === 0) {
@@ -920,10 +908,6 @@ function EventForm({events, setEvents,scenarioType,setPage}) {
                                         break;
                                 }
                         
-                                if (isInvest && !investData.maximumCash) {
-                                    alert(`Event "${event.name}" requires Maximum Cash.`);
-                                    return;
-                                }
                                 break;
 
                             default:
@@ -938,7 +922,7 @@ function EventForm({events, setEvents,scenarioType,setPage}) {
                     }
 
                     // If all events are valid, proceed to the next page
-                    setPage(4);
+                    setPage(5);
                 }}>
                     Next
                 </button>

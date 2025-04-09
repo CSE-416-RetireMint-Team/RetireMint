@@ -62,6 +62,7 @@ function NewScenario() {
 
     // financial goal and state of residence
     const [financialGoal, setFinancialGoal] = useState('');
+    const [maximumCash, setMaximumCash] = useState('');
     const [stateOfResidence, setStateOfResidence] = useState('');
 
     //shared users 
@@ -82,6 +83,7 @@ function NewScenario() {
                     setScenarioType(response.data.scenarioType);
                     setBirthYear(response.data.birthYear);
                     setSpouseBirthYear(response.data.spouseBirthYear);
+                    setMaximumCash(response.data.maximumCash);
 
                     // Fetch Investments with all id's broken down and convert it to the investment format in the form.
                     const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioIdEdit: response.data._id});
@@ -174,6 +176,7 @@ function NewScenario() {
                 rothRptimizerStartYear: RothOptimizerEnable ? rothRptimizerStartYear : null,
                 rothOptimizerEndYear: RothOptimizerEnable ? rothOptimizerEndYear : null,
                 financialGoal,  
+                maximumCash,
                 stateOfResidence,
                 sharedUsers: formattedSharedUsers,
                 userId: userId // Include the userId in the scenario data
@@ -370,6 +373,19 @@ function NewScenario() {
 
                     </div>
 
+                    <div>
+                        <h2>Maximum Cash *</h2>
+                        <input 
+                            type="number" 
+                            placeholder="Enter maximum cash amount" 
+                            value={maximumCash} 
+                            onChange={(e) => setMaximumCash(e.target.value)} 
+                        />
+                        <p className="helper-text">
+                            This value is used for all invest events to determine the maximum amount of cash to keep.
+                        </p>
+                    </div>
+
                     <>
                     {/* Next Button */}
                         <button onClick={() => {
@@ -414,6 +430,10 @@ function NewScenario() {
                                     alert("Please enter a mean and standard deviation for your spouse.");
                                     return;
                                 }
+                            }
+                            if (!maximumCash) {
+                                alert("Maximum Cash is required.");
+                                return;
                             }
 
                             // if everything is valid, proceed to the next page
@@ -675,7 +695,7 @@ function NewScenario() {
 
                     {/* Navigation Buttons */}
                     <div>
-                        <button onClick={() => setPage(3)}>Previous</button>
+                        <button onClick={() => setPage(4)}>Previous</button>
                         <button onClick={() => {
                             // Validate Inflation Method
                             if (!inflationMethod) {
@@ -878,8 +898,7 @@ function convertEventFormat(dbEvents) {
             invest: {
                 returnType: dbEvents[i].invest?.returnType ?? '',
                 fixedAllocation: dbEvents[i].invest?.fixedAllocation ?? '',
-                glidePath: dbEvents[i].invest?.glidePath ?? '',
-                maximumCash: dbEvents[i].invest?.maximumCash ?? ''
+                glidePath: dbEvents[i].invest?.glidePath ?? ''
             },
             rebalance: {
                 returnType: dbEvents[i].rebalance?.returnType ?? '',

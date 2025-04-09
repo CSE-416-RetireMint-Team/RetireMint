@@ -11,7 +11,6 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
             while (newInvestments.length < count) {
                 newInvestments.push({
                     name: '',
-                    desc: '',
                     investmentType: {
                         name: '',
                         description: '',
@@ -84,20 +83,13 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     <h2>Investment {index + 1}</h2>
                     
                     <>
-                    {/* name and description */}
+                    {/* name */}
                         <h2>Name: *</h2>
                         <input 
                             type="text" 
                             placeholder="Investment Name" 
                             value={investment.name} 
                             onChange={(e) => updateInvestment(index, ['name'], e.target.value)} 
-                        />
-                         <h2>Description:</h2>
-                        <input 
-                            type="text" 
-                            placeholder="Investment Description" 
-                            value={investment.investmentType.description} 
-                            onChange={(e) => updateInvestment(index, ['investmentType', 'description'], e.target.value)}
                         />
                     </>
 
@@ -115,11 +107,16 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                                     updateInvestment(index, ['investmentType'], {
                                         ...selectedType,
                                         // Keep existing fields if they don't exist in the selected type
-                                        description: selectedType.description || investment.investmentType.description,
+                                        description: selectedType.description, // Always use the description from the selected type
                                         expectedReturn: selectedType.expectedReturn || investment.investmentType.expectedReturn,
                                         expenseRatio: selectedType.expenseRatio || investment.investmentType.expenseRatio,
                                         taxability: selectedType.taxability || investment.investmentType.taxability
                                     });
+                                    
+                                    // If investment type is tax-exempt, clear the tax status
+                                    if (selectedType.taxability === 'tax-exempt') {
+                                        updateInvestment(index, ['taxStatus'], '');
+                                    }
                                 }
                             }}
                         >
@@ -138,153 +135,6 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             Please select from your previously created investment types, or go back to the Investment Type page to create new ones.
                         </p>
                     </div>
-                    
-                    {/* Expected Annual Return */}
-                    <div>
-                        <h2>Expected Annual Return: *</h2>
-                        <div>
-                            <label>Return Type:</label>
-                            <div>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`returnType${index}`}
-                                        value="fixedValue"
-                                        checked={investment.investmentType.expectedReturn.returnType === "fixedValue"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "returnType"], e.target.value)}
-                                    />
-                                    Fixed Value (in dollars)
-                                </label>
-                                {investment.investmentType.expectedReturn.returnType === "fixedValue" && (
-                                    <input
-                                        type="number"
-                                        placeholder="Fixed Value"
-                                        value={investment.investmentType.expectedReturn.fixedValue}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "fixedValue"], e.target.value)}
-                                    />
-                                )}
-                            </div>
-                            <div>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`returnType${index}`}
-                                        value="fixedPercentage"
-                                        checked={investment.investmentType.expectedReturn.returnType === "fixedPercentage"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "returnType"], e.target.value)}
-                                    />
-                                    Fixed Percentage
-                                </label>
-                                {investment.investmentType.expectedReturn.returnType === "fixedPercentage" && (
-                                    <input
-                                        type="number"
-                                        placeholder="Fixed Percentage"
-                                        value={investment.investmentType.expectedReturn.fixedPercentage}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "fixedPercentage"], e.target.value)}
-                                    />
-                                )}
-                            </div>
-                            <div>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`returnType${index}`}
-                                        value="normalValue"
-                                        checked={investment.investmentType.expectedReturn.returnType === "normalValue"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "returnType"], e.target.value)}
-                                    />
-                                    Normal Distribution (in dollars)
-                                </label>
-                                {investment.investmentType.expectedReturn.returnType === "normalValue" && (
-                                    <div>
-                                        <input
-                                            type="number"
-                                            placeholder="Mean"
-                                            value={investment.investmentType.expectedReturn.normalValue.mean}
-                                            onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "normalValue", "mean"], e.target.value)}
-                                        />
-                                        <input
-                                            type="number"
-                                            placeholder="Standard Deviation"
-                                            value={investment.investmentType.expectedReturn.normalValue.sd}
-                                            onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "normalValue", "sd"], e.target.value)}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                            <div>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`returnType${index}`}
-                                        value="normalPercentage"
-                                        checked={investment.investmentType.expectedReturn.returnType === "normalPercentage"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "returnType"], e.target.value)}
-                                    />
-                                    Normal Distribution (percentage)
-                                </label>
-                                {investment.investmentType.expectedReturn.returnType === "normalPercentage" && (
-                                    <div>
-                                        <input
-                                            type="number"
-                                            placeholder="Mean"
-                                            value={investment.investmentType.expectedReturn.normalPercentage.mean}
-                                            onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "normalPercentage", "mean"], e.target.value)}
-                                        />
-                                        <input
-                                            type="number"
-                                            placeholder="Standard Deviation"
-                                            value={investment.investmentType.expectedReturn.normalPercentage.sd}
-                                            onChange={(e) => updateInvestment(index, ["investmentType", "expectedReturn", "normalPercentage", "sd"], e.target.value)}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                     {/* expense ratio */}
-                     <div>
-                        <h2>Expense Ratio (%) *:</h2>
-                        <input
-                            type="number"
-                            placeholder="Expense Ratio"
-                            value={investment.investmentType.expenseRatio}
-                            onChange={(e) => updateInvestment(index, ['investmentType', 'expenseRatio'], e.target.value)}
-                        />
-                    </div>
-
-
-                    {/* taxability section */}
-                    <div>
-                        <h2>Taxability: *</h2>
-                        <ul>
-                            <li>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`taxability${index}`}
-                                        value="taxable"
-                                        checked={investment.investmentType.taxability === "taxable"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
-                                    />
-                                    Taxable
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`taxability${index}`}
-                                        value="tax-exempt"
-                                        checked={investment.investmentType.taxability === "tax-exempt"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
-                                    />
-                                    Tax-Exempt
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
 
                     {/* value in dollars */}
                     <h2>Value In Dollars: *:</h2>
@@ -295,53 +145,52 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                         onChange={(e) => updateInvestment(index, ['value'], e.target.value)}
                     />
 
-                    <h2>Tax Status: *</h2>
-                    {/* tax status */}
-                    <div>
-                        <label>Tax Status:</label>
-                        <div>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name={`taxStatus${index}`}
-                                    value="non-retirement"
-                                    checked={investment.taxStatus === "non-retirement"}
-                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                />
-                                Non-Retirement
-                            </label>
-                        </div>
-                        <div>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name={`taxStatus${index}`}
-                                    value="pre-tax"
-                                    checked={investment.taxStatus === "pre-tax"}
-                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                />
-                                Pre-Tax
-                            </label>
-                        </div>
-                        <div>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name={`taxStatus${index}`}
-                                    value="after-tax"
-                                    checked={investment.taxStatus === "after-tax"}
-                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                />
-                                After-Tax
-                            </label>
-                        </div>
-                    </div>
-
-
-                
-
-
-                    
+                    {/* Only show tax status section if investment type is taxable */}
+                    {(!investment.investmentType.taxability || investment.investmentType.taxability === 'taxable') && (
+                        <>
+                            <h2>Tax Status: *</h2>
+                            {/* tax status */}
+                            <div>
+                                <label>Tax Status:</label>
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`taxStatus${index}`}
+                                            value="non-retirement"
+                                            checked={investment.taxStatus === "non-retirement"}
+                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                        />
+                                        Non-Retirement
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`taxStatus${index}`}
+                                            value="pre-tax"
+                                            checked={investment.taxStatus === "pre-tax"}
+                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                        />
+                                        Pre-Tax
+                                    </label>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name={`taxStatus${index}`}
+                                            value="after-tax"
+                                            checked={investment.taxStatus === "after-tax"}
+                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                        />
+                                        After-Tax
+                                    </label>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             ))}
 
@@ -367,70 +216,24 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             return;
                         }
 
-                        // Validate other required fields
-                        if (!investment.investmentType.expenseRatio) {
-                            alert(`Investment "${investment.investmentType.name}" must have an Expense Ratio.`);
-                            return;
-                        }
-
-                        if (!investment.investmentType.taxability) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Taxability status.`);
-                            return;
-                        }
-
                         if (!investment.value) {
                             alert(`Investment "${investment.name}" must have a Value in Dollars.`);
                             return;
                         }
 
-                        if (!investment.taxStatus) {
+                        // Only require tax status for taxable investment types
+                        if (investment.investmentType.taxability === 'taxable' && !investment.taxStatus) {
                             alert(`Investment "${investment.name}" must have a Tax Status.`);
-                            return;
-                        }
-
-                        // Validate expected return
-                        if (!investment.investmentType.expectedReturn.returnType) {
-                            alert(`Investment "${investment.name}" must have an Expected Annual Return type.`);
-                            return;
-                        }
-
-                        // Validate specific return type fields
-                        const returnType = investment.investmentType.expectedReturn.returnType;
-                        if (returnType === 'fixedValue' && !investment.investmentType.expectedReturn.fixedValue) {
-                            alert(`Investment "${investment.name}" is missing a fixed value for Expected Annual Return.`);
-                            return;
-                        } else if (returnType === 'fixedPercentage' && !investment.investmentType.expectedReturn.fixedPercentage) {
-                            alert(`Investment "${investment.name}" is missing a fixed percentage for Expected Annual Return.`);
-                            return;
-                        } else if (returnType === 'normalValue' && 
-                            (!investment.investmentType.expectedReturn.normalValue.mean || 
-                             !investment.investmentType.expectedReturn.normalValue.sd)) {
-                            alert(`Investment "${investment.name}" is missing mean or standard deviation for normal distribution (value) Expected Annual Return.`);
-                            return;
-                        } else if (returnType === 'normalPercentage' && 
-                            (!investment.investmentType.expectedReturn.normalPercentage.mean || 
-                             !investment.investmentType.expectedReturn.normalPercentage.sd)) {
-                            alert(`Investment "${investment.name}" is missing mean or standard deviation for normal distribution (percentage) Expected Annual Return.`);
                             return;
                         }
                     }
 
-                    
-
                     // If all investments are valid, proceed to the next page
                     setPage(4);
-
-
-
-
                 }}>
                     Next
                 </button>
-
-
             </div>
-
-            
         </div>
     );
 }

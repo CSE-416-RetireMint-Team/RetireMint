@@ -187,32 +187,33 @@ app.post('/login',async function(req,res){
 
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
-    console.log('Scenario received!');
-  
-    const {
-        scenarioIdEdit, // Only utilized if editing existing scenario. If new, an ID will be assigned to it.
+    const { 
+        scenarioIdEdit,
         scenarioName, 
         scenarioType, 
         birthYear, 
-        spouseBirthYear,
+        spouseBirthYear, 
         lifeExpectancy, 
-        spouseLifeExpectancy,
-        investments,
-        events, 
-        inflationAssumption, 
+        spouseLifeExpectancy, 
+        investments, 
+        events,
+        inflationAssumption,
         spendingStrategies,
         expenseWithdrawalStrategies,
         rmdStrategies,
         rothConversionStrategies,
-        rothOptimizerEnable,
-        rothOptimizerStartYear,
+        RothOptimizerEnable,
+        rothRptimizerStartYear,
         rothOptimizerEndYear,
-        financialGoal, 
+        financialGoal,
+        maximumCash,
         stateOfResidence,
         sharedUsers,
         userId  // Add userId to the extracted parameters
     } = req.body; // extracting data from frontend
 
+    console.log('Scenario received!');
+  
     // open existing scenario if an edit is being attempted
     let existingScenario;
     if (scenarioIdEdit) {
@@ -350,12 +351,18 @@ app.post('/scenario', async (req, res) => {
     
     
         // step 4 create investment
-
-        const investment = await new Investment({
+        const investmentData = {
+            name: inv.name,
             investmentType: investmentType._id,
-            value: inv.value,
-            accountTaxStatus: inv.taxStatus
-        }).save();
+            value: inv.value
+        };
+
+        // Only include accountTaxStatus for taxable investments
+        if (inv.investmentType.taxability !== 'tax-exempt') {
+            investmentData.accountTaxStatus = inv.taxStatus;
+        }
+
+        const investment = await new Investment(investmentData).save();
 
         return investment._id;
     }));
@@ -486,9 +493,7 @@ app.post('/scenario', async (req, res) => {
             
     
             investObj =await  new Invest({
-                allocations: investAllocation.id,
-                maximumCash : eve.invest.maximumCash
-    
+                allocations: investAllocation.id
             }).save()
             
         }else if(eve.eventType==="rebalance"){
@@ -559,8 +564,8 @@ app.post('/scenario', async (req, res) => {
             expenseWithdrawalStrategies: expenseWithdrawalStrategies,
             rmdStrategies: rmdStrategies,
             rothConversionStrategies: rothConversionStrategies,
-            rothOptimizerEnable: rothOptimizerEnable,
-            rothOptimizerStartYear: rothOptimizerStartYear,
+            rothOptimizerEnable: RothOptimizerEnable,
+            rothOptimizerStartYear: rothRptimizerStartYear,
             rothOptimizerEndYear: rothOptimizerEndYear
         });
         await simulationSettings.save();
@@ -595,6 +600,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             });
@@ -620,6 +626,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             }, {new: true});
