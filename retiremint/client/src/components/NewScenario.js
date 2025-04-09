@@ -441,7 +441,13 @@ function NewScenario() {
                 
             {page === 3 && (
                 <>
-                    <InvestmentForm investments={investments} setInvestments={setInvestments} setPage={setPage}/>
+                    <InvestmentForm 
+                        investments={investments} 
+                        setInvestments={setInvestments} 
+                        investmentTypes={investmentTypes}
+                        setInvestmentTypes={setInvestmentTypes}
+                        setPage={setPage}
+                    />
                 
                 </>
             )}
