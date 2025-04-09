@@ -20,13 +20,6 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                             normalValue: { mean: '', sd: '' }, 
                             normalPercentage: { mean: '', sd: '' }
                         },
-                        expectedIncome: { 
-                            returnType: '',
-                            fixedValue: '', 
-                            fixedPercentage: '', 
-                            normalValue: { mean: '', sd: '' }, 
-                            normalPercentage: { mean: '', sd: '' }
-                        },
                         expenseRatio: '',
                         taxability: '',
                     },
@@ -203,89 +196,6 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                     </div>
 
 
-                    <> {/* expected annual income */}
-                        <div>
-                            <h2>Expected Annual Income from Interest or Dividends: *</h2>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'fixedValue')}>
-                                Fixed Value
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'fixedPercentage')}>
-                                Fixed Percentage
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'normalValue')}>
-                                Fixed Value (Normal Distribution)
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'normalPercentage')}>
-                                Percentage (Normal Distribution)
-                            </button>
-                        </div>
-
-                        <>  
-                            {/* Fixed Value */}
-                            {investment.investmentType.expectedIncome.returnType === 'fixedValue' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Income Value"
-                                    value={investment.investmentType.expectedIncome.fixedValue}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedValue'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Fixed Percentage */}
-                            {investment.investmentType.expectedIncome.returnType === 'fixedPercentage' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Income Percentage"
-                                    value={investment.investmentType.expectedIncome.fixedPercentage}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedPercentage'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Normal Distribution (Value) */}
-                            {investment.investmentType.expectedIncome.returnType === 'normalValue' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Value"
-                                        value={investment.investmentType.expectedIncome.normalValue.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalValue', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedIncome.normalValue.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalValue', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Normal Distribution (Percentage) */}
-                            {investment.investmentType.expectedIncome.returnType === 'normalPercentage' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Percentage"
-                                        value={investment.investmentType.expectedIncome.normalPercentage.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalPercentage', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedIncome.normalPercentage.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalPercentage', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-                        </>
-                    </>
-
-                   
-                    
-
                     {/* taxability section */}
                     <div>
                         <h2>Taxability: *</h2>
@@ -425,42 +335,6 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                                 break;
                             default:
                                 // No action needed for unknown fields
-                                break;
-                        }
-
-                        // Validate Expected Annual Income
-                        if (!investment.investmentType.expectedIncome.returnType) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Return Type for Expected Annual Income.`);
-                            return;
-                        }
-
-                        switch (investment.investmentType.expectedIncome.returnType) {
-                            case 'fixedValue':
-                                if (!investment.investmentType.expectedIncome.fixedValue) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Value for Expected Annual Income.`);
-                                    return;
-                                }
-                                break;
-                            case 'fixedPercentage':
-                                if (!investment.investmentType.expectedIncome.fixedPercentage) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Percentage for Expected Annual Income.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalValue':
-                                if (!investment.investmentType.expectedIncome.normalValue.mean || !investment.investmentType.expectedIncome.normalValue.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Value.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalPercentage':
-                                if (!investment.investmentType.expectedIncome.normalPercentage.mean || !investment.investmentType.expectedIncome.normalPercentage.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Percentage.`);
-                                    return;
-                                }
-                                break;
-                            default:
-                                // Handle unknown investment type
                                 break;
                         }
 

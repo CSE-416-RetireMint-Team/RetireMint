@@ -10,7 +10,7 @@ function NewScenario() {
 
     // Handling editing existing scenario (if necessary)
     const [loading, setLoading] = useState(true);
-    //const [error, setError] = useState(null);
+    const [error, setError] = useState(null);
     const { reportId } = useParams();
     const [scenarioIdEdit, setScenarioIdEdit] = useState(null);
 
@@ -224,6 +224,8 @@ function NewScenario() {
     return (
         <div>
             <Header />
+            
+            {error && <div className="error-message">{error}</div>}
 
             {page === 1 && (
                 <div>
@@ -753,19 +755,6 @@ function convertInvestmentFormat( dbInvestments) {
                     normalPercentage: {
                     mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.mean ?? '',
                     sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.sd ?? ''
-                    }
-                },
-                expectedIncome: { 
-                    returnType: dbInvestments[i].investmentType.expectedAnnualIncome?.method ?? '',
-                    fixedValue: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedValue ?? '', 
-                    fixedPercentage: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedPercentage ?? '', 
-                    normalValue: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalValue?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualIncome?.normalValue?.sd ?? ''
-                    },
-                    normalPercentage: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.sd ?? ''
                     }
                 },
                 expenseRatio: dbInvestments[i].investmentType.expenseRatio ?? '',

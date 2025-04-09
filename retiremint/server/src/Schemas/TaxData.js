@@ -1,13 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Sub-schema for a tax bracket (used for both federal and state brackets)
-const TaxBracketSchema = new Schema({
-  min: { type: Number, required: true },
-  max: { type: Number, required: true },
-  rate: { type: Number, required: true }
-}, { _id: false });
-
 // Sub-schema for social security taxable brackets
 const SocialSecurityBracketSchema = new Schema({
   min: { type: Number, required: true },
@@ -15,39 +8,27 @@ const SocialSecurityBracketSchema = new Schema({
   taxablePercentage: { type: Number, required: true }
 }, { _id: false });
 
-// Federal Tax Data sub-schema
+// Sub-schema for tax brackets (used for state brackets)
+const TaxBracketSchema = new Schema({
+  min: { type: Number, required: true },
+  max: { type: Number, required: true },
+  rate: { type: Number, required: true }
+}, { _id: false });
+
+// Federal Tax Data sub-schema - simplified to only include socialSecurity
 const FederalTaxSchema = new Schema({
-  // Federal income tax brackets
-  brackets: { 
-    type: [TaxBracketSchema], 
-    required: true 
-  },
-  // Standard deductions for the two filing statuses supported
-  standardDeductions: {
-    single: { type: Number, required: true },
-    married: { type: Number, required: true }
-  },
-  // Capital gains tax thresholds and corresponding rates; assumes all gains are long-term.
-  capitalGains: {
-    thresholds: { type: [Number], required: true },
-    rates: { type: [Number], required: true }
-  },
   // Social security: combined income brackets and the taxable percentage for each bracket.
   socialSecurity: { 
     type: [SocialSecurityBracketSchema], 
-    required: true 
+    required: false
   }
 }, { _id: false });
 
-// State Tax Data sub-schema: each state's tax data is stored as an object.
+// State Tax Data sub-schema
 const StateTaxSchema = new Schema({
   brackets: { 
     type: [TaxBracketSchema], 
-    required: true 
-  },
-  standardDeduction: { 
-    type: Number, 
-    required: true 
+    required: false
   }
 }, { _id: false });
 
@@ -59,16 +40,16 @@ const TaxDataSchema = new Schema({
   },
   federal: { 
     type: FederalTaxSchema, 
-    required: true 
+    required: false
   },
   state: { 
     type: Map,
     of: StateTaxSchema,
-    required: true 
+    required: false
   },
-  // RMD table data as an array. Each element can map an age to a distribution factor.
+  // RMD table data
   rmdTable: { 
-    type: [Schema.Types.Mixed] 
+    type: Schema.Types.Mixed
   }
 });
 
