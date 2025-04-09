@@ -1,0 +1,351 @@
+Scenario saved successfully with ID: new ObjectId('67f6bb6de29816ed6777ca3c')
+Starting simulation for scenario: 67f6bb6de29816ed6777ca3c, user: 67f6b577c2bd8251a5ac83bc
+Simulation parameters: 100 simulations over 30 years
+Found scenario: my career
+Scenario structure: {
+  hasSimulationSettings: true,
+  investments: 1,
+  events: 1,
+  birthYear: 2001,
+  financialGoal: 1000000
+}
+Fetching tax data from database...
+Found tax data for year: 2025
+Running simulations...
+Running 100 simulations for scenario my career...
+Data verification already performed this session, skipping detailed logging.
+Skipping actual simulation for debugging purposes
+Data verification completed successfully
+^C
+C:\Users\lbana\Documents\SBU\Spring25\CSE416\2.0final\RetireMint\retiremint\server>node server.js
+(node:28960) [MONGOOSE] Warning: Duplicate schema index on {"userId":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+MongoDB connected.
+Tax data already exists, no need to seed.
+Income tax data scraped and saved to MongoDB
+Standard deductions scraped and saved to MongoDB
+Capital gains scraped and saved to MongoDB
+Server running on port 8000
+Scenario received!
+Scenario saved successfully with ID: new ObjectId('67f6bb87e245e0831f22a694')
+Starting simulation for scenario: 67f6bb87e245e0831f22a694, user: 67f6b577c2bd8251a5ac83bc
+Simulation parameters: 100 simulations over 30 years
+Found scenario: my career
+Scenario structure: {
+  hasSimulationSettings: true,
+  investments: 1,
+  events: 1,
+  birthYear: 2001,
+  financialGoal: 1000000
+}
+Fetching tax data from database...
+Found tax data for year: 2025
+Running simulations...
+Running 100 simulations for scenario my career...
+Validating input data before running simulation...
+
+==== SIMULATION DATA VERIFICATION ====
+Fetching model data for simulation...
+Scenario ID: 67f6bb87e245e0831f22a694
+
+✅ SCENARIO DATA RETRIEVED:
+{
+  "_id": "67f6bb87e245e0831f22a694",
+  "name": "my career",
+  "userId": "67f6b577c2bd8251a5ac83bc",
+  "scenarioType": "individual",
+  "birthYear": 2001,
+  "spouseBirthYear": null,
+  "lifeExpectancy": "67f6bb87e245e0831f22a67e",
+  "spouseLifeExpectancy": null,
+  "investments": [
+    "67f6bb87e245e0831f22a683"
+  ],
+  "events": [
+    "67f6bb87e245e0831f22a68e"
+  ],
+  "simulationSettings": "67f6bb87e245e0831f22a692",
+  "financialGoal": 1000000,
+  "stateOfResidence": "New York",
+  "sharedUsers": [],
+  "createdAt": "2025-04-09T18:25:11.468Z",
+  "__v": 0
+}
+
+----------------
+
+✅ TAX DATA RETRIEVED:
+{
+  "_id": "67f6b922e29816ed6777c99c",
+  "taxYear": 2025,
+  "federal": {
+    "socialSecurity": [
+      {
+        "min": 0,
+        "max": 25000,
+        "taxablePercentage": 0
+      },
+      {
+        "min": 25000,
+        "max": 34000,
+        "taxablePercentage": 0.5
+      },
+      {
+        "min": 34000,
+        "max": 1.7976931348623157e+308,
+        "taxablePercentage": 0.85
+      }
+    ]
+  },
+  "state": {
+    "NY": {
+      "brackets": [
+        {
+          "min": 0,
+          "max": 8500,
+          "rate": 0.04
+        },
+        {
+          "min": 8500,
+          "max": 11700,
+          "rate": 0.045
+        },
+        {
+          "min": 11700,
+          "max": 13900,
+          "rate": 0.0525
+        },
+        {
+          "min": 13900,
+          "max": 80650,
+          "rate": 0.055
+        },
+        {
+          "min": 80650,
+          "max": 215400,
+          "rate": 0.0633
+        },
+        {
+          "min": 215400,
+          "max": 1077550,
+          "rate": 0.0685
+        },
+        {
+          "min": 1077550,
+          "max": 1.7976931348623157e+308,
+          "rate": 0.0882
+        }
+      ]
+    },
+    "CA": {
+      "brackets": [
+        {
+          "min": 0,
+          "max": 9325,
+          "rate": 0.01
+        },
+        {
+          "min": 9325,
+          "max": 22107,
+          "rate": 0.02
+        },
+        {
+          "min": 22107,
+          "max": 34892,
+          "rate": 0.04
+        },
+        {
+          "min": 34892,
+          "max": 48435,
+          "rate": 0.06
+        },
+        {
+          "min": 48435,
+          "max": 61214,
+          "rate": 0.08
+        },
+        {
+          "min": 61214,
+          "max": 312686,
+          "rate": 0.093
+        },
+        {
+          "min": 312686,
+          "max": 375221,
+          "rate": 0.103
+        },
+        {
+          "min": 375221,
+          "max": 625369,
+          "rate": 0.113
+        },
+        {
+          "min": 625369,
+          "max": 1.7976931348623157e+308,
+          "rate": 0.123
+        }
+      ]
+    },
+    "TX": {
+      "brackets": [
+        {
+          "min": 0,
+          "max": 1.7976931348623157e+308,
+          "rate": 0
+        }
+      ]
+    }
+  },
+  "rmdTable": [
+    {
+      "72": 25.6,
+      "73": 24.7,
+      "74": 23.8,
+      "75": 22.9,
+      "76": 22,
+      "77": 21.2,
+      "78": 20.3,
+      "79": 19.5,
+      "80": 18.7
+    },
+    {
+      "81": 17.9,
+      "82": 17.1,
+      "83": 16.3,
+      "84": 15.5,
+      "85": 14.8,
+      "86": 14.1,
+      "87": 13.4,
+      "88": 12.7,
+      "89": 12,
+      "90": 11.4
+    },
+    {
+      "91": 10.8,
+      "92": 10.2,
+      "93": 9.6,
+      "94": 9.1,
+      "95": 8.6,
+      "96": 8.1,
+      "97": 7.6,
+      "98": 7.1,
+      "99": 6.7,
+      "100": 6.3
+    }
+  ],
+  "__v": 0
+}
+
+----------------
+
+✅ VALIDATION CHECKS:
+- Scenario name: my career
+- Scenario type: individual
+- Number of investments: 1
+- Number of events: 1
+
+✅ TAX DATA DETAILS:
+- Tax year: 2025
+
+📊 FEDERAL INCOME TAX BRACKETS:
+  Filing Status: single
+  [1] 10% - Min: $0, Max: $11,600
+  [2] 12% - Min: $11,601, Max: $47,150
+  [3] 22% - Min: $47,151, Max: $100,525
+  [4] 24% - Min: $100,526, Max: $191,950
+  [5] 32% - Min: $191,951, Max: $243,725
+  [6] 35% - Min: $243,726, Max: $609,350
+  [7] 37% - Min: $609,351, Max: And up
+  Filing Status: married
+  [1] 10% - Min: $0, Max: $23,200
+  [2] 12% - Min: $23,201, Max: $94,300
+  [3] 22% - Min: $94,301, Max: $201,050
+  [4] 24% - Min: $201,051, Max: $383,900
+  [5] 32% - Min: $383,901, Max: $487,450
+  [6] 35% - Min: $487,451, Max: $731,200
+  [7] 37% - Min: $731,201, Max: And up
+
+📊 STANDARD DEDUCTIONS:
+  - single: $14,600
+  - married: $29,200
+
+📊 CAPITAL GAINS RATES:
+  Filing Status: single
+  - Rate 0%: $0 – $47,025
+  - Rate 15%: $47,026 – $518,900
+  Filing Status: married
+  [1] 10% - Min: $0, Max: $23,200
+  [2] 12% - Min: $23,201, Max: $94,300
+  [3] 22% - Min: $94,301, Max: $201,050
+  [4] 24% - Min: $201,051, Max: $383,900
+  [5] 32% - Min: $383,901, Max: $487,450
+  [6] 35% - Min: $487,451, Max: $731,200
+  [7] 37% - Min: $731,201, Max: And up
+
+📊 STANDARD DEDUCTIONS:
+  - single: $14,600
+  - married: $29,200
+
+📊 CAPITAL GAINS RATES:
+  Filing Status: single
+  - Rate 0%: $0 – $47,025
+  - Rate 15%: $47,026 – $518,900
+  [3] 22% - Min: $94,301, Max: $201,050
+  [4] 24% - Min: $201,051, Max: $383,900
+  [5] 32% - Min: $383,901, Max: $487,450
+  [6] 35% - Min: $487,451, Max: $731,200
+  [7] 37% - Min: $731,201, Max: And up
+
+📊 STANDARD DEDUCTIONS:
+  - single: $14,600
+  - married: $29,200
+
+📊 CAPITAL GAINS RATES:
+  Filing Status: single
+  - Rate 0%: $0 – $47,025
+  - Rate 15%: $47,026 – $518,900
+  - married: $29,200
+
+📊 CAPITAL GAINS RATES:
+  Filing Status: single
+  - Rate 0%: $0 – $47,025
+  - Rate 15%: $47,026 – $518,900
+  Filing Status: single
+  - Rate 0%: $0 – $47,025
+  - Rate 15%: $47,026 – $518,900
+  Filing Status: married
+  - Rate 0%: $0 – $94,050
+  - Rate 15%: $94,051 – $583,750
+
+📊 RMD TABLE SAMPLE:
+  - Age 0: [object Object]
+  - Age 1: [object Object]
+  - Age 2: [object Object]
+  - (3 age entries total)
+  - Rate 15%: $94,051 – $583,750
+
+📊 RMD TABLE SAMPLE:
+  - Age 0: [object Object]
+  - Age 1: [object Object]
+  - Age 2: [object Object]
+  - (3 age entries total)
+  - Age 0: [object Object]
+  - Age 1: [object Object]
+  - Age 2: [object Object]
+  - (3 age entries total)
+
+
+==== END OF DATA VERIFICATION ====
+
+Skipping actual simulation for debugging purposes
+Data verification completed successfully
+
+
+
+==== END OF DATA VERIFICATION ====
+
+Skipping actual simulation for debugging purposes
+Data verification completed successfully
+
+
+==== END OF DATA VERIFICATION ====

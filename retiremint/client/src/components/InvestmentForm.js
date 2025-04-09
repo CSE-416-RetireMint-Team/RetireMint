@@ -22,13 +22,6 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             normalValue: { mean: '', sd: '' }, 
                             normalPercentage: { mean: '', sd: '' }
                         },
-                        expectedIncome: { 
-                            returnType: '',
-                            fixedValue: '', 
-                            fixedPercentage: '', 
-                            normalValue: { mean: '', sd: '' }, 
-                            normalPercentage: { mean: '', sd: '' }
-                        },
                         expenseRatio: '',
                         taxability: '',
                     },
@@ -118,6 +111,51 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                         })*/}
                     </>
 
+                    </>
+
+                     {/* expense ratio */}
+                     <div>
+                        <h2>Expense Ratio (%) *:</h2>
+                        <input
+                            type="number"
+                            placeholder="Expense Ratio"
+                            value={investment.investmentType.expenseRatio}
+                            onChange={(e) => updateInvestment(index, ['investmentType', 'expenseRatio'], e.target.value)}
+                        />
+                    </div>
+
+
+                    {/* taxability section */}
+                    <div>
+                        <h2>Taxability: *</h2>
+                        <ul>
+                            <li>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name={`taxability${index}`}
+                                        value="taxable"
+                                        checked={investment.investmentType.taxability === "taxable"}
+                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
+                                    />
+                                    Taxable
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name={`taxability${index}`}
+                                        value="tax-exempt"
+                                        checked={investment.investmentType.taxability === "tax-exempt"}
+                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
+                                    />
+                                    Tax-Exempt
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
                     {/* value in dollars */}
                     <h2>Value In Dollars: *:</h2>
                     <input 
@@ -189,6 +227,17 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     for (const investment of investments) {
                         if (!investment.name) {
                             alert("Each investment must have a Name.");
+                            return;
+                        }
+
+                        // Validate other required fields
+                        if (!investment.investmentType.expenseRatio) {
+                            alert(`Investment "${investment.investmentType.name}" must have an Expense Ratio.`);
+                            return;
+                        }
+
+                        if (!investment.investmentType.taxability) {
+                            alert(`Investment "${investment.investmentType.name}" must have a Taxability status.`);
                             return;
                         }
 
