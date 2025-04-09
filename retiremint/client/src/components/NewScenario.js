@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from './HeaderComp';
+import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import axios from 'axios';
@@ -34,6 +35,7 @@ function NewScenario() {
     const [spouseMean, setSpouseMean] = useState('');
     const [spouseStandardDeviation, setSpouseStandardDeviation] = useState('');
 
+    const [investmentTypes, setInvestmentTypes] = useState([]);
     const [investments, setInvestments] = useState([]); // store investments as array
     const [events, setEvents] = useState([]); // store events as an array.
 
@@ -427,22 +429,29 @@ function NewScenario() {
 
 
             <div>
-                
+
             {page === 2 && (
+                <>
+                    <InvestmentTypeForm investmentTypes={investmentTypes} setInvestmentTypes={setInvestmentTypes} setPage={setPage}/>
+                
+                </>
+            )}
+                
+            {page === 3 && (
                 <>
                     <InvestmentForm investments={investments} setInvestments={setInvestments} setPage={setPage}/>
                 
                 </>
             )}
 
-            {page === 3 && (
+            {page === 4 && (
                 <>
                     <EventForm events={events} setEvents={setEvents} scenarioType={scenarioType} setPage={setPage} />
                 
                 </>
             )}
             
-            {page === 4 && (
+            {page === 5 && (
                 <>
                     <h3>Select Inflation Method</h3>
                     <select onChange={(e) => setInflationMethod(e.target.value)} value={inflationMethod}>

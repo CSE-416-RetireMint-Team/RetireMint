@@ -1,6 +1,6 @@
 import React from 'react';
 
-function InvestmentForm({ investments, setInvestments ,setPage}) {
+function InvestmentForm({ investments, setInvestments, investmentTypes, setInvestmentTypes, setPage}) {
 
     const handleInvestmentCountChange = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
@@ -10,6 +10,8 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
 
             while (newInvestments.length < count) {
                 newInvestments.push({
+                    name: '',
+                    desc: '',
                     investmentType: {
                         name: '',
                         description: '',
@@ -94,229 +96,27 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                         <input 
                             type="text" 
                             placeholder="Investment Name" 
-                            value={investment.investmentType.name} 
-                            onChange={(e) => updateInvestment(index, ['investmentType', 'name'], e.target.value)} 
+                            value={investment.name} 
+                            onChange={(e) => updateInvestment(index, ['name'], e.target.value)} 
                         />
                          <h2>Description:</h2>
                         <input 
                             type="text" 
                             placeholder="Investment Description" 
                             value={investment.investmentType.description} 
-                            onChange={(e) => updateInvestment(index, ['investmentType', 'description'], e.target.value)}
+                            onChange={(e) => updateInvestment(index, ['description'], e.target.value)}
                         />
                     </>
 
-                    <> {/* expected annual return */}
-                        <div>
-                            <h2>Expected Annual Return: *</h2>
-                            
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedReturn', 'returnType'], 'fixedValue')}>
-                                Fixed Value
-                            </button>
-                            
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedReturn', 'returnType'], 'fixedPercentage')}>
-                                Fixed Percentage
-                            </button>
-                            
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedReturn', 'returnType'], 'normalValue')}>
-                                Fixed Value (Normal Distribution)
-                            </button>
-                            
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedReturn', 'returnType'], 'normalPercentage')}>
-                                Percentage (Normal Distribution)
-                            </button>
-                        </div>
+                    <>
+                    {/* picking a investment type */}
+                        <h2>Investment Type:</h2>
+                        {/*investmentTypes.map((investmentType, index) => {
+                            <div>
 
-                        <>
-                            {/* Fixed Value */}
-                            {investment.investmentType.expectedReturn.returnType === 'fixedValue' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Return Value"
-                                    value={investment.investmentType.expectedReturn.fixedValue}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'fixedValue'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Fixed Percentage */}
-                            {investment.investmentType.expectedReturn.returnType === 'fixedPercentage' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Return Percentage"
-                                    value={investment.investmentType.expectedReturn.fixedPercentage}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'fixedPercentage'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Normal Distribution (Value) */}
-                            {investment.investmentType.expectedReturn.returnType === 'normalValue' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Value"
-                                        value={investment.investmentType.expectedReturn.normalValue.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'normalValue', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedReturn.normalValue.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'normalValue', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Normal Distribution (Percentage) */}
-                            {investment.investmentType.expectedReturn.returnType === 'normalPercentage' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Percentage"
-                                        value={investment.investmentType.expectedReturn.normalPercentage.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'normalPercentage', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedReturn.normalPercentage.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedReturn', 'normalPercentage', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-
-                        
-                        
-                        </>
-
-
+                            </div>
+                        })*/}
                     </>
-
-                     {/* expense ratio */}
-                     <div>
-                        <h2>Expense Ratio (%) *:</h2>
-                        <input
-                            type="number"
-                            placeholder="Expense Ratio"
-                            value={investment.investmentType.expenseRatio}
-                            onChange={(e) => updateInvestment(index, ['investmentType', 'expenseRatio'], e.target.value)}
-                        />
-                    </div>
-
-
-                    <> {/* expected annual income */}
-                        <div>
-                            <h2>Expected Annual Income from Interest or Dividends: *</h2>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'fixedValue')}>
-                                Fixed Value
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'fixedPercentage')}>
-                                Fixed Percentage
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'normalValue')}>
-                                Fixed Value (Normal Distribution)
-                            </button>
-
-                            <button onClick={() => updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], 'normalPercentage')}>
-                                Percentage (Normal Distribution)
-                            </button>
-                        </div>
-
-                        <>  
-                            {/* Fixed Value */}
-                            {investment.investmentType.expectedIncome.returnType === 'fixedValue' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Income Value"
-                                    value={investment.investmentType.expectedIncome.fixedValue}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedValue'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Fixed Percentage */}
-                            {investment.investmentType.expectedIncome.returnType === 'fixedPercentage' && (
-                                <input
-                                    type="number"
-                                    placeholder="Fixed Income Percentage"
-                                    value={investment.investmentType.expectedIncome.fixedPercentage}
-                                    onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedPercentage'], e.target.value)}
-                                />
-                            )}
-
-                            {/* Normal Distribution (Value) */}
-                            {investment.investmentType.expectedIncome.returnType === 'normalValue' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Value"
-                                        value={investment.investmentType.expectedIncome.normalValue.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalValue', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedIncome.normalValue.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalValue', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-
-                            {/* Normal Distribution (Percentage) */}
-                            {investment.investmentType.expectedIncome.returnType === 'normalPercentage' && (
-                                <div>
-                                    <input
-                                        type="number"
-                                        placeholder="Mean Percentage"
-                                        value={investment.investmentType.expectedIncome.normalPercentage.mean}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalPercentage', 'mean'], e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Standard Deviation"
-                                        value={investment.investmentType.expectedIncome.normalPercentage.sd}
-                                        onChange={(e) => updateInvestment(index, ['investmentType', 'expectedIncome', 'normalPercentage', 'sd'], e.target.value)}
-                                    />
-                                </div>
-                            )}
-                        </>
-                    </>
-
-                   
-                    
-
-                    {/* taxability section */}
-                    <div>
-                        <h2>Taxability: *</h2>
-                        <ul>
-                            <li>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`taxability${index}`}
-                                        value="taxable"
-                                        checked={investment.investmentType.taxability === "taxable"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
-                                    />
-                                    Taxable
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`taxability${index}`}
-                                        value="tax-exempt"
-                                        checked={investment.investmentType.taxability === "tax-exempt"}
-                                        onChange={(e) => updateInvestment(index, ["investmentType", "taxability"], e.target.value)}
-                                    />
-                                    Tax-Exempt
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-
 
                     {/* value in dollars */}
                     <h2>Value In Dollars: *:</h2>
@@ -379,7 +179,7 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
 
             {/* navigation buttons */}
             <div>
-                <button onClick={() => setPage(1)}>Previous</button>
+                <button onClick={() => setPage(2)}>Previous</button>
                 <button onClick={() => {
                     if (investments.length === 0) {
                         alert("At least one investment is required.");
@@ -387,101 +187,18 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                     }
 
                     for (const investment of investments) {
-                        if (!investment.investmentType.name) {
+                        if (!investment.name) {
                             alert("Each investment must have a Name.");
                             return;
                         }
 
-                        // Validate Expected Annual Return
-                        if (!investment.investmentType.expectedReturn.returnType) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Return Type for Expected Annual Return.`);
-                            return;
-                        }
-
-                        switch (investment.investmentType.expectedReturn.returnType) {
-                            case 'fixedValue':
-                                if (!investment.investmentType.expectedReturn.fixedValue) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Value for Expected Annual Return.`);
-                                    return;
-                                }
-                                break;
-                            case 'fixedPercentage':
-                                if (!investment.investmentType.expectedReturn.fixedPercentage) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Percentage for Expected Annual Return.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalValue':
-                                if (!investment.investmentType.expectedReturn.normalValue.mean || !investment.investmentType.expectedReturn.normalValue.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Value.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalPercentage':
-                                if (!investment.investmentType.expectedReturn.normalPercentage.mean || !investment.investmentType.expectedReturn.normalPercentage.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Percentage.`);
-                                    return;
-                                }
-                                break;
-                            default:
-                                // No action needed for unknown fields
-                                break;
-                        }
-
-                        // Validate Expected Annual Income
-                        if (!investment.investmentType.expectedIncome.returnType) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Return Type for Expected Annual Income.`);
-                            return;
-                        }
-
-                        switch (investment.investmentType.expectedIncome.returnType) {
-                            case 'fixedValue':
-                                if (!investment.investmentType.expectedIncome.fixedValue) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Value for Expected Annual Income.`);
-                                    return;
-                                }
-                                break;
-                            case 'fixedPercentage':
-                                if (!investment.investmentType.expectedIncome.fixedPercentage) {
-                                    alert(`Investment "${investment.investmentType.name}" requires a Fixed Percentage for Expected Annual Income.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalValue':
-                                if (!investment.investmentType.expectedIncome.normalValue.mean || !investment.investmentType.expectedIncome.normalValue.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Value.`);
-                                    return;
-                                }
-                                break;
-                            case 'normalPercentage':
-                                if (!investment.investmentType.expectedIncome.normalPercentage.mean || !investment.investmentType.expectedIncome.normalPercentage.sd) {
-                                    alert(`Investment "${investment.investmentType.name}" requires Mean and Standard Deviation for Normal Percentage.`);
-                                    return;
-                                }
-                                break;
-                            default:
-                                // Handle unknown investment type
-                                break;
-                        }
-
-                        // Validate other required fields
-                        if (!investment.investmentType.expenseRatio) {
-                            alert(`Investment "${investment.investmentType.name}" must have an Expense Ratio.`);
-                            return;
-                        }
-
-                        if (!investment.investmentType.taxability) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Taxability status.`);
-                            return;
-                        }
-
                         if (!investment.value) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Value in Dollars.`);
+                            alert(`Investment "${investment.name}" must have a Value in Dollars.`);
                             return;
                         }
 
                         if (!investment.taxStatus) {
-                            alert(`Investment "${investment.investmentType.name}" must have a Tax Status.`);
+                            alert(`Investment "${investment.name}" must have a Tax Status.`);
                             return;
                         }
                     }
@@ -489,7 +206,7 @@ function InvestmentForm({ investments, setInvestments ,setPage}) {
                     
 
                     // If all investments are valid, proceed to the next page
-                    setPage(3);
+                    setPage(4);
 
 
 
