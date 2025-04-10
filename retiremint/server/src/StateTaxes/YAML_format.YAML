@@ -1,7 +1,4 @@
 StateName:
-  standard_deduction:
-    single: <dollar amount>
-    married: <dollar amount>
   brackets:
     single:
       - rate: <decimal tax rate>

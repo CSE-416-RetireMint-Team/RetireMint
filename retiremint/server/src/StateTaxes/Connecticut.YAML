@@ -1,7 +1,4 @@
 CT:
-  standard_deduction:
-    single: 15000
-    married: 24000
   brackets:
     single:
     - rate: 0.02
