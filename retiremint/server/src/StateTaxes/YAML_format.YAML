@@ -1,0 +1,10 @@
+StateName:
+  brackets:
+    single:
+      - rate: <decimal tax rate>
+        up_to: <upper limit of this bracket>
+      ...
+    married:
+      - rate: <decimal tax rate>
+        up_to: <upper limit of this bracket>
+      ...
