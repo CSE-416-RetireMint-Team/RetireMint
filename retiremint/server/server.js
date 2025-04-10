@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 mongoose.connect('mongodb://localhost:27017/retiremint')
   .then(async () => {
     console.log('MongoDB connected.');
+    await loadStateTaxDataOnce();
     // Seed default tax data if needed
     await seedDefaultTaxData();
     await IncomeTax();
@@ -70,6 +71,7 @@ const {OAuth2Client} = require('google-auth-library');
 const userRoutes = require('./src/Routes/User'); 
 const simulationRoutes = require('./src/Routes/Simulation'); // Add simulation routes
 const TaxData = require('./src/Schemas/TaxData');
+const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 
 app.use('/user', userRoutes);
 app.use('/simulation', simulationRoutes); // Add simulation routes

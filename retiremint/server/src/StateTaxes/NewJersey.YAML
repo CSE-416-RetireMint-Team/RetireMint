@@ -1,7 +1,4 @@
 NJ:
-  standard_deduction:
-    single: 0
-    married: 0
   brackets:
     single:
     - rate: 0.014
