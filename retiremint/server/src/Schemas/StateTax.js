@@ -5,9 +5,13 @@ const taxBracketSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  up_to: {
+  min: {
     type: Number,
-    required: false, // use null for no upper limit
+    required: true
+  },
+  max: {
+    type: Number,
+    required: false // allow null for no upper limit
   }
 });
 
