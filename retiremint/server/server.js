@@ -493,7 +493,9 @@ app.post('/scenario', async (req, res) => {
             
     
             investObj =await  new Invest({
-                allocations: investAllocation.id
+                allocations: investAllocation.id,
+                modifyMaximumCash: eve.invest.modifyMaximumCash,
+                newMaximumCash: eve.invest.modifyMaximumCash ? eve.invest.newMaximumCash : null
             }).save()
             
         }else if(eve.eventType==="rebalance"){

@@ -374,7 +374,7 @@ function NewScenario() {
                     </div>
 
                     <div>
-                        <h2>Maximum Cash *</h2>
+                        <h2>Initial Maximum Cash *</h2>
                         <input 
                             type="number" 
                             placeholder="Enter maximum cash amount" 
@@ -474,7 +474,13 @@ function NewScenario() {
 
             {page === 4 && (
                 <>
-                    <EventForm events={events} setEvents={setEvents} scenarioType={scenarioType} setPage={setPage} />
+                    <EventForm 
+                        events={events} 
+                        setEvents={setEvents} 
+                        scenarioType={scenarioType} 
+                        setPage={setPage}
+                        investments={investments} 
+                    />
                 
                 </>
             )}
@@ -898,7 +904,9 @@ function convertEventFormat(dbEvents) {
             invest: {
                 returnType: dbEvents[i].invest?.returnType ?? '',
                 fixedAllocation: dbEvents[i].invest?.fixedAllocation ?? '',
-                glidePath: dbEvents[i].invest?.glidePath ?? ''
+                glidePath: dbEvents[i].invest?.glidePath ?? '',
+                modifyMaximumCash: dbEvents[i].invest?.modifyMaximumCash ?? false,
+                newMaximumCash: dbEvents[i].invest?.newMaximumCash ?? ''
             },
             rebalance: {
                 returnType: dbEvents[i].rebalance?.returnType ?? '',

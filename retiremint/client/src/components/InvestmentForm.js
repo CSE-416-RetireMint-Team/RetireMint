@@ -72,11 +72,20 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
     return (
         <div>
             <h2>Number of Investments:</h2>
+            <p className="helper-text">
+                Please list every investment you currently have or plan to include in your portfolio.
+                If you do not currently have an investment, but you would like to invest in the future, 
+                simply add it with a value of 0.
+            </p>
             <input 
                 type="number" 
                 value={investments.length} 
                 onChange={handleInvestmentCountChange} 
             />
+
+            <p className="helper-text">
+                Please select from your previously created investment types, or go back to the Investment Type page to create new ones.
+            </p>
 
             {investments.map((investment, index) => (
                 <div key={index}>
@@ -93,7 +102,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                         />
                     </>
 
-                    <div>
+                        <div>
                     {/* picking a investment type */}
                         <h2>Investment Type: *</h2>
                         <select
@@ -131,9 +140,6 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                                 <option value="" disabled>No investment types available</option>
                             )}
                         </select>
-                        <p className="helper-text">
-                            Please select from your previously created investment types, or go back to the Investment Type page to create new ones.
-                        </p>
                     </div>
 
                     {/* value in dollars */}
@@ -148,47 +154,47 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     {/* Only show tax status section if investment type is taxable */}
                     {(!investment.investmentType.taxability || investment.investmentType.taxability === 'taxable') && (
                         <>
-                            <h2>Tax Status: *</h2>
-                            {/* tax status */}
-                            <div>
-                                <label>Tax Status:</label>
-                                <div>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            name={`taxStatus${index}`}
-                                            value="non-retirement"
-                                            checked={investment.taxStatus === "non-retirement"}
-                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                        />
-                                        Non-Retirement
-                                    </label>
-                                </div>
-                                <div>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            name={`taxStatus${index}`}
-                                            value="pre-tax"
-                                            checked={investment.taxStatus === "pre-tax"}
-                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                        />
-                                        Pre-Tax
-                                    </label>
-                                </div>
-                                <div>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            name={`taxStatus${index}`}
-                                            value="after-tax"
-                                            checked={investment.taxStatus === "after-tax"}
-                                            onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
-                                        />
-                                        After-Tax
-                                    </label>
-                                </div>
-                            </div>
+                    <h2>Tax Status: *</h2>
+                    {/* tax status */}
+                    <div>
+                        <label>Tax Status:</label>
+                        <div>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name={`taxStatus${index}`}
+                                    value="non-retirement"
+                                    checked={investment.taxStatus === "non-retirement"}
+                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                />
+                                Non-Retirement
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name={`taxStatus${index}`}
+                                    value="pre-tax"
+                                    checked={investment.taxStatus === "pre-tax"}
+                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                />
+                                Pre-Tax
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name={`taxStatus${index}`}
+                                    value="after-tax"
+                                    checked={investment.taxStatus === "after-tax"}
+                                    onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
+                                />
+                                After-Tax
+                            </label>
+                        </div>
+                    </div>
                         </>
                     )}
                 </div>
@@ -208,7 +214,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             alert("Each investment must have a Name.");
                             return;
                         }
-                        
+
                         // Validate investment type
                         if (!investment.investmentType.name) {
                             const index = investments.indexOf(investment);
