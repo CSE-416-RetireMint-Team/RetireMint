@@ -1,4 +1,10 @@
 TX:
   brackets:
-    single: []
-    married: []
+    single: 
+      - rate: 0
+        min: 0
+        max: null
+    married: 
+      - rate: 0
+        min: 0
+        max: null

@@ -36,6 +36,7 @@ mongoose.connect('mongodb://localhost:27017/retiremint')
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }
+    
     app.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
