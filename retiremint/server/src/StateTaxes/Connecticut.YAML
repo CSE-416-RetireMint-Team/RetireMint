@@ -1,32 +1,47 @@
 CT:
   brackets:
     single:
-    - rate: 0.02
-      up_to: 10000
-    - rate: 0.045
-      up_to: 50000
-    - rate: 0.055
-      up_to: 100000
-    - rate: 0.06
-      up_to: 200000
-    - rate: 0.065
-      up_to: 250000
-    - rate: 0.069
-      up_to: 500000
-    - rate: 0.0699
-      up_to: null
+      - rate: 0.02
+        min: 0
+        max: 10000
+      - rate: 0.045
+        min: 10001
+        max: 50000
+      - rate: 0.055
+        min: 50001
+        max: 100000
+      - rate: 0.06
+        min: 100001
+        max: 200000
+      - rate: 0.065
+        min: 200001
+        max: 250000
+      - rate: 0.069
+        min: 250001
+        max: 500000
+      - rate: 0.0699
+        min: 500001
+        max: null
+
     married:
-    - rate: 0.02
-      up_to: 20000
-    - rate: 0.045
-      up_to: 100000
-    - rate: 0.055
-      up_to: 200000
-    - rate: 0.06
-      up_to: 400000
-    - rate: 0.065
-      up_to: 500000
-    - rate: 0.069
-      up_to: 1000000
-    - rate: 0.0699
-      up_to: null
+      - rate: 0.02
+        min: 0
+        max: 20000
+      - rate: 0.045
+        min: 20001
+        max: 100000
+      - rate: 0.055
+        min: 100001
+        max: 200000
+      - rate: 0.06
+        min: 200001
+        max: 400000
+      - rate: 0.065
+        min: 400001
+        max: 500000
+      - rate: 0.069
+        min: 500001
+        max: 1000000
+      - rate: 0.0699
+        min: 1000001
+        max: null
