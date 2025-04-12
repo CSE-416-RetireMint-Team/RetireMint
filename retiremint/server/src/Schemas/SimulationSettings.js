@@ -13,14 +13,9 @@ const SimulationSettingsSchema = new Schema({
         //required: true //the homework document reduce limit to only afterTax, the number should be scrape from IRS
       }
     },
-    // Stragies handle simulation rules
-    spendingStrategies: [
-      {
-        type: String
-      }
-    ],
 
-    expenseWithdrawalStrategies: [
+    expenseWithdrawalStrategies: [ //use the same strategy for both discretionary and non-discretionary expenses,
+      //the difference is implemented in the simulation logic
       {
         type: String
       }
@@ -49,10 +44,6 @@ const SimulationSettingsSchema = new Schema({
     rothOptimizerEndYear: {
       type: Number,
     }
-
-
-    
-    
   });
   
   module.exports = mongoose.model('SimulationSettings', SimulationSettingsSchema);

@@ -198,7 +198,6 @@ app.post('/scenario', async (req, res) => {
         investments, 
         events,
         inflationAssumption,
-        spendingStrategies,
         expenseWithdrawalStrategies,
         rmdStrategies,
         rothConversionStrategies,
@@ -563,7 +562,6 @@ app.post('/scenario', async (req, res) => {
     if (!existingSimulationSettings) {
         simulationSettings = new SimulationSettings({
         inflationAssumption: inflation._id,
-            spendingStrategies: spendingStrategies,
             expenseWithdrawalStrategies: expenseWithdrawalStrategies,
             rmdStrategies: rmdStrategies,
             rothConversionStrategies: rothConversionStrategies,
