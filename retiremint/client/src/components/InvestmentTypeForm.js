@@ -1,6 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
+    // Initialize investmentTypes with default values if empty
+    useEffect(() => {
+        if (investmentTypes.length === 0) {
+            setInvestmentTypes([{
+                name: '',
+                description: '',
+                expectedReturn: { 
+                    returnType: '',
+                    fixedValue: '', 
+                    fixedPercentage: '', 
+                    normalValue: { mean: '', sd: '' }, 
+                    normalPercentage: { mean: '', sd: '' }
+                },
+                expectedIncome: { 
+                    returnType: '',
+                    fixedValue: '', 
+                    fixedPercentage: '', 
+                    normalValue: { mean: '', sd: '' }, 
+                    normalPercentage: { mean: '', sd: '' }
+                },
+                expenseRatio: '',
+                taxability: ''
+            }]);
+        }
+    }, [investmentTypes.length, setInvestmentTypes]);
 
     const handleInvestmentTypeCountChange = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
@@ -26,6 +51,8 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                         normalValue: { mean: '', sd: '' }, 
                         normalPercentage: { mean: '', sd: '' }
                     },
+                    expenseRatio: '',
+                    taxability: ''
                 });
             }
 
@@ -57,7 +84,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                     target[fieldPath[fieldPath.length - 1]] = newValue;
                 }
     
-                console.log(`Updating investment type ${index}:`, updatedInvestmentType);
+                // console.log(`Updating investment type ${index}:`, updatedInvestmentType);
                 return updatedInvestmentType;
             })
         );
@@ -88,14 +115,14 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                         <input 
                             type="text" 
                             placeholder="Investment Type Name" 
-                            value={investmentType.name} 
+                            value={investmentType.name || ''} 
                             onChange={(e) => updateInvestmentType(index, ['name'], e.target.value)} 
                         />
                          <h2>Description:</h2>
                         <input 
                             type="text" 
                             placeholder="Investment Type Description" 
-                            value={investmentType.description} 
+                            value={investmentType.description || ''} 
                             onChange={(e) => updateInvestmentType(index, ['description'], e.target.value)}
                         />
                     </>
@@ -191,7 +218,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                         <input
                             type="number"
                             placeholder="Expense Ratio"
-                            value={investmentType.expenseRatio}
+                            value={investmentType.expenseRatio || ''}
                             onChange={(e) => updateInvestmentType(index, ['expenseRatio'], e.target.value)}
                         />
                     </div>

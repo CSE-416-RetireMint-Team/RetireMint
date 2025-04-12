@@ -57,7 +57,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     target[fieldPath[fieldPath.length - 1]] = newValue;
                 }
     
-                console.log(`Updating investment ${index}:`, updatedInvestment);
+                // console.log(`Updating investment ${index}:`, updatedInvestment);
                 return updatedInvestment;
             })
         );

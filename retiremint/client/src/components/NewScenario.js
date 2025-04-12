@@ -436,11 +436,15 @@ function NewScenario() {
                                 return;
                             }
 
+                            // Save birth year and maximum cash to localStorage
+                            localStorage.setItem('dateOfBirth', birthYear);
+                            localStorage.setItem('initialMaximumCash', maximumCash);
+
                             // if everything is valid, proceed to the next page
                             setPage(2);
                         }}>
                             Next
-                    </button>
+                        </button>
 
                     
                     </>

@@ -482,7 +482,7 @@ app.post('/scenario', async (req, res) => {
         }else if(eve.eventType==="invest"){
 
             const investAllocation = await new Allocation({
-                method: eve.invest.returnType,
+                method: eve.invest.executionType || 'fixedAllocation',
                 fixedAllocation: eve.invest.returnType === 'fixedAllocation' && eve.invest.fixedAllocation
                     ? eve.invest.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
@@ -495,12 +495,13 @@ app.post('/scenario', async (req, res) => {
             investObj =await  new Invest({
                 allocations: investAllocation.id,
                 modifyMaximumCash: eve.invest.modifyMaximumCash,
-                newMaximumCash: eve.invest.modifyMaximumCash ? eve.invest.newMaximumCash : null
+                newMaximumCash: eve.invest.modifyMaximumCash ? eve.invest.newMaximumCash : null,
+                investmentStrategy: eve.invest.investmentStrategy || {}
             }).save()
             
         }else if(eve.eventType==="rebalance"){
             const rebalanceAllocation = await new Allocation({
-                method: eve.rebalance.returnType,
+                method: eve.rebalance.executionType || 'fixedAllocation',
                 fixedAllocation: eve.rebalance.returnType === 'fixedAllocation' && eve.rebalance.fixedAllocation
                     ? eve.rebalance.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],

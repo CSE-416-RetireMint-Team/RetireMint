@@ -34,9 +34,16 @@ InvestmentSchema.pre('validate', async function(next) {
             return next();
         }
 
-        // Populate the investmentType to get its taxability
-        await this.populate('investmentType');
+        // Only try to populate if investmentType is an ObjectId (not already populated)
+        if (this.investmentType && typeof this.investmentType === 'object' && !this.investmentType.taxability) {
+            await this.populate('investmentType');
+        }
         
+        // Check if population was successful
+        if (!this.investmentType || !this.investmentType.taxability) {
+            return next(); // Skip validation if we can't determine taxability
+        }
+
         // If the investment type is tax-exempt, accountTaxStatus is not required
         if (this.investmentType.taxability === 'tax-exempt') {
             this.accountTaxStatus = undefined; // Clear the accountTaxStatus field
