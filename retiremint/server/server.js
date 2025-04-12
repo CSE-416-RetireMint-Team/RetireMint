@@ -51,7 +51,6 @@ const LifeExpectancy = require('./src/Schemas/LifeExpectancy');
 const Investment = require('./src/Schemas/Investments');
 const InvestmentType = require('./src/Schemas/InvestmentType');
 const ExpectedReturn = require('./src/Schemas/ExpectedReturnOrIncome');
-const ExpectedIncome = require('./src/Schemas/ExpectedReturnOrIncome');
 const Inflation = require('./src/Schemas/Inflation');
 const SimulationSettings = require('./src/Schemas/SimulationSettings');
 const Event=require('./src/Schemas/EventSeries');
@@ -159,13 +158,13 @@ app.post('/login',async function(req,res){
         if (!user) {
             isFirstLogin = true;
             console.log(`Creating new user: ${email}`);
-            user = new User({
-                googleId,
-                email,
-                name,
-                picture,
-            });
-            await user.save();
+        user = new User({
+            googleId,
+            email,
+            name,
+            picture,
+        });
+        await user.save();
             console.log('New user created with ID:', user._id);
         } else {
             console.log(`Existing user logged in: ${email}`);
@@ -186,7 +185,7 @@ app.post('/login',async function(req,res){
         
         console.log('Sending login response:', responseData);
         return res.status(200).json(responseData);
-    } catch (err) {
+        } catch (err) {
         console.error('Google authentication failed:', err);
         return res.status(401).json({ error: 'Authentication failed', details: err.message });
     }
@@ -194,32 +193,32 @@ app.post('/login',async function(req,res){
 
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
-    console.log('Scenario received!');
-  
-    const {
-        scenarioIdEdit, // Only utilized if editing existing scenario. If new, an ID will be assigned to it.
+    const { 
+        scenarioIdEdit,
         scenarioName, 
         scenarioType, 
         birthYear, 
-        spouseBirthYear,
+        spouseBirthYear, 
         lifeExpectancy, 
-        spouseLifeExpectancy,
-        investments,
-        events, 
-        inflationAssumption, 
-        spendingStrategies,
+        spouseLifeExpectancy, 
+        investments, 
+        events,
+        inflationAssumption,
         expenseWithdrawalStrategies,
         rmdStrategies,
         rothConversionStrategies,
-        rothOptimizerEnable,
-        rothOptimizerStartYear,
+        RothOptimizerEnable,
+        rothRptimizerStartYear,
         rothOptimizerEndYear,
-        financialGoal, 
+        financialGoal,
+        maximumCash,
         stateOfResidence,
         sharedUsers,
         userId  // Add userId to the extracted parameters
     } = req.body; // extracting data from frontend
 
+    console.log('Scenario received!');
+  
     // open existing scenario if an edit is being attempted
     let existingScenario;
     if (scenarioIdEdit) {
@@ -242,7 +241,6 @@ app.post('/scenario', async (req, res) => {
                 existingInvestment = await Investment.findById(existingScenario.investments[i]);
                 let existingInvestmentType = await InvestmentType.findById(existingInvestment.investmentType);
                 await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualReturn);
-                await ExpectedIncome.findByIdAndDelete(existingInvestmentType.expectedAnnualIncome);
                 await InvestmentType.findByIdAndDelete(existingInvestment.investmentType);
                 await Investment.findByIdAndDelete(existingScenario.investments[i]);
             }
@@ -321,10 +319,10 @@ app.post('/scenario', async (req, res) => {
     }
 
     // process investments from bottom-up
-
     
-    const investmentIds = await Promise.all(investments.map(async inv => {
         
+    const investmentIds = await Promise.all(investments.map(async inv => {
+
         // step 1: Create Expected Return
         const expectedReturnInstance = new ExpectedReturn({
             method: inv.investmentType.expectedReturn.returnType,
@@ -345,31 +343,12 @@ app.post('/scenario', async (req, res) => {
         // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
         expectedReturn = await expectedReturnInstance.save();
 
-        // step 2: Create Expected Income
-        let expectedIncome = new ExpectedIncome({
-            method: inv.investmentType.expectedIncome.returnType,
-            fixedValue: inv.investmentType.expectedIncome.returnType === 'fixedValue' 
-                ? inv.investmentType.expectedIncome.fixedValue 
-                : null,
-            fixedPercentage: inv.investmentType.expectedIncome.returnType === 'fixedPercentage' 
-                ? inv.investmentType.expectedIncome.fixedPercentage 
-                : null,
-            normalValue: inv.investmentType.expectedIncome.returnType === 'normalValue' 
-                ? inv.investmentType.expectedIncome.normalValue 
-                : null,
-            normalPercentage: inv.investmentType.expectedIncome.returnType === 'normalPercentage' 
-                ? inv.investmentType.expectedIncome.normalPercentage 
-                : null,
-        })
-        expectedIncome.save();
-
         //step 3: create investmentType
        
         const investmentType = new InvestmentType({
             name: inv.investmentType.name,
             description: inv.investmentType.description,
             expectedAnnualReturn: expectedReturn._id,
-            expectedAnnualIncome: expectedIncome._id,
             expenseRatio: inv.investmentType.expenseRatio,
             taxability: inv.investmentType.taxability
         });
@@ -377,12 +356,18 @@ app.post('/scenario', async (req, res) => {
     
     
         // step 4 create investment
-
-        const investment = await new Investment({
+        const investmentData = {
+            name: inv.name,
             investmentType: investmentType._id,
-            value: inv.value,
-            accountTaxStatus: inv.taxStatus
-        }).save();
+            value: inv.value
+        };
+
+        // Only include accountTaxStatus for taxable investments
+        if (inv.investmentType.taxability !== 'tax-exempt') {
+            investmentData.accountTaxStatus = inv.taxStatus;
+        }
+
+        const investment = await new Investment(investmentData).save();
 
         return investment._id;
     }));
@@ -502,7 +487,7 @@ app.post('/scenario', async (req, res) => {
         }else if(eve.eventType==="invest"){
 
             const investAllocation = await new Allocation({
-                method: eve.invest.returnType,
+                method: eve.invest.executionType || 'fixedAllocation',
                 fixedAllocation: eve.invest.returnType === 'fixedAllocation' && eve.invest.fixedAllocation
                     ? eve.invest.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
@@ -514,13 +499,14 @@ app.post('/scenario', async (req, res) => {
     
             investObj =await  new Invest({
                 allocations: investAllocation.id,
-                maximumCash : eve.invest.maximumCash
-    
+                modifyMaximumCash: eve.invest.modifyMaximumCash,
+                newMaximumCash: eve.invest.modifyMaximumCash ? eve.invest.newMaximumCash : null,
+                investmentStrategy: eve.invest.investmentStrategy || {}
             }).save()
             
         }else if(eve.eventType==="rebalance"){
             const rebalanceAllocation = await new Allocation({
-                method: eve.rebalance.returnType,
+                method: eve.rebalance.executionType || 'fixedAllocation',
                 fixedAllocation: eve.rebalance.returnType === 'fixedAllocation' && eve.rebalance.fixedAllocation
                     ? eve.rebalance.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
@@ -571,7 +557,7 @@ app.post('/scenario', async (req, res) => {
             normalPercentage: inflationAssumption.normalPercentage,
             uniformPercentage: inflationAssumption.uniformPercentage
         });
-        await inflation.save();
+    await inflation.save();
     }
     else {
         inflation = await Inflation.findByIdAndUpdate(existingSimulationSettings.inflation, inflation, {new: true});
@@ -581,13 +567,12 @@ app.post('/scenario', async (req, res) => {
     let simulationSettings;
     if (!existingSimulationSettings) {
         simulationSettings = new SimulationSettings({
-            inflationAssumption: inflation._id,
-            spendingStrategies: spendingStrategies,
+        inflationAssumption: inflation._id,
             expenseWithdrawalStrategies: expenseWithdrawalStrategies,
             rmdStrategies: rmdStrategies,
             rothConversionStrategies: rothConversionStrategies,
-            rothOptimizerEnable: rothOptimizerEnable,
-            rothOptimizerStartYear: rothOptimizerStartYear,
+            rothOptimizerEnable: RothOptimizerEnable,
+            rothOptimizerStartYear: rothRptimizerStartYear,
             rothOptimizerEndYear: rothOptimizerEndYear
         });
         await simulationSettings.save();
@@ -607,7 +592,7 @@ app.post('/scenario', async (req, res) => {
             return sharedUser._id; 
         }));
     }
-    
+
     try {
         if (!existingScenario) {
             const newScenario = new Scenario({
@@ -622,6 +607,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             });
@@ -647,6 +633,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             }, {new: true});
@@ -681,8 +668,6 @@ app.post('/simulation/scenario/investments', async (req, res) => {
             investment.investmentType = investmentType;
             let expectedReturn = await ExpectedReturn.findById(investmentType.expectedAnnualReturn);
             investment.investmentType.expectedAnnualReturn = expectedReturn;
-            let expectedIncome = await ExpectedIncome.findById(investmentType.expectedAnnualIncome);
-            investment.investmentType.expectedAnnualIncome = expectedIncome;
             investments.push(investment);
         }
         res.json({
@@ -795,8 +780,7 @@ async function seedDefaultTaxData() {
               { min: 80650, max: 215400, rate: 0.0633 },
               { min: 215400, max: 1077550, rate: 0.0685 },
               { min: 1077550, max: Number.MAX_VALUE, rate: 0.0882 }
-            ],
-            standardDeduction: 8000
+            ]
           }],
           ["CA", {
             brackets: [
@@ -809,14 +793,12 @@ async function seedDefaultTaxData() {
               { min: 312686, max: 375221, rate: 0.103 },
               { min: 375221, max: 625369, rate: 0.113 },
               { min: 625369, max: Number.MAX_VALUE, rate: 0.123 }
-            ],
-            standardDeduction: 4803
+            ]
           }],
           ["TX", {
             brackets: [
               { min: 0, max: Number.MAX_VALUE, rate: 0 }
-            ],
-            standardDeduction: 0
+            ]
           }]
         ]),
         rmdTable: [

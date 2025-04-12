@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Header from './HeaderComp';
+import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import axios from 'axios';
+import '../Stylesheets/NewScenario.css';
 
 function NewScenario() {
     const navigate = useNavigate();
 
     // Handling editing existing scenario (if necessary)
     const [loading, setLoading] = useState(true);
-    //const [error, setError] = useState(null);
+    const [error, setError] = useState(null);
     const { reportId } = useParams();
     const [scenarioIdEdit, setScenarioIdEdit] = useState(null);
 
@@ -34,11 +37,16 @@ function NewScenario() {
     const [spouseMean, setSpouseMean] = useState('');
     const [spouseStandardDeviation, setSpouseStandardDeviation] = useState('');
 
+    const [investmentTypes, setInvestmentTypes] = useState([]);
     const [investments, setInvestments] = useState([]); // store investments as array
     const [events, setEvents] = useState([]); // store events as an array.
 
-    // strategy states
-    const [spendingStrategiesInput, setSpendingStrategiesInput] = useState('');
+    // Strategy states for drag and drop
+    const [expenseWithdrawalStrategies, setExpenseWithdrawalStrategies] = useState([]); 
+    const [rmdStrategies, setRmdStrategies] = useState([]);
+    const [rothConversionStrategies, setRothConversionStrategies] = useState([]);
+    
+    // Legacy strategy text inputs (kept for backward compatibility)
     const [expenseWithdrawalStrategiesInput, setExpenseWithdrawalStrategiesInput] = useState('');
     const [rmdStrategiesInput, setRmdStrategiesInput] = useState('');
     const [rothConversionStrategiesInput, setRothConversionStrategiesInput] = useState('');
@@ -60,11 +68,63 @@ function NewScenario() {
 
     // financial goal and state of residence
     const [financialGoal, setFinancialGoal] = useState('');
+    const [maximumCash, setMaximumCash] = useState('');
     const [stateOfResidence, setStateOfResidence] = useState('');
 
     //shared users 
     const [sharedUsers,setSharedUsers] = useState([])
 
+    // Flag to check if user has pre-tax investments
+    const [hasPreTaxInvestments, setHasPreTaxInvestments] = useState(false);
+    
+    // Handle drag end for all strategy lists
+    const handleDragEnd = (result, strategyType) => {
+        if (!result.destination) return;
+        
+        // Get the appropriate strategy list based on type
+        const items = Array.from(
+            strategyType === 'expense' ? expenseWithdrawalStrategies : 
+            strategyType === 'rmd' ? rmdStrategies : 
+            rothConversionStrategies
+        );
+        
+        // Reorder the item in the array
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
+        
+        // Update the appropriate state
+        if (strategyType === 'expense') {
+            console.log("Updated expense withdrawal strategies after drag:", items);
+            setExpenseWithdrawalStrategies(items);
+        } else if (strategyType === 'rmd') {
+            console.log("Updated RMD strategies after drag:", items);
+            setRmdStrategies(items);
+        } else {
+            console.log("Updated Roth conversion strategies after drag:", items);
+            setRothConversionStrategies(items);
+        }
+    };
+
+    // Initialize strategy lists based on investments
+    useEffect(() => {
+        // This is now handled by the useEffect that triggers on page change to page 5
+        // Keeping this for backward compatibility but disabling the initialization
+        if (investments.length > 0) {
+            // Check for pre-tax investments and update flag only
+            const hasPreTax = investments.some(inv => inv.taxStatus === 'pre-tax');
+            if (page !== 5) {
+                setHasPreTaxInvestments(hasPreTax);
+            }
+        }
+    }, [investments, page]);
+    
+    // Convert strategy lists to string format when submitting
+    useEffect(() => {
+        // Update text inputs when drag lists change (for backward compatibility)
+        setExpenseWithdrawalStrategiesInput(expenseWithdrawalStrategies.join(';'));
+        setRmdStrategiesInput(rmdStrategies.join(';'));
+        setRothConversionStrategiesInput(rothConversionStrategies.join(';'));
+    }, [expenseWithdrawalStrategies, rmdStrategies, rothConversionStrategies]);
 
     useEffect(() => {
         console.log(reportId)
@@ -80,16 +140,65 @@ function NewScenario() {
                     setScenarioType(response.data.scenarioType);
                     setBirthYear(response.data.birthYear);
                     setSpouseBirthYear(response.data.spouseBirthYear);
+                    setMaximumCash(response.data.maximumCash);
 
                     // Fetch Investments with all id's broken down and convert it to the investment format in the form.
                     const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioIdEdit: response.data._id});
                     const convertedInvestments = convertInvestmentFormat(responseInvestments.data.investments);
                     setInvestments(convertedInvestments);
+                    
+                    // Check for pre-tax investments
+                    const hasPreTax = convertedInvestments.some(inv => inv.taxStatus === 'pre-tax');
+                    setHasPreTaxInvestments(hasPreTax);
 
                     // Fetch Events with all id's broken down and convert it to the event format in the form.
                     const responseEvents = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenarioIdEdit: response.data._id});
                     const convertedEvents = convertEventFormat(responseEvents.data.events);
                     setEvents(convertedEvents);
+
+                    // Load strategy data if available
+                    if (response.data.simulationSettings) {
+                        try {
+                            // Fetch simulation settings to get strategies
+                            const simSettingsResponse = await axios.get(
+                                `http://localhost:8000/simulation/settings/${response.data.simulationSettings}`
+                            );
+                            
+                            if (simSettingsResponse.data) {
+                                const settings = simSettingsResponse.data;
+                                
+                                // Load expense withdrawal strategies if available
+                                if (settings.expenseWithdrawalStrategies && settings.expenseWithdrawalStrategies.length > 0) {
+                                    setExpenseWithdrawalStrategies(settings.expenseWithdrawalStrategies);
+                                    setExpenseWithdrawalStrategiesInput(settings.expenseWithdrawalStrategies.join(';'));
+                                }
+                                
+                                // Load RMD strategies if available
+                                if (settings.rmdStrategies && settings.rmdStrategies.length > 0) {
+                                    setRmdStrategies(settings.rmdStrategies);
+                                    setRmdStrategiesInput(settings.rmdStrategies.join(';'));
+                                }
+                                
+                                // Load Roth conversion strategies if available
+                                if (settings.rothConversionStrategies && settings.rothConversionStrategies.length > 0) {
+                                    setRothConversionStrategies(settings.rothConversionStrategies);
+                                    setRothConversionStrategiesInput(settings.rothConversionStrategies.join(';'));
+                                }
+                                
+                                // Load Roth optimizer settings if available
+                                if (settings.rothOptimizerEnable !== undefined) {
+                                    setRothOptimizerEnable(settings.rothOptimizerEnable);
+                                    
+                                    if (settings.rothOptimizerEnable) {
+                                        setRothRptimizerStartYear(settings.rothOptimizerStartYear || '');
+                                        setRothOptimizerEndYear(settings.rothOptimizerEndYear || '');
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Error loading simulation settings:', err);
+                        }
+                    }
 
                     setFinancialGoal(response.data.financialGoal);
                     setStateOfResidence(response.data.stateOfResidence);
@@ -103,6 +212,7 @@ function NewScenario() {
             } catch (err) {
                 console.error('Error fetching report:', err);
                 setError('Error loading simulation results');
+                setLoading(false);
             }
         }
         fetchScenario();
@@ -139,12 +249,7 @@ function NewScenario() {
                     : { lowerBound: null, upperBound: null }
             };
 
-            // construct strategies data
-            const spendingStrategies = spendingStrategiesInput.split(';').map(s => s.trim()).filter(s => s);
-            const expenseWithdrawalStrategies = expenseWithdrawalStrategiesInput.split(';').map(s => s.trim()).filter(s => s);
-            const rmdStrategies = rmdStrategiesInput.split(';').map(s => s.trim()).filter(s => s);
-            const rothConversionStrategies = rothConversionStrategiesInput.split(';').map(s => s.trim()).filter(s => s);
-
+            // Format shared users
             const formattedSharedUsers = sharedUsers.map(user => {
                 const [email, permission] = user.split(";");
                 return { email, permissions: permission }; // match schema structure
@@ -164,7 +269,7 @@ function NewScenario() {
                 investments,
                 events,
                 inflationAssumption,
-                spendingStrategies,
+                // Use the arrays directly from our drag-and-drop lists
                 expenseWithdrawalStrategies,
                 rmdStrategies,
                 rothConversionStrategies,
@@ -172,6 +277,7 @@ function NewScenario() {
                 rothRptimizerStartYear: RothOptimizerEnable ? rothRptimizerStartYear : null,
                 rothOptimizerEndYear: RothOptimizerEnable ? rothOptimizerEndYear : null,
                 financialGoal,  
+                maximumCash,
                 stateOfResidence,
                 sharedUsers: formattedSharedUsers,
                 userId: userId // Include the userId in the scenario data
@@ -216,6 +322,75 @@ function NewScenario() {
         }
     };
 
+    // Log investments for debugging
+    useEffect(() => {
+        //console.log("Investments updated:", investments);
+        //console.log("Investment names:", investments.map(inv => inv.name));
+        
+        // Log pre-tax investments
+        const preTaxInvestments = investments.filter(inv => inv.taxStatus === 'pre-tax');
+        //console.log("Pre-tax investments:", preTaxInvestments.map(inv => inv.name));
+        
+        // Log after-tax investments
+        const afterTaxInvestments = investments.filter(inv => inv.taxStatus === 'after-tax');
+        //console.log("After-tax investments:", afterTaxInvestments.map(inv => inv.name));
+        
+        // Log tax-exempt investments
+        const taxExemptInvestments = investments.filter(inv => inv.investmentType.taxability === 'tax-exempt');
+        //console.log("Tax-exempt investments:", taxExemptInvestments.map(inv => inv.name));
+        
+        // Log non-retirement investments
+        const nonRetirementInvestments = investments.filter(inv => inv.taxStatus === 'non-retirement');
+        //console.log("Non-retirement investments:", nonRetirementInvestments.map(inv => inv.name));
+    }, [investments]);
+
+    // Initialize strategy lists when reaching page 5
+    useEffect(() => {
+        if (page === 5 && investments.length > 0) {
+            // Only initialize if strategies are empty
+            if (expenseWithdrawalStrategies.length === 0) {
+                // First collect all by tax status
+                const postTaxInvestments = investments
+                    .filter(inv => inv.taxStatus === 'after-tax')
+                    .map(inv => inv.name);
+                
+                const preTaxInvestments = investments
+                    .filter(inv => inv.taxStatus === 'pre-tax')
+                    .map(inv => inv.name);
+                
+                const taxExemptInvestments = investments
+                    .filter(inv => inv.investmentType.taxability === 'tax-exempt')
+                    .map(inv => inv.name);
+                
+                const nonRetirementInvestments = investments
+                    .filter(inv => inv.taxStatus === 'non-retirement')
+                    .map(inv => inv.name);
+                
+                // Add in preferred order: post-tax, pre-tax, tax-exempt, non-retirement
+                const allOrderedInvestments = [
+                    ...postTaxInvestments,
+                    ...preTaxInvestments,
+                    ...taxExemptInvestments, 
+                    ...nonRetirementInvestments
+                ];
+                
+                console.log("Initializing expense withdrawal strategies on page 5:", allOrderedInvestments);
+                setExpenseWithdrawalStrategies(allOrderedInvestments);
+                
+                // Initialize RMD and Roth Conversion strategies with pre-tax investments
+                if (preTaxInvestments.length > 0) {
+                    setHasPreTaxInvestments(true);
+                    console.log("Initializing RMD strategies on page 5:", preTaxInvestments);
+                    setRmdStrategies([...preTaxInvestments]);
+                    
+                    console.log("Initializing Roth conversion strategies on page 5:", preTaxInvestments);
+                    setRothConversionStrategies([...preTaxInvestments]);
+                } else {
+                    setHasPreTaxInvestments(false);
+                }
+            }
+        }
+    }, [page, investments, expenseWithdrawalStrategies.length]);
 
     if (loading) {
         console.log(`loading: ${loading}`);
@@ -224,6 +399,8 @@ function NewScenario() {
     return (
         <div>
             <Header />
+            
+            {error && <div className="error-message">{error}</div>}
 
             {page === 1 && (
                 <div>
@@ -366,6 +543,19 @@ function NewScenario() {
 
                     </div>
 
+                    <div>
+                        <h2>Initial Maximum Cash *</h2>
+                        <input 
+                            type="number" 
+                            placeholder="Enter maximum cash amount" 
+                            value={maximumCash} 
+                            onChange={(e) => setMaximumCash(e.target.value)} 
+                        />
+                        <p className="helper-text">
+                            This value is used for all invest events to determine the maximum amount of cash to keep.
+                        </p>
+                    </div>
+
                     <>
                     {/* Next Button */}
                         <button onClick={() => {
@@ -411,12 +601,20 @@ function NewScenario() {
                                     return;
                                 }
                             }
+                            if (!maximumCash) {
+                                alert("Maximum Cash is required.");
+                                return;
+                            }
+
+                            // Save birth year and maximum cash to localStorage
+                            localStorage.setItem('dateOfBirth', birthYear);
+                            localStorage.setItem('initialMaximumCash', maximumCash);
 
                             // if everything is valid, proceed to the next page
                             setPage(2);
                         }}>
                             Next
-                    </button>
+                        </button>
 
                     
                     </>
@@ -427,22 +625,41 @@ function NewScenario() {
 
 
             <div>
-                
+
             {page === 2 && (
                 <>
-                    <InvestmentForm investments={investments} setInvestments={setInvestments} setPage={setPage}/>
+                    <InvestmentTypeForm investmentTypes={investmentTypes} setInvestmentTypes={setInvestmentTypes} setPage={setPage}/>
+                
+                </>
+            )}
+                
+            {page === 3 && (
+                <>
+                    <InvestmentForm 
+                        investments={investments} 
+                        setInvestments={setInvestments} 
+                        investmentTypes={investmentTypes}
+                        setInvestmentTypes={setInvestmentTypes}
+                        setPage={setPage}
+                    />
                 
                 </>
             )}
 
-            {page === 3 && (
+            {page === 4 && (
                 <>
-                    <EventForm events={events} setEvents={setEvents} scenarioType={scenarioType} setPage={setPage} />
+                    <EventForm 
+                        events={events} 
+                        setEvents={setEvents} 
+                        scenarioType={scenarioType} 
+                        setPage={setPage}
+                        investments={investments} 
+                    />
                 
                 </>
             )}
             
-            {page === 4 && (
+            {page === 5 && (
                 <>
                     <h3>Select Inflation Method</h3>
                     <select onChange={(e) => setInflationMethod(e.target.value)} value={inflationMethod}>
@@ -495,35 +712,132 @@ function NewScenario() {
                         </div>
                     )}
 
+                    {/* Strategy sections with drag and drop */}
+                    <div className="strategies-section">
+                        <h3>Investment Strategies</h3>
+                        <p className="helper-text">
+                            Arrange investments in priority order. Investments at the top of the list will be used first, 
+                            while those at the bottom will be used last. Drag and drop to reorder.
+                        </p>
+                        
+                        <div className="strategy-list">
+                            <h4>Expense Withdrawal Strategy - {expenseWithdrawalStrategies.length} investments</h4>
+                            <p className="helper-text">Priority order for withdrawals to cover expenses</p>
+                            <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'expense')}>
+                                <Droppable droppableId="expenseWithdrawalStrategiesList">
+                                    {(provided) => (
+                                        <ul 
+                                            className="draggable-list"
+                                            {...provided.droppableProps}
+                                            ref={provided.innerRef}
+                                        >
+                                            {expenseWithdrawalStrategies.length > 0 ? (
+                                                expenseWithdrawalStrategies.map((investment, index) => (
+                                                    <Draggable key={`expense-${investment}-${index}`} draggableId={`expense-${investment}-${index}`} index={index}>
+                                                        {(provided) => (
+                                                            <li
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                className="draggable-item"
+                                                            >
+                                                                {investment}
+                                                            </li>
+                                                        )}
+                                                    </Draggable>
+                                                ))
+                                            ) : (
+                                                <div className="draggable-list-empty">
+                                                    No investments added yet. Please add investments in the Investment Form.
+                                                </div>
+                                            )}
+                                            {provided.placeholder}
+                                        </ul>
+                                    )}
+                                </Droppable>
+                            </DragDropContext>
+                        </div>
+                        
+                        {hasPreTaxInvestments && (
+                            <>
+                                <div className="strategy-list">
+                                    <h4>RMD Strategy (Pre-Tax Investments) - {rmdStrategies.length} investments</h4>
+                                    <p className="helper-text">Priority order for required minimum distributions from pre-tax accounts</p>
+                                    <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'rmd')}>
+                                        <Droppable droppableId="rmdStrategiesList">
+                                            {(provided) => (
+                                                <ul 
+                                                    className="draggable-list"
+                                                    {...provided.droppableProps}
+                                                    ref={provided.innerRef}
+                                                >
+                                                    {rmdStrategies.length > 0 ? (
+                                                        rmdStrategies.map((investment, index) => (
+                                                            <Draggable key={`rmd-${investment}-${index}`} draggableId={`rmd-${investment}-${index}`} index={index}>
+                                                                {(provided) => (
+                                                                    <li
+                                                                        ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}
+                                                                        className="draggable-item"
+                                                                    >
+                                                                        {investment}
+                                                                    </li>
+                                                                )}
+                                                            </Draggable>
+                                                        ))
+                                                    ) : (
+                                                        <div className="draggable-list-empty">
+                                                            No pre-tax investments added yet. RMD strategy only applies to pre-tax investments.
+                                                        </div>
+                                                    )}
+                                                    {provided.placeholder}
+                                                </ul>
+                                            )}
+                                        </Droppable>
+                                    </DragDropContext>
+                                </div>
+                                
+                                <div className="strategy-list">
+                                    <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
+                                    <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
+                                    <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
+                                        <Droppable droppableId="rothConversionStrategiesList">
+                                            {(provided) => (
+                                                <ul 
+                                                    className="draggable-list"
+                                                    {...provided.droppableProps}
+                                                    ref={provided.innerRef}
+                                                >
+                                                    {rothConversionStrategies.length > 0 ? (
+                                                        rothConversionStrategies.map((investment, index) => (
+                                                            <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
+                                                                {(provided) => (
+                                                                    <li
+                                                                        ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}
+                                                                        className="draggable-item"
+                                                                    >
+                                                                        {investment}
+                                                                    </li>
+                                                                )}
+                                                            </Draggable>
+                                                        ))
+                                                    ) : (
+                                                        <div className="draggable-list-empty">
+                                                            No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
+                                                        </div>
+                                                    )}
+                                                    {provided.placeholder}
+                                                </ul>
+                                            )}
+                                        </Droppable>
+                                    </DragDropContext>
+                                </div>
 
-                    {/* strategy inputs */}
-                    <h3>Strategies (Separate each strategy with ; )</h3>
-                    <input 
-                        type="text" 
-                        placeholder="Enter spending strategies" 
-                        value={spendingStrategiesInput} 
-                        onChange={(e) => setSpendingStrategiesInput(e.target.value)} 
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="Enter expense withdrawal strategies" 
-                        value={expenseWithdrawalStrategiesInput} 
-                        onChange={(e) => setExpenseWithdrawalStrategiesInput(e.target.value)} 
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="Enter RMD strategies" 
-                        value={rmdStrategiesInput} 
-                        onChange={(e) => setRmdStrategiesInput(e.target.value)} 
-                    />
-                    <input 
-                        type="text" 
-                        placeholder="Enter Roth conversion strategies" 
-                        value={rothConversionStrategiesInput} 
-                        onChange={(e) => setRothConversionStrategiesInput(e.target.value)} 
-                    />
-
-                    {/* roth optimizer inputs */}
+                                {/* Roth Optimizer section */}
+                                <div className="roth-optimizer">
                     <h3>Roth Optimization</h3>
                     <label>
                         <input 
@@ -550,6 +864,10 @@ function NewScenario() {
                             />
                         </div>
                     )}
+                                </div>
+                            </>
+                        )}
+                    </div>
 
                     {/* share setting */}
                     <h3>Number of Shared Users</h3>
@@ -658,7 +976,7 @@ function NewScenario() {
 
                     {/* Navigation Buttons */}
                     <div>
-                        <button onClick={() => setPage(3)}>Previous</button>
+                        <button onClick={() => setPage(4)}>Previous</button>
                         <button onClick={() => {
                             // Validate Inflation Method
                             if (!inflationMethod) {
@@ -690,11 +1008,30 @@ function NewScenario() {
                                     break;
                             }
 
-                            // Validate Roth Optimizer
+                            // Validate investment strategies
+                            if (expenseWithdrawalStrategies.length === 0) {
+                                alert("You must define at least one investment for Expense Withdrawal Strategy.");
+                                return;
+                            }
+
+                            // Only validate pre-tax strategies if user has pre-tax investments
+                            if (hasPreTaxInvestments) {
+                                if (rmdStrategies.length === 0) {
+                                    alert("You must define at least one investment for RMD Strategy.");
+                                    return;
+                                }
+                                
+                                if (rothConversionStrategies.length === 0) {
+                                    alert("You must define at least one investment for Roth Conversion Strategy.");
+                                    return;
+                                }
+                                
+                                // Validate Roth Optimizer if enabled
                             if (RothOptimizerEnable) {
                                 if (!rothRptimizerStartYear || !rothOptimizerEndYear) {
                                     alert("Both Start Year and End Year are required when Roth Optimization is enabled.");
                                     return;
+                                    }
                                 }
                             }
 
@@ -753,19 +1090,6 @@ function convertInvestmentFormat( dbInvestments) {
                     normalPercentage: {
                     mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.mean ?? '',
                     sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.sd ?? ''
-                    }
-                },
-                expectedIncome: { 
-                    returnType: dbInvestments[i].investmentType.expectedAnnualIncome?.method ?? '',
-                    fixedValue: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedValue ?? '', 
-                    fixedPercentage: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedPercentage ?? '', 
-                    normalValue: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalValue?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualIncome?.normalValue?.sd ?? ''
-                    },
-                    normalPercentage: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.sd ?? ''
                     }
                 },
                 expenseRatio: dbInvestments[i].investmentType.expenseRatio ?? '',
@@ -875,7 +1199,8 @@ function convertEventFormat(dbEvents) {
                 returnType: dbEvents[i].invest?.returnType ?? '',
                 fixedAllocation: dbEvents[i].invest?.fixedAllocation ?? '',
                 glidePath: dbEvents[i].invest?.glidePath ?? '',
-                maximumCash: dbEvents[i].invest?.maximumCash ?? ''
+                modifyMaximumCash: dbEvents[i].invest?.modifyMaximumCash ?? false,
+                newMaximumCash: dbEvents[i].invest?.newMaximumCash ?? ''
             },
             rebalance: {
                 returnType: dbEvents[i].rebalance?.returnType ?? '',

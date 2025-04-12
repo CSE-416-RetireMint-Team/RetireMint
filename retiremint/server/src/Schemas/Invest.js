@@ -9,13 +9,35 @@ const InvestSchema = new Schema({
         ref: 'Allocation', 
         required: true
     },
-    maximumCash :{
-        type: Number,
-        required: true
+    modifyMaximumCash: {
+        type: Boolean,
+        default: false
+    },
+    newMaximumCash: {
+        type: Number
+    },
+    investmentStrategy: {
+        taxStatusAllocation: {
+            type: Object,
+            default: {}
+        },
+        preTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        afterTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        nonRetirementAllocation: {
+            type: Object,
+            default: {}
+        },
+        taxExemptAllocation: {
+            type: Object,
+            default: {}
+        }
     }
-
-    
-    
 });
 
 module.exports = mongoose.model('Invest', InvestSchema );

@@ -12,16 +12,10 @@ const InvestmentTypeSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'ExpectedReturnOrIncome',
     required: true
-   
   },  
   expenseRatio: { 
     type: Number, required: true 
   },
-  expectedAnnualIncome: {
-    type: Schema.Types.ObjectId, 
-    ref: 'ExpectedReturnOrIncome',
-    required: true
-  },  
   taxability: {
     type: String,
     enum: ['taxable', 'tax-exempt'],
