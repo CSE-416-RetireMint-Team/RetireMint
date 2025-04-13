@@ -140,9 +140,8 @@ function Dashboard() {
             try {
                 // Reset any previous errors from attempting to share
                 setShareError(null);
-                const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${user.email}`)).data;
-                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: user.email, permissions: permissions});
-                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: user.userId, email: user.email, permissions: permissions});
                 // Update shareReport on the front-end to show new shared users.
                 handleShareReport(shareReport._id);
             }   
@@ -154,6 +153,26 @@ function Dashboard() {
         else {
             setShareError("No proper report selected.")
         }
+    }
+
+    const handleRemoveSharedUser = async (user) => {
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                await axios.post('http://localhost:8000/scenario/removeSharedUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email});
+                await axios.post('http://localhost:8000/report/removeSharedUser', {reportId: shareReport._id, userId: user.userId, email: user.email});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Remove Shared User Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        } 
     }
 
     const handleDownload = async () => {
@@ -398,6 +417,9 @@ function Dashboard() {
                                     <option value="view">View</option>
                                     <option value="edit">Edit</option>
                                 </select>
+                                <button onClick={(e) => handleRemoveSharedUser(user)}>
+                                    Remove
+                                </button>
                             </div>
                         ))}
 
