@@ -836,6 +836,71 @@ app.post('/report/shareToUser', async (req, res) => {
     }
 });
 
+app.post('/scenario/removeSharedUser', async (req, res) => {
+    try {
+        const scenarioId = req.body.scenarioId;
+        const userId = req.body.userId;
+        const email = req.body.email;
+
+        const scenario = await Scenario.findById(scenarioId);
+
+        // Check if the user is already added to the Scenario.        
+        const index = scenario.sharedUsers.findIndex((user) => user.email === email);
+        if (index != -1) {
+            scenario.sharedUsers.splice(index, 1); // Remove Shared User
+        }
+        else {
+            console.log(`Removed User!!! ${email}`);
+        }
+        scenario.save();
+        console.log(`Successfully removed Shared User from Scenario: ${scenario.sharedUsers}`);
+        res.json({
+            success: true,
+            message: `Sucessfully removed shared user ${userId} from scenario ${scenarioId}.`,
+       })
+        
+    }
+    catch (error) {
+        console.error('Error removing user from scenario:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to removed shared user from scenario.',
+            details: error.message
+        });
+    }
+});
+
+app.post('/report/removeSharedUser', async (req, res) => {
+    try {
+        const reportId = req.body.reportId;
+        const userId = req.body.userId;
+        const email = req.body.email;
+
+        const report = await Report.findById(reportId);
+
+        // Check if the user is already added to the Report.        
+        const index = report.sharedUsers.findIndex((user) => user.email === email);
+        if (index != -1) {
+            report.sharedUsers.splice(index, 1); // Remove Shared User
+        }
+        report.save();
+        console.log(`Successfully removed Shared user from report: ${report.sharedUsers}`);
+        res.json({
+            success: true,
+            message: `Sucessfully removed shared user ${userId} from report ${reportId}.`,
+       })
+        
+    }
+    catch (error) {
+        console.error('Error removed user from scenario: ', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to removed shared user from report.',
+            details: error.message
+        });
+    }
+});
+
 // Function to seed default tax data if none exists
 async function seedDefaultTaxData() {
   try {
