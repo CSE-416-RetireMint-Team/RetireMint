@@ -247,7 +247,7 @@ router.get('/reports/:userId', async (req, res) => {
 router.get('/sharedreports/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    const reports = await Report.find({ sharedUsers: {userId : userId} } ).sort({ createdAt: -1 });
+    const reports = await Report.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
     res.json(reports);
   } catch (error) {
     console.error('Error fetching reports:', error);

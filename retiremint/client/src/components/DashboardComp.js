@@ -8,6 +8,8 @@ import '../Stylesheets/Dashboard.css';
 function Dashboard() {
     const [scenarios, setScenarios] = useState([]);
     const [reports, setReports] = useState([]);
+    const [sharedReportsData, setSharedReportsData] = useState([]);
+    const [reportView, setReportView] = useState('users-reports');
     const [loading, setLoading] = useState(true);
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [showSimulationForm, setShowSimulationForm] = useState(false);
@@ -35,6 +37,17 @@ function Dashboard() {
                 // Fetch user's simulation reports
                 const reportsResponse = await axios.get(`http://localhost:8000/simulation/reports/${userId}`);
                 setReports(reportsResponse.data);
+                
+                // Fetch reports shared with user and the respective permissions
+                const sharedReportsResponse = await axios.get(`http://localhost:8000/simulation/sharedreports/${userId}`)
+                const sharedReports = [];
+                sharedReportsResponse.data.map((report) => {
+                    const userParameters = report.sharedUsers.find((userData) => userData.userId === userId);
+                    if (userParameters != undefined) {
+                        sharedReports.push({report: report, permissions: userParameters.permissions})
+                    }
+                })
+                setSharedReportsData(sharedReports);
 
                 // Fetch user's data
                 const userResponse = await axios.get(`http://localhost:8000/user/${userId}`);
@@ -239,53 +252,106 @@ function Dashboard() {
                 </div>
                 
                 <div className="reports-section">
-                    <h2>Recent Simulation Reports</h2>
+                    <div>
+                        <h2>Recent Simulation Reports</h2>
+                        <select name="reports-view" onChange={(e) => setReportView(e.target.value)}>
+                            <option value="users-reports">Your Reports</option>   
+                            <option value="shared-reports">Shared With You</option> 
+                        </select>
+                    </div>
                     
-                    {reports.length === 0 ? (
-                        <div className="empty-state">
-                            <p>You haven't run any simulations yet.</p>
-                            {scenarios.length > 0 && (
-                                <p>Select a scenario and run a simulation to see results.</p>
-                            )}
-                        </div>
+                    {/* User is viewing their own Reports */}
+                    {reportView === 'users-reports' ? (
+                        <>
+                        {reports.length === 0 ? (
+                            <div className="empty-state">
+                                <p>You haven't run any simulations yet.</p>
+                                {scenarios.length > 0 && (
+                                    <p>Select a scenario and run a simulation to see results.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="reports-list">
+                                {reports.map(report => (
+                                    <div key={report._id} className="report-card">
+                                        <div>
+                                            <h3>{report.name}</h3>
+                                            <button 
+                                                onClick={() => handleShareReport(report._id)}>
+                                                Share
+                                            </button>
+                                        </div>
+                                        <div className="report-details">
+                                            <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
+                                            <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
+                                        </div>
+                                        <div className="report-actions">
+                                            <button 
+                                                onClick={() => handleViewReport(report._id)}
+                                                className="view-report-button"
+                                            >
+                                                View Results
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditReport(report._id)}
+                                                className='edit-report-button'
+                                            >
+                                                Edit Scenario    
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteReport(report._id)}
+                                                className="delete-report-button"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        </>
                     ) : (
-                        <div className="reports-list">
-                            {reports.map(report => (
-                                <div key={report._id} className="report-card">
-                                    <div>
-                                        <h3>{report.name}</h3>
-                                        <button 
-                                            onClick={() => handleShareReport(report._id)}>
-                                            Share
-                                        </button>
+                        <>
+                        {/* User is viewing the Reports shared with them */}
+                        {sharedReportsData.length === 0 ? (
+                            <div className="empty-state">
+                                <p>No reports have been shared with you.</p>
+                            </div>
+                        ) : (
+                            <div className="reports-list">
+                                {sharedReportsData.map(reportData => { 
+                                    const report = reportData.report;
+                                    return(
+                                    <div key={report._id} className="report-card">
+                                        <div>
+                                            <h3>{report.name}</h3>
+                                        </div>
+                                        <div className="report-details">
+                                            <p>Author: {report.userId}</p>
+                                            <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
+                                            <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
+                                        </div>
+                                        <div className="report-actions">
+                                            <button 
+                                                onClick={() => handleViewReport(report._id)}
+                                                className="view-report-button"
+                                            >
+                                                View Results
+                                            </button>
+                                            {reportData.permissions === "edit" && (
+                                                <button
+                                                    onClick={() => handleEditReport(report._id)}
+                                                    className='edit-report-button'
+                                                >
+                                                    Edit Scenario    
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="report-details">
-                                        <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
-                                        <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
-                                    </div>
-                                    <div className="report-actions">
-                                        <button 
-                                            onClick={() => handleViewReport(report._id)}
-                                            className="view-report-button"
-                                        >
-                                            View Results
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditReport(report._id)}
-                                            className='edit-report-button'
-                                        >
-                                            Edit Results    
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteReport(report._id)}
-                                            className="delete-report-button"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                )})}
+                            </div>
+                        )}
+                        </>
                     )}
                 </div>
             </div>
@@ -304,7 +370,7 @@ function Dashboard() {
                         <h3>{shareReport.description}</h3>
                         {shareReport.sharedUsers.map((user) => (
                             <div key={user.userId}>
-                                <h5>{user.email}</h5>
+                                <h5>{user.email} - {user.permissions}</h5>
                             </div>
                         ))}
 
