@@ -71,5 +71,70 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Find a userId given an email
+router.get('/email/:email', async (req,res) => {
+  const email = req.params.email;
+  try {
+    const user = await User.findOne({email: email});
+    if (!user) {
+      res.status(500).json({ success: false, message: 'No user with the inputted email found.'});
+    }
+    else{
+      const userId = user._id;
+      res.json(userId);
+    }
+  }
+  catch (error) {
+    res.status(500).json({ success: false, message: 'Error searching for user.' });
+  }
+})
+
+
+// Find a user id given an email.
+router.post('/email/shareReport', async (req, res) => {
+  const email = req.body.email;
+  const permissions = req.body.permissions;
+  const reportId = req.body.reportId;
+  try {
+    const user = await User.findOne({email: email});
+    try {
+      const existing_report = user.sharedReports.find((element) => element.reportId);
+      if (existing_report != undefined) {
+        existing_report.reportPermissions = permissions;
+        user.save();
+      }
+      else {
+        user.sharedReports.push({reportId: reportId, reportPermissions: permissions});
+        user.save();
+      }
+    }
+    catch (error) {
+      res.status(500).json({success: false, message: 'Failed to save shared report to the User\'s account.'})
+    }
+  }
+  catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to find user account associated with email.'});
+  }
+})
+
+// Get a user's email based off their googleId
+router.get('/googleId/email/:googleId', async (req, res) => {
+  try {
+    const { googleId } = req.params;
+    
+    // Find the user where the googleId matches
+    const user = await User.findOne({googleId: googleId});
+    
+    // Return the username
+    res.status(200).json(user.email);
+  } catch (error) {
+    console.error('Error fetching email:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch user email given a google ID',
+      details: error.message
+    });
+  }
+});
+
 
 module.exports = router;

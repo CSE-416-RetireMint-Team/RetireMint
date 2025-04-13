@@ -14,6 +14,11 @@ function Dashboard() {
     const [error, setError] = useState(null);
     const [stateWarning, setStateWarning] = useState(null);
     const [file, setFile] = useState(null);
+    const [shareReport, setShareReport] = useState(null);
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [shareEmail, setShareEmail] = useState('');
+    const [sharePermissions, setSharePermissions] = useState('view');
+    const [shareError, setShareError] = useState(null);
 
     const navigate = useNavigate();
 
@@ -81,6 +86,39 @@ function Dashboard() {
             }
         }
     };
+
+    const handleShareReport = async (reportId) => {
+        try{
+            const report = await axios.get(`http://localhost:8000/simulation/report/${reportId}`);
+            setShareReport(report.data);
+            setShowShareMenu(true);
+        }
+        catch (error) { 
+            console.error('Error opening share menu:', err);
+            setError('Failed to open the share menu. Please try again later.');
+        }
+    }
+
+    const handleShareUser = async  () => {        
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${shareEmail}`)).data;
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Share Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        }
+    }
 
     const handleDownload = async () => {
         try {
@@ -214,7 +252,13 @@ function Dashboard() {
                         <div className="reports-list">
                             {reports.map(report => (
                                 <div key={report._id} className="report-card">
-                                    <h3>{report.name}</h3>
+                                    <div>
+                                        <h3>{report.name}</h3>
+                                        <button 
+                                            onClick={() => handleShareReport(report._id)}>
+                                            Share
+                                        </button>
+                                    </div>
                                     <div className="report-details">
                                         <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
                                         <p>Success Rate: {report.successRate && typeof report.successRate === 'number' && !isNaN(report.successRate) 
@@ -247,6 +291,44 @@ function Dashboard() {
                     )}
                 </div>
             </div>
+
+            {showShareMenu && shareReport && (
+                <div>
+                    <div>
+                        <button 
+                            className=""
+                            onClick={() => setShowShareMenu(false)}
+                        >
+                            Close Share Menu
+                        </button>
+                        <h2>Share Report</h2>
+                        <h3>{shareReport.name}</h3>
+                        <h3>{shareReport.description}</h3>
+                        {shareReport.sharedUsers.map((user) => (
+                            <div key={user.userId}>
+                                <h5>{user.email}</h5>
+                            </div>
+                        ))}
+
+                        <input 
+                        type='text'
+                        placeholder="Enter user email:" 
+                        value={shareEmail}
+                        onChange={(e) => setShareEmail(e.target.value)}
+                        />
+                        <select name="permissions" onChange={(e) => setSharePermissions(e.target.value)}>
+                            <option value="view">View</option>   
+                            <option value="edit">Edit</option> 
+                        </select>
+                        <button onClick={() => handleShareUser()}>
+                            Add
+                        </button>
+                        <p>{shareError}</p>
+
+                    </div>
+
+                </div>
+            )}
             
             {showSimulationForm && selectedScenario && (
                 <div className="simulation-form-overlay">
