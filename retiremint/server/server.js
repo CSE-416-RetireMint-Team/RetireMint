@@ -730,19 +730,111 @@ app.post('/simulation/scenario/events', async (req, res) => {
         }
         res.json({
             success: true,
-            message: 'Investment objects successfully found',
+            message: 'Event objects successfully found',
             events: events
         });
     } catch (error) {
-        console.error('Error finding investments:', error);
+        console.error('Error finding events:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to find investment',
+            error: 'Failed to find events',
             details: error.message
         });
     }
 }) 
 
+app.post('/scenario/lifeexpectancy', async (req, res) => {
+    try {
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
+        const lifeExpectancy = await LifeExpectancy.findById(scenario.lifeExpectancy);
+       res.json({
+            success: true,
+            message: 'LifeExpectancy object successfully found',
+            lifeExpectancy: lifeExpectancy
+       });
+    }
+    catch (error) {
+        console.error('Error finding lifeExpectancy:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to find lifeExpectancy',
+            details: error.message
+        });
+    }
+});
+
+// Adds a shared user to a given scenario (given the scenarioId, userId (non-google), and permissions ('view' or 'edit'))
+app.post('/scenario/shareToUser', async (req, res) => {
+    try {
+        const scenarioId = req.body.scenarioId;
+        const userId = req.body.userId;
+        const email = req.body.email;
+        const permissions = req.body.permissions;
+        console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${permissions}.`);
+
+        const scenario = await Scenario.findById(scenarioId);
+        console.log(`Found Scenario: ${scenario}`);
+
+        // Check if the user is already added to the Scenario.        
+        const index = scenario.sharedUsers.findIndex((user) => user.email === email);
+        if (index == -1) {
+            scenario.sharedUsers.push({userId: userId, email: email, permissions: permissions});
+        }
+        else {
+            scenario.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
+        }
+        scenario.save();
+        console.log(`Successfully saved Scenario (shared users): ${scenario.sharedUsers}`);
+        res.json({
+            success: true,
+            message: `Sucessfully added shared user ${userId} to scenario ${scenarioId}.`,
+       })
+        
+    }
+    catch (error) {
+        console.error('Error adding user to scenario:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to add shared user to scenario.',
+            details: error.message
+        });
+    }
+});
+
+// Adds a shared user to a given report (given the reportId, userId (non-google), and permissions ('view' or 'edit'))
+// - To be utilized when directly adding a shared user and when generating a new report after editing a scenario.
+app.post('/report/shareToUser', async (req, res) => {
+    try {
+        const reportId = req.body.reportId;
+        const userId = req.body.userId;
+        const email = req.body.email;
+        const permissions = req.body.permissions;
+
+        const report = await Report.findById(reportId);
+        // Check if the user is already added to the Report.
+        const index = report.sharedUsers.findIndex((user) => user.email === email);
+        if (index == -1) {
+            report.sharedUsers.push({userId: userId, email: email, permissions: permissions});
+        }
+        else {
+            report.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
+        }
+        report.save();
+        res.json({
+            success: true,
+            message: `Sucessfully added shared user ${userId} to report ${reportId}.`,
+       })
+    }
+    catch (error) {
+        console.error('Error adding user to report:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to add shared user to report.',
+            details: error.message
+        });
+    }
+});
 
 // Function to seed default tax data if none exists
 async function seedDefaultTaxData() {

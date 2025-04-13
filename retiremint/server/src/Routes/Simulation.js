@@ -243,6 +243,18 @@ router.get('/reports/:userId', async (req, res) => {
   }
 });
 
+// Get all shared reports for a user
+router.get('/sharedreports/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const reports = await Report.find({ sharedUsers: {userId : userId} } ).sort({ createdAt: -1 });
+    res.json(reports);
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
+
 // Get a specific report by ID
 router.get('/report/:reportId', async (req, res) => {
   try {

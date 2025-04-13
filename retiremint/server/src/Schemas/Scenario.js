@@ -80,8 +80,19 @@ const ScenarioSchema = new Schema({
 
   // shared users array
   sharedUsers: [{
+    userId: {
     type: Schema.Types.ObjectId,
     ref: 'SharedUser'
+    },
+    email: {
+      type: String,
+      ref: 'Email'
+    },
+    permissions : {
+      type: String,
+      enum: ['view', 'edit'],
+      ref: 'Permissions'
+    }
   }]
 
 
