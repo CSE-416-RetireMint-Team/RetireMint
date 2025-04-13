@@ -100,6 +100,7 @@ function Dashboard() {
         }
     };
 
+    // Handle opening the Share Menu on a given report.
     const handleShareReport = async (reportId) => {
         try{
             const report = await axios.get(`http://localhost:8000/simulation/report/${reportId}`);
@@ -111,7 +112,7 @@ function Dashboard() {
             setError('Failed to open the share menu. Please try again later.');
         }
     }
-
+    // Handle sharing a report with another user by adding it to the Scenario and Report in the DB.
     const handleShareUser = async  () => {        
         if (shareReport) {
             try {
@@ -120,6 +121,28 @@ function Dashboard() {
                 const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${shareEmail}`)).data;
                 await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
                 await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Share Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        }
+    }
+
+    // Handle changing a shared user's existing permissions to a given report.
+    const handleChangeSharePermissions = async (user, permissions) => {
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${user.email}`)).data;
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: user.email, permissions: permissions});
                 // Update shareReport on the front-end to show new shared users.
                 handleShareReport(shareReport._id);
             }   
@@ -371,6 +394,10 @@ function Dashboard() {
                         {shareReport.sharedUsers.map((user) => (
                             <div key={user.userId}>
                                 <h5>{user.email} - {user.permissions}</h5>
+                                <select value={user.permissions} onChange={(e) => handleChangeSharePermissions(user, e.target.value)}>
+                                    <option value="view">View</option>
+                                    <option value="edit">Edit</option>
+                                </select>
                             </div>
                         ))}
 
