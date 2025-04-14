@@ -399,45 +399,58 @@ function Dashboard() {
             </div>
 
             {showShareMenu && shareReport && (
-                <div>
-                    <div>
+                <div className='share-menu-background'>
+                    <div className='share-menu-box'>
                         <button 
-                            className=""
+                            className="close-share-menu"
                             onClick={() => setShowShareMenu(false)}
                         >
                             Close Share Menu
                         </button>
-                        <h2>Share Report</h2>
-                        <h3>{shareReport.name}</h3>
-                        <h3>{shareReport.description}</h3>
-                        {shareReport.sharedUsers.map((user) => (
-                            <div key={user.userId}>
-                                <h5>{user.email} - {user.permissions}</h5>
-                                <select value={user.permissions} onChange={(e) => handleChangeSharePermissions(user, e.target.value)}>
-                                    <option value="view">View</option>
-                                    <option value="edit">Edit</option>
+                        <div className='share-menu-header-container'>
+                            <h3 className='share-menu-header'>Share <span className='green'>{shareReport.name}</span></h3>
+                            <p>Shared Users:</p>
+                        </div>
+                        <div className='shared-user-list'>
+                            {shareReport.sharedUsers.length === 0 ? (
+                                <div>No shared users</div>
+                            ) : (
+                                shareReport.sharedUsers.map((user) => (
+                                <div key={user.userId} className='shared-user-box'>
+                                    <p>{user.email}</p>
+                                    <div className='shared-user-permissions'>
+                                        <select value={user.permissions} onChange={(e) => handleChangeSharePermissions(user, e.target.value)}>
+                                            <option value="view">View</option>
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                        <button onClick={(e) => handleRemoveSharedUser(user)}>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ))) }
+                            
+                        </div>
+                        <h3>Invite a User:</h3>
+                        <div className='invite-user-container'>
+                            <div className='invite-user-text'>                                <input 
+                                    type='text'
+                                    placeholder="Enter user email:" 
+                                    value={shareEmail}
+                                    onChange={(e) => setShareEmail(e.target.value)}
+                                />
+                            </div>
+                            <div className='shared-user-permissions'>
+                                <select name="permissions" onChange={(e) => setSharePermissions(e.target.value)}>
+                                    <option value="view">View</option>   
+                                    <option value="edit">Edit</option> 
                                 </select>
-                                <button onClick={(e) => handleRemoveSharedUser(user)}>
-                                    Remove
+                                <button className='add-user-button' onClick={() => handleShareUser()}>
+                                    Add
                                 </button>
                             </div>
-                        ))}
-
-                        <input 
-                        type='text'
-                        placeholder="Enter user email:" 
-                        value={shareEmail}
-                        onChange={(e) => setShareEmail(e.target.value)}
-                        />
-                        <select name="permissions" onChange={(e) => setSharePermissions(e.target.value)}>
-                            <option value="view">View</option>   
-                            <option value="edit">Edit</option> 
-                        </select>
-                        <button onClick={() => handleShareUser()}>
-                            Add
-                        </button>
-                        <p>{shareError}</p>
-
+                            <p>{shareError}</p>
+                        </div>
                     </div>
 
                 </div>
@@ -459,6 +472,7 @@ function Dashboard() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
