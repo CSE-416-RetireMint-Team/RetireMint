@@ -21,8 +21,15 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             normalValue: { mean: '', sd: '' }, 
                             normalPercentage: { mean: '', sd: '' }
                         },
+                        expectedIncome: { 
+                            returnType: '',
+                            fixedValue: '', 
+                            fixedPercentage: '', 
+                            normalValue: { mean: '', sd: '' }, 
+                            normalPercentage: { mean: '', sd: '' }
+                        },
                         expenseRatio: '',
-                        taxability: '',
+                        taxability: ''
                     },
                     value: '',
                     taxStatus: '',
@@ -63,8 +70,6 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
             })
         );
     };
-    
-    
     
     
 
@@ -109,26 +114,34 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                         <select
                             value={investment.investmentType.name}
                             onChange={(e) => {
-                                // Find the selected investment type from investmentTypes prop
                                 const selectedType = investmentTypes.find(type => type.name === e.target.value);
-                                
+                            
                                 if (selectedType) {
-                                    // Update the investment with the selected investment type
-                                    updateInvestment(index, ['investmentType'], {
-                                        ...selectedType,
-                                        // Keep existing fields if they don't exist in the selected type
-                                        description: selectedType.description, // Always use the description from the selected type
-                                        expectedReturn: selectedType.expectedReturn || investment.investmentType.expectedReturn,
-                                        expenseRatio: selectedType.expenseRatio || investment.investmentType.expenseRatio,
-                                        taxability: selectedType.taxability || investment.investmentType.taxability
-                                    });
+                                    updateInvestment(index, ['investmentType', 'name'], selectedType.name);
+                                    updateInvestment(index, ['investmentType', 'description'], selectedType.description);
+                                    updateInvestment(index, ['investmentType', 'expenseRatio'], selectedType.expenseRatio);
+                                    updateInvestment(index, ['investmentType', 'taxability'], selectedType.taxability);
+
+                                    // Update expectedReturn 
+                                    updateInvestment(index, ['investmentType', 'expectedReturn', 'returnType'], selectedType.expectedReturn.returnType);
+                                    updateInvestment(index, ['investmentType', 'expectedReturn', 'fixedValue'], selectedType.expectedReturn.fixedValue);
+                                    updateInvestment(index, ['investmentType', 'expectedReturn', 'fixedPercentage'], selectedType.expectedReturn.fixedPercentage);
+                                    updateInvestment(index, ['investmentType', 'expectedReturn', 'normalValue'], selectedType.expectedReturn.normalValue);
+                                    updateInvestment(index, ['investmentType', 'expectedReturn', 'normalPercentage'], selectedType.expectedReturn.normalPercentage);
+
+                                    // Update expectedIncome 
+                                    updateInvestment(index, ['investmentType', 'expectedIncome', 'returnType'], selectedType.expectedIncome.returnType);
+                                    updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedValue'], selectedType.expectedIncome.fixedValue);
+                                    updateInvestment(index, ['investmentType', 'expectedIncome', 'fixedPercentage'], selectedType.expectedIncome.fixedPercentage);
+                                    updateInvestment(index, ['investmentType', 'expectedIncome', 'normalValue'], selectedType.expectedIncome.normalValue);
+                                    updateInvestment(index, ['investmentType', 'expectedIncome', 'normalPercentage'], selectedType.expectedIncome.normalPercentage);
+
                                     
-                                    // If investment type is tax-exempt, clear the tax status
-                                    if (selectedType.taxability === 'tax-exempt') {
-                                        updateInvestment(index, ['taxStatus'], '');
-                                    }
+                                    
+                                    
                                 }
                             }}
+                            
                         >
                             <option value="">-- Select an Investment Type --</option>
                             {investmentTypes && investmentTypes.length > 0 ? (

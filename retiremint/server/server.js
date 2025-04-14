@@ -354,16 +354,37 @@ app.post('/scenario', async (req, res) => {
         // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
         expectedReturn = await expectedReturnInstance.save();
 
+        // step 2: Create Expected Income
+        const expectedIncomeInstance = new ExpectedReturn({
+            method: inv.investmentType.expectedIncome.returnType,
+            fixedValue: inv.investmentType.expectedIncome.returnType === 'fixedValue' 
+                ? inv.investmentType.expectedIncome.fixedValue 
+                : null,
+            fixedPercentage: inv.investmentType.expectedIncome.returnType === 'fixedPercentage' 
+                ? inv.investmentType.expectedIncome.fixedPercentage 
+                : null,
+            normalValue: inv.investmentType.expectedIncome.returnType === 'normalValue' 
+                ? inv.investmentType.expectedIncome.normalValue 
+                : null,
+            normalPercentage: inv.investmentType.expectedIncome.returnType === 'normalPercentage' 
+                ? inv.investmentType.expectedIncome.normalPercentage 
+                : null,
+        });
+        let expectedIncome;
+        // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
+        expectedIncome = await expectedIncomeInstance.save();
+
         //step 3: create investmentType
        
-        const investmentType = new InvestmentType({
+        const investmentType = await new InvestmentType({
             name: inv.investmentType.name,
             description: inv.investmentType.description,
             expectedAnnualReturn: expectedReturn._id,
+            expectedAnnualIncome: expectedIncome._id,
             expenseRatio: inv.investmentType.expenseRatio,
             taxability: inv.investmentType.taxability
-        });
-        investmentType.save();
+        }).save();  // Await the save operation here
+        
     
     
         // step 4 create investment
@@ -783,3 +804,4 @@ app.post('/upload-state-tax-yaml', upload.single('file'), (req, res) => {
 
     res.status(200).send('File uploaded successfully.');
 });
+
