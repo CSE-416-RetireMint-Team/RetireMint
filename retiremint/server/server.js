@@ -4,6 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const { fetchAllCollections } = require('./src/FetchModelData'); // Import fetchAllCollections
 
 // initialize app
 const app = express();
@@ -25,9 +26,6 @@ mongoose.connect('mongodb://localhost:27017/retiremint')
     console.log('MongoDB connected.');
     await loadStateTaxDataOnce();
     await scrapeAndSaveRMDTable();
-    await scrapeContributionLimit();
-    // Seed default tax data if needed
-    await seedDefaultTaxData();
     await IncomeTax();
     await StandardDeduction();
     await CapitalGain();
@@ -72,14 +70,25 @@ const CapitalGain = require('./src/FederalTaxes/capitalGain');
 const {OAuth2Client} = require('google-auth-library');
 const userRoutes = require('./src/Routes/User'); 
 const simulationRoutes = require('./src/Routes/Simulation'); // Add simulation routes
-const TaxData = require('./src/Schemas/TaxData');
 const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 const scrapeAndSaveRMDTable = require('./src/Utils/scrapeRMDTable');
-const scrapeContributionLimit = require('./src/Utils/scrapeContributionLimit');
 
 
 app.use('/user', userRoutes);
 app.use('/simulation', simulationRoutes); // Add simulation routes
+
+// Route to fetch and print all database collections
+app.get('/api/db-data', async (req, res) => {
+  try {
+    console.log('Fetching all database collections...');
+    await fetchAllCollections();
+    console.log('Database collections fetched successfully');
+    res.status(200).json({ message: 'Database collections data printed to console' });
+  } catch (error) {
+    console.error('Error fetching database collections:', error);
+    res.status(500).json({ error: 'Error fetching database collections' });
+  }
+});
 
 // Test route to verify MongoDB connection and User model
 app.get('/api/test-db', async (req, res) => {
@@ -361,7 +370,8 @@ app.post('/scenario', async (req, res) => {
         const investmentData = {
             name: inv.name,
             investmentType: investmentType._id,
-            value: inv.value
+            value: inv.value,
+            maxAnnualContribution: inv.maxAnnualContribution
         };
 
         // Only include accountTaxStatus for taxable investments
@@ -733,92 +743,6 @@ app.post('/simulation/scenario/events', async (req, res) => {
     }
 }) 
 
-
-// Function to seed default tax data if none exists
-async function seedDefaultTaxData() {
-  try {
-    // Check if tax data already exists
-    const existingTaxData = await TaxData.findOne();
-    
-    if (!existingTaxData) {
-      console.log('No tax data found. Creating default tax data...');
-      
-      const currentYear = new Date().getFullYear();
-      
-      // Create default tax data for the current year
-      const defaultTaxData = new TaxData({
-        taxYear: currentYear,
-        federal: {
-          brackets: [
-            { min: 0, max: 10275, rate: 0.10 },
-            { min: 10275, max: 41775, rate: 0.12 },
-            { min: 41775, max: 89075, rate: 0.22 },
-            { min: 89075, max: 170050, rate: 0.24 },
-            { min: 170050, max: 215950, rate: 0.32 },
-            { min: 215950, max: 539900, rate: 0.35 },
-            { min: 539900, max: Number.MAX_VALUE, rate: 0.37 }
-          ],
-          standardDeductions: {
-            single: 12950,
-            married: 25900
-          },
-          capitalGains: {
-            thresholds: [40400, 445850],
-            rates: [0, 0.15, 0.20]
-          },
-          socialSecurity: [
-            { min: 0, max: 25000, taxablePercentage: 0 },
-            { min: 25000, max: 34000, taxablePercentage: 0.5 },
-            { min: 34000, max: Number.MAX_VALUE, taxablePercentage: 0.85 }
-          ]
-        },
-        state: new Map([
-          ["NY", {
-            brackets: [
-              { min: 0, max: 8500, rate: 0.04 },
-              { min: 8500, max: 11700, rate: 0.045 },
-              { min: 11700, max: 13900, rate: 0.0525 },
-              { min: 13900, max: 80650, rate: 0.055 },
-              { min: 80650, max: 215400, rate: 0.0633 },
-              { min: 215400, max: 1077550, rate: 0.0685 },
-              { min: 1077550, max: Number.MAX_VALUE, rate: 0.0882 }
-            ]
-          }],
-          ["CA", {
-            brackets: [
-              { min: 0, max: 9325, rate: 0.01 },
-              { min: 9325, max: 22107, rate: 0.02 },
-              { min: 22107, max: 34892, rate: 0.04 },
-              { min: 34892, max: 48435, rate: 0.06 },
-              { min: 48435, max: 61214, rate: 0.08 },
-              { min: 61214, max: 312686, rate: 0.093 },
-              { min: 312686, max: 375221, rate: 0.103 },
-              { min: 375221, max: 625369, rate: 0.113 },
-              { min: 625369, max: Number.MAX_VALUE, rate: 0.123 }
-            ]
-          }],
-          ["TX", {
-            brackets: [
-              { min: 0, max: Number.MAX_VALUE, rate: 0 }
-            ]
-          }]
-        ]),
-        rmdTable: [
-          { 72: 25.6, 73: 24.7, 74: 23.8, 75: 22.9, 76: 22.0, 77: 21.2, 78: 20.3, 79: 19.5, 80: 18.7 },
-          { 81: 17.9, 82: 17.1, 83: 16.3, 84: 15.5, 85: 14.8, 86: 14.1, 87: 13.4, 88: 12.7, 89: 12.0, 90: 11.4 },
-          { 91: 10.8, 92: 10.2, 93: 9.6, 94: 9.1, 95: 8.6, 96: 8.1, 97: 7.6, 98: 7.1, 99: 6.7, 100: 6.3 }
-        ]
-      });
-      
-      await defaultTaxData.save();
-      console.log('Default tax data created successfully!');
-    } else {
-      console.log('Tax data already exists, no need to seed.');
-    }
-  } catch (error) {
-    console.error('Error seeding default tax data:', error);
-  }
-}
 
 // Serve the YAML file from the server
 app.get('/download-state-tax-yaml', (req, res) => {

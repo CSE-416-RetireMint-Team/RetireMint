@@ -20,6 +20,7 @@ const SimulationResults = () => {
         // If reportId is provided, fetch that specific report
         if (reportId) {
           const response = await axios.get(`http://localhost:8000/simulation/report/${reportId}`);
+          console.log('Fetched report data:', response.data);
           setReport(response.data);
           generateVisualizations(response.data);
         } else {
@@ -27,6 +28,7 @@ const SimulationResults = () => {
           const latestReportId = localStorage.getItem('latestReportId');
           if (latestReportId) {
             const response = await axios.get(`http://localhost:8000/simulation/report/${latestReportId}`);
+            console.log('Fetched report data:', response.data);
             setReport(response.data);
             generateVisualizations(response.data);
           } else {
@@ -47,13 +49,121 @@ const SimulationResults = () => {
   // Generate visualizations from report data
   const generateVisualizations = (reportData) => {
     if (!reportData || !reportData.simulationResults || reportData.simulationResults.length === 0) {
-      console.error('Invalid report data for visualizations');
+      console.error('Invalid report data for visualizations: simulationResults array is empty or missing');
+      // Log more details about the report data to help debugging
+      console.log('Report data structure:', {
+        hasReport: !!reportData,
+        hasSimulationResults: reportData && !!reportData.simulationResults,
+        simulationResultsLength: reportData && reportData.simulationResults ? reportData.simulationResults.length : 0,
+        successRate: reportData ? reportData.successRate : 'N/A',
+        finalAssetStats: reportData && reportData.finalAssetStatistics ? 
+          Object.keys(reportData.finalAssetStatistics).join(', ') : 'N/A'
+      });
+      
+      // Try to use assetTrajectories if available, even if simulationResults is empty
+      if (reportData && reportData.assetTrajectories && 
+          reportData.assetTrajectories.xAxis && reportData.assetTrajectories.xAxis.length > 0) {
+        console.log('Using assetTrajectories data for visualization instead of simulationResults');
+        
+        const { xAxis, yAxis } = reportData.assetTrajectories;
+        
+        // Create time series data from trajectories
+        const timeSeriesData = [
+          {
+            x: xAxis,
+            y: yAxis.median,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'Median',
+            line: { color: '#2196F3', width: 3 }
+          },
+          {
+            x: xAxis,
+            y: yAxis.p90,
+            type: 'scatter',
+            mode: 'lines',
+            name: '90th Percentile',
+            line: { color: '#4CAF50', width: 2, dash: 'dot' }
+          },
+          {
+            x: xAxis,
+            y: yAxis.p10,
+            type: 'scatter',
+            mode: 'lines',
+            name: '10th Percentile',
+            line: { color: '#F44336', width: 2, dash: 'dot' }
+          }
+        ];
+        
+        // Create pie chart from success rate
+        const pieData = [{
+          values: [reportData.successRate || 0, 100 - (reportData.successRate || 0)],
+          labels: ['Success', 'Failure'],
+          type: 'pie',
+          marker: {
+            colors: ['#4CAF50', '#F44336']
+          }
+        }];
+        
+        // Set visualizations with the trajectories data
+        setVisualizations({
+          timeSeries: {
+            data: timeSeriesData,
+            layout: {
+              title: 'Asset Trajectory Over Time',
+              xaxis: { title: 'Year' },
+              yaxis: { title: 'Total Assets' }
+            }
+          },
+          pie: {
+            data: pieData,
+            layout: {
+              title: 'Success vs Failure Rate'
+            }
+          },
+          histogram: {
+            data: [{
+              x: [reportData.finalAssetStatistics?.min || 0, 
+                  reportData.finalAssetStatistics?.mean || 0, 
+                  reportData.finalAssetStatistics?.max || 0],
+              type: 'histogram',
+              marker: {
+                color: '#2196F3'
+              },
+              nbinsx: 3
+            }],
+            layout: {
+              title: 'Distribution of Final Asset Values',
+              xaxis: { title: 'Asset Value' },
+              yaxis: { title: 'Frequency' }
+            }
+          }
+        });
+        return;
+      }
+      
       return;
     }
 
     try {
+      // First, check if we have properly structured data with yearlyResults
+      const firstSim = reportData.simulationResults[0];
+      console.log('First simulation data:', {
+        id: firstSim.simulationId,
+        success: firstSim.success,
+        hasYearlyResults: !!firstSim.yearlyResults,
+        yearlyResultsLength: firstSim.yearlyResults ? firstSim.yearlyResults.length : 0,
+        hasFinalTotalAssets: 'finalTotalAssets' in firstSim,
+        hasFinalState: !!firstSim.finalState
+      });
+      
+      if (!firstSim || !firstSim.yearlyResults || !Array.isArray(firstSim.yearlyResults) || firstSim.yearlyResults.length === 0) {
+        console.error('Invalid yearlyResults data structure in simulationResults');
+        return;
+      }
+
       // Extract years and prepare data for time series
-      const years = reportData.simulationResults[0].yearlyResults.map(yr => yr.year);
+      const years = firstSim.yearlyResults.map(yr => yr.year);
       
       // Prepare data for asset trajectory visualization
       const timeSeriesData = [];
@@ -62,10 +172,10 @@ const SimulationResults = () => {
       const sampleSize = Math.min(5, reportData.simulationResults.length);
       for (let i = 0; i < sampleSize; i++) {
         const simulation = reportData.simulationResults[i];
-        if (simulation && simulation.yearlyResults) {
+        if (simulation && simulation.yearlyResults && simulation.yearlyResults.length > 0) {
           timeSeriesData.push({
             x: years,
-            y: simulation.yearlyResults.map(yr => yr.totalAssets),
+            y: simulation.yearlyResults.map(yr => yr.totalAssets || 0),
             type: 'scatter',
             mode: 'lines',
             name: `Simulation ${i+1}`
@@ -74,7 +184,7 @@ const SimulationResults = () => {
       }
       
       // Prepare data for pie chart (success vs failure)
-      const successRate = reportData.successRate;
+      const successRate = reportData.successRate || 0;
       const pieData = [{
         values: [successRate, 100 - successRate],
         labels: ['Success', 'Failure'],
@@ -86,22 +196,47 @@ const SimulationResults = () => {
       
       // Prepare data for histogram of final assets
       const finalAssets = reportData.simulationResults
-        .filter(sim => sim && sim.finalState && typeof sim.finalState.totalAssets === 'number')
-        .map(sim => sim.finalState.totalAssets);
+        .filter(sim => {
+          // Check both possible data structures
+          return sim && (
+            (typeof sim.finalTotalAssets === 'number') || 
+            (sim.finalState && typeof sim.finalState.totalAssets === 'number')
+          );
+        })
+        .map(sim => {
+          // Return the asset value from whichever property exists
+          return sim.finalTotalAssets || (sim.finalState ? sim.finalState.totalAssets : 0);
+        });
       
-      // Create bins for histogram
-      const histogramData = [{
+      // Create bins for histogram only if we have data
+      const histogramData = finalAssets.length > 0 ? [{
         x: finalAssets,
         type: 'histogram',
         marker: {
           color: '#2196F3'
         },
         nbinsx: 10
+      }] : [{
+        x: [0],
+        type: 'histogram',
+        marker: {
+          color: '#2196F3'
+        }
       }];
+      
+      if (timeSeriesData.length === 0 || finalAssets.length === 0) {
+        console.warn('Visualization data is empty, using placeholders');
+      }
       
       setVisualizations({
         timeSeries: {
-          data: timeSeriesData,
+          data: timeSeriesData.length > 0 ? timeSeriesData : [{
+            x: [new Date().getFullYear(), new Date().getFullYear() + 1],
+            y: [0, 0],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'No data'
+          }],
           layout: {
             title: 'Asset Trajectory Over Time',
             xaxis: { title: 'Year' },
@@ -193,10 +328,12 @@ const SimulationResults = () => {
       
       <div className="summary-stats">
         <h2>Summary</h2>
-        <p><strong>Success Rate:</strong> {report.successRate.toFixed(2)}%</p>
-        <p><strong>Financial Goal:</strong> ${report.financialGoal.toLocaleString()}</p>
-        <p><strong>Number of Simulations:</strong> {report.numSimulations}</p>
-        <p><strong>Number of Years:</strong> {report.numYears}</p>
+        <p><strong>Success Rate:</strong> {typeof report.successRate === 'number' && !isNaN(report.successRate) 
+          ? report.successRate.toFixed(2) 
+          : '0.00'}%</p>
+        <p><strong>Financial Goal:</strong> ${(report.financialGoal || 0).toLocaleString()}</p>
+        <p><strong>Number of Simulations:</strong> {report.numSimulations || 0}</p>
+        <p><strong>Number of Years:</strong> {report.numYears || 0}</p>
       </div>
 
       <div className="asset-stats">

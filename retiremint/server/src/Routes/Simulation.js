@@ -3,9 +3,100 @@ const router = express.Router();
 const { runSimulations } = require('../SimulationEngine');
 const Scenario = require('../Schemas/Scenario');
 const Report = require('../Schemas/Report');
-const TaxData = require('../Schemas/TaxData');
 const fs = require('fs');
 const path = require('path');
+
+// Get a simulation report by ID
+router.get('/report/:id', async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    // Ensure the report has the structure the client is expecting
+    const transformedReport = {
+      ...report.toObject(),
+      // Ensure finalAssetStatistics has the expected field names
+      finalAssetStatistics: {
+        min: report.finalAssetStatistics?.minimum || report.finalAssetStatistics?.min || 0,
+        max: report.finalAssetStatistics?.maximum || report.finalAssetStatistics?.max || 0,
+        mean: report.finalAssetStatistics?.average || report.finalAssetStatistics?.mean || 0,
+        median: report.finalAssetStatistics?.median || 0
+      }
+    };
+
+    // Make sure simulationResults is valid
+    if (!transformedReport.simulationResults || !Array.isArray(transformedReport.simulationResults) || transformedReport.simulationResults.length === 0) {
+      console.warn(`Report ${req.params.id} has invalid simulationResults structure`);
+      // Provide a minimal valid structure to prevent client errors
+      transformedReport.simulationResults = [{
+        simulationId: 1,
+        success: false,
+        finalTotalAssets: 0,
+        yearlyResults: [{
+          year: new Date().getFullYear(),
+          totalAssets: 0,
+          income: 0,
+          expenses: 0,
+          socialSecurity: 0,
+          capitalGains: 0,
+          inflationRate: 0.02
+        }],
+        finalState: {
+          totalAssets: 0,
+          curYearIncome: 0,
+          curYearSS: 0,
+          curYearGains: 0,
+          inflationRate: 0.02
+        }
+      }];
+    }
+
+    res.json(transformedReport);
+  } catch (error) {
+    console.error('Error fetching report:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the report' });
+  }
+});
+
+// Get scenario data for a report
+router.get('/report/:id/scenario', async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    if (!report) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const scenario = await Scenario.findById(report.scenarioId);
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found' });
+    }
+
+    res.json(scenario);
+  } catch (error) {
+    console.error('Error fetching scenario from report:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the scenario' });
+  }
+});
+
+// Get all reports for a user
+router.get('/reports/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Find all reports where the userId matches
+    const reports = await Report.find({ userId }).sort({ createdAt: -1 });
+    
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error('Error fetching user reports:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch reports',
+      details: error.message
+    });
+  }
+});
 
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
@@ -15,7 +106,7 @@ router.post('/run', async (req, res) => {
     console.log(`Starting simulation for scenario: ${scenarioId}, user: ${userId}`);
     console.log(`Simulation parameters: ${numSimulations} simulations over ${numYears} years`);
     
-    // Fetch the scenario from the database
+    // Fetch the scenario from the database with deeper population
     const scenario = await Scenario.findById(scenarioId)
       .populate({
         path: 'simulationSettings',
@@ -23,11 +114,12 @@ router.post('/run', async (req, res) => {
           path: 'inflationAssumption'
         }
       })
+      // Deeper and more reliable population of investmentType to ensure all fields are available
       .populate({
         path: 'investments',
         populate: {
           path: 'investmentType',
-          populate: ['expectedAnnualReturn']
+          populate: 'expectedAnnualReturn'
         }
       })
       .populate({
@@ -41,41 +133,33 @@ router.post('/run', async (req, res) => {
     }
     
     console.log(`Found scenario: ${scenario.name}`);
-    //console.log('Scenario structure:', {
-    //  hasSimulationSettings: !!scenario.simulationSettings,
-    //  investments: scenario.investments ? scenario.investments.length : 0,
-    //  events: scenario.events ? scenario.events.length : 0,
-    //  birthYear: scenario.birthYear,
-    //  financialGoal: scenario.financialGoal
-    //});
     
-    // Fetch the most recent tax data
-    //console.log('Fetching tax data from database...');
-    let taxData = await TaxData.findOne().sort({ taxYear: -1 });
+    // Validate investments before proceeding
+    const validInvestments = scenario.investments.filter(inv => inv && inv.investmentType);
+    const invalidInvestments = scenario.investments.filter(inv => !inv || !inv.investmentType);
     
-    if (!taxData) {
-      console.error('No tax data found in the database');
-      
-      // Create default tax data as fallback with only rmdTable
-      console.log('Creating default tax data as fallback');
-      taxData = {
-        taxYear: new Date().getFullYear(),
-        rmdTable: {
-          74: 25.5,
-          75: 24.6,
-          80: 18.7,
-          85: 14.8,
-          90: 11.4,
-          95: 8.6,
-          100: 6.3
-        }
-      };
-    } else {
-      console.log(`Found tax data`);
+    console.log(`Found ${validInvestments.length} valid investments and ${invalidInvestments.length} invalid investments`);
+    
+    // Log any invalid investments for debugging
+    if (invalidInvestments.length > 0) {
+      console.warn('Invalid investments detected:', invalidInvestments.map(inv => ({
+        id: inv ? inv._id : 'null-investment',
+        hasInvestmentType: inv ? !!inv.investmentType : false
+      })));
     }
     
-    // Run the simulations
-    console.log('Running simulations...');
+    if (validInvestments.length === 0) {
+      console.error('No valid investments found in scenario');
+      return res.status(400).json({ 
+        error: 'Invalid scenario data', 
+        message: 'No valid investments found in scenario'
+      });
+    }
+    
+    // The simulation engine will handle its own tax data now
+    let taxData = null;
+    
+    // Verify data before running simulation
     const result = await runSimulations(
       scenario, 
       { 
@@ -191,7 +275,11 @@ router.post('/run', async (req, res) => {
       result.simulationResults.forEach((simulation, index) => {
         logContent += `Simulation ${index + 1}:\n`;
         logContent += `Final Asset Statistics: ${JSON.stringify(simulation.finalAssetStatistics)}\n`;
-        logContent += `Success Rate: ${simulation.successRate.toFixed(2)}%\n`;
+        // Add safety check for successRate
+        const simSuccessRate = typeof simulation.successRate === 'number' && !isNaN(simulation.successRate) 
+          ? simulation.successRate 
+          : 0;
+        logContent += `Success Rate: ${simSuccessRate.toFixed(2)}%\n`;
         logContent += `\nYearly Results:\n`;
         simulation.yearlyResults.forEach(yearResult => {
           logContent += `Year: ${yearResult.year}, Total Assets: ${yearResult.totalAssets}, Income: ${yearResult.income}, Social Security: ${yearResult.socialSecurity}, Capital Gains: ${yearResult.capitalGains}, Inflation Rate: ${yearResult.inflationRate}\n`;
@@ -202,19 +290,78 @@ router.post('/run', async (req, res) => {
     
     fs.writeFileSync(logFile, logContent);
     
-    // Create a report document
+    // Save the report to the database
+    console.log(`Creating and saving report for scenario: ${scenario.name}`);
+    
+    // Create a report document with possibly reduced data to avoid MongoDB document size limits
     const report = new Report({
+      name: `Simulation Report for ${scenario.name}`,
       userId: userId,
       scenarioId: scenarioId,
       numSimulations: numSimulations,
       numYears: numYears,
       successRate: result.successRate,
-      finalAssetStatistics: result.finalAssetStatistics,
-      simulationResults: result.simulationResults,
+      financialGoal: scenario.financialGoal || 0,
+      finalAssetStatistics: {
+        // Use consistent property names with the calculation
+        min: result.finalAssetStatistics?.min || 0,
+        max: result.finalAssetStatistics?.max || 0,
+        mean: result.finalAssetStatistics?.mean || 0,
+        median: result.finalAssetStatistics?.median || 0,
+        // Keep legacy names for backward compatibility
+        minimum: result.finalAssetStatistics?.min || 0,
+        maximum: result.finalAssetStatistics?.max || 0,
+        average: result.finalAssetStatistics?.mean || 0
+      },
+      // Limit the number of simulations stored to avoid MongoDB document size limits
+      // Keep only 10 simulations for visualization purposes - this helps with performance
+      simulationResults: result.simulationResults.slice(0, 10).map(sim => ({
+        simulationId: sim.simulationId,
+        success: sim.success,
+        finalTotalAssets: sim.finalTotalAssets,
+        finalState: sim.finalState,
+        // Reduce yearlyResults data size by keeping only essential fields
+        yearlyResults: sim.yearlyResults.map(yr => ({
+          year: yr.year,
+          totalAssets: yr.totalAssets,
+          income: yr.income,
+          socialSecurity: yr.socialSecurity || 0,
+          capitalGains: yr.capitalGains || 0,
+          inflationRate: yr.inflationRate || 0.02
+        }))
+      })),
       createdAt: new Date()
     });
     
-    await report.save();
+    try {
+      await report.save();
+      console.log(`Report saved with ID: ${report._id}`);
+    } catch (saveError) {
+      console.error('Error saving report to MongoDB:', saveError);
+      // If saving fails due to document size, try with even more reduced data
+      if (saveError.name === 'MongoError' && saveError.code === 10334) {
+        console.log('Document too large, trying with less data...');
+        report.simulationResults = result.simulationResults.slice(0, 5).map(sim => ({
+          simulationId: sim.simulationId,
+          success: sim.success,
+          finalTotalAssets: sim.finalTotalAssets,
+          finalState: sim.finalState,
+          yearlyResults: sim.yearlyResults.map((yr, i) => 
+            // Only include every other year to reduce size
+            i % 2 === 0 ? {
+              year: yr.year,
+              totalAssets: yr.totalAssets,
+              income: yr.income,
+              inflationRate: yr.inflationRate || 0.02
+            } : null
+          ).filter(Boolean)
+        }));
+        await report.save();
+        console.log(`Reduced report saved with ID: ${report._id}`);
+      } else {
+        throw saveError; // Re-throw if it's not a document size issue
+      }
+    }
     
     // Return the result to the client
     return res.json({
@@ -231,7 +378,14 @@ router.post('/run', async (req, res) => {
         numYears: numYears,
         successRate: result.successRate,
         finalAssetStatistics: result.finalAssetStatistics,
-        simulationResults: result.simulationResults,
+        // Send a small subset of simulation results to the client for immediate visualization
+        simulationResults: result.simulationResults.slice(0, 10).map(sim => ({
+          simulationId: sim.simulationId,
+          success: sim.success,
+          finalTotalAssets: sim.finalTotalAssets,
+          finalState: sim.finalState,
+          yearlyResults: sim.yearlyResults
+        })),
         createdAt: report.createdAt
       }
     });

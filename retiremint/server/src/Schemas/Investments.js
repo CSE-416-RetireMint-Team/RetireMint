@@ -15,6 +15,10 @@ const InvestmentSchema = new Schema({
         type: Number,
         required: true
     },
+    maxAnnualContribution: {
+        type: Number,
+        required: false,
+    },
     accountTaxStatus: {
         type: String,
         enum:['non-retirement', 'pre-tax','after-tax'],

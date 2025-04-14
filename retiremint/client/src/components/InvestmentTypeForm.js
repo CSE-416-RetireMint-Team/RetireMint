@@ -176,13 +176,13 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                                         type="number"
                                         placeholder="Mean Value"
                                         value={investmentType.expectedReturn.normalValue.mean}
-                                        onChange={(e) => updateInvestmentType(index, ['investmentType', 'expectedReturn', 'normalValue', 'mean'], e.target.value)}
+                                        onChange={(e) => updateInvestmentType(index, ['expectedReturn', 'normalValue', 'mean'], e.target.value)}
                                     />
                                     <input
                                         type="number"
                                         placeholder="Standard Deviation"
                                         value={investmentType.expectedReturn.normalValue.sd}
-                                        onChange={(e) => updateInvestmentType(index, ['investmentType', 'expectedReturn', 'normalValue', 'sd'], e.target.value)}
+                                        onChange={(e) => updateInvestmentType(index, ['expectedReturn', 'normalValue', 'sd'], e.target.value)}
                                     />
                                 </div>
                             )}

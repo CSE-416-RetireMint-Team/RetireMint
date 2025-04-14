@@ -49,7 +49,7 @@ const VisualizationConfigSchema = new Schema({
 
 // Main Report schema
 const ReportSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
   userId: { type: String, required: true }, // Google ID of user who created the report
   scenarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scenario' },
@@ -61,6 +61,15 @@ const ReportSchema = new Schema({
   visualizationConfig: VisualizationConfigSchema,
   successRate: Number,
   finalAssetStatistics: {
+    // Primary field names - expected by the client
+    min: Number,
+    max: Number,
+    mean: Number,
+    median: Number,
+    p10: Number, // 10th percentile
+    p90: Number, // 90th percentile
+    
+    // Legacy field names - kept for backward compatibility
     minimum: Number,
     maximum: Number,
     average: Number

@@ -312,12 +312,12 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                     invest: {
                         returnType: 'fixedAllocation',
                         executionType: 'fixedAllocation',
-                        modifyMaximumCash: true,
+                        modifyMaximumCash: false,
                         newMaximumCash: initialMaximumCash || localStorage.getItem('initialMaximumCash') || '',
-                        modifyTaxStatusAllocation: Object.keys(taxStatusAllocations).length > 0,
-                        modifyAfterTaxAllocation: Object.keys(afterTaxAllocations).length > 0,
-                        modifyNonRetirementAllocation: Object.keys(nonRetirementAllocations).length > 0,
-                        modifyTaxExemptAllocation: Object.keys(taxExemptAllocations).length > 0,
+                        modifyTaxStatusAllocation: false,
+                        modifyAfterTaxAllocation: false,
+                        modifyNonRetirementAllocation: false,
+                        modifyTaxExemptAllocation: false,
                         investmentStrategy: {
                             taxStatusAllocation: { ...taxStatusAllocations },
                             afterTaxAllocation: { ...afterTaxAllocations },
@@ -523,6 +523,12 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
             taxExemptAllocation: { ...taxExemptAllocations }
         };
         
+        // Check which allocations have data and set modifiers accordingly
+        const hasTaxStatusAllocations = Object.keys(taxStatusAllocations).length > 0;
+        const hasAfterTaxAllocations = Object.keys(afterTaxAllocations).length > 0;
+        const hasNonRetirementAllocations = Object.keys(nonRetirementAllocations).length > 0;
+        const hasTaxExemptAllocations = Object.keys(taxExemptAllocations).length > 0;
+        
         // Create the initial investment event with consistent structure
         const initialInvestEvent = {
             name: 'INITIAL_INVEST_EVENT',
@@ -577,10 +583,10 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                 executionType: 'fixedAllocation',
                 modifyMaximumCash: true,
                 newMaximumCash: maxCash,
-                modifyTaxStatusAllocation: Object.keys(taxStatusAllocations).length > 0,
-                modifyAfterTaxAllocation: Object.keys(afterTaxAllocations).length > 0,
-                modifyNonRetirementAllocation: Object.keys(nonRetirementAllocations).length > 0,
-                modifyTaxExemptAllocation: Object.keys(taxExemptAllocations).length > 0,
+                modifyTaxStatusAllocation: hasTaxStatusAllocations,
+                modifyAfterTaxAllocation: hasAfterTaxAllocations,
+                modifyNonRetirementAllocation: hasNonRetirementAllocations,
+                modifyTaxExemptAllocation: hasTaxExemptAllocations,
                 investmentStrategy: strategy
             },
             rebalance: {
@@ -1687,6 +1693,92 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             </div>
                                         </div>
                                     )}
+                                    
+                                    <label>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={event.rebalance.modifyTaxExemptAllocation || false} 
+                                            onChange={(e) => updateEvent(index, ['rebalance', 'modifyTaxExemptAllocation'], e.target.checked)} 
+                                        />
+                                        Rebalance Tax-Exempt Assets
+                                    </label>
+                                    
+                                    {event.rebalance.modifyTaxExemptAllocation && taxExemptInvestments.length > 0 && (
+                                        <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
+                                            <h4>Tax-Exempt Investment Rebalance</h4>
+                                            <p>Specify how tax-exempt investments should be rebalanced:</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                {taxExemptInvestments.map(inv => (
+                                                    <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
+                                                        <label style={{ display: 'block', marginBottom: '5px' }}>
+                                                            {inv.name}:
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            value={event.rebalance.taxExemptAllocation?.[inv.name] || ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                                                                updateEvent(index, ['rebalance', 'taxExemptAllocation'], {
+                                                                    ...event.rebalance.taxExemptAllocation || {},
+                                                                    [inv.name]: value
+                                                                });
+                                                            }}
+                                                            style={{ width: '60px' }}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                                                Total: {Object.values(event.rebalance.taxExemptAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <label>
+                                        <input 
+                                            type="checkbox" 
+                                            checked={event.rebalance.modifyPreTaxAllocation || false} 
+                                            onChange={(e) => updateEvent(index, ['rebalance', 'modifyPreTaxAllocation'], e.target.checked)} 
+                                        />
+                                        Rebalance Pre-Tax Assets
+                                    </label>
+                                    
+                                    {event.rebalance.modifyPreTaxAllocation && preTaxInvestments.length > 0 && (
+                                        <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
+                                            <h4>Pre-Tax Investment Rebalance</h4>
+                                            <p>Specify how pre-tax investments should be rebalanced:</p>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                {preTaxInvestments.map(inv => (
+                                                    <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
+                                                        <label style={{ display: 'block', marginBottom: '5px' }}>
+                                                            {inv.name}:
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            value={event.rebalance.preTaxAllocation?.[inv.name] || ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                                                                updateEvent(index, ['rebalance', 'preTaxAllocation'], {
+                                                                    ...event.rebalance.preTaxAllocation || {},
+                                                                    [inv.name]: value
+                                                                });
+                                                            }}
+                                                            style={{ width: '60px' }}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                                                Total: {Object.values(event.rebalance.preTaxAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1905,6 +1997,70 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                         !investData.modifyTaxExemptAllocation) {
                                         console.log(`No allocation strategy selected: ${event.name}`);
                                         alert(`Event "${event.name}" must have at least one allocation strategy selected.`);
+                                        validationPassed = false;
+                                        break;
+                                    }
+                                }
+                                else {
+                                    // Validate rebalance event allocation selections
+                                    if (investData.modifyTaxStatusAllocation) {
+                                        const sum = Object.values(investData.taxStatusAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (sum !== 100) {
+                                            console.log(`Tax status allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" tax status allocations for rebalance must sum to 100%.`);
+                                            validationPassed = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (investData.modifyAfterTaxAllocation) {
+                                        const sum = Object.values(investData.afterTaxAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (sum !== 100) {
+                                            console.log(`After-tax allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" after-tax allocations for rebalance must sum to 100%.`);
+                                            validationPassed = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (investData.modifyNonRetirementAllocation) {
+                                        const sum = Object.values(investData.nonRetirementAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (sum !== 100) {
+                                            console.log(`Non-retirement allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" non-retirement allocations for rebalance must sum to 100%.`);
+                                            validationPassed = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (investData.modifyTaxExemptAllocation) {
+                                        const sum = Object.values(investData.taxExemptAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (sum !== 100) {
+                                            console.log(`Tax-exempt allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" tax-exempt allocations for rebalance must sum to 100%.`);
+                                            validationPassed = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (investData.modifyPreTaxAllocation) {
+                                        const sum = Object.values(investData.preTaxAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (sum !== 100) {
+                                            console.log(`Pre-tax allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" pre-tax allocations for rebalance must sum to 100%.`);
+                                            validationPassed = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    // Check if at least one rebalance domain is selected
+                                    if (!investData.modifyTaxStatusAllocation && 
+                                        !investData.modifyAfterTaxAllocation && 
+                                        !investData.modifyNonRetirementAllocation && 
+                                        !investData.modifyTaxExemptAllocation &&
+                                        !investData.modifyPreTaxAllocation) {
+                                        console.log(`No rebalance domain selected: ${event.name}`);
+                                        alert(`Event "${event.name}" must have at least one domain selected for rebalancing.`);
                                         validationPassed = false;
                                         break;
                                     }

@@ -4,10 +4,121 @@
  */
 const mongoose = require('mongoose');
 const Scenario = require('./Schemas/Scenario');
-const TaxData = require('./Schemas/TaxData');
+// Import essential schemas that we know exist
 const IncomeTax = require('./Schemas/IncomeTax');
 const StandardDeduction = require('./Schemas/StandardDeductions');
 const CapitalGain = require('./Schemas/CapitalGain');
+
+/**
+ * Safely require a module, returning null if not found
+ * @param {string} path - Module path to require
+ * @returns {Object|null} - The required module or null if not found
+ */
+function safeRequire(path) {
+  try {
+    return require(path);
+  } catch (error) {
+    console.log(`Module not found: ${path}`);
+    return null;
+  }
+}
+
+/**
+ * Fetch all collections from the database
+ * @returns {Promise<Object>} - Object containing all collections
+ */
+async function fetchAllCollections() {
+  console.log('\n==== FETCHING DATABASE COLLECTIONS DATA ====');
+  
+  try {
+    // Initialize result object to store all collections
+    const result = {
+      incomeTaxes: [],
+      capitalGains: [],
+      standardDeductions: [],
+      stateTaxes: [],
+      rmdTables: [],
+      scenarios: [],
+      reports: [],
+      othersCount: {}
+    };
+    
+    // Fetch specific tax-related collections
+    
+    // Income Tax Data
+    result.incomeTaxes = await IncomeTax.find({
+      filingStatus: { $in: ['single', 'married', 'jointly'] }
+    }).sort({ year: -1 }).lean();
+    
+    // Map 'jointly' to 'married' for consistency
+    result.incomeTaxes = result.incomeTaxes.map(tax => {
+      if (tax.filingStatus === 'jointly') {
+        return {
+          ...tax,
+          filingStatus: 'married'
+        };
+      }
+      return tax;
+    });
+    
+    // Capital Gains Data
+    result.capitalGains = await CapitalGain.find({
+      filingStatus: { $in: ['single', 'married', 'jointly'] }
+    }).sort({ year: -1 }).lean();
+    
+    // Standard Deduction Data
+    result.standardDeductions = await StandardDeduction.find({
+      filingStatus: { $in: ['single', 'married', 'jointly'] }
+    }).sort({ year: -1 }).lean();
+    
+    // RMD Tables (if available)
+    try {
+      const RMDTable = mongoose.model('RMDTable');
+      result.rmdTables = await RMDTable.find({}).lean();
+    } catch (error) {
+      console.log('RMD Tables collection not available:', error.message);
+    }
+    
+    // State Taxes (if available)
+    try {
+      const StateTax = mongoose.model('StateTax');
+      result.stateTaxes = await StateTax.find({}).lean();
+    } catch (error) {
+      console.log('State Taxes collection not available:', error.message);
+    }
+    
+    console.log('Fetched tax data collections successfully:');
+    console.log(`- Income Taxes: ${result.incomeTaxes.length} records`);
+    console.log(`- Capital Gains: ${result.capitalGains.length} records`);
+    console.log(`- Standard Deductions: ${result.standardDeductions.length} records`);
+    console.log(`- RMD Tables: ${result.rmdTables.length} records`);
+    console.log(`- State Taxes: ${result.stateTaxes.length} records`);
+    
+    // Get all collection names from the database
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log(`Found ${collections.length} total collections in the database`);
+    
+    // List all collection names
+    console.log('Available collections:', collections.map(c => c.name).join(', '));
+    
+    console.log('\n==== COMPLETED FETCHING DATABASE COLLECTIONS ====');
+    
+    return result;
+  } catch (error) {
+    console.error('❌ ERROR fetching collection data:', error.message);
+    // Return empty collections if there's an error
+    return {
+      incomeTaxes: [],
+      capitalGains: [],
+      standardDeductions: [],
+      stateTaxes: [],
+      rmdTables: [],
+      scenarios: [],
+      reports: [],
+      othersCount: {}
+    };
+  }
+}
 
 /**
  * Fetch and print scenario and tax data for debugging
@@ -16,30 +127,17 @@ const CapitalGain = require('./Schemas/CapitalGain');
  */
 async function fetchAndLogModelData(scenarioId) {
   //console.log('\n==== SIMULATION DATA VERIFICATION ====');
-  //console.log('Fetching model data for simulation...');
-  //console.log(`Scenario ID: ${scenarioId}`);
   
   try {
     // Fetch the scenario
     const scenario = await Scenario.findById(scenarioId);
     if (!scenario) {
       console.error('❌ ERROR: Scenario not found in database');
-      return { scenario: null, taxData: null };
+      return { scenario: null };
     }
     
     console.log('\nSCENARIO DATA RETRIEVED:');
     //console.log(JSON.stringify(scenario, null, 2));
-    //console.log('\n----------------');
-    
-    // Fetch the most recent tax data
-    const taxData = await TaxData.findOne().sort({ taxYear: -1 });
-    if (!taxData) {
-      console.error('❌ ERROR: Tax data not found in database');
-      return { scenario, taxData: null };
-    }
-    
-    console.log('\nTAX DATA RETRIEVED:');
-    //console.log(JSON.stringify(taxData, null, 2));
     //console.log('\n----------------');
     
     // Fetch income tax data for 'single' and 'married' filing statuses
@@ -79,96 +177,25 @@ async function fetchAndLogModelData(scenarioId) {
       filingStatus: { $in: ['single', 'married', 'jointly'] }
     }).sort({ year: -1 });
     
-    // Map 'jointly' to 'married' for consistency
-    const mappedCapitalGainsData = capitalGainsData.map(capitalGain => {
-      if (capitalGain.filingStatus === 'jointly') {
-        return {
-          ...capitalGain.toObject(),
-          filingStatus: 'married'
-        };
-      }
-      return capitalGain;
-    });
+    // Log the tax data information
+    console.log('Tax data information loaded');
     
-    // console.log('\n✅ VALIDATION CHECKS:');
-    // // Basic validation of scenario data
-    // console.log(`- Scenario name: ${scenario.name || 'MISSING'}`);
-    // console.log(`- Scenario type: ${scenario.scenarioType || 'MISSING'}`);
-    // console.log(`- Number of investments: ${scenario.investments?.length || 0}`);
-    // console.log(`- Number of events: ${scenario.events?.length || 0}`);
-    
-    // Basic validation of tax data
-    //console.log(`\n✅ TAX DATA DETAILS:`);
-    //console.log(`- Tax year: ${taxData.taxYear || 'MISSING'}`);
-    
-    // Print federal income tax brackets from IncomeTax collection
-    if (mappedIncomeTaxData && mappedIncomeTaxData.length > 0) {
-      console.log('\nFEDERAL INCOME TAX BRACKETS SUCCESSFULLY RETRIEVED');
-    //   mappedIncomeTaxData.forEach(taxData => {
-    //     console.log(`  Filing Status: ${taxData.filingStatus}`);
-    //     taxData.brackets.forEach((bracket, index) => {
-    //       console.log(`  [${index + 1}] ${bracket.rate} - Min: ${bracket.minIncome}, Max: ${bracket.maxIncome}`);
-        //});
-      //});
-    } else {
-      console.log('❌ Missing federal income tax brackets');
-    }
-    
-    // Print standard deductions from StandardDeduction collection
-    console.log('\nSTANDARD DEDUCTIONS SUCCESSFULLY RETRIEVED');
-    if (mappedStandardDeductionData && mappedStandardDeductionData.length > 0) {
-    //   mappedStandardDeductionData.forEach(deduction => {
-    //     console.log(`  - ${deduction.filingStatus}: $${deduction.standardDeduction.toLocaleString()}`);
-    //   });
-    } else {
-      console.log('❌ Missing standard deductions data');
-    }
-    
-    // Print capital gains rates from CapitalGain collection
-    console.log('\nCAPITAL GAINS RATES SUCCESSFULLY RETRIEVED');
-    if (mappedCapitalGainsData && mappedCapitalGainsData.length > 0) {
-    //   mappedCapitalGainsData.forEach(capitalGain => {
-    //     console.log(`  Filing Status: ${capitalGain.filingStatus}`);
-    //     capitalGain.longTermCapitalGains.forEach((gain, index) => {
-    //       console.log(`  - Rate ${gain.rate}: ${gain.threshold}`);
-    //     });
-    //   });
-    } else {
-      console.log('❌ Missing capital gains data');
-    }
-    
-    // Print RMD table sample
-    if (taxData.rmdTable && Object.keys(taxData.rmdTable).length > 0) {
-      console.log('\nRMD TABLE SUCCESSFULLY RETRIEVED');
-    //   // Print just a sample of the RMD table
-    //   const ages = Object.keys(taxData.rmdTable).sort((a, b) => parseInt(a) - parseInt(b));
-    //   const sampleAges = ages.slice(0, Math.min(5, ages.length));
-    //   sampleAges.forEach(age => {
-    //     console.log(`  - Age ${age}: ${taxData.rmdTable[age]}`);
-    //   });
-    //  console.log(`  - (${ages.length} age entries total)`);
-    } else {
-      console.log('\n❌ Missing RMD table');
-    }
-    
-    console.log('\n==== END OF DATA VERIFICATION ====\n');
-    
-    // Add the fetched tax data to the returned object
+    // Return the scenario and tax data
     return { 
-      scenario, 
+      scenario,
       taxData: {
-        ...taxData.toObject(),
         incomeTax: mappedIncomeTaxData,
-        standardDeduction: mappedStandardDeductionData,
-        capitalGain: mappedCapitalGainsData
-      } 
+        standardDeduction: standardDeductionData,
+        capitalGains: capitalGainsData
+      }
     };
   } catch (error) {
-    console.error('❌ ERROR: Failed to fetch model data:', error);
-    return { scenario: null, taxData: null, error };
+    console.error('❌ ERROR fetching model data:', error.message);
+    return { scenario: null, taxData: null };
   }
 }
 
 module.exports = {
-  fetchAndLogModelData
+  fetchAndLogModelData,
+  fetchAllCollections
 };

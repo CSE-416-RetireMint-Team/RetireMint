@@ -26,6 +26,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     },
                     value: '',
                     taxStatus: '',
+                    maxAnnualContribution: '',
                 });
             }
 
@@ -143,7 +144,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     </div>
 
                     {/* value in dollars */}
-                    <h2>Value In Dollars: *:</h2>
+                    <h2>Value In Dollars: *</h2>
                     <input 
                         type="number" 
                         placeholder="Value in dollars" 
@@ -195,6 +196,19 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             </label>
                         </div>
                     </div>
+                    
+                    {/* Show Maximum Annual Contribution only for after-tax investments */}
+                    {(investment.taxStatus === "after-tax") && (
+                        <div>
+                            <h2>Maximum Annual Contribution ($): *</h2>
+                            <input 
+                                type="number" 
+                                placeholder="Maximum annual contribution in dollars" 
+                                value={investment.maxAnnualContribution}  
+                                onChange={(e) => updateInvestment(index, ['maxAnnualContribution'], e.target.value)}
+                            />
+                        </div>
+                    )}
                         </>
                     )}
                 </div>
@@ -224,6 +238,12 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
 
                         if (!investment.value) {
                             alert(`Investment "${investment.name}" must have a Value in Dollars.`);
+                            return;
+                        }
+                        
+                        // Validate maximum annual contribution only for after-tax investments
+                        if ((investment.taxStatus === "after-tax") && !investment.maxAnnualContribution) {
+                            alert(`Investment "${investment.name}" must have a Maximum Annual Contribution.`);
                             return;
                         }
 

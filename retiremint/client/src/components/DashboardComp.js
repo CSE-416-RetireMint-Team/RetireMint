@@ -217,7 +217,9 @@ function Dashboard() {
                                     <h3>{report.name}</h3>
                                     <div className="report-details">
                                         <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
-                                        <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
+                                        <p>Success Rate: {report.successRate && typeof report.successRate === 'number' && !isNaN(report.successRate) 
+                                          ? report.successRate.toFixed(2) 
+                                          : '0.00'}%</p>
                                     </div>
                                     <div className="report-actions">
                                         <button 

@@ -344,53 +344,88 @@ function NewScenario() {
         //console.log("Non-retirement investments:", nonRetirementInvestments.map(inv => inv.name));
     }, [investments]);
 
-    // Initialize strategy lists when reaching page 5
+    // Initialize strategy lists when reaching page 5 or when investments change
     useEffect(() => {
         if (page === 5 && investments.length > 0) {
-            // Only initialize if strategies are empty
-            if (expenseWithdrawalStrategies.length === 0) {
-                // First collect all by tax status
-                const postTaxInvestments = investments
-                    .filter(inv => inv.taxStatus === 'after-tax')
-                    .map(inv => inv.name);
+            // First collect all by tax status
+            const postTaxInvestments = investments
+                .filter(inv => inv.taxStatus === 'after-tax')
+                .map(inv => inv.name);
+            
+            const preTaxInvestments = investments
+                .filter(inv => inv.taxStatus === 'pre-tax')
+                .map(inv => inv.name);
+            
+            const taxExemptInvestments = investments
+                .filter(inv => inv.investmentType.taxability === 'tax-exempt')
+                .map(inv => inv.name);
+            
+            const nonRetirementInvestments = investments
+                .filter(inv => inv.taxStatus === 'non-retirement')
+                .map(inv => inv.name);
+            
+            // All investments in preferred order
+            const allAvailableInvestments = [
+                ...postTaxInvestments,
+                ...preTaxInvestments,
+                ...taxExemptInvestments, 
+                ...nonRetirementInvestments
+            ];
+            
+            // Update expense withdrawal strategies - preserve order of existing entries
+            setExpenseWithdrawalStrategies(prevStrategies => {
+                // Remove investments that no longer exist
+                const filteredStrategies = prevStrategies.filter(
+                    investment => allAvailableInvestments.includes(investment)
+                );
                 
-                const preTaxInvestments = investments
-                    .filter(inv => inv.taxStatus === 'pre-tax')
-                    .map(inv => inv.name);
+                // Add new investments that aren't already in the list
+                const newInvestments = allAvailableInvestments.filter(
+                    investment => !filteredStrategies.includes(investment)
+                );
                 
-                const taxExemptInvestments = investments
-                    .filter(inv => inv.investmentType.taxability === 'tax-exempt')
-                    .map(inv => inv.name);
+                console.log("Updating expense withdrawal strategies - adding:", newInvestments);
+                return [...filteredStrategies, ...newInvestments];
+            });
+            
+            // Update RMD strategies - only if pre-tax investments exist
+            if (preTaxInvestments.length > 0) {
+                setHasPreTaxInvestments(true);
                 
-                const nonRetirementInvestments = investments
-                    .filter(inv => inv.taxStatus === 'non-retirement')
-                    .map(inv => inv.name);
-                
-                // Add in preferred order: post-tax, pre-tax, tax-exempt, non-retirement
-                const allOrderedInvestments = [
-                    ...postTaxInvestments,
-                    ...preTaxInvestments,
-                    ...taxExemptInvestments, 
-                    ...nonRetirementInvestments
-                ];
-                
-                console.log("Initializing expense withdrawal strategies on page 5:", allOrderedInvestments);
-                setExpenseWithdrawalStrategies(allOrderedInvestments);
-                
-                // Initialize RMD and Roth Conversion strategies with pre-tax investments
-                if (preTaxInvestments.length > 0) {
-                    setHasPreTaxInvestments(true);
-                    console.log("Initializing RMD strategies on page 5:", preTaxInvestments);
-                    setRmdStrategies([...preTaxInvestments]);
+                setRmdStrategies(prevStrategies => {
+                    // Remove investments that no longer exist
+                    const filteredStrategies = prevStrategies.filter(
+                        investment => preTaxInvestments.includes(investment)
+                    );
                     
-                    console.log("Initializing Roth conversion strategies on page 5:", preTaxInvestments);
-                    setRothConversionStrategies([...preTaxInvestments]);
-                } else {
-                    setHasPreTaxInvestments(false);
-                }
+                    // Add new investments that aren't already in the list
+                    const newInvestments = preTaxInvestments.filter(
+                        investment => !filteredStrategies.includes(investment)
+                    );
+                    
+                    console.log("Updating RMD strategies - adding:", newInvestments);
+                    return [...filteredStrategies, ...newInvestments];
+                });
+                
+                setRothConversionStrategies(prevStrategies => {
+                    // Remove investments that no longer exist
+                    const filteredStrategies = prevStrategies.filter(
+                        investment => preTaxInvestments.includes(investment)
+                    );
+                    
+                    // Add new investments that aren't already in the list
+                    const newInvestments = preTaxInvestments.filter(
+                        investment => !filteredStrategies.includes(investment)
+                    );
+                    
+                    console.log("Updating Roth conversion strategies - adding:", newInvestments);
+                    return [...filteredStrategies, ...newInvestments];
+                });
+            } else {
+                setHasPreTaxInvestments(false);
             }
         }
-    }, [page, investments, expenseWithdrawalStrategies.length]);
+    }, [page, investments]);
 
     if (loading) {
         console.log(`loading: ${loading}`);

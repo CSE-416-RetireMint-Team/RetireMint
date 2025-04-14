@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from './HeaderComp';
 import '../Stylesheets/LoginPage.css';
 
 function LoginPage() {
+    const navigate = useNavigate();
     const googleButtonRef = useRef(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -112,10 +114,10 @@ function LoginPage() {
             // Redirect to the appropriate page
             if (data.isFirstTime) {
                 console.log('First time user, redirecting to profile setup');
-                window.location.href = '/profile-setup';
+                navigate('/profile-setup');
             } else {
                 console.log('Returning user, redirecting to dashboard');
-                window.location.href = '/dashboard';
+                navigate('/dashboard');
             }
         })
         .catch(error => {
@@ -128,10 +130,13 @@ function LoginPage() {
     // Continue as guest handler
     const handleGuestLogin = () => {
         console.log('Continuing as guest');
-        // Clear any stored user data
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userEmail');
+        // Set guest user data
+        localStorage.setItem('userId', 'guest');
+        localStorage.setItem('userName', 'Guest User');
+        localStorage.setItem('userEmail', 'guest@retiremint.com');
+        
+        // Redirect to new scenario page
+        navigate('/new-scenario/new');
     };
 
     return (
@@ -161,9 +166,9 @@ function LoginPage() {
                                 <span>OR</span>
                             </div>
                             
-                            <a href="/new-scenario" className="guest-button" onClick={handleGuestLogin}>
+                            <button className="guest-button" onClick={handleGuestLogin}>
                                 Continue as Guest
-                            </a>
+                            </button>
                         </>
                     )}
                 </div>
