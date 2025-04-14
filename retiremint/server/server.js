@@ -25,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/retiremint')
     console.log('MongoDB connected.');
     await loadStateTaxDataOnce();
     await scrapeAndSaveRMDTable();
+    await scrapeContributionLimit();
     // Seed default tax data if needed
     await seedDefaultTaxData();
     await IncomeTax();
@@ -74,6 +75,7 @@ const simulationRoutes = require('./src/Routes/Simulation'); // Add simulation r
 const TaxData = require('./src/Schemas/TaxData');
 const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 const scrapeAndSaveRMDTable = require('./src/Utils/scrapeRMDTable');
+const scrapeContributionLimit = require('./src/Utils/scrapeContributionLimit');
 
 
 app.use('/user', userRoutes);
