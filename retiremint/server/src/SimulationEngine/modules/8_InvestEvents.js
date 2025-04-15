@@ -240,7 +240,7 @@ function processInvestEvents(params, yearState) {
     }
     
     // Check if the event has a custom maximum cash setting
-    const eventMaximumCash = event.invest.modifyMaximumCash ? event.invest.newMaximumCash : maximumCash;
+    //const eventMaximumCash = event.invest.modifyMaximumCash ? event.invest.newMaximumCash : maximumCash;
     
     // Process the allocation
     const result = processInvestAllocation({

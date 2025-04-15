@@ -1,10 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import Header from './HeaderComp';
-import InvestmentTypeForm from './InvestmentTypeForm';
-import InvestmentForm from './InvestmentForm';
-import EventForm from './EventForm';
 import axios from 'axios';
 import '../Stylesheets/NewScenario.css';
 

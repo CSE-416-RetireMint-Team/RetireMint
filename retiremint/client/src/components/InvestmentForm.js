@@ -1,4 +1,3 @@
-import React from 'react';
 
 function InvestmentForm({ investments, setInvestments, investmentTypes, setInvestmentTypes, setPage}) {
 

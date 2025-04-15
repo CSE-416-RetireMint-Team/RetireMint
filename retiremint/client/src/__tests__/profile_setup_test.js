@@ -1,6 +1,4 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import UserProfileForm from '../components/profile_setup';
 
 // Mock localStorage and fetch
 beforeEach(() => {

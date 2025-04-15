@@ -54,7 +54,7 @@ function sampleReturnRate(expectedReturn) {
  * @param {Object} yearState - Current state of the simulation year
  * @returns {Object} - Updated investment and income information
  */
-function updateInvestmentValue(investment, yearState) {
+function updateInvestmentValue(investment/*, yearState*/) {
   // Skip if investment has no value or no investment type
   if (!investment || !investment.value || !investment.investmentType) {
     return {
@@ -137,7 +137,7 @@ function processInvestmentReturns(params, yearState) {
     const { 
       investment: updatedInvestment, 
       generatedIncome, 
-      valueChange 
+      /*valueChange */
     } = updateInvestmentValue(investment, updatedYearState);
     
     // Update the investment in the state

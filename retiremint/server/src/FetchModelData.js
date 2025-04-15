@@ -14,14 +14,14 @@ const CapitalGain = require('./Schemas/CapitalGain');
  * @param {string} path - Module path to require
  * @returns {Object|null} - The required module or null if not found
  */
-function safeRequire(path) {
-  try {
-    return require(path);
-  } catch (error) {
-    console.log(`Module not found: ${path}`);
-    return null;
-  }
-}
+// function safeRequire(path) {
+//   try {
+//     return require(path);
+//   } catch (error) {
+//     console.log(`Module not found: ${path}`);
+//     return null;
+//   }
+// }
 
 /**
  * Fetch all collections from the database
@@ -162,15 +162,15 @@ async function fetchAndLogModelData(scenarioId) {
     }).sort({ year: -1 });
     
     // Map 'jointly' to 'married' for consistency
-    const mappedStandardDeductionData = standardDeductionData.map(deduction => {
-      if (deduction.filingStatus === 'jointly') {
-        return {
-          ...deduction.toObject(),
-          filingStatus: 'married'
-        };
-      }
-      return deduction;
-    });
+    // const mappedStandardDeductionData = standardDeductionData.map(deduction => {
+    //   if (deduction.filingStatus === 'jointly') {
+    //     return {
+    //       ...deduction.toObject(),
+    //       filingStatus: 'married'
+    //     };
+    //   }
+    //   return deduction;
+    // });
     
     // Fetch capital gains data for 'single' and 'married' filing statuses
     const capitalGainsData = await CapitalGain.find({
