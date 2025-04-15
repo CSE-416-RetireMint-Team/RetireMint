@@ -805,3 +805,270 @@ app.post('/upload-state-tax-yaml', upload.single('file'), (req, res) => {
     res.status(200).send('File uploaded successfully.');
 });
 
+//graphs 
+//we plan to make the graph data as this follwing format from the actual simulation
+app.get('/success-probability', (req, res) => {
+    const data = [
+      { year: 2026, probability_of_success: 60 },
+      { year: 2027, probability_of_success: 62 },
+      { year: 2028, probability_of_success: 64 },
+      { year: 2029, probability_of_success: 66 },
+      { year: 2030, probability_of_success: 68 },
+      { year: 2031, probability_of_success: 70 },
+      { year: 2032, probability_of_success: 72 },
+      { year: 2033, probability_of_success: 74 },
+      { year: 2034, probability_of_success: 76 },
+      { year: 2035, probability_of_success: 78 },
+      { year: 2036, probability_of_success: 80 },
+      { year: 2037, probability_of_success: 82 },
+      { year: 2038, probability_of_success: 84 },
+      { year: 2039, probability_of_success: 86 },
+      { year: 2040, probability_of_success: 88 },
+      { year: 2041, probability_of_success: 90 },
+      { year: 2042, probability_of_success: 91 },
+      { year: 2043, probability_of_success: 92 },
+      { year: 2044, probability_of_success: 93 },
+      { year: 2045, probability_of_success: 94 },
+      { year: 2046, probability_of_success: 95 },
+      { year: 2047, probability_of_success: 96 },
+      { year: 2048, probability_of_success: 97 },
+      { year: 2049, probability_of_success: 98 },
+      { year: 2050, probability_of_success: 99 },
+      { year: 2051, probability_of_success: 99 },
+      { year: 2052, probability_of_success: 99 },
+      { year: 2053, probability_of_success: 99 },
+      { year: 2054, probability_of_success: 99 },
+      { year: 2055, probability_of_success: 99 },
+      { year: 2056, probability_of_success: 99 },
+      { year: 2057, probability_of_success: 99 },
+      { year: 2058, probability_of_success: 99 },
+      { year: 2059, probability_of_success: 99 },
+      { year: 2060, probability_of_success: 100 },
+    ];
+  
+    res.json(data);
+});
+  
+const totalInvestments = [
+    { year: 2026, p10: 10000, p20: 10500, p30: 11000, p40: 11500, median: 12000, p60: 12500, p70: 13000, p80: 13500, p90: 14000 },
+    { year: 2027, p10: 10500, p20: 11000, p30: 11500, p40: 12000, median: 12500, p60: 13000, p70: 13500, p80: 14000, p90: 14500 },
+    { year: 2028, p10: 11000, p20: 11500, p30: 12000, p40: 12500, median: 13000, p60: 13500, p70: 14000, p80: 14500, p90: 15000 },
+    { year: 2029, p10: 11500, p20: 12000, p30: 12500, p40: 13000, median: 13500, p60: 14000, p70: 14500, p80: 15000, p90: 15500 },
+    { year: 2030, p10: 12000, p20: 12500, p30: 13000, p40: 13500, median: 14000, p60: 14500, p70: 15000, p80: 15500, p90: 16000 },
+    { year: 2031, p10: 12500, p20: 13000, p30: 13500, p40: 14000, median: 14500, p60: 15000, p70: 15500, p80: 16000, p90: 16500 },
+    { year: 2032, p10: 13000, p20: 13500, p30: 14000, p40: 14500, median: 15000, p60: 15500, p70: 16000, p80: 16500, p90: 17000 },
+    { year: 2033, p10: 13500, p20: 14000, p30: 14500, p40: 15000, median: 15500, p60: 16000, p70: 16500, p80: 17000, p90: 17500 },
+    { year: 2034, p10: 14000, p20: 14500, p30: 15000, p40: 15500, median: 16000, p60: 16500, p70: 17000, p80: 17500, p90: 18000 },
+    { year: 2035, p10: 14500, p20: 15000, p30: 15500, p40: 16000, median: 16500, p60: 17000, p70: 17500, p80: 18000, p90: 18500 },
+    { year: 2036, p10: 15000, p20: 15500, p30: 16000, p40: 16500, median: 17000, p60: 17500, p70: 18000, p80: 18500, p90: 19000 },
+    { year: 2037, p10: 15500, p20: 16000, p30: 16500, p40: 17000, median: 17500, p60: 18000, p70: 18500, p80: 19000, p90: 19500 },
+    { year: 2038, p10: 16000, p20: 16500, p30: 17000, p40: 17500, median: 18000, p60: 18500, p70: 19000, p80: 19500, p90: 20000 },
+    { year: 2039, p10: 16500, p20: 17000, p30: 17500, p40: 18000, median: 18500, p60: 19000, p70: 19500, p80: 20000, p90: 20500 },
+    { year: 2040, p10: 17000, p20: 17500, p30: 18000, p40: 18500, median: 19000, p60: 19500, p70: 20000, p80: 20500, p90: 21000 },
+]  
+
+const totalIncomeData = [
+    { year: 2026, p10: 20000, p20: 21000, p30: 22000, p40: 23000, median: 24000, p60: 25000, p70: 26000, p80: 27000, p90: 28000 },
+    { year: 2027, p10: 21000, p20: 22000, p30: 23000, p40: 24000, median: 25000, p60: 26000, p70: 27000, p80: 28000, p90: 29000 },
+    { year: 2028, p10: 22000, p20: 23000, p30: 24000, p40: 25000, median: 26000, p60: 27000, p70: 28000, p80: 29000, p90: 30000 },
+    { year: 2029, p10: 23000, p20: 24000, p30: 25000, p40: 26000, median: 27000, p60: 28000, p70: 29000, p80: 30000, p90: 31000 },
+    { year: 2030, p10: 24000, p20: 25000, p30: 26000, p40: 27000, median: 28000, p60: 29000, p70: 30000, p80: 31000, p90: 32000 },
+    { year: 2031, p10: 25000, p20: 26000, p30: 27000, p40: 28000, median: 29000, p60: 30000, p70: 31000, p80: 32000, p90: 33000 },
+    { year: 2032, p10: 26000, p20: 27000, p30: 28000, p40: 29000, median: 30000, p60: 31000, p70: 32000, p80: 33000, p90: 34000 },
+    { year: 2033, p10: 27000, p20: 28000, p30: 29000, p40: 30000, median: 31000, p60: 32000, p70: 33000, p80: 34000, p90: 35000 },
+    { year: 2034, p10: 28000, p20: 29000, p30: 30000, p40: 31000, median: 32000, p60: 33000, p70: 34000, p80: 35000, p90: 36000 },
+    { year: 2035, p10: 29000, p20: 30000, p30: 31000, p40: 32000, median: 33000, p60: 34000, p70: 35000, p80: 36000, p90: 37000 },
+    { year: 2036, p10: 30000, p20: 31000, p30: 32000, p40: 33000, median: 34000, p60: 35000, p70: 36000, p80: 37000, p90: 38000 },
+    { year: 2037, p10: 31000, p20: 32000, p30: 33000, p40: 34000, median: 35000, p60: 36000, p70: 37000, p80: 38000, p90: 39000 },
+    { year: 2038, p10: 32000, p20: 33000, p30: 34000, p40: 35000, median: 36000, p60: 37000, p70: 38000, p80: 39000, p90: 40000 },
+    { year: 2039, p10: 33000, p20: 34000, p30: 35000, p40: 36000, median: 37000, p60: 38000, p70: 39000, p80: 40000, p90: 41000 },
+    { year: 2040, p10: 34000, p20: 35000, p30: 36000, p40: 37000, median: 38000, p60: 39000, p70: 40000, p80: 41000, p90: 42000 },
+];
+  
+const totalExpensesData = [
+    { year: 2026, p10: 8000, p20: 8500, p30: 9000, p40: 9500, median: 10000, p60: 10500, p70: 11000, p80: 11500, p90: 12000 },
+    { year: 2027, p10: 8500, p20: 9000, p30: 9500, p40: 10000, median: 10500, p60: 11000, p70: 11500, p80: 12000, p90: 12500 },
+    { year: 2028, p10: 9000, p20: 9500, p30: 10000, p40: 10500, median: 11000, p60: 11500, p70: 12000, p80: 12500, p90: 13000 },
+    { year: 2029, p10: 9500, p20: 10000, p30: 10500, p40: 11000, median: 11500, p60: 12000, p70: 12500, p80: 13000, p90: 13500 },
+    { year: 2030, p10: 10000, p20: 10500, p30: 11000, p40: 11500, median: 12000, p60: 12500, p70: 13000, p80: 13500, p90: 14000 },
+    { year: 2031, p10: 10500, p20: 11000, p30: 11500, p40: 12000, median: 12500, p60: 13000, p70: 13500, p80: 14000, p90: 14500 },
+    { year: 2032, p10: 11000, p20: 11500, p30: 12000, p40: 12500, median: 13000, p60: 13500, p70: 14000, p80: 14500, p90: 15000 },
+    { year: 2033, p10: 11500, p20: 12000, p30: 12500, p40: 13000, median: 13500, p60: 14000, p70: 14500, p80: 15000, p90: 15500 },
+    { year: 2034, p10: 12000, p20: 12500, p30: 13000, p40: 13500, median: 14000, p60: 14500, p70: 15000, p80: 15500, p90: 16000 },
+    { year: 2035, p10: 12500, p20: 13000, p30: 13500, p40: 14000, median: 14500, p60: 15000, p70: 15500, p80: 16000, p90: 16500 },
+    { year: 2036, p10: 13000, p20: 13500, p30: 14000, p40: 14500, median: 15000, p60: 15500, p70: 16000, p80: 16500, p90: 17000 },
+    { year: 2037, p10: 13500, p20: 14000, p30: 14500, p40: 15000, median: 15500, p60: 16000, p70: 16500, p80: 17000, p90: 17500 },
+    { year: 2038, p10: 14000, p20: 14500, p30: 15000, p40: 15500, median: 16000, p60: 16500, p70: 17000, p80: 17500, p90: 18000 },
+    { year: 2039, p10: 14500, p20: 15000, p30: 15500, p40: 16000, median: 16500, p60: 17000, p70: 17500, p80: 18000, p90: 18500 },
+    { year: 2040, p10: 15000, p20: 15500, p30: 16000, p40: 16500, median: 17000, p60: 17500, p70: 18000, p80: 18500, p90: 19000 },
+];
+
+const earlyWithdrawalTaxData = [
+    { year: 2026, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2027, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2028, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2029, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2030, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2031, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2032, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2033, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2034, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2035, p10: 0, p20: 0, p30: 0, p40: 0, median: 0, p60: 0, p70: 0, p80: 0, p90: 0 },
+    { year: 2036, p10: 1000, p20: 1100, p30: 1200, p40: 1300, median: 1400, p60: 1500, p70: 1600, p80: 1700, p90: 1800 },
+    { year: 2037, p10: 1100, p20: 1200, p30: 1300, p40: 1400, median: 1500, p60: 1600, p70: 1700, p80: 1800, p90: 1900 },
+    { year: 2038, p10: 1200, p20: 1300, p30: 1400, p40: 1500, median: 1600, p60: 1700, p70: 1800, p80: 1900, p90: 2000 },
+    { year: 2039, p10: 1300, p20: 1400, p30: 1500, p40: 1600, median: 1700, p60: 1800, p70: 1900, p80: 2000, p90: 2100 },
+    { year: 2040, p10: 1400, p20: 1500, p30: 1600, p40: 1700, median: 1800, p60: 1900, p70: 2000, p80: 2100, p90: 2200 },
+];
+
+const discretionaryExpensesData = [
+    { year: 2026, p10: 5, p20: 7, p30: 10, p40: 13, median: 16, p60: 19, p70: 22, p80: 25, p90: 28 },
+    { year: 2027, p10: 6, p20: 8, p30: 11, p40: 14, median: 17, p60: 20, p70: 23, p80: 26, p90: 29 },
+    { year: 2028, p10: 7, p20: 9, p30: 12, p40: 15, median: 18, p60: 21, p70: 24, p80: 27, p90: 30 },
+    { year: 2029, p10: 8, p20: 10, p30: 13, p40: 16, median: 19, p60: 22, p70: 25, p80: 28, p90: 31 },
+    { year: 2030, p10: 9, p20: 11, p30: 14, p40: 17, median: 20, p60: 23, p70: 26, p80: 29, p90: 32 },
+    { year: 2031, p10: 10, p20: 12, p30: 15, p40: 18, median: 21, p60: 24, p70: 27, p80: 30, p90: 33 },
+    { year: 2032, p10: 11, p20: 13, p30: 16, p40: 19, median: 22, p60: 25, p70: 28, p80: 31, p90: 34 },
+    { year: 2033, p10: 12, p20: 14, p30: 17, p40: 20, median: 23, p60: 26, p70: 29, p80: 32, p90: 35 },
+    { year: 2034, p10: 13, p20: 15, p30: 18, p40: 21, median: 24, p60: 27, p70: 30, p80: 33, p90: 36 },
+    { year: 2035, p10: 14, p20: 16, p30: 19, p40: 22, median: 25, p60: 28, p70: 31, p80: 34, p90: 37 },
+    { year: 2036, p10: 15, p20: 17, p30: 20, p40: 23, median: 26, p60: 29, p70: 32, p80: 35, p90: 38 },
+    { year: 2037, p10: 16, p20: 18, p30: 21, p40: 24, median: 27, p60: 30, p70: 33, p80: 36, p90: 39 },
+    { year: 2038, p10: 17, p20: 19, p30: 22, p40: 25, median: 28, p60: 31, p70: 34, p80: 37, p90: 40 },
+    { year: 2039, p10: 18, p20: 20, p30: 23, p40: 26, median: 29, p60: 32, p70: 35, p80: 38, p90: 41 },
+    { year: 2040, p10: 19, p20: 21, p30: 24, p40: 27, median: 30, p60: 33, p70: 36, p80: 39, p90: 42 }
+];
+  
+const financialGoalForGraph = 18000;
+
+app.get('/total-investments', (req, res) => {
+    res.json(totalInvestments);
+  });
+  
+app.get('/total-income', (req, res) => {
+    res.json(totalIncomeData);
+});
+
+app.get('/total-expenses', (req, res) => {
+    res.json(totalExpensesData);
+});
+
+app.get('/early-withdrawal-tax', (req, res) => {
+    res.json(earlyWithdrawalTaxData);
+});
+
+app.get('/discretionary-expense', (req, res) => {
+    res.json(discretionaryExpensesData);
+});
+
+app.get('/financial-goal', (req, res) => {
+    res.json({ financial_goal: financialGoalForGraph });
+});
+
+
+const avgInvest = [
+    { year: 2025, invest_1: 5000, invest_2: 7000, invest_3: 6000, invest_4: 5500 },
+    { year: 2026, invest_1: 5200, invest_2: 7100, invest_3: 6150, invest_4: 5600 },
+    { year: 2027, invest_1: 5300, invest_2: 7250, invest_3: 6250, invest_4: 5700 },
+    { year: 2028, invest_1: 5450, invest_2: 7350, invest_3: 6350, invest_4: 5800 },
+    { year: 2029, invest_1: 5600, invest_2: 7500, invest_3: 6450, invest_4: 5900 },
+    { year: 2030, invest_1: 5700, invest_2: 7650, invest_3: 6550, invest_4: 6000 },
+    { year: 2031, invest_1: 5850, invest_2: 7750, invest_3: 6700, invest_4: 6150 },
+    { year: 2032, invest_1: 5950, invest_2: 7900, invest_3: 6800, invest_4: 6250 },
+    { year: 2033, invest_1: 6100, invest_2: 8000, invest_3: 6900, invest_4: 6350 },
+    { year: 2034, invest_1: 6200, invest_2: 8150, invest_3: 7050, invest_4: 6450 }
+];
+  
+
+const medianInvestment = [
+    { year: 2025, invest_1: 4800, invest_2: 6800, invest_3: 5900, invest_4: 5300 },
+    { year: 2026, invest_1: 5000, invest_2: 6950, invest_3: 6000, invest_4: 5450 },
+    { year: 2027, invest_1: 5100, invest_2: 7100, invest_3: 6100, invest_4: 5550 },
+    { year: 2028, invest_1: 5250, invest_2: 7250, invest_3: 6200, invest_4: 5650 },
+    { year: 2029, invest_1: 5400, invest_2: 7350, invest_3: 6300, invest_4: 5750 },
+    { year: 2030, invest_1: 5500, invest_2: 7500, invest_3: 6400, invest_4: 5850 },
+    { year: 2031, invest_1: 5650, invest_2: 7650, invest_3: 6550, invest_4: 6000 },
+    { year: 2032, invest_1: 5750, invest_2: 7800, invest_3: 6650, invest_4: 6100 },
+    { year: 2033, invest_1: 5900, invest_2: 7900, invest_3: 6750, invest_4: 6200 },
+    { year: 2034, invest_1: 6000, invest_2: 8050, invest_3: 6900, invest_4: 6300 }
+];
+  
+
+const avgIncome = [
+    { year: 2025, income_1: 15000, income_2: 12000, income_3: 13000, income_4: 11000 },
+    { year: 2026, income_1: 15500, income_2: 12250, income_3: 13500, income_4: 11200 },
+    { year: 2027, income_1: 16000, income_2: 12500, income_3: 14000, income_4: 11400 },
+    { year: 2028, income_1: 16500, income_2: 12800, income_3: 14500, income_4: 11700 },
+    { year: 2029, income_1: 17000, income_2: 13000, income_3: 15000, income_4: 12000 },
+    { year: 2030, income_1: 17500, income_2: 13300, income_3: 15500, income_4: 12250 },
+    { year: 2031, income_1: 18000, income_2: 13600, income_3: 16000, income_4: 12500 },
+    { year: 2032, income_1: 18500, income_2: 13900, income_3: 16500, income_4: 12750 },
+    { year: 2033, income_1: 19000, income_2: 14200, income_3: 17000, income_4: 13000 },
+    { year: 2034, income_1: 19500, income_2: 14500, income_3: 17500, income_4: 13250 },
+];
+
+const medianIncome = [
+    { year: 2025, income_1: 14500, income_2: 11500, income_3: 12500, income_4: 10500 },
+    { year: 2026, income_1: 15000, income_2: 11800, income_3: 13000, income_4: 10750 },
+    { year: 2027, income_1: 15500, income_2: 12000, income_3: 13500, income_4: 11000 },
+    { year: 2028, income_1: 16000, income_2: 12300, income_3: 14000, income_4: 11250 },
+    { year: 2029, income_1: 16500, income_2: 12500, income_3: 14500, income_4: 11500 },
+    { year: 2030, income_1: 17000, income_2: 12800, income_3: 15000, income_4: 11800 },
+    { year: 2031, income_1: 17500, income_2: 13000, income_3: 15500, income_4: 12000 },
+    { year: 2032, income_1: 18000, income_2: 13300, income_3: 16000, income_4: 12250 },
+    { year: 2033, income_1: 18500, income_2: 13600, income_3: 16500, income_4: 12500 },
+    { year: 2034, income_1: 19000, income_2: 13800, income_3: 17000, income_4: 12750 },
+];
+
+const avgExpense = [
+    { year: 2025, expense_1: 7000, expense_2: 6000, expense_3: 6500, tax: 4000 },
+    { year: 2026, expense_1: 7200, expense_2: 6100, expense_3: 6600, tax: 4100 },
+    { year: 2027, expense_1: 7350, expense_2: 6250, expense_3: 6750, tax: 4200 },
+    { year: 2028, expense_1: 7500, expense_2: 6400, expense_3: 6900, tax: 4300 },
+    { year: 2029, expense_1: 7650, expense_2: 6550, expense_3: 7050, tax: 4400 },
+    { year: 2030, expense_1: 7800, expense_2: 6700, expense_3: 7200, tax: 4500 },
+    { year: 2031, expense_1: 7950, expense_2: 6850, expense_3: 7350, tax: 4600 },
+    { year: 2032, expense_1: 8100, expense_2: 7000, expense_3: 7500, tax: 4700 },
+    { year: 2033, expense_1: 8250, expense_2: 7150, expense_3: 7650, tax: 4800 },
+    { year: 2034, expense_1: 8400, expense_2: 7300, expense_3: 7800, tax: 4900 },
+];
+
+const medianExpense = [
+    { year: 2025, expense_1: 6800, expense_2: 5800, expense_3: 6300, tax: 3900 },
+    { year: 2026, expense_1: 7000, expense_2: 5900, expense_3: 6400, tax: 4000 },
+    { year: 2027, expense_1: 7150, expense_2: 6050, expense_3: 6550, tax: 4100 },
+    { year: 2028, expense_1: 7300, expense_2: 6200, expense_3: 6700, tax: 4200 },
+    { year: 2029, expense_1: 7450, expense_2: 6350, expense_3: 6850, tax: 4300 },
+    { year: 2030, expense_1: 7600, expense_2: 6500, expense_3: 7000, tax: 4400 },
+    { year: 2031, expense_1: 7750, expense_2: 6650, expense_3: 7150, tax: 4500 },
+    { year: 2032, expense_1: 7900, expense_2: 6800, expense_3: 7300, tax: 4600 },
+    { year: 2033, expense_1: 8050, expense_2: 6950, expense_3: 7450, tax: 4700 },
+    { year: 2034, expense_1: 8200, expense_2: 7100, expense_3: 7600, tax: 4800 },
+];
+  
+  
+  
+  
+app.get('/avg-investment', (req, res) => {
+    res.json(avgInvest);
+});
+
+app.get('/median-investment', (req, res) => {
+    res.json(medianInvestment);
+});
+
+app.get('/avg-expenses', (req, res) => {
+    res.json(avgExpense);
+});
+
+app.get('/median-expenses', (req, res) => {
+    res.json(medianExpense);
+});
+
+app.get('/avg-income', (req, res) => {
+    res.json(avgIncome);
+});
+
+app.get('/median-income', (req, res) => {
+    res.json(medianIncome);
+});
