@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import Graph from './Graph';
 import '../Stylesheets/SimulationResults.css';
 
 const SimulationResults = () => {
@@ -315,6 +316,10 @@ const SimulationResults = () => {
 
   return (
     <div className="simulation-results-container">
+
+      <h1>Simulation Graphs using mock data</h1>
+      <Graph />
+      
       <h1>Simulation Results</h1>
       
       <div className="results-controls">
