@@ -1,5 +1,13 @@
 import './App.css';
 import { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LoginPage from './components/LoginPage';
+import Dashboard from './components/DashboardComp';
+import NewScenario from './components/NewScenario';
+import UserProfileForm from './components/ProfileSetup';
+import ProfileView from './components/ProfileView';
+import SimulationResults from './components/SimulationResults';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

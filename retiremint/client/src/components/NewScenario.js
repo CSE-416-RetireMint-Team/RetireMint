@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../Stylesheets/NewScenario.css';
+import Header from './HeaderComp';
+import InvestmentTypeForm from './InvestmentTypeForm';
+import InvestmentForm from './InvestmentForm';
+import EventForm from './EventForm';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 function NewScenario() {
     const navigate = useNavigate();

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../Stylesheets/LoginPage.css';
+import Header from './HeaderComp';
 
 function LoginPage() {
     const navigate = useNavigate();
