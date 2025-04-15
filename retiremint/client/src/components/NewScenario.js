@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Header from './HeaderComp';
 import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
