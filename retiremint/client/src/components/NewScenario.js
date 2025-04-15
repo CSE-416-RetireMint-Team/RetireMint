@@ -1205,6 +1205,19 @@ function convertInvestmentFormat(dbInvestments) {
                         sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.sd ?? ''
                     }
                 },
+                expectedIncome: { 
+                    returnType: dbInvestments[i].investmentType.expectedAnnualIncome?.method ?? '',
+                    fixedValue: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedValue ?? '', 
+                    fixedPercentage: dbInvestments[i].investmentType.expectedAnnualIncome?.fixedPercentage ?? '', 
+                    normalValue: {
+                        mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalValue?.mean ?? '',
+                        sd: dbInvestments[i].investmentType.expectedAnnualincome?.normalValue?.sd ?? ''
+                    },
+                    normalPercentage: {
+                        mean: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.mean ?? '',
+                        sd: dbInvestments[i].investmentType.expectedAnnualIncome?.normalPercentage?.sd ?? ''
+                    }
+                },
                 expenseRatio: dbInvestments[i].investmentType.expenseRatio ?? '',
                 taxability: dbInvestments[i].investmentType.taxability ?? '',
             },
@@ -1224,7 +1237,7 @@ function convertEventFormat(dbEvents) {
             name: dbEvents[i].name ?? '',
             description: dbEvents[i].description ?? '',
             startYear: {
-                method: dbEvents[i].startYear?.method ?? '',
+                returnType: dbEvents[i].startYear?.method ?? '',
                 fixedValue: dbEvents[i].startYear?.fixedValue ?? '',
                 normalValue: {
                     mean: dbEvents[i].startYear?.normalValue?.mean ?? '',
@@ -1238,7 +1251,7 @@ function convertEventFormat(dbEvents) {
                 yearAfterAnotherEventEnd: dbEvents[i].startYear?.yearAfterAnotherEventEnd ?? ''
             },
             duration: {
-                method: dbEvents[i].duration?.method ?? '',
+                returnType: dbEvents[i].duration?.method ?? '',
                 fixedValue: dbEvents[i].duration?.fixedValue ?? '',
                 normalValue: {
                     mean: dbEvents[i].duration?.normalValue?.mean ?? '',
@@ -1253,7 +1266,7 @@ function convertEventFormat(dbEvents) {
             income: {
                 initialAmount: dbEvents[i].income?.initialAmount ?? '',
                 expectedAnnualChange: {
-                    method: dbEvents[i].income?.expectedAnnualChange?.method ?? '',
+                    returnType: dbEvents[i].income?.expectedAnnualChange?.method ?? '',
                     fixedValue: dbEvents[i].income?.expectedAnnualChange?.fixedValue ?? '',
                     normalValue: {
                         mean: dbEvents[i].income?.expectedAnnualChange?.normalValue?.mean ?? '',
@@ -1280,7 +1293,7 @@ function convertEventFormat(dbEvents) {
             expense: {
                 initialAmount: dbEvents[i].expense?.initialAmount ?? '',
                 expectedAnnualChange: {
-                    method: dbEvents[i].expense?.expectedAnnualChange?.method ?? '',
+                    returnType: dbEvents[i].expense?.expectedAnnualChange?.method ?? '',
                     fixedValue: dbEvents[i].expense?.expectedAnnualChange?.fixedValue ?? '',
                     normalValue: {
                         mean: dbEvents[i].expense?.expectedAnnualChange?.normalValue?.mean ?? '',
@@ -1306,7 +1319,7 @@ function convertEventFormat(dbEvents) {
             },
             invest: {
                 allocations : {
-                    method: dbEvents[i].invest?.allocations?.method ?? '',
+                    returnType: dbEvents[i].invest?.allocations?.method ?? '',
                     fixedAllocation: dbEvents[i].invest?.allocations?.fixedAllocation ?? '',
                     glidePath: dbEvents[i].invest?.allocations?.glidePath ?? '',
                 },
@@ -1322,7 +1335,7 @@ function convertEventFormat(dbEvents) {
             },
             rebalance: {
                 allocations : {
-                    method: dbEvents[i].rebalance?.allocations?.method ?? '',
+                    returnType: dbEvents[i].rebalance?.allocations?.method ?? '',
                     fixedAllocation: dbEvents[i].rebalance?.allocations?.fixedAllocation ?? '',
                     glidePath: dbEvents[i].rebalance?.allocations?.glidePath ?? '',
 

@@ -1954,13 +1954,15 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                             case 'rebalance':
                                 const isInvest = event.eventType === 'invest';
                                 const investData = isInvest ? event.invest : event.rebalance;
-                        
+                                /* 
+                                // Temporarily ignored
                                 if (!investData.executionType) {
                                     console.log(`${isInvest ? 'Invest' : 'Rebalance'} event missing executionType: ${event.name}`);
                                     alert(`Event "${event.name}" must have an Execution Type.`);
                                     validationPassed = false;
                                     break;
                                 }
+                                */
                                 
                                 if (isInvest) {
                                     // Validate allocation modifications for invest events
@@ -1989,7 +1991,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             break;
                                         }
                                     }
-
+                                    /*
+                                    // Temporarily Ignored
                                     // Check if at least one allocation strategy is selected
                                     if (!investData.modifyTaxStatusAllocation && 
                                         !investData.modifyAfterTaxAllocation && 
@@ -2000,6 +2003,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                         validationPassed = false;
                                         break;
                                     }
+                                    */
                                 }
                                 else {
                                     // Validate rebalance event allocation selections
