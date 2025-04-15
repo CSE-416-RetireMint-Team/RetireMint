@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function EventForm({events, setEvents, scenarioType, setPage, investments}) {
     // State for investment strategy allocations

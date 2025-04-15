@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import Plot from 'react-plotly.js';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../Stylesheets/SimulationResults.css';
-import Plot from 'react-plotly.js';
-import Graph from './Graph';
+import Header from './HeaderComp';
 
 const SimulationResults = () => {
   const [loading, setLoading] = useState(true);
@@ -316,6 +316,8 @@ const SimulationResults = () => {
   const baseYear = report.simulationResults[0]?.yearlyResults[0]?.year || new Date().getFullYear();
 
   return (
+    <>
+    <Header />
     <div className="simulation-results-container">
 
       <h1>Simulation Graphs using mock data</h1>
@@ -406,6 +408,7 @@ const SimulationResults = () => {
         </>
       )}
     </div>
+    </>
   );
 };
 

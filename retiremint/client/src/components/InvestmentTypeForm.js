@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
     // Initialize investmentTypes with default values if empty

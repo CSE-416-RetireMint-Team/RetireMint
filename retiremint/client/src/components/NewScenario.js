@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import Header from './HeaderComp';
+import InvestmentTypeForm from './InvestmentTypeForm';
+import InvestmentForm from './InvestmentForm';
+import EventForm from './EventForm';
 import '../Stylesheets/NewScenario.css';
 import Header from './HeaderComp';
 import InvestmentTypeForm from './InvestmentTypeForm';
