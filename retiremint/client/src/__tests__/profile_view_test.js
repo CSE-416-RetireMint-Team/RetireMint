@@ -1,3 +1,5 @@
+import React from 'react';
+import ProfileView from '../components/profile_view';
 import { render, screen, waitFor } from '@testing-library/react';
 
 beforeEach(() => {

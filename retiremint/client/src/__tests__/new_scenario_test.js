@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import New_scenario from '../components/new_scenario';
 
 test('completes Page 1 and moves to Page 2 when inputs are valid', () => {
   render(<New_scenario set_current_page={() => {}} />);

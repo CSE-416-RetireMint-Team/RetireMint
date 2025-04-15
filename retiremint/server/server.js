@@ -63,8 +63,9 @@ const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
 const SharedUser=require('./src/Schemas/SharedUser');
-// const Report = require('./src/Schemas/Report'); // Add Report schema
+const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
+
 const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
 const CapitalGain = require('./src/FederalTaxes/capitalGain');
 const {OAuth2Client} = require('google-auth-library');

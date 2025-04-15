@@ -1,3 +1,4 @@
+import App from '../App';
 import { render, screen } from '@testing-library/react';
 
 test('renders the app without crashing', () => {
