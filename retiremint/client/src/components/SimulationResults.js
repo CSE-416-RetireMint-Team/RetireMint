@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import Graph from './Graph';
 import '../Stylesheets/SimulationResults.css';
+import Plot from 'react-plotly.js';
+import Graph from './Graph';
 
 const SimulationResults = () => {
   const [loading, setLoading] = useState(true);
