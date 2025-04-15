@@ -819,7 +819,7 @@ app.post('/simulation/scenario/events', async (req, res) => {
     }
 }) 
 
-app.post('/scenario/lifeexpectancy', async (req, res) => {
+app.post('/simulation/scenario/lifeexpectancy', async (req, res) => {
     try {
         const scenarioId = req.body.scenarioId;
         const scenario = await Scenario.findById(scenarioId);
