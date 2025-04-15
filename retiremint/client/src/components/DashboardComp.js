@@ -8,12 +8,19 @@ import RunSimulation from './RunSimulation';
 function Dashboard() {
     const [scenarios, setScenarios] = useState([]);
     const [reports, setReports] = useState([]);
+    const [sharedReportsData, setSharedReportsData] = useState([]);
+    const [reportView, setReportView] = useState('users-reports');
     const [loading, setLoading] = useState(true);
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [showSimulationForm, setShowSimulationForm] = useState(false);
     const [error, setError] = useState(null);
     const [stateWarning, setStateWarning] = useState(null);
     const [file, setFile] = useState(null);
+    const [shareReport, setShareReport] = useState(null);
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [shareEmail, setShareEmail] = useState('');
+    const [sharePermissions, setSharePermissions] = useState('view');
+    const [shareError, setShareError] = useState(null);
 
     const navigate = useNavigate();
 
@@ -30,6 +37,17 @@ function Dashboard() {
                 // Fetch user's simulation reports
                 const reportsResponse = await axios.get(`http://localhost:8000/simulation/reports/${userId}`);
                 setReports(reportsResponse.data);
+                
+                // Fetch reports shared with user and the respective permissions
+                const sharedReportsResponse = await axios.get(`http://localhost:8000/simulation/sharedreports/${userId}`)
+                const sharedReports = [];
+                sharedReportsResponse.data.map((report) => {
+                    const userParameters = report.sharedUsers.find((userData) => userData.userId === userId);
+                    if (userParameters != undefined) {
+                        sharedReports.push({report: report, permissions: userParameters.permissions})
+                    }
+                })
+                setSharedReportsData(sharedReports);
 
                 // Fetch user's data
                 const userResponse = await axios.get(`http://localhost:8000/user/${userId}`);
@@ -81,6 +99,81 @@ function Dashboard() {
             }
         }
     };
+
+    // Handle opening the Share Menu on a given report.
+    const handleShareReport = async (reportId) => {
+        try{
+            const report = await axios.get(`http://localhost:8000/simulation/report/${reportId}`);
+            setShareReport(report.data);
+            setShowShareMenu(true);
+        }
+        catch (error) { 
+            console.error('Error opening share menu:', err);
+            setError('Failed to open the share menu. Please try again later.');
+        }
+    }
+    // Handle sharing a report with another user by adding it to the Scenario and Report in the DB.
+    const handleShareUser = async  () => {        
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${shareEmail}`)).data;
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Share Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        }
+    }
+
+    // Handle changing a shared user's existing permissions to a given report.
+    const handleChangeSharePermissions = async (user, permissions) => {
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: user.userId, email: user.email, permissions: permissions});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Share Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        }
+    }
+
+    const handleRemoveSharedUser = async (user) => {
+        if (shareReport) {
+            try {
+                // Reset any previous errors from attempting to share
+                setShareError(null);
+                await axios.post('http://localhost:8000/scenario/removeSharedUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email});
+                await axios.post('http://localhost:8000/report/removeSharedUser', {reportId: shareReport._id, userId: user.userId, email: user.email});
+                // Update shareReport on the front-end to show new shared users.
+                handleShareReport(shareReport._id);
+            }   
+            catch (error) {
+                console.error("Remove Shared User Error");
+                setShareError(error.response.data.error);
+            }
+        }
+        else {
+            setShareError("No proper report selected.")
+        } 
+    }
 
     const handleDownload = async () => {
         try {
@@ -201,52 +294,167 @@ function Dashboard() {
                 </div>
                 
                 <div className="reports-section">
-                    <h2>Recent Simulation Reports</h2>
+                    <div>
+                        <h2>Recent Simulation Reports</h2>
+                        <select name="reports-view" onChange={(e) => setReportView(e.target.value)}>
+                            <option value="users-reports">Your Reports</option>   
+                            <option value="shared-reports">Shared With You</option> 
+                        </select>
+                    </div>
                     
-                    {reports.length === 0 ? (
-                        <div className="empty-state">
-                            <p>You haven't run any simulations yet.</p>
-                            {scenarios.length > 0 && (
-                                <p>Select a scenario and run a simulation to see results.</p>
-                            )}
-                        </div>
+                    {/* User is viewing their own Reports */}
+                    {reportView === 'users-reports' ? (
+                        <>
+                        {reports.length === 0 ? (
+                            <div className="empty-state">
+                                <p>You haven't run any simulations yet.</p>
+                                {scenarios.length > 0 && (
+                                    <p>Select a scenario and run a simulation to see results.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="reports-list">
+                                {reports.map(report => (
+                                    <div key={report._id} className="report-card">
+                                        <div>
+                                            <h3>{report.name}</h3>
+                                            <button 
+                                                onClick={() => handleShareReport(report._id)}>
+                                                Share
+                                            </button>
+                                        </div>
+                                        <div className="report-details">
+                                            <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
+                                            <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
+                                        </div>
+                                        <div className="report-actions">
+                                            <button 
+                                                onClick={() => handleViewReport(report._id)}
+                                                className="view-report-button"
+                                            >
+                                                View Results
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditReport(report._id)}
+                                                className='edit-report-button'
+                                            >
+                                                Edit Scenario    
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteReport(report._id)}
+                                                className="delete-report-button"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        </>
                     ) : (
-                        <div className="reports-list">
-                            {reports.map(report => (
-                                <div key={report._id} className="report-card">
-                                    <h3>{report.name}</h3>
-                                    <div className="report-details">
-                                        <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
-                                        <p>Success Rate: {report.successRate && typeof report.successRate === 'number' && !isNaN(report.successRate) 
-                                          ? report.successRate.toFixed(2) 
-                                          : '0.00'}%</p>
+                        <>
+                        {/* User is viewing the Reports shared with them */}
+                        {sharedReportsData.length === 0 ? (
+                            <div className="empty-state">
+                                <p>No reports have been shared with you.</p>
+                            </div>
+                        ) : (
+                            <div className="reports-list">
+                                {sharedReportsData.map(reportData => { 
+                                    const report = reportData.report;
+                                    return(
+                                    <div key={report._id} className="report-card">
+                                        <div>
+                                            <h3>{report.name}</h3>
+                                        </div>
+                                        <div className="report-details">
+                                            <p>Author: {report.userId}</p>
+                                            <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
+                                            <p>Success Rate: {report.successRate?.toFixed(2)}%</p>
+                                        </div>
+                                        <div className="report-actions">
+                                            <button 
+                                                onClick={() => handleViewReport(report._id)}
+                                                className="view-report-button"
+                                            >
+                                                View Results
+                                            </button>
+                                            {reportData.permissions === "edit" && (
+                                                <button
+                                                    onClick={() => handleEditReport(report._id)}
+                                                    className='edit-report-button'
+                                                >
+                                                    Edit Scenario    
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="report-actions">
-                                        <button 
-                                            onClick={() => handleViewReport(report._id)}
-                                            className="view-report-button"
-                                        >
-                                            View Results
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditReport(report._id)}
-                                            className='edit-report-button'
-                                        >
-                                            Edit Results    
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteReport(report._id)}
-                                            className="delete-report-button"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                )})}
+                            </div>
+                        )}
+                        </>
                     )}
                 </div>
             </div>
+
+            {showShareMenu && shareReport && (
+                <div className='share-menu-background'>
+                    <div className='share-menu-box'>
+                        <button 
+                            className="close-share-menu"
+                            onClick={() => setShowShareMenu(false)}
+                        >
+                            Close Share Menu
+                        </button>
+                        <div className='share-menu-header-container'>
+                            <h3 className='share-menu-header'>Share <span className='green'>{shareReport.name}</span></h3>
+                            <p>Shared Users:</p>
+                        </div>
+                        <div className='shared-user-list'>
+                            {shareReport.sharedUsers.length === 0 ? (
+                                <div>No shared users</div>
+                            ) : (
+                                shareReport.sharedUsers.map((user) => (
+                                <div key={user.userId} className='shared-user-box'>
+                                    <p>{user.email}</p>
+                                    <div className='shared-user-permissions'>
+                                        <select value={user.permissions} onChange={(e) => handleChangeSharePermissions(user, e.target.value)}>
+                                            <option value="view">View</option>
+                                            <option value="edit">Edit</option>
+                                        </select>
+                                        <button onClick={(e) => handleRemoveSharedUser(user)}>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ))) }
+                            
+                        </div>
+                        <h3>Invite a User:</h3>
+                        <div className='invite-user-container'>
+                            <div className='invite-user-text'>                                <input 
+                                    type='text'
+                                    placeholder="Enter user email:" 
+                                    value={shareEmail}
+                                    onChange={(e) => setShareEmail(e.target.value)}
+                                />
+                            </div>
+                            <div className='shared-user-permissions'>
+                                <select name="permissions" onChange={(e) => setSharePermissions(e.target.value)}>
+                                    <option value="view">View</option>   
+                                    <option value="edit">Edit</option> 
+                                </select>
+                                <button className='add-user-button' onClick={() => handleShareUser()}>
+                                    Add
+                                </button>
+                            </div>
+                            <p>{shareError}</p>
+                        </div>
+                    </div>
+
+                </div>
+            )}
             
             {showSimulationForm && selectedScenario && (
                 <div className="simulation-form-overlay">
@@ -264,6 +472,7 @@ function Dashboard() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
