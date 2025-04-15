@@ -63,7 +63,7 @@ const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
 const SharedUser=require('./src/Schemas/SharedUser');
-const Report = require('./src/Schemas/Report'); // Add Report schema
+// const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
 const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
 const CapitalGain = require('./src/FederalTaxes/capitalGain');
@@ -249,7 +249,7 @@ app.post('/scenario', async (req, res) => {
     if (existingScenario) {
         try {
             let existingInvestment;
-            for (i = 0; i < existingScenario.investments.length; i++) {
+            for (let i = 0; i < existingScenario.investments.length; i++) {
                 existingInvestment = await Investment.findById(existingScenario.investments[i]);
                 let existingInvestmentType = await InvestmentType.findById(existingInvestment.investmentType);
                 await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualReturn);
@@ -257,7 +257,7 @@ app.post('/scenario', async (req, res) => {
                 await Investment.findByIdAndDelete(existingScenario.investments[i]);
             }
             let existingEvent;
-            for (i = 0; i < existingScenario.events.length; i++) {
+            for (let i = 0; i < existingScenario.events.length; i++) {
                 existingEvent = await Event.findById(existingScenario.events[i]);
                 await StartYear.findByIdAndDelete(existingEvent.startYear);
                 await Duration.findByIdAndDelete(existingEvent.duration);
@@ -731,7 +731,7 @@ app.post('/simulation/scenario/investments', async (req, res) => {
         const investmentTypesSet = new Set();
 
         // Fetch all investments and store all investmentType Ids
-        for (i = 0; i < investmentIds.length; i++) {
+        for (let i = 0; i < investmentIds.length; i++) {
             let investment = await Investment.findById(investmentIds[i]);
             let investmentType = await InvestmentType.findById(investment.investmentType);
             investment.investmentType = investmentType;
@@ -771,7 +771,7 @@ app.post('/simulation/scenario/events', async (req, res) => {
         const scenario = await Scenario.findById(scenarioIdEdit);
         const eventIds = scenario.events;
         const events = [];
-        for (i = 0; i < eventIds.length; i++) {
+        for (let i = 0; i < eventIds.length; i++) {
             let event = await Event.findById(eventIds[i]);
             let startYear = await StartYear.findById(event.startYear);
             event.startYear = startYear;
@@ -876,7 +876,7 @@ app.post('/upload-state-tax-yaml', upload.single('file'), (req, res) => {
         return res.status(400).send('No file uploaded.');
     }
 
-    const fileExt = path.extname(req.file.originalname).toLowerCase();
+    //const fileExt = path.extname(req.file.originalname).toLowerCase();
 
     res.status(200).send('File uploaded successfully.');
 });

@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from './HeaderComp';
 import '../Stylesheets/LoginPage.css';
 
 function LoginPage() {

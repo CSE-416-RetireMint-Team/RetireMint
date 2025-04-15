@@ -11,10 +11,10 @@
 
 const { simulateYear } = require('./SimulationEngine/SimulateYear');
 const Report = require('./Schemas/Report');
-const IncomeTax = require('./Schemas/IncomeTax');
-const StandardDeduction = require('./Schemas/StandardDeductions');
-const CapitalGain = require('./Schemas/CapitalGain');
-const { fetchAndLogModelData, fetchAllCollections } = require('./FetchModelData');
+//const IncomeTax = require('./Schemas/IncomeTax');
+//const StandardDeduction = require('./Schemas/StandardDeductions');
+//const CapitalGain = require('./Schemas/CapitalGain');
+const { fetchAndLogModelData } = require('./FetchModelData');
 
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
@@ -331,7 +331,7 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100,
     console.log(`Verifying scenario data for simulation`);
     
     // Extract the current year for initializing the simulation
-    const currentYear = new Date().getFullYear();
+    //const currentYear = new Date().getFullYear();
     
     // Verify required data is present
     if (!scenario || !scenario.birthYear || !scenario.lifeExpectancy || 

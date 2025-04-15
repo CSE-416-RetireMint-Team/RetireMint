@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 function EventForm({events, setEvents, scenarioType, setPage, investments}) {
     // State for investment strategy allocations
@@ -1884,7 +1884,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
                         switch (event.eventType) {
                             case 'income':
-                            case 'expense':
+                            case 'expense':{
                                 const isIncome = event.eventType === 'income';
                                 const eventData = isIncome ? event.income : event.expense;
                         
@@ -1949,9 +1949,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                     return;
                                 }
                                 break;
-                        
+                            }
                             case 'invest':
-                            case 'rebalance':
+                            case 'rebalance':{
                                 const isInvest = event.eventType === 'invest';
                                 const investData = isInvest ? event.invest : event.rebalance;
                                 /* 
@@ -2070,7 +2070,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                     }
                                 }
                                 break;
-
+                            }
                             default:
                                 // No action needed for unknown event type
                                 break;
