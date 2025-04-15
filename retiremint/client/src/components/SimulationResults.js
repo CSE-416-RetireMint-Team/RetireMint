@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import Graph from './Graph';
 import '../Stylesheets/SimulationResults.css';
+import Header from './HeaderComp';
 
 const SimulationResults = () => {
   const [loading, setLoading] = useState(true);
@@ -316,6 +317,8 @@ const SimulationResults = () => {
   const baseYear = report.simulationResults[0]?.yearlyResults[0]?.year || new Date().getFullYear();
 
   return (
+    <>
+    <Header />
     <div className="simulation-results-container">
 
       <h1>Simulation Graphs using mock data</h1>
@@ -406,6 +409,7 @@ const SimulationResults = () => {
         </>
       )}
     </div>
+    </>
   );
 };
 
