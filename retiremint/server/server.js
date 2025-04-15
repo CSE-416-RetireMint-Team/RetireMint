@@ -72,6 +72,7 @@ const userRoutes = require('./src/Routes/User');
 const simulationRoutes = require('./src/Routes/Simulation'); // Add simulation routes
 const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 const scrapeAndSaveRMDTable = require('./src/Utils/scrapeRMDTable');
+const ExpectedReturnOrIncome = require('./src/Schemas/ExpectedReturnOrIncome');
 
 
 app.use('/user', userRoutes);
@@ -243,8 +244,8 @@ app.post('/scenario', async (req, res) => {
             res.status(500).json({ error: 'Error fetching scenario' });
         }
     }
+
     // Delete Investments/Events and any items from other schemas inside that are to be replaced. (Reasoning: The new version may have more/less Investments or Events than the original, may not be 1:1 update)
-    
     if (existingScenario) {
         try {
             let existingInvestment;
@@ -688,25 +689,70 @@ app.post('/scenario', async (req, res) => {
     }
 });
 
-// Returns a list of the Investment and all inner objects for a given Scenario (not just IDs)
+// Returns a list of the InvestmentTypes and all inner documents for a given Scenario (not just IDs)
+app.post('/simulation/scenario/investmentypes', async (req, res) => {
+    try {
+        const scenarioIdEdit = req.body.scenarioIdEdit;
+        const scenario = await Scenario.findById(scenarioIdEdit);
+        const investmentIds = scenario.investments;
+        const investmentTypeIds = new Set();
+        for (i = 0; i < investmentIds.length; i++) {
+            let investment = await Investment.findById(investmentIds[i]);
+            investmentTypeIds.add(investment.investmentType);
+        }
+        const investmentTypes = [];
+        for (i = 0; i < investmentIds.length; i++) {
+            let investmentType = await InvestmentType.findById(investmentIds[i]);
+            investmentTypes.push(investmentType);
+        }
+        res.json({
+            success: true,
+            message: 'InvestmentTypes successfully found',
+            investmentTypes: investmentTypes
+        });
+    } catch (error) {
+        console.error('Error finding InvestmentTypes:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to find investmentTypes',
+            details: error.message
+        });
+    }
+}) 
+
+// Returns a list of the Investments and the InvestmentTypes and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investments', async (req, res) => {
     try {
         const scenarioIdEdit = req.body.scenarioIdEdit;
         const scenario = await Scenario.findById(scenarioIdEdit);
         const investmentIds = scenario.investments;
         const investments = [];
+        // Use a set to Store Investment Types to not contain duplicates upon fetching InvestmentTypes later.
+        const investmentTypesSet = new Set();
+
+        // Fetch all investments and store all investmentType Ids
         for (let i = 0; i < investmentIds.length; i++) {
             let investment = await Investment.findById(investmentIds[i]);
             let investmentType = await InvestmentType.findById(investment.investmentType);
             investment.investmentType = investmentType;
-            let expectedReturn = await ExpectedReturn.findById(investmentType.expectedAnnualReturn);
+            let expectedReturn = await ExpectedReturnOrIncome.findById(investmentType.expectedAnnualReturn);
+            let expectedIncome = await ExpectedReturnOrIncome.findById(investmentType.expectedAnnualIncome);
+            
             investment.investmentType.expectedAnnualReturn = expectedReturn;
+            investment.investmentType.expectedAnnualIncome = expectedIncome;
+            
+            investmentType.expectedAnnualReturn = expectedReturn;
+            investmentType.expectedAnnualIncome = expectedIncome;
+
             investments.push(investment);
+            investmentTypesSet.add(investmentType);
         }
+        const investmentTypes = [...investmentTypesSet];
         res.json({
             success: true,
             message: 'Investment objects successfully found',
-            investments: investments
+            investments: investments,
+            investmentTypes: investmentTypes
         });
     } catch (error) {
         console.error('Error finding investments:', error);
@@ -745,8 +791,16 @@ app.post('/simulation/scenario/events', async (req, res) => {
             }
             let invest = await Invest.findById(event.invest);
             event.invest = invest;
+            if (invest) {
+                let investAllocations = await Allocation.findById(invest.allocations);
+                event.invest.allocations = investAllocations;
+            }
             let rebalance = await Rebalance.findById(event.rebalance);
             event.rebalance = rebalance;
+            if (rebalance) {
+                let rebalanceAllocations = await Allocation.findById(rebalance.allocations);
+                event.rebalance.allocations = rebalanceAllocations;
+            }
             events.push(event);
         }
         res.json({
@@ -764,6 +818,28 @@ app.post('/simulation/scenario/events', async (req, res) => {
     }
 }) 
 
+// Returns the LifeExpectancy object and its data in a given Scenario
+app.post('/simulation/scenario/lifeexpectancy', async (req, res) => {
+    try {
+        const scenarioIdEdit = req.body.scenarioIdEdit;
+        const scenario = await Scenario.findById(scenarioIdEdit);
+        console.log(`Found Scenario: ${scenario}`);
+        const lifeExpectancyId = scenario.lifeExpectancy;
+        const lifeExpectancy = await LifeExpectancy.findById(lifeExpectancyId);        
+        res.json({
+            success: true,
+            message: 'LifeExpectancy object successfully found',
+            lifeExpectancy: lifeExpectancy
+        });
+    } catch (error) {
+        console.error('Error finding Life Expectancy object:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to find life expectancy',
+            details: error.message
+        });
+    }
+}) 
 
 // Serve the YAML file from the server
 app.get('/download-state-tax-yaml', (req, res) => {
