@@ -126,6 +126,7 @@ function NewScenario() {
         setRothConversionStrategiesInput(rothConversionStrategies.join(';'));
     }, [expenseWithdrawalStrategies, rmdStrategies, rothConversionStrategies]);
 
+    // Load all previously inputted values if editting a Scenario
     useEffect(() => {
         console.log(reportId)
         const fetchScenario = async () => {
@@ -142,11 +143,44 @@ function NewScenario() {
                     setSpouseBirthYear(response.data.spouseBirthYear);
                     setMaximumCash(response.data.maximumCash);
 
+                    // Fetch LifeExpectancy data
+                    const responseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioIdEdit: response.data._id});
+                    setLifeExpectancyMethod(responseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
+                    if (responseLifeExpectancy.data.lifeExpectancy.fixedValue){
+                        setFixedValue(responseLifeExpectancy.data.lifeExpectancy.fixedValue);
+                    }
+                    if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution) {
+                        if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean) {
+                            setNormalMean(responseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean);
+                        }
+                        if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation) {
+                            setNormalSd(responseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation);
+                        }
+                    }
+                    // Fetch SpouseLifeExpectancy data
+                    const responseSpouseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioIdEdit: response.data._id});
+                    setSpouseLifeExpectancyMethod(responseSpouseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
+                    if (responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue){
+                        setFixedValue(responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue);
+                    }
+                    if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution) {
+                        if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean) {
+                            setNormalMean(responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean);
+                        }
+                        if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation) {
+                            setNormalSd(responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation);
+                        }
+                    }
+
                     // Fetch Investments with all id's broken down and convert it to the investment format in the form.
                     const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioIdEdit: response.data._id});
                     const convertedInvestments = convertInvestmentFormat(responseInvestments.data.investments);
                     setInvestments(convertedInvestments);
-                    
+
+                    const convertedInvestmentTypes = convertInvestmentTypeFormat(responseInvestments.data.investmentTypes);
+                    setInvestmentTypes(convertedInvestmentTypes);
+                    console.log(`Investment Types: ${investmentTypes}`);
+
                     // Check for pre-tax investments
                     const hasPreTax = convertedInvestments.some(inv => inv.taxStatus === 'pre-tax');
                     setHasPreTaxInvestments(hasPreTax);
@@ -1104,13 +1138,57 @@ function NewScenario() {
         </div>
     );
 }
-
+// Converts InvestmentType taken from Inventory in the Databaseto the format that the form uses to edit a scenario.
+function convertInvestmentTypeFormat(dbInvestmentTypes) {
+    const newInvestmentTypes = [];
+    let i = 0;
+    while (i < dbInvestmentTypes.length) {
+        newInvestmentTypes.push({
+                name: dbInvestmentTypes[i].name ?? '',
+                description: dbInvestmentTypes[i].description ?? '',
+                expectedReturn: { 
+                    returnType: dbInvestmentTypes[i].expectedAnnualReturn?.method ?? '',
+                    fixedValue: dbInvestmentTypes[i].expectedAnnualReturn?.fixedValue ?? '', 
+                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualReturn?.fixedPercentage ?? '', 
+                    normalValue: {
+                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.sd ?? ''
+                    },
+                    normalPercentage: {
+                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.sd ?? ''
+                    }
+                },
+                expectedIncome: {
+                    returnType: dbInvestmentTypes[i].expectedAnnualReturn?.method ?? '',
+                    fixedValue: dbInvestmentTypes[i].expectedAnnualReturn?.fixedValue ?? '', 
+                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualReturn?.fixedPercentage ?? '', 
+                    normalValue: {
+                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.sd ?? ''
+                    },
+                    normalPercentage: {
+                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.sd ?? ''
+                    }
+                },
+                expenseRatio: dbInvestmentTypes[i].expenseRatio ?? '',
+                taxability: dbInvestmentTypes[i].taxability ?? '',
+        });
+        i++;
+    }
+    return newInvestmentTypes;
+}
 // Converts investments taken from the Database to the format that the form uses to edit a scenario.
-function convertInvestmentFormat( dbInvestments) {
+function convertInvestmentFormat(dbInvestments) {
     const newInvestments = [];
     let i = 0;
     while (i < dbInvestments.length) {
         newInvestments.push({
+            name: dbInvestments[i].name ?? '',
+            value: dbInvestments[i].value ?? '',
+            taxStatus: dbInvestments[i].accountTaxStatus ?? '',
+            maxAnnualContribution: dbInvestments[i].maxAnnualContribution ?? '',
             investmentType: {
                 name: dbInvestments[i].investmentType.name ?? '',
                 description: dbInvestments[i].investmentType.description ?? '',
@@ -1119,22 +1197,18 @@ function convertInvestmentFormat( dbInvestments) {
                     fixedValue: dbInvestments[i].investmentType.expectedAnnualReturn?.fixedValue ?? '', 
                     fixedPercentage: dbInvestments[i].investmentType.expectedAnnualReturn?.fixedPercentage ?? '', 
                     normalValue: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalValue?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalValue?.sd ?? ''
+                        mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalValue?.mean ?? '',
+                        sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalValue?.sd ?? ''
                     },
                     normalPercentage: {
-                    mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.mean ?? '',
-                    sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.sd ?? ''
+                        mean: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.mean ?? '',
+                        sd: dbInvestments[i].investmentType.expectedAnnualReturn?.normalPercentage?.sd ?? ''
                     }
                 },
                 expenseRatio: dbInvestments[i].investmentType.expenseRatio ?? '',
                 taxability: dbInvestments[i].investmentType.taxability ?? '',
-                },
-                value: dbInvestments[i].value ?? '',
-                taxStatus: dbInvestments[i].accountTaxStatus ?? '',
+            },
         });
-          
-
         i++;
     }
     return newInvestments;
@@ -1150,7 +1224,7 @@ function convertEventFormat(dbEvents) {
             name: dbEvents[i].name ?? '',
             description: dbEvents[i].description ?? '',
             startYear: {
-                returnType: dbEvents[i].startYear?.returnType ?? '',
+                method: dbEvents[i].startYear?.method ?? '',
                 fixedValue: dbEvents[i].startYear?.fixedValue ?? '',
                 normalValue: {
                     mean: dbEvents[i].startYear?.normalValue?.mean ?? '',
@@ -1164,7 +1238,7 @@ function convertEventFormat(dbEvents) {
                 yearAfterAnotherEventEnd: dbEvents[i].startYear?.yearAfterAnotherEventEnd ?? ''
             },
             duration: {
-                returnType: dbEvents[i].duration?.returnType ?? '',
+                method: dbEvents[i].duration?.method ?? '',
                 fixedValue: dbEvents[i].duration?.fixedValue ?? '',
                 normalValue: {
                     mean: dbEvents[i].duration?.normalValue?.mean ?? '',
@@ -1179,7 +1253,7 @@ function convertEventFormat(dbEvents) {
             income: {
                 initialAmount: dbEvents[i].income?.initialAmount ?? '',
                 expectedAnnualChange: {
-                    returnType: dbEvents[i].income?.expectedAnnualChange?.returnType ?? '',
+                    method: dbEvents[i].income?.expectedAnnualChange?.method ?? '',
                     fixedValue: dbEvents[i].income?.expectedAnnualChange?.fixedValue ?? '',
                     normalValue: {
                         mean: dbEvents[i].income?.expectedAnnualChange?.normalValue?.mean ?? '',
@@ -1206,7 +1280,7 @@ function convertEventFormat(dbEvents) {
             expense: {
                 initialAmount: dbEvents[i].expense?.initialAmount ?? '',
                 expectedAnnualChange: {
-                    returnType: dbEvents[i].expense?.expectedAnnualChange?.returnType ?? '',
+                    method: dbEvents[i].expense?.expectedAnnualChange?.method ?? '',
                     fixedValue: dbEvents[i].expense?.expectedAnnualChange?.fixedValue ?? '',
                     normalValue: {
                         mean: dbEvents[i].expense?.expectedAnnualChange?.normalValue?.mean ?? '',
@@ -1231,16 +1305,28 @@ function convertEventFormat(dbEvents) {
                 marriedPercentage: dbEvents[i].expense?.marriedPercentage ?? ''
             },
             invest: {
-                returnType: dbEvents[i].invest?.returnType ?? '',
-                fixedAllocation: dbEvents[i].invest?.fixedAllocation ?? '',
-                glidePath: dbEvents[i].invest?.glidePath ?? '',
+                allocations : {
+                    method: dbEvents[i].invest?.allocations?.method ?? '',
+                    fixedAllocation: dbEvents[i].invest?.allocations?.fixedAllocation ?? '',
+                    glidePath: dbEvents[i].invest?.allocations?.glidePath ?? '',
+                },
                 modifyMaximumCash: dbEvents[i].invest?.modifyMaximumCash ?? false,
-                newMaximumCash: dbEvents[i].invest?.newMaximumCash ?? ''
+                newMaximumCash: dbEvents[i].invest?.newMaximumCash ?? '',
+                investmentStrategy: {
+                    taxStatusAllocation: dbEvents[i].invest?.investmentStrategy?.taxStatusAllocation ?? {},
+                    preTaxAllocation: dbEvents[i].invest?.investmentStrategy?.preTaxAllocation ?? {},
+                    afterTaxAllocation: dbEvents[i].invest?.investmentStrategy?.afterTaxAllocation ?? {},
+                    nonRetirementAllocation: dbEvents[i].invest?.investmentStrategy?.nonRetirementAllocation ?? {},
+                    taxExemptAllocation: dbEvents[i].invest?.investmentStrategy?.taxExemptAllocation ?? {},
+                }
             },
             rebalance: {
-                returnType: dbEvents[i].rebalance?.returnType ?? '',
-                fixedAllocation: dbEvents[i].rebalance?.fixedAllocation ?? '',
-                glidePath: dbEvents[i].rebalance?.glidePath ?? ''
+                allocations : {
+                    method: dbEvents[i].rebalance?.allocations?.method ?? '',
+                    fixedAllocation: dbEvents[i].rebalance?.allocations?.fixedAllocation ?? '',
+                    glidePath: dbEvents[i].rebalance?.allocations?.glidePath ?? '',
+
+                },
             }
         });
         
