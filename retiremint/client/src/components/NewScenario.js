@@ -144,7 +144,7 @@ function NewScenario() {
                     setMaximumCash(response.data.maximumCash);
 
                     // Fetch LifeExpectancy data
-                    const responseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioIdEdit: response.data._id});
+                    const responseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioId: response.data._id});
                     setLifeExpectancyMethod(responseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
                     if (responseLifeExpectancy.data.lifeExpectancy.fixedValue){
                         setFixedValue(responseLifeExpectancy.data.lifeExpectancy.fixedValue);
@@ -158,7 +158,7 @@ function NewScenario() {
                         }
                     }
                     // Fetch SpouseLifeExpectancy data
-                    const responseSpouseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioIdEdit: response.data._id});
+                    const responseSpouseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioId: response.data._id});
                     setSpouseLifeExpectancyMethod(responseSpouseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
                     if (responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue){
                         setFixedValue(responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue);
@@ -252,7 +252,7 @@ function NewScenario() {
         fetchScenario();
     }, [reportId]);
 
-    const submitScenario = async () => {
+    const submitScenario = async (existingReportId) => {
         try {
             // Show loading or disable button here if you have UI for it
             
@@ -344,8 +344,13 @@ function NewScenario() {
             const reportId = simulationResponse.data.reportId;
             console.log('Simulation completed, report ID:', reportId);
             
-            // Store the latest report ID in localStorage
+            // Step 3: Store the latest report ID in localStorage
             localStorage.setItem('latestReportId', reportId);
+            
+            // Step 4: Remove the previous existing report if the Scenario is edited
+            if (existingReportId !== "new") {
+                await axios.delete(`http://localhost:8000/simulation/report/${existingReportId}`);
+            }
             
             // Navigate to the simulation results page
             navigate(`/simulation-results/${reportId}`);
@@ -1116,7 +1121,7 @@ function NewScenario() {
                             }
 
                             // Submit the scenario
-                            submitScenario();
+                            submitScenario(reportId);
                         }}>
                             Submit
                         </button>
