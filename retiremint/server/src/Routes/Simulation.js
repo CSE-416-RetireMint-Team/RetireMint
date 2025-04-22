@@ -395,6 +395,17 @@ router.post('/run', async (req, res) => {
   }
 });
 
+// Delete a report
+router.delete('/report/:reportId', async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    await Report.findByIdAndDelete(reportId);
+    return (res.json({ success: true }));
+  } catch (error) {
+    console.error('Error deleting report:' , error);
+    res.status(500).json({ error: 'Error deleting report' });
+  }
+});
 
 // Get all shared reports for a user
 router.get('/sharedreports/:userId', async (req, res) => {

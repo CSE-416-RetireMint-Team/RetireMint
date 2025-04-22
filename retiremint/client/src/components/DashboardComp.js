@@ -245,9 +245,9 @@ function Dashboard() {
     }
 
     return (
+        <>
+        <Header />
         <div className="dashboard-container">
-            <Header />
-            
             {error && <div className="error-message">{error}</div>}
             
             {stateWarning && <div className="warning-message">{stateWarning}</div>} {/* Show the warning message */}
@@ -477,6 +477,7 @@ function Dashboard() {
             )}
 
         </div>
+        </>
     );
 }
 
