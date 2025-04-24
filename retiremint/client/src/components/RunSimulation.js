@@ -5,7 +5,6 @@ import '../Stylesheets/RunSimulation.css';
 
 const RunSimulation = ({ scenarioId, scenarioName }) => {
   const [numSimulations, setNumSimulations] = useState(100);
-  const [numYears, setNumYears] = useState(30);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -26,7 +25,6 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       const response = await axios.post('http://localhost:8000/simulation/run', {
         scenarioId,
         numSimulations,
-        numYears,
         userId
       });
       
@@ -62,20 +60,6 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
             required
           />
           <p className="help-text">More simulations provide more accurate results but take longer to run. Recommended: 100-500.</p>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="numYears">Number of Years:</label>
-          <input
-            type="number"
-            id="numYears"
-            value={numYears}
-            onChange={(e) => setNumYears(Math.max(1, parseInt(e.target.value) || 1))}
-            min="1"
-            max="100"
-            required
-          />
-          <p className="help-text">Years to simulate into the future.</p>
         </div>
         
         <button type="submit" disabled={loading} className="submit-button">

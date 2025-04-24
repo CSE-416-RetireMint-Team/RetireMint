@@ -312,23 +312,47 @@ app.post('/scenario', async (req, res) => {
     if (scenarioType === 'married' && spouseLifeExpectancy !== null) {
         const [spouseLifeExpectancyMethod, spouseFixedValue, spouseNormalDistribution] = spouseLifeExpectancy;
 
-        spousalLifeExpectancy = new LifeExpectancy({
+        // Prepare spouse life expectancy data
+        const spouseData = {
             lifeExpectancyMethod: spouseLifeExpectancyMethod,
             fixedValue: spouseFixedValue,
             normalDistribution: spouseNormalDistribution
-        });
-        // If this is a new scenario, save instead of updating.
+        };
+
         if (!existingScenario) {
-            await spouseLifeExpectancy.save();
+            // Create and save for a new scenario
+            spousalLifeExpectancy = new LifeExpectancy(spouseData);
+            await spousalLifeExpectancy.save(); // Correct variable name
         }   
         else {
             try {
-                await LifeExpectancy.findByIdAndUpdate(existingScenario.spouseLifeExpectancy, userLifeExpectancy, {new: true});
+                // Update existing spouse life expectancy
+                if (existingScenario.spouseLifeExpectancy) {
+                    spousalLifeExpectancy = await LifeExpectancy.findByIdAndUpdate(
+                        existingScenario.spouseLifeExpectancy, 
+                        spouseData, 
+                        {new: true}
+                    );
+                } else {
+                    // Handle case where spouse expectancy didn't exist before but does now
+                    spousalLifeExpectancy = new LifeExpectancy(spouseData);
+                    await spousalLifeExpectancy.save();
+                }
             }
             catch (error) {
-                res.status(500).json({ error: 'Error updating Spouse Life Expectancy' });
+                console.error('Error updating/creating Spouse Life Expectancy:', error);
+                // Decide how to handle this error, maybe return 500
+                return res.status(500).json({ error: 'Error handling Spouse Life Expectancy' });
             }
         } 
+    } else if (existingScenario && existingScenario.spouseLifeExpectancy) {
+        // Handle case where spouse existed before but is now removed (scenarioType != 'married')
+        try {
+            await LifeExpectancy.findByIdAndDelete(existingScenario.spouseLifeExpectancy);
+        } catch (deleteError) {
+            console.error('Error deleting previous spouse life expectancy:', deleteError);
+            // Potentially log this error but continue, as the main scenario update might still succeed
+        }
     }
 
     // process investments from bottom-up
@@ -540,8 +564,13 @@ app.post('/scenario', async (req, res) => {
             }).save()
             
         }else if(eve.eventType==="rebalance"){
+            // Reinstate Allocation creation for execution type/method
             const rebalanceAllocation = await new Allocation({
-                method: eve.rebalance.executionType || 'fixedAllocation',
+                // Use executionType for method, default if not present
+                method: eve.rebalance.executionType || 'fixedAllocation', 
+                // NOTE: The following fields might need adjustment if the frontend sends 
+                //       string-based allocations differently for rebalance vs invest.
+                //       Assuming similar structure for now.
                 fixedAllocation: eve.rebalance.returnType === 'fixedAllocation' && eve.rebalance.fixedAllocation
                     ? eve.rebalance.fixedAllocation.split(';').map(s => s.trim()).filter(s => s)
                     : [],
@@ -550,9 +579,11 @@ app.post('/scenario', async (req, res) => {
                     : []
             }).save();
             
-    
-            rebalanceObj =await  new Rebalance({
-                allocations: rebalanceAllocation.id,
+            // Save Rebalance event with BOTH allocation reference AND rebalanceStrategy
+            rebalanceObj = await new Rebalance({
+                allocations: rebalanceAllocation.id, // Save reference to Allocation doc
+                rebalanceStrategy: eve.rebalance.rebalanceStrategy || {} // Save the strategy object
+                // Add other fields if needed (modify flags, etc.)
             }).save()
         }       
 

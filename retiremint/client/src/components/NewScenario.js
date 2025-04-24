@@ -7,11 +7,6 @@ import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import '../Stylesheets/NewScenario.css';
-import Header from './HeaderComp';
-import InvestmentTypeForm from './InvestmentTypeForm';
-import InvestmentForm from './InvestmentForm';
-import EventForm from './EventForm';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 function NewScenario() {
     const navigate = useNavigate();
@@ -148,34 +143,44 @@ function NewScenario() {
                     setSpouseBirthYear(response.data.spouseBirthYear);
                     setMaximumCash(response.data.maximumCash);
 
-                    // Fetch LifeExpectancy data
-                    const responseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioId: response.data._id});
-                    setLifeExpectancyMethod(responseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
-                    if (responseLifeExpectancy.data.lifeExpectancy.fixedValue){
-                        setFixedValue(responseLifeExpectancy.data.lifeExpectancy.fixedValue);
-                    }
-                    if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution) {
-                        if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean) {
-                            setNormalMean(responseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean);
+                    // --- Load Life Expectancy Data --- 
+                    // User
+                    if (response.data.lifeExpectancy) {
+                        const le = response.data.lifeExpectancy;
+                        setLifeExpectancyMethod(le.lifeExpectancyMethod || '');
+                        if (le.lifeExpectancyMethod === 'fixedValue') {
+                            setFixedValue(le.fixedValue || '');
+                        } else if (le.lifeExpectancyMethod === 'normalDistribution') {
+                            setMean(le.normalDistribution?.mean || ''); // Correct state setter
+                            setStandardDeviation(le.normalDistribution?.standardDeviation || ''); // Correct state setter
                         }
-                        if (responseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation) {
-                            setNormalSd(responseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation);
-                        }
+                    } else {
+                         console.warn('User life expectancy data missing from scenario.');
+                         // Reset user life expectancy state
+                         setLifeExpectancyMethod('');
+                         setFixedValue('');
+                         setMean('');
+                         setStandardDeviation('');
                     }
-                    // Fetch SpouseLifeExpectancy data
-                    const responseSpouseLifeExpectancy = await axios.post(`http://localhost:8000/simulation/scenario/lifeexpectancy`, {scenarioId: response.data._id});
-                    setSpouseLifeExpectancyMethod(responseSpouseLifeExpectancy.data.lifeExpectancy.lifeExpectancyMethod);
-                    if (responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue){
-                        setFixedValue(responseSpouseLifeExpectancy.data.lifeExpectancy.fixedValue);
-                    }
-                    if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution) {
-                        if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean) {
-                            setNormalMean(responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.mean);
+
+                    // Spouse
+                    if (response.data.scenarioType === 'married' && response.data.spouseLifeExpectancy) {
+                        const sle = response.data.spouseLifeExpectancy;
+                        setSpouseLifeExpectancyMethod(sle.lifeExpectancyMethod || '');
+                        if (sle.lifeExpectancyMethod === 'fixedValue') {
+                            setSpouseFixedValue(sle.fixedValue || ''); // Correct state setter
+                        } else if (sle.lifeExpectancyMethod === 'normalDistribution') {
+                            setSpouseMean(sle.normalDistribution?.mean || ''); // Correct state setter
+                            setSpouseStandardDeviation(sle.normalDistribution?.standardDeviation || ''); // Correct state setter
                         }
-                        if (responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation) {
-                            setNormalSd(responseSpouseLifeExpectancy.data.lifeExpectancy.normalDistribution.standardDeviation);
-                        }
+                    } else {
+                         // Reset spouse life expectancy state if not married or data missing
+                         setSpouseLifeExpectancyMethod('');
+                         setSpouseFixedValue('');
+                         setSpouseMean('');
+                         setSpouseStandardDeviation('');
                     }
+                    // --- End Life Expectancy Data --- 
 
                     // Fetch Investments with all id's broken down and convert it to the investment format in the form.
                     const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioIdEdit: response.data._id});
@@ -195,48 +200,71 @@ function NewScenario() {
                     const convertedEvents = convertEventFormat(responseEvents.data.events);
                     setEvents(convertedEvents);
 
-                    // Load strategy data if available
+                    // Load simulation settings data (including inflation)
                     if (response.data.simulationSettings) {
-                        try {
-                            // Fetch simulation settings to get strategies
-                            const simSettingsResponse = await axios.get(
-                                `http://localhost:8000/simulation/settings/${response.data.simulationSettings}`
-                            );
-                            
-                            if (simSettingsResponse.data) {
-                                const settings = simSettingsResponse.data;
-                                
-                                // Load expense withdrawal strategies if available
-                                if (settings.expenseWithdrawalStrategies && settings.expenseWithdrawalStrategies.length > 0) {
-                                    setExpenseWithdrawalStrategies(settings.expenseWithdrawalStrategies);
-                                    setExpenseWithdrawalStrategiesInput(settings.expenseWithdrawalStrategies.join(';'));
-                                }
-                                
-                                // Load RMD strategies if available
-                                if (settings.rmdStrategies && settings.rmdStrategies.length > 0) {
-                                    setRmdStrategies(settings.rmdStrategies);
-                                    setRmdStrategiesInput(settings.rmdStrategies.join(';'));
-                                }
-                                
-                                // Load Roth conversion strategies if available
-                                if (settings.rothConversionStrategies && settings.rothConversionStrategies.length > 0) {
-                                    setRothConversionStrategies(settings.rothConversionStrategies);
-                                    setRothConversionStrategiesInput(settings.rothConversionStrategies.join(';'));
-                                }
-                                
-                                // Load Roth optimizer settings if available
-                                if (settings.rothOptimizerEnable !== undefined) {
-                                    setRothOptimizerEnable(settings.rothOptimizerEnable);
-                                    
-                                    if (settings.rothOptimizerEnable) {
-                                        setRothRptimizerStartYear(settings.rothOptimizerStartYear || '');
-                                        setRothOptimizerEndYear(settings.rothOptimizerEndYear || '');
-                                    }
-                                }
-                            }
-                        } catch (err) {
-                            console.error('Error loading simulation settings:', err);
+                        const settings = response.data.simulationSettings; // Use populated settings directly
+
+                        // Load expense withdrawal strategies if available
+                        if (settings.expenseWithdrawalStrategies && settings.expenseWithdrawalStrategies.length > 0) {
+                            setExpenseWithdrawalStrategies(settings.expenseWithdrawalStrategies);
+                            setExpenseWithdrawalStrategiesInput(settings.expenseWithdrawalStrategies.join(';'));
                         }
+                        
+                        // Load RMD strategies if available
+                        if (settings.rmdStrategies && settings.rmdStrategies.length > 0) {
+                            setRmdStrategies(settings.rmdStrategies);
+                            setRmdStrategiesInput(settings.rmdStrategies.join(';'));
+                        }
+                        
+                        // Load Roth conversion strategies if available
+                        if (settings.rothConversionStrategies && settings.rothConversionStrategies.length > 0) {
+                            setRothConversionStrategies(settings.rothConversionStrategies);
+                            setRothConversionStrategiesInput(settings.rothConversionStrategies.join(';'));
+                        }
+                        
+                        // Load Roth optimizer settings if available
+                        if (settings.rothOptimizerEnable !== undefined) {
+                            setRothOptimizerEnable(settings.rothOptimizerEnable);
+                            
+                            if (settings.rothOptimizerEnable) {
+                                setRothRptimizerStartYear(settings.rothOptimizerStartYear || '');
+                                setRothOptimizerEndYear(settings.rothOptimizerEndYear || '');
+                            }
+                        }
+                        
+                        // Load inflation assumption data
+                        if (settings.inflationAssumption) {
+                            const inflation = settings.inflationAssumption;
+                            setInflationMethod(inflation.method || '');
+                            
+                            switch (inflation.method) {
+                                case 'fixedPercentage':
+                                    setFixedPercentage(inflation.fixedPercentage || '');
+                                    break;
+                                case 'normalPercentage':
+                                    setNormalMean(inflation.normalPercentage?.mean || '');
+                                    setNormalSd(inflation.normalPercentage?.sd || '');
+                                    break;
+                                case 'uniformPercentage':
+                                    setUniformLower(inflation.uniformPercentage?.lowerBound || '');
+                                    setUniformUpper(inflation.uniformPercentage?.upperBound || '');
+                                    break;
+                                default:
+                                    // Clear other fields if method is unknown or not set
+                                    setFixedPercentage('');
+                                    setNormalMean('');
+                                    setNormalSd('');
+                                    setUniformLower('');
+                                    setUniformUpper('');
+                                    break;
+                            }
+                        } else {
+                             // Handle case where inflationAssumption might be missing (optional based on schema?)
+                             console.warn('Inflation Assumption data is missing from simulation settings.');
+                             setInflationMethod(''); // Reset inflation method state
+                             // Optionally reset other inflation fields too
+                        }
+
                     }
 
                     setFinancialGoal(response.data.financialGoal);
@@ -329,36 +357,17 @@ function NewScenario() {
             }
             
             const scenarioId = scenarioResponse.data.scenarioId;
-            console.log('Scenario created with ID:', scenarioId);
+            console.log('Scenario created/updated with ID:', scenarioId);
             
-            // Step 2: Run a simulation with the new scenario
-            console.log('Running simulation...');
-            const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
-                scenarioId: scenarioId,
-                numSimulations: 100, // Default to 100 simulations
-                numYears: 30, // Default to 30 years
-                userId: userId
-            });
+            // Removed step 2: Running simulation immediately
             
-            if (!simulationResponse.data || !simulationResponse.data.reportId) {
-                console.error('No report ID received from simulation');
-                alert('Error running simulation. Please try again.');
-                return;
-            }
+            // Removed step 3: Storing report ID
             
-            const reportId = simulationResponse.data.reportId;
-            console.log('Simulation completed, report ID:', reportId);
+            // Removed step 4: Deleting old report (should be handled differently if needed)
             
-            // Step 3: Store the latest report ID in localStorage
-            localStorage.setItem('latestReportId', reportId);
-            
-            // Step 4: Remove the previous existing report if the Scenario is edited
-            if (existingReportId !== "new") {
-                await axios.delete(`http://localhost:8000/simulation/report/${existingReportId}`);
-            }
-            
-            // Navigate to the simulation results page
-            navigate(`/simulation-results/${reportId}`);
+            // Navigate back to the dashboard
+            console.log('Scenario saved. Navigating to dashboard...');
+            navigate('/dashboard'); 
             
         } catch (error) {
             console.error('Error during scenario submission or simulation:', error);
@@ -1038,15 +1047,11 @@ function NewScenario() {
                     <select value={stateOfResidence} onChange={(e) => setStateOfResidence(e.target.value)}>
                         <option value="">Select your state</option>
                         {[
-                            'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 
-                            'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 
-                            'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 
-                            'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 
-                            'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 
-                            'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 
-                            'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 
-                            'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 
-                            'West Virginia', 'Wisconsin', 'Wyoming'
+                              'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+                              'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+                              'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+                              'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+                              'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
                         ].map(state => (
                             <option key={state} value={state}>{state}</option>
                         ))}
@@ -1350,6 +1355,14 @@ function convertEventFormat(dbEvents) {
                     glidePath: dbEvents[i].rebalance?.allocations?.glidePath ?? '',
 
                 },
+                // Add the rebalanceStrategy object with null checks
+                rebalanceStrategy: {
+                    taxStatusAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.taxStatusAllocation ?? {},
+                    preTaxAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.preTaxAllocation ?? {},
+                    afterTaxAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.afterTaxAllocation ?? {},
+                    nonRetirementAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.nonRetirementAllocation ?? {},
+                    taxExemptAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.taxExemptAllocation ?? {}
+                }
             }
         });
         

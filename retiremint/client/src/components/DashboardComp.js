@@ -1,12 +1,9 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from './HeaderComp';
 import RunSimulation from './RunSimulation';
 import '../Stylesheets/Dashboard.css';
-import Header from './HeaderComp';
-import RunSimulation from './RunSimulation';
 
 function Dashboard() {
     const [scenarios, setScenarios] = useState([]);

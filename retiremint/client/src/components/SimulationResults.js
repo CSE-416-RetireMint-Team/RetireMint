@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../Stylesheets/SimulationResults.css';
 import Header from './HeaderComp';
+import Graph from './Graph';
 
 const SimulationResults = () => {
   const [loading, setLoading] = useState(true);

@@ -9,12 +9,13 @@
  * 4. Format the results into visualizations for the frontend
  */
 
-const { simulateYear } = require('./SimulationEngine/SimulateYear');
-const Report = require('./Schemas/Report');
-//const IncomeTax = require('./Schemas/IncomeTax');
-//const StandardDeduction = require('./Schemas/StandardDeductions');
-//const CapitalGain = require('./Schemas/CapitalGain');
+// const { simulateYear } = require('./SimulationEngine/SimulateYear');
+// const Report = require('./Schemas/Report');
+// //const IncomeTax = require('./Schemas/IncomeTax');
+// //const StandardDeduction = require('./Schemas/StandardDeductions');
+// //const CapitalGain = require('./Schemas/CapitalGain');
 const { fetchAndLogModelData } = require('./FetchModelData');
+const LifeExpectancy = require('./Schemas/LifeExpectancy'); // Import LifeExpectancy schema
 
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
@@ -28,6 +29,7 @@ let hasLoggedDataThisSession = false;
  * @param {Number} simulationIndex - Index of this simulation
  * @returns {Promise<Object>} - Result of the simulation
  */
+/*
 async function runSingleSimulation(scenario, userData, taxData, numYears, simulationIndex) {
   try {
     console.log(`Starting simulation #${simulationIndex+1} of ${numYears} years`);
@@ -192,12 +194,14 @@ async function runSingleSimulation(scenario, userData, taxData, numYears, simula
     };
   }
 }
+*/
 
 /**
  * Calculate statistics for final assets across all simulations
  * @param {Array} simulations - Results of all simulations
  * @returns {Object} - Statistical summary
  */
+/*
 function calculateFinalAssetStatistics(simulations) {
   if (!simulations || simulations.length === 0) {
     return {
@@ -240,6 +244,7 @@ function calculateFinalAssetStatistics(simulations) {
     p90
   };
 }
+*/
 
 /**
  * Create asset trajectory data for visualization
@@ -247,6 +252,7 @@ function calculateFinalAssetStatistics(simulations) {
  * @param {Number} numYears - Number of years simulated
  * @returns {Object} - Asset trajectory data
  */
+/*
 function createAssetTrajectories(simulations, numYears) {
   if (!simulations || simulations.length === 0) {
     return {
@@ -308,6 +314,7 @@ function createAssetTrajectories(simulations, numYears) {
     }
   };
 }
+*/
 
 /**
  * Runs multiple simulations based on user scenarios and tax data
@@ -315,11 +322,53 @@ function createAssetTrajectories(simulations, numYears) {
  * @param {Object} userData - User data (age, spouse, etc.)
  * @param {Object} taxData - Tax brackets and other tax info
  * @param {Number} numSimulations - Number of simulations to run
- * @param {Number} numYears - Number of years to simulate
  * @returns {Object} - Simulation results including visualizations
  */
-async function runSimulations(scenario, userData, taxData, numSimulations = 100, numYears = 30) {
+async function runSimulations(scenario, userData, taxData, numSimulations = 100) {
   try {
+    // --- Calculate numYears based on Life Expectancy --- 
+    const currentUserAge = userData.age;
+    let userTargetAge = currentUserAge + 30; // Default duration
+    let finalNumYears = 30;
+    
+    try {
+        const userLifeExpectancyDoc = await LifeExpectancy.findById(scenario.lifeExpectancy);
+        if (userLifeExpectancyDoc) {
+            if (userLifeExpectancyDoc.lifeExpectancyMethod === 'fixedValue') {
+                userTargetAge = userLifeExpectancyDoc.fixedValue;
+            } else if (userLifeExpectancyDoc.lifeExpectancyMethod === 'normalDistribution' && userLifeExpectancyDoc.normalDistribution?.mean) {
+                userTargetAge = Math.round(userLifeExpectancyDoc.normalDistribution.mean); // Use mean for normal distribution
+            }
+        }
+        let userNumYears = Math.max(1, userTargetAge - currentUserAge);
+        finalNumYears = userNumYears;
+
+        // Consider spouse if married
+        if (scenario.scenarioType === 'married' && scenario.spouseLifeExpectancy && userData.spouseAge) {
+            const currentSpouseAge = userData.spouseAge;
+            let spouseTargetAge = currentSpouseAge + 30; // Default
+            const spouseLifeExpectancyDoc = await LifeExpectancy.findById(scenario.spouseLifeExpectancy);
+            if (spouseLifeExpectancyDoc) {
+                 if (spouseLifeExpectancyDoc.lifeExpectancyMethod === 'fixedValue') {
+                    spouseTargetAge = spouseLifeExpectancyDoc.fixedValue;
+                } else if (spouseLifeExpectancyDoc.lifeExpectancyMethod === 'normalDistribution' && spouseLifeExpectancyDoc.normalDistribution?.mean) {
+                    spouseTargetAge = Math.round(spouseLifeExpectancyDoc.normalDistribution.mean);
+                }
+            }
+            let spouseNumYears = Math.max(1, spouseTargetAge - currentSpouseAge);
+            finalNumYears = Math.max(finalNumYears, spouseNumYears); // Use the longer duration
+        }
+        
+    } catch (lifeExpError) {
+        console.error("Error calculating simulation duration from life expectancy:", lifeExpError);
+        console.warn("Defaulting simulation duration to 30 years.");
+        finalNumYears = 30; // Fallback to default if there's an error fetching/calculating
+    }
+    
+    const numYears = Math.ceil(finalNumYears); // Ensure it's an integer
+    console.log(`Calculated simulation duration: ${numYears} years`);
+    // --- End Calculation ---
+    
     // Only log data once per session for debugging
     if (!hasLoggedDataThisSession) {
       console.log('Fetching and logging all collections from the database...');
@@ -330,6 +379,15 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100,
     
     console.log(`Verifying scenario data for simulation`);
     
+    // Return a simplified mock response since we've commented out the actual simulation logic
+    return {
+      status: 'fetch_model_data_only',
+      dataVerified: true,
+      message: 'FetchModelData called successfully. Other simulation functionality is commented out.',
+      numYears: numYears
+    };
+    
+    /*
     // Extract the current year for initializing the simulation
     //const currentYear = new Date().getFullYear();
     
@@ -431,8 +489,10 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100,
       successRate: successRate,
       finalAssetStatistics: finalAssetStatistics,
       assetTrajectories: assetTrajectories,
-      simulationResults: simulationResults
+      simulationResults: simulationResults,
+      numYears: numYears
     };
+    */
   } catch (error) {
     console.error('Error in runSimulations:', error);
     return {
