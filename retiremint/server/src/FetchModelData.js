@@ -8,6 +8,8 @@ const Scenario = require('./Schemas/Scenario');
 const IncomeTax = require('./Schemas/IncomeTax');
 const StandardDeduction = require('./Schemas/StandardDeductions');
 const CapitalGain = require('./Schemas/CapitalGain');
+const RMDTable = require('./Schemas/RMDTable');
+const StateTax = require('./Schemas/StateTax');
 
 /**
  * Safely require a module, returning null if not found
@@ -24,103 +26,6 @@ const CapitalGain = require('./Schemas/CapitalGain');
 // }
 
 /**
- * Fetch all collections from the database
- * @returns {Promise<Object>} - Object containing all collections
- */
-async function fetchAllCollections() {
-  console.log('\n==== FETCHING DATABASE COLLECTIONS DATA ====');
-  
-  try {
-    // Initialize result object to store all collections
-    const result = {
-      incomeTaxes: [],
-      capitalGains: [],
-      standardDeductions: [],
-      stateTaxes: [],
-      rmdTables: [],
-      scenarios: [],
-      reports: [],
-      othersCount: {}
-    };
-    
-    // Fetch specific tax-related collections
-    
-    // Income Tax Data
-    result.incomeTaxes = await IncomeTax.find({
-      filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 }).lean();
-    
-    // Map 'jointly' to 'married' for consistency
-    result.incomeTaxes = result.incomeTaxes.map(tax => {
-      if (tax.filingStatus === 'jointly') {
-        return {
-          ...tax,
-          filingStatus: 'married'
-        };
-      }
-      return tax;
-    });
-    
-    // Capital Gains Data
-    result.capitalGains = await CapitalGain.find({
-      filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 }).lean();
-    
-    // Standard Deduction Data
-    result.standardDeductions = await StandardDeduction.find({
-      filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 }).lean();
-    
-    // RMD Tables (if available)
-    try {
-      const RMDTable = mongoose.model('RMDTable');
-      result.rmdTables = await RMDTable.find({}).lean();
-    } catch (error) {
-      console.log('RMD Tables collection not available:', error.message);
-    }
-    
-    // State Taxes (if available)
-    try {
-      const StateTax = mongoose.model('StateTax');
-      result.stateTaxes = await StateTax.find({}).lean();
-    } catch (error) {
-      console.log('State Taxes collection not available:', error.message);
-    }
-    
-    console.log('Fetched tax data collections successfully:');
-    console.log(`- Income Taxes: ${result.incomeTaxes.length} records`);
-    console.log(`- Capital Gains: ${result.capitalGains.length} records`);
-    console.log(`- Standard Deductions: ${result.standardDeductions.length} records`);
-    console.log(`- RMD Tables: ${result.rmdTables.length} records`);
-    console.log(`- State Taxes: ${result.stateTaxes.length} records`);
-    
-    // Get all collection names from the database
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    console.log(`Found ${collections.length} total collections in the database`);
-    
-    // List all collection names
-    console.log('Available collections:', collections.map(c => c.name).join(', '));
-    
-    console.log('\n==== COMPLETED FETCHING DATABASE COLLECTIONS ====');
-    
-    return result;
-  } catch (error) {
-    console.error('❌ ERROR fetching collection data:', error.message);
-    // Return empty collections if there's an error
-    return {
-      incomeTaxes: [],
-      capitalGains: [],
-      standardDeductions: [],
-      stateTaxes: [],
-      rmdTables: [],
-      scenarios: [],
-      reports: [],
-      othersCount: {}
-    };
-  }
-}
-
-/**
  * Fetch and print scenario and tax data for debugging
  * @param {string} scenarioId - The ID of the scenario to fetch
  * @returns {Object} - Object containing the fetched scenario and tax data
@@ -129,8 +34,11 @@ async function fetchAndLogModelData(scenarioId) {
   //console.log('\n==== SIMULATION DATA VERIFICATION ====');
   
   try {
-    // Fetch the scenario
-    const scenario = await Scenario.findById(scenarioId);
+    // Fetch the scenario and populate life expectancy fields
+    const scenario = await Scenario.findById(scenarioId)
+      .populate('lifeExpectancy') 
+      .populate('spouseLifeExpectancy');
+      
     if (!scenario) {
       console.error('❌ ERROR: Scenario not found in database');
       return { scenario: null };
@@ -176,6 +84,12 @@ async function fetchAndLogModelData(scenarioId) {
     const capitalGainsData = await CapitalGain.find({
       filingStatus: { $in: ['single', 'married', 'jointly'] }
     }).sort({ year: -1 });
+
+    // Fetch RMD Table data (limit to 5 for logging)
+    const rmdTableData = await RMDTable.find().limit(5);
+
+    // Fetch State Tax data
+    const stateTaxData = await StateTax.find();
     
     // Log the tax data information
     console.log('Tax data information loaded');
@@ -186,7 +100,9 @@ async function fetchAndLogModelData(scenarioId) {
       taxData: {
         incomeTax: mappedIncomeTaxData,
         standardDeduction: standardDeductionData,
-        capitalGains: capitalGainsData
+        capitalGains: capitalGainsData,
+        rmdTables: rmdTableData,
+        stateTaxes: stateTaxData
       }
     };
   } catch (error) {
@@ -196,6 +112,5 @@ async function fetchAndLogModelData(scenarioId) {
 }
 
 module.exports = {
-  fetchAndLogModelData,
-  fetchAllCollections
+  fetchAndLogModelData
 };
