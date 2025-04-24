@@ -186,7 +186,7 @@ function Dashboard() {
           const url = window.URL.createObjectURL(new Blob([response.data]));
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'YAML_format.YAML';  // Name of the file to be downloaded
+          a.download = 'YAMLFormat.YAML';  // Name of the file to be downloaded
           document.body.appendChild(a);  
           a.click();  
           a.remove();  
