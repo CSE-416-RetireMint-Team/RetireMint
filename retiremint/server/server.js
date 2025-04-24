@@ -1100,8 +1100,8 @@ async function seedDefaultTaxData() {
 // Serve the YAML file from the server
 app.get('/download-state-tax-yaml', (req, res) => {
     
-    const filePath = path.join(__dirname, 'src', 'StateTaxes', 'YAML_format.YAML');
-    res.download(filePath, 'YAML_format.YAML', (err) => {
+    const filePath = path.join(__dirname, 'src', 'YAMLFormat.YAML');
+    res.download(filePath, 'YAMLFormat.YAML', (err) => {
       if (err) {
         console.error('Error sending file:', err);
         res.status(500).send('File download failed');
