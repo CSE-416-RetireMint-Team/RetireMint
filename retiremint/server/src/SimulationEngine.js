@@ -16,6 +16,7 @@
 // //const CapitalGain = require('./Schemas/CapitalGain');
 const { fetchAndLogModelData } = require('./FetchModelData');
 const LifeExpectancy = require('./Schemas/LifeExpectancy'); // Import LifeExpectancy schema
+const { runOneSimulation } = require('./RunOneSimulation'); // Import the new function
 
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
@@ -326,170 +327,59 @@ function createAssetTrajectories(simulations, numYears) {
  */
 async function runSimulations(scenario, userData, taxData, numSimulations = 100) {
   try {
-    // --- Calculate numYears based on Life Expectancy --- 
-    const currentUserAge = userData.age;
-    let userTargetAge = currentUserAge + 30; // Default duration
-    let finalNumYears = 30;
-    
-    try {
-        const userLifeExpectancyDoc = await LifeExpectancy.findById(scenario.lifeExpectancy);
-        if (userLifeExpectancyDoc) {
-            if (userLifeExpectancyDoc.lifeExpectancyMethod === 'fixedValue') {
-                userTargetAge = userLifeExpectancyDoc.fixedValue;
-            } else if (userLifeExpectancyDoc.lifeExpectancyMethod === 'normalDistribution' && userLifeExpectancyDoc.normalDistribution?.mean) {
-                userTargetAge = Math.round(userLifeExpectancyDoc.normalDistribution.mean); // Use mean for normal distribution
-            }
-        }
-        let userNumYears = Math.max(1, userTargetAge - currentUserAge);
-        finalNumYears = userNumYears;
-
-        // Consider spouse if married
-        if (scenario.scenarioType === 'married' && scenario.spouseLifeExpectancy && userData.spouseAge) {
-            const currentSpouseAge = userData.spouseAge;
-            let spouseTargetAge = currentSpouseAge + 30; // Default
-            const spouseLifeExpectancyDoc = await LifeExpectancy.findById(scenario.spouseLifeExpectancy);
-            if (spouseLifeExpectancyDoc) {
-                 if (spouseLifeExpectancyDoc.lifeExpectancyMethod === 'fixedValue') {
-                    spouseTargetAge = spouseLifeExpectancyDoc.fixedValue;
-                } else if (spouseLifeExpectancyDoc.lifeExpectancyMethod === 'normalDistribution' && spouseLifeExpectancyDoc.normalDistribution?.mean) {
-                    spouseTargetAge = Math.round(spouseLifeExpectancyDoc.normalDistribution.mean);
-                }
-            }
-            let spouseNumYears = Math.max(1, spouseTargetAge - currentSpouseAge);
-            finalNumYears = Math.max(finalNumYears, spouseNumYears); // Use the longer duration
-        }
-        
-    } catch (lifeExpError) {
-        console.error("Error calculating simulation duration from life expectancy:", lifeExpError);
-        console.warn("Defaulting simulation duration to 30 years.");
-        finalNumYears = 30; // Fallback to default if there's an error fetching/calculating
-    }
-    
-    const numYears = Math.ceil(finalNumYears); // Ensure it's an integer
-    console.log(`Calculated simulation duration: ${numYears} years`);
-    // --- End Calculation ---
-    
-    // Only log data once per session for debugging
+    // Only log data once per session for debugging - fetch the model data here
+    let modelData = {};
     if (!hasLoggedDataThisSession) {
-      console.log('Fetching and logging all collections from the database...');
-      await fetchAndLogModelData();
-      console.log('Database collections data logged to console');
+      console.log('Fetching and logging model data from the database...');
+      modelData = await fetchAndLogModelData(scenario._id);
+      //console.log('\n--- Result from fetchAndLogModelData ---');
+      //console.log(JSON.stringify(modelData, null, 2));
+      //console.log('-------------------------------------\n');
+      console.log('Database model data logged to console');
       hasLoggedDataThisSession = true;
     }
     
-    console.log(`Verifying scenario data for simulation`);
-    
-    // Return a simplified mock response since we've commented out the actual simulation logic
-    return {
-      status: 'fetch_model_data_only',
-      dataVerified: true,
-      message: 'FetchModelData called successfully. Other simulation functionality is commented out.',
-      numYears: numYears
-    };
-    
-    /*
-    // Extract the current year for initializing the simulation
-    //const currentYear = new Date().getFullYear();
-    
-    // Verify required data is present
-    if (!scenario || !scenario.birthYear || !scenario.lifeExpectancy || 
-        !scenario.investments || !scenario.events) {
-      return {
-        status: 'data_verification_only',
-        dataVerified: false,
-        message: 'Missing required scenario data',
-        error: 'Incomplete scenario data'
-      };
-    }
-    
-    // Make sure tax data is available
-    if (!taxData) {
-      // For simplicity, we'll proceed without tax data in this example
-      // In a real implementation, this would fetch tax data from the database
-      taxData = {
-        federalIncomeTax: [],
-        federalCapitalGainsTax: [],
-        stateTax: [],
-        standardDeduction: 12950,
-        contributionLimits: {
-          preTax: 20500,
-          afterTax: 6000
-        },
-        rmdTable: []
-      };
-    }
-    
-    // Verify inflation assumption
-    if (!scenario.simulationSettings || !scenario.simulationSettings.inflationAssumption) {
-      return {
-        status: 'data_verification_only',
-        dataVerified: false,
-        message: 'Missing inflation assumption in simulation settings',
-        error: 'Incomplete simulation settings'
-      };
-    }
-    
-    // Data verification passed, proceed with simulation
-    
-    // Create an array of simulation promises to run in parallel
-    const simulationPromises = [];
-    
+    console.log(`Starting ${numSimulations} simulations...`);
+
+    // --- Run Simulations --- 
+    const allSimulationResults = [];
     for (let i = 0; i < numSimulations; i++) {
-      simulationPromises.push(runSingleSimulation(scenario, userData, taxData, numYears, i));
+        // Pass modelData and index to the simulation function (numYears is calculated inside)
+        const singleResult = runOneSimulation(modelData, i); // Removed numYears argument
+        allSimulationResults.push(singleResult);
     }
+
+    // --- Log Final Results --- 
+    console.log('\n--- All Simulation Results (Mock) ---');
+    // Log a summary for clarity, full log might be too large
+    console.log(`Total simulations run: ${allSimulationResults.length}`);
     
-    // Run all simulations in parallel
-    const simulationResults = await Promise.all(simulationPromises);
-    
-    // Calculate the success rate
-    const successfulSimulations = simulationResults.filter(sim => sim.success);
-    const successRate = (successfulSimulations.length / numSimulations) * 100;
-    
-    // Calculate statistics for final asset values
-    const finalAssetStatistics = calculateFinalAssetStatistics(simulationResults);
-    
-    // Create asset trajectories for visualization
-    const assetTrajectories = createAssetTrajectories(simulationResults, numYears);
-    
-    // Generate empty simulation results with Plotly.js compatible format for mocking
-    console.log('Creating and saving mock simulation report...');
-    
-    // Create a report document with data
-    const report = new Report({
-      name: `Simulation Report for ${scenario.name}`,
-      userId: userData._id || 'guest',
-      scenarioId: scenario._id,
-      numSimulations: numSimulations,
-      numYears: numYears,
-      successRate: successRate,
-      financialGoal: scenario.financialGoal || 0,
-      finalAssetStatistics: finalAssetStatistics,
-      assetTrajectories: assetTrajectories,
-      simulationResults: simulationResults
+    // Loop through each simulation result and log details
+    allSimulationResults.forEach((singleResult, index) => {
+        console.log(`\n--- Simulation #${index + 1} ---`);
+        console.log(`  Total Years: ${singleResult.length}`);
+        console.log(`  First 5 Years Results:`);
+        console.log(JSON.stringify(singleResult.slice(0, 5), null, 2));
     });
-    
-    // Save the report to the database
-    await report.save();
-    console.log(`Mock report created with ID: ${report._id}`);
-    
-    // Return the result with a valid reportId
+
+    console.log('\n-------------------------------------\n');
+
+    // --- Return a simplified response --- 
+    // The old detailed response generation is bypassed
     return {
-      metadata: {
-        numSimulations,
-        numYears,
-        scenarioName: scenario.name || 'Unnamed Scenario',
-        scenarioId: scenario._id,
-        dateRun: new Date().toISOString(),
-        userId: userData._id || 'guest'
-      },
-      status: 'simulation_completed',
-      dataVerified: true,
-      reportId: report._id.toString(),
-      message: 'Simulation completed successfully.',
-      successRate: successRate,
-      finalAssetStatistics: finalAssetStatistics,
-      assetTrajectories: assetTrajectories,
-      simulationResults: simulationResults,
+      status: 'mock_simulation_completed',
+      message: `Ran ${numSimulations} mock simulations.`,
+      numSimulationsRun: allSimulationResults.length,
+      // numYearsSimulated: numYears, // Removed
+      // numYears: numYears, // Removed
+      // Optionally include a small sample of results if needed by frontend
+      // resultsSample: allSimulationResults.slice(0, 1) 
+    };
+
+    /* 
+    --- OLD LOGIC TO BE BYPASSED --- 
+    console.log(`Verifying scenario data for simulation`);
+// ... existing code ...
       numYears: numYears
     };
     */

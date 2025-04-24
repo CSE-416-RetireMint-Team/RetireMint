@@ -308,7 +308,6 @@ router.post('/run', async (req, res) => {
       userId: userId,
       scenarioId: scenarioId,
       numSimulations: numSimulations,
-      numYears: result.numYears,
       successRate: result.successRate,
       financialGoal: scenario.financialGoal || 0,
       finalAssetStatistics: {
@@ -386,7 +385,6 @@ router.post('/run', async (req, res) => {
         userId: userId,
         scenarioId: scenarioId,
         numSimulations: numSimulations,
-        numYears: result.numYears,
         successRate: result.successRate,
         finalAssetStatistics: result.finalAssetStatistics,
         // Send a small subset of simulation results to the client for immediate visualization

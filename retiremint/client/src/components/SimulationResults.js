@@ -341,7 +341,6 @@ const SimulationResults = () => {
           : '0.00'}%</p>
         <p><strong>Financial Goal:</strong> ${(report.financialGoal || 0).toLocaleString()}</p>
         <p><strong>Number of Simulations:</strong> {report.numSimulations || 0}</p>
-        <p><strong>Number of Years:</strong> {report.numYears || 0}</p>
       </div>
 
       <div className="asset-stats">
@@ -359,7 +358,7 @@ const SimulationResults = () => {
             <Plot
               data={visualizations.histogram.data.map(trace => ({
                 ...trace,
-                x: trace.x.map(val => adjustForInflation(val, baseYear + report.numYears, baseYear))
+                x: trace.x
               }))}
               layout={{
                 ...visualizations.histogram.layout,

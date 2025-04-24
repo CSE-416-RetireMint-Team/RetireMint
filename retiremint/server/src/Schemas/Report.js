@@ -54,7 +54,6 @@ const ReportSchema = new Schema({
   userId: { type: String, required: true }, // Google ID of user who created the report
   scenarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scenario' },
   numSimulations: { type: Number, required: true },
-  numYears: { type: Number, required: true },
   financialGoal: { type: Number, required: true },
   simulationResults: [SimulationResultSchema],
   visualizationData: VisualizationDataSchema,
