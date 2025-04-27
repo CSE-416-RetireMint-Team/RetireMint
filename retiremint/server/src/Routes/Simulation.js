@@ -445,6 +445,18 @@ router.delete('/report/:reportId', async (req, res) => {
   }
 });
 
+// Delete a Scenario
+router.delete('/scenario/:scenarioId', async (req, res) => {
+  try {
+    const { scenarioId } = req.params;
+    await Scenario.findByIdAndDelete(scenarioId);
+    return (res.json({ success: true }));
+  } catch (error) {
+    console.error('Error deleting scenario:' , error);
+    res.status(500).json({ error: 'Error deleting scenario' });
+  }
+});
+
 // Get all shared reports for a user
 router.get('/sharedreports/:userId', async (req, res) => {
   try {

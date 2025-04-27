@@ -161,7 +161,7 @@
   margin-top: 15px;
 }
 
-.view-report-button, .delete-report-button, .edit-report-button {
+.view-report-button, .delete-report-button, .edit-report-button, .edit-scenario-button, .run-simulation-button {
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -186,12 +186,12 @@
 .delete-report-button:hover {
   background-color: #c0392b;
 }
-.edit-report-button {
+.edit-report-button, .edit-scenario-button {
   background-color: #3dd06e;
   color: white;
 }
 
-.edit-report-button:hover {
+.edit-report-button:hover, .edit-scenario-button:hover {
   background-color: #39b763;
 }
 

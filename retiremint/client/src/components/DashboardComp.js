@@ -105,6 +105,20 @@ function Dashboard() {
         }
     };
 
+    const handleDeleteScenario = async (scenarioId) => {
+        if (window.confirm('Are you sure you want to delete this report?')) {
+            console.log("Deleting Scenario: ", scenarioId);
+            try {
+                await axios.delete(`http://localhost:8000/simulation/scenario/${scenarioId}`);
+                setScenarios(scenarios.filter(scenario => scenario._id !== scenarioId));
+                console.log("Successfully deleted scenario ", scenarioId);
+            } catch (err) {
+                console.error('Error deleting scenario:', err);
+                setError('Failed to delete the scenario. Please try again later.');
+            }
+        }
+    };
+
     // Handle opening the Share Menu on a given report.
     const handleShareReport = async (reportId) => {
         try{
@@ -286,18 +300,26 @@ function Dashboard() {
                                         <p>Type: {scenario.scenario_type}</p>
                                         <p>Financial Goal: ${scenario.financial_goal?.toLocaleString() || 0}</p>
                                     </div>
-                                    <button 
-                                        onClick={() => handleSelectScenario(scenario)}
-                                        className="run-simulation-button"
-                                    >
-                                        Run Simulation
-                                    </button>
-                                    <button
-                                        onClick={() => handleEditScenario(scenario._id)}
-                                        className='edit-report-button'
-                                    >
-                                        Edit Scenario    
-                                    </button>
+                                    <div className='report-actions'>
+                                        <button 
+                                            onClick={() => handleSelectScenario(scenario)}
+                                            className="run-simulation-button"
+                                        >
+                                            Run Simulation
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditScenario(scenario._id)}
+                                            className='edit-scenario-button'
+                                        >
+                                            Edit Scenario    
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteScenario(scenario._id)}
+                                            className="delete-report-button"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
