@@ -327,30 +327,45 @@ function createAssetTrajectories(simulations, numYears) {
  */
 async function runSimulations(scenario, userData, taxData, numSimulations = 100) {
   try {
-    // Only log data once per session for debugging - fetch the model data here
-    let modelData = {};
+    // Fetch model data EVERY time the function is called
+    console.log('Fetching model data from the database...');
+    const modelData = await fetchAndLogModelData(scenario._id);
+
+    // Check if data fetching failed
+    if (!modelData || !modelData.scenario) {
+        console.error('Failed to fetch valid model data. Aborting simulations.');
+        throw new Error('Failed to fetch necessary simulation data.');
+    }
+
+    // Only log data once per session for debugging
     if (!hasLoggedDataThisSession) {
-      console.log('Fetching and logging model data from the database...');
-      modelData = await fetchAndLogModelData(scenario._id);
       //console.log('\n--- Result from fetchAndLogModelData ---');
-      //console.log(JSON.stringify(modelData, null, 2));
-      //console.log('-------------------------------------\n');
-      console.log('Database model data logged to console');
+      //console.log(JSON.stringify(modelData, null, 2)); // Log the actual fetched data
+      console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
+      // Log only the scenario part, excluding taxData
+      console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
+      console.log('-------------------------------------\n');
+      console.log('Database model data logged to console (first run this session)');
       hasLoggedDataThisSession = true;
     }
     
     console.log(`Starting ${numSimulations} simulations...`);
 
-    // --- Run Simulations --- 
-    const allSimulationResults = [];
+    // --- Run Simulations in Parallel ---
+    const simulationPromises = [];
     for (let i = 0; i < numSimulations; i++) {
-        // Pass modelData and index to the simulation function (numYears is calculated inside)
-        const singleResult = runOneSimulation(modelData, i); // Removed numYears argument
-        allSimulationResults.push(singleResult);
+        // Pass modelData and index to the simulation function
+        // runOneSimulation should return a promise if it's async,
+        // or wrap it in Promise.resolve() if it's synchronous but we want to treat it async here.
+        // Assuming runOneSimulation is already async or returns a promise.
+        simulationPromises.push(runOneSimulation(modelData, i));
     }
 
-    // --- Log Final Results --- 
-    console.log('\n--- All Simulation Results (Mock) ---');
+    // Wait for all simulations to complete
+    const allSimulationResults = await Promise.all(simulationPromises);
+
+    // --- Log Final Results ---
+    console.log('--- All Simulation Results ---');
     // Log a summary for clarity, full log might be too large
     console.log(`Total simulations run: ${allSimulationResults.length}`);
     
