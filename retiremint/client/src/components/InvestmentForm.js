@@ -249,7 +249,8 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             return;
                         }
 
-                        if (!investment.value) {
+                        // Updated validation for value: allow 0, check for null/undefined/empty string
+                        if (investment.value == null || String(investment.value).trim() === '') {
                             alert(`Investment "${investment.name}" must have a Value in Dollars.`);
                             return;
                         }

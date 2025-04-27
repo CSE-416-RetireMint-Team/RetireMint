@@ -68,7 +68,17 @@ router.get('/report/:id/scenario', async (req, res) => {
       return res.status(404).json({ error: 'Report not found' });
     }
 
-    const scenario = await Scenario.findById(report.scenarioId);
+    // Fetch the scenario and populate related data
+    const scenario = await Scenario.findById(report.scenarioId)
+      .populate({
+        path: 'simulationSettings',
+        populate: {
+          path: 'inflationAssumption'
+        }
+      })
+      .populate('lifeExpectancy') // Populate user life expectancy
+      .populate('spouseLifeExpectancy'); // Populate spouse life expectancy (will be null if not applicable)
+      
     if (!scenario) {
       return res.status(404).json({ error: 'Scenario not found' });
     }
@@ -101,10 +111,10 @@ router.get('/reports/:userId', async (req, res) => {
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
   try {
-    const { scenarioId, numSimulations, numYears, userId } = req.body;
+    const { scenarioId, numSimulations, userId } = req.body;
     
     console.log(`Starting simulation for scenario: ${scenarioId}, user: ${userId}`);
-    console.log(`Simulation parameters: ${numSimulations} simulations over ${numYears} years`);
+    console.log(`Simulation parameters: ${numSimulations} simulations`);
     
     // Fetch the scenario from the database with deeper population
     const scenario = await Scenario.findById(scenarioId)
@@ -170,8 +180,7 @@ router.post('/run', async (req, res) => {
           new Date().getFullYear() - scenario.spouseBirthYear : null
       }, 
       taxData, 
-      numSimulations, 
-      numYears
+      numSimulations
     );
     
     // Check if this is just a data verification run
@@ -210,7 +219,7 @@ router.post('/run', async (req, res) => {
           userId: userId,
           scenarioId: scenarioId,
           numSimulations: numSimulations,
-          numYears: numYears,
+          numYears: result.numYears,
           createdAt: new Date().toISOString(),
           // Default statistics to avoid frontend errors
           successRate: 0,
@@ -261,7 +270,7 @@ router.post('/run', async (req, res) => {
     let logContent = `Simulation Report for ${scenario.name}\n`;
     logContent += `User ID: ${userId}\n`;
     logContent += `Number of Simulations: ${numSimulations}\n`;
-    logContent += `Number of Years: ${numYears}\n`;
+    logContent += `Number of Years: ${result.numYears}\n`;
     
     // Ensure successRate is a valid number for toFixed
     const safeSuccessRate = typeof result.successRate === 'number' && !isNaN(result.successRate) 
@@ -299,7 +308,6 @@ router.post('/run', async (req, res) => {
       userId: userId,
       scenarioId: scenarioId,
       numSimulations: numSimulations,
-      numYears: numYears,
       successRate: result.successRate,
       financialGoal: scenario.financialGoal || 0,
       finalAssetStatistics: {
@@ -315,21 +323,23 @@ router.post('/run', async (req, res) => {
       },
       // Limit the number of simulations stored to avoid MongoDB document size limits
       // Keep only 10 simulations for visualization purposes - this helps with performance
-      simulationResults: result.simulationResults.slice(0, 10).map(sim => ({
-        simulationId: sim.simulationId,
-        success: sim.success,
-        finalTotalAssets: sim.finalTotalAssets,
-        finalState: sim.finalState,
-        // Reduce yearlyResults data size by keeping only essential fields
-        yearlyResults: sim.yearlyResults.map(yr => ({
-          year: yr.year,
-          totalAssets: yr.totalAssets,
-          income: yr.income,
-          socialSecurity: yr.socialSecurity || 0,
-          capitalGains: yr.capitalGains || 0,
-          inflationRate: yr.inflationRate || 0.02
-        }))
-      })),
+      simulationResults: Array.isArray(result.simulationResults) 
+        ? result.simulationResults.slice(0, 10).map(sim => ({
+            simulationId: sim.simulationId,
+            success: sim.success,
+            finalTotalAssets: sim.finalTotalAssets,
+            finalState: sim.finalState,
+            // Reduce yearlyResults data size by keeping only essential fields
+            yearlyResults: sim.yearlyResults.map(yr => ({
+              year: yr.year,
+              totalAssets: yr.totalAssets,
+              income: yr.income,
+              socialSecurity: yr.socialSecurity || 0,
+              capitalGains: yr.capitalGains || 0,
+              inflationRate: yr.inflationRate || 0.02
+            }))
+          }))
+        : [], // Default to empty array if undefined or not an array
       createdAt: new Date()
     });
     
@@ -375,23 +385,48 @@ router.post('/run', async (req, res) => {
         userId: userId,
         scenarioId: scenarioId,
         numSimulations: numSimulations,
-        numYears: numYears,
         successRate: result.successRate,
         finalAssetStatistics: result.finalAssetStatistics,
         // Send a small subset of simulation results to the client for immediate visualization
-        simulationResults: result.simulationResults.slice(0, 10).map(sim => ({
-          simulationId: sim.simulationId,
-          success: sim.success,
-          finalTotalAssets: sim.finalTotalAssets,
-          finalState: sim.finalState,
-          yearlyResults: sim.yearlyResults
-        })),
+        simulationResults: Array.isArray(result.simulationResults)
+          ? result.simulationResults.slice(0, 10).map(sim => ({
+              simulationId: sim.simulationId,
+              success: sim.success,
+              finalTotalAssets: sim.finalTotalAssets,
+              finalState: sim.finalState,
+              yearlyResults: sim.yearlyResults
+            }))
+          : [], // Default to empty array if undefined or not an array
         createdAt: report.createdAt
       }
     });
   } catch (error) {
     console.error('Error running simulation:', error);
     return res.status(500).json({ error: 'An error occurred while running the simulation' });
+  }
+});
+
+// Delete a report
+router.delete('/report/:reportId', async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    await Report.findByIdAndDelete(reportId);
+    return (res.json({ success: true }));
+  } catch (error) {
+    console.error('Error deleting report:' , error);
+    res.status(500).json({ error: 'Error deleting report' });
+  }
+});
+
+// Get all shared reports for a user
+router.get('/sharedreports/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const reports = await Report.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
+    res.json(reports);
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({ error: 'Error fetching reports' });
   }
 });
 

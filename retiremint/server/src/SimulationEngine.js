@@ -9,12 +9,14 @@
  * 4. Format the results into visualizations for the frontend
  */
 
-const { simulateYear } = require('./SimulationEngine/SimulateYear');
-const Report = require('./Schemas/Report');
-const IncomeTax = require('./Schemas/IncomeTax');
-const StandardDeduction = require('./Schemas/StandardDeductions');
-const CapitalGain = require('./Schemas/CapitalGain');
-const { fetchAndLogModelData, fetchAllCollections } = require('./FetchModelData');
+// const { simulateYear } = require('./SimulationEngine/SimulateYear');
+// const Report = require('./Schemas/Report');
+// //const IncomeTax = require('./Schemas/IncomeTax');
+// //const StandardDeduction = require('./Schemas/StandardDeductions');
+// //const CapitalGain = require('./Schemas/CapitalGain');
+const { fetchAndLogModelData } = require('./FetchModelData');
+const LifeExpectancy = require('./Schemas/LifeExpectancy'); // Import LifeExpectancy schema
+const { runOneSimulation } = require('./RunOneSimulation'); // Import the new function
 
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
@@ -28,6 +30,7 @@ let hasLoggedDataThisSession = false;
  * @param {Number} simulationIndex - Index of this simulation
  * @returns {Promise<Object>} - Result of the simulation
  */
+/*
 async function runSingleSimulation(scenario, userData, taxData, numYears, simulationIndex) {
   try {
     console.log(`Starting simulation #${simulationIndex+1} of ${numYears} years`);
@@ -192,12 +195,14 @@ async function runSingleSimulation(scenario, userData, taxData, numYears, simula
     };
   }
 }
+*/
 
 /**
  * Calculate statistics for final assets across all simulations
  * @param {Array} simulations - Results of all simulations
  * @returns {Object} - Statistical summary
  */
+/*
 function calculateFinalAssetStatistics(simulations) {
   if (!simulations || simulations.length === 0) {
     return {
@@ -240,6 +245,7 @@ function calculateFinalAssetStatistics(simulations) {
     p90
   };
 }
+*/
 
 /**
  * Create asset trajectory data for visualization
@@ -247,6 +253,7 @@ function calculateFinalAssetStatistics(simulations) {
  * @param {Number} numYears - Number of years simulated
  * @returns {Object} - Asset trajectory data
  */
+/*
 function createAssetTrajectories(simulations, numYears) {
   if (!simulations || simulations.length === 0) {
     return {
@@ -308,6 +315,7 @@ function createAssetTrajectories(simulations, numYears) {
     }
   };
 }
+*/
 
 /**
  * Runs multiple simulations based on user scenarios and tax data
@@ -315,124 +323,81 @@ function createAssetTrajectories(simulations, numYears) {
  * @param {Object} userData - User data (age, spouse, etc.)
  * @param {Object} taxData - Tax brackets and other tax info
  * @param {Number} numSimulations - Number of simulations to run
- * @param {Number} numYears - Number of years to simulate
  * @returns {Object} - Simulation results including visualizations
  */
-async function runSimulations(scenario, userData, taxData, numSimulations = 100, numYears = 30) {
+async function runSimulations(scenario, userData, taxData, numSimulations = 100) {
   try {
+    // Fetch model data EVERY time the function is called
+    console.log('Fetching model data from the database...');
+    const modelData = await fetchAndLogModelData(scenario._id);
+
+    // Check if data fetching failed
+    if (!modelData || !modelData.scenario) {
+        console.error('Failed to fetch valid model data. Aborting simulations.');
+        throw new Error('Failed to fetch necessary simulation data.');
+    }
+
     // Only log data once per session for debugging
     if (!hasLoggedDataThisSession) {
-      console.log('Fetching and logging all collections from the database...');
-      await fetchAndLogModelData();
-      console.log('Database collections data logged to console');
+      //console.log('\n--- Result from fetchAndLogModelData ---');
+      //console.log(JSON.stringify(modelData, null, 2)); // Log the actual fetched data
+      //console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
+      // Log only the scenario part, excluding taxData
+      //console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
+      //console.log('-------------------------------------\n');
+      //console.log('Database model data logged to console (first run this session)');
       hasLoggedDataThisSession = true;
     }
     
-    console.log(`Verifying scenario data for simulation`);
-    
-    // Extract the current year for initializing the simulation
-    const currentYear = new Date().getFullYear();
-    
-    // Verify required data is present
-    if (!scenario || !scenario.birthYear || !scenario.lifeExpectancy || 
-        !scenario.investments || !scenario.events) {
-      return {
-        status: 'data_verification_only',
-        dataVerified: false,
-        message: 'Missing required scenario data',
-        error: 'Incomplete scenario data'
-      };
-    }
-    
-    // Make sure tax data is available
-    if (!taxData) {
-      // For simplicity, we'll proceed without tax data in this example
-      // In a real implementation, this would fetch tax data from the database
-      taxData = {
-        federalIncomeTax: [],
-        federalCapitalGainsTax: [],
-        stateTax: [],
-        standardDeduction: 12950,
-        contributionLimits: {
-          preTax: 20500,
-          afterTax: 6000
-        },
-        rmdTable: []
-      };
-    }
-    
-    // Verify inflation assumption
-    if (!scenario.simulationSettings || !scenario.simulationSettings.inflationAssumption) {
-      return {
-        status: 'data_verification_only',
-        dataVerified: false,
-        message: 'Missing inflation assumption in simulation settings',
-        error: 'Incomplete simulation settings'
-      };
-    }
-    
-    // Data verification passed, proceed with simulation
-    
-    // Create an array of simulation promises to run in parallel
+    console.log(`Starting ${numSimulations} simulations...`);
+
+    // --- Run Simulations in Parallel ---
     const simulationPromises = [];
-    
     for (let i = 0; i < numSimulations; i++) {
-      simulationPromises.push(runSingleSimulation(scenario, userData, taxData, numYears, i));
+        // Pass modelData and index to the simulation function
+        // runOneSimulation should return a promise if it's async,
+        // or wrap it in Promise.resolve() if it's synchronous but we want to treat it async here.
+        // Assuming runOneSimulation is already async or returns a promise.
+        simulationPromises.push(runOneSimulation(modelData, i));
     }
+
+    // Wait for all simulations to complete
+    const allSimulationResults = await Promise.all(simulationPromises);
+
+    // --- Log Final Results ---
+    console.log('--- All Simulation Results ---');
+    // Log a summary for clarity, full log might be too large
+    console.log(`Total simulations run: ${allSimulationResults.length}`);
     
-    // Run all simulations in parallel
-    const simulationResults = await Promise.all(simulationPromises);
-    
-    // Calculate the success rate
-    const successfulSimulations = simulationResults.filter(sim => sim.success);
-    const successRate = (successfulSimulations.length / numSimulations) * 100;
-    
-    // Calculate statistics for final asset values
-    const finalAssetStatistics = calculateFinalAssetStatistics(simulationResults);
-    
-    // Create asset trajectories for visualization
-    const assetTrajectories = createAssetTrajectories(simulationResults, numYears);
-    
-    // Generate empty simulation results with Plotly.js compatible format for mocking
-    console.log('Creating and saving mock simulation report...');
-    
-    // Create a report document with data
-    const report = new Report({
-      name: `Simulation Report for ${scenario.name}`,
-      userId: userData._id || 'guest',
-      scenarioId: scenario._id,
-      numSimulations: numSimulations,
-      numYears: numYears,
-      successRate: successRate,
-      financialGoal: scenario.financialGoal || 0,
-      finalAssetStatistics: finalAssetStatistics,
-      assetTrajectories: assetTrajectories,
-      simulationResults: simulationResults
+    // Loop through each simulation result and log details
+    allSimulationResults.forEach((singleResult, index) => {
+        console.log(`\n--- Simulation #${index + 1} ---`);
+        console.log(`  Total Years: ${singleResult.length}`);
+        console.log(`  First 5 Years Results:`);
+        console.log(JSON.stringify(singleResult.slice(0, 5), null, 2));
     });
-    
-    // Save the report to the database
-    await report.save();
-    console.log(`Mock report created with ID: ${report._id}`);
-    
-    // Return the result with a valid reportId
+
+    console.log('\n-------------------------------------\n');
+
+    // --- Return a simplified response --- 
+    // The old detailed response generation is bypassed
     return {
-      metadata: {
-        numSimulations,
-        numYears,
-        scenarioName: scenario.name || 'Unnamed Scenario',
-        scenarioId: scenario._id,
-        dateRun: new Date().toISOString(),
-        userId: userData._id || 'guest'
-      },
-      status: 'simulation_completed',
-      dataVerified: true,
-      reportId: report._id.toString(),
-      message: 'Simulation completed successfully.',
-      successRate: successRate,
-      finalAssetStatistics: finalAssetStatistics,
-      assetTrajectories: assetTrajectories,
-      simulationResults: simulationResults
+      status: 'mock_simulation_completed',
+      message: `Ran ${numSimulations} mock simulations.`,
+      numSimulationsRun: allSimulationResults.length,
+      // numYearsSimulated: numYears, // Removed
+      // numYears: numYears, // Removed
+      // Optionally include a small sample of results if needed by frontend
+      // resultsSample: allSimulationResults.slice(0, 1) 
     };
+
+    /* 
+    --- OLD LOGIC TO BE BYPASSED --- 
+    console.log(`Verifying scenario data for simulation`);
+// ... existing code ...
+      numYears: numYears
+    };
+    */
   } catch (error) {
     console.error('Error in runSimulations:', error);
     return {

@@ -88,7 +88,7 @@ function computeInflationAdjustedContributionLimits(previousYearLimits, inflatio
 function runPreliminaries(params, previousYearData) {
   // Extract necessary parameters
   const { inflationAssumption, taxData, year } = params;
-  const { taxBrackets: previousYearTaxBrackets, contributionLimits: previousYearContributionLimits } = previousYearData || {};
+  const {/* taxBrackets: previousYearTaxBrackets,*/ contributionLimits: previousYearContributionLimits } = previousYearData || {};
   
   // Sample inflation rate for the current year
   const inflationRate = sampleInflationRate(inflationAssumption);

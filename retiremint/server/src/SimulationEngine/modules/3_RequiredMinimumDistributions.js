@@ -87,7 +87,7 @@ function transferInKind(investments, sourceInvestment, amount, targetTaxStatus) 
  */
 function processRequiredMinimumDistributions(params, yearState, previousYearState) {
   const { rmdStrategies, rmdTable } = params;
-  const { year, userAge } = yearState;
+  const { /*year, */userAge } = yearState;
   
   // Create a deep copy of the year state to avoid mutating the original
   const updatedYearState = { ...yearState };

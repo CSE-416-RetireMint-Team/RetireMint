@@ -35,27 +35,62 @@ function isPersonAlive(lifeExpectancy, currentAge) {
     return false;
   }
   
-  const [method, fixedValue, distribution] = lifeExpectancy;
-  
-  switch (method) {
-    case 'fixedValue':
-      return currentAge <= fixedValue;
-      
-    case 'normalDistribution':
-      if (distribution && typeof distribution.mean === 'number' && typeof distribution.standardDeviation === 'number') {
-        // Sample from the normal distribution
-        const u1 = Math.random();
-        const u2 = Math.random();
-        const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-        const sampleAge = z0 * distribution.standardDeviation + distribution.mean;
+  // Handle both object and array formats for compatibility
+  if (Array.isArray(lifeExpectancy)) {
+    const [method, fixedValue, distribution] = lifeExpectancy;
+    
+    switch (method) {
+      case 'fixedValue':
+        return currentAge <= fixedValue;
         
-        return currentAge <= sampleAge;
-      }
-      return false;
-      
-    default:
-      return false;
+      case 'normalDistribution':
+        if (distribution && typeof distribution.mean === 'number' && typeof distribution.standardDeviation === 'number') {
+          // Sample from the normal distribution
+          const u1 = Math.random();
+          const u2 = Math.random();
+          const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+          const sampleAge = z0 * distribution.standardDeviation + distribution.mean;
+          
+          return currentAge <= sampleAge;
+        }
+        return false;
+        
+      default:
+        return false;
+    }
+  } 
+  // Handle object format (from schema)
+  else if (typeof lifeExpectancy === 'object') {
+    const { lifeExpectancyMethod, fixedValue, normalDistribution, computedValue } = lifeExpectancy;
+    
+    // If there's a computed value already, use that
+    if (typeof computedValue === 'number') {
+      return currentAge <= computedValue;
+    }
+    
+    switch (lifeExpectancyMethod) {
+      case 'fixedValue':
+        return currentAge <= fixedValue;
+        
+      case 'normalDistribution':
+        if (normalDistribution && typeof normalDistribution.mean === 'number' && typeof normalDistribution.standardDeviation === 'number') {
+          // Sample from the normal distribution
+          const u1 = Math.random();
+          const u2 = Math.random();
+          const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+          const sampleAge = z0 * normalDistribution.standardDeviation + normalDistribution.mean;
+          
+          return currentAge <= sampleAge;
+        }
+        return false;
+        
+      default:
+        return false;
+    }
   }
+  
+  // If lifeExpectancy is neither an array nor an object, return false
+  return false;
 }
 
 /**
@@ -159,50 +194,50 @@ function simulateYear(params, previousYearState = null) {
   yearState = incomeResult.yearState;
   
   // Store events state for next year
-  yearState.eventsState = incomeResult.eventsState;
+  //yearState.eventsState = incomeResult.eventsState;
   
   // 3. Required Minimum Distributions: Process RMDs if applicable
-  yearState = processRequiredMinimumDistributions(
-    { rmdStrategies, rmdTable: taxData?.rmdTable }, 
-    yearState, 
-    previousYearState || {}
-  );
+  //yearState = processRequiredMinimumDistributions(
+  //  { rmdStrategies, rmdTable: taxData?.rmdTable }, 
+  //  yearState, 
+  //  previousYearState || {}
+  //);
   
   // 4. Investment Returns: Update investment values based on returns
-  yearState = processInvestmentReturns(params, yearState);
+  //yearState = processInvestmentReturns(params, yearState);
   
   // 5. Roth Conversion: Process Roth conversions based on tax optimization
-  yearState = processRothConversion({
-    rothOptimizerEnable,
-    rothOptimizerStartYear,
-    rothOptimizerEndYear,
-    rothConversionStrategies
-  }, yearState);
+  //yearState = processRothConversion({
+  //  rothOptimizerEnable,
+  //  rothOptimizerStartYear,
+  //  rothOptimizerEndYear,
+  //  rothConversionStrategies
+  //}, yearState);
   
   // 6. Non-Discretionary Expenses: Pay necessary expenses and taxes
-  yearState = processNonDiscretionaryExpenses(
-    { events, expenseWithdrawalStrategies }, 
-    yearState, 
-    previousYearState
-  );
+  //yearState = processNonDiscretionaryExpenses(
+  //  { events, expenseWithdrawalStrategies }, 
+  //  yearState, 
+  //  previousYearState
+  //);
   
   // 7. Discretionary Expenses: Pay discretionary expenses if they don't violate financial goal
-  yearState = processDiscretionaryExpenses(
-    { events, expenseWithdrawalStrategies, financialGoal }, 
-    yearState
-  );
+  //yearState = processDiscretionaryExpenses(
+  //  { events, expenseWithdrawalStrategies, financialGoal }, 
+  //  yearState
+  //);
   
   // 8. Invest Events: Process investments of excess cash
-  yearState = processInvestEvents(
-    { events, maximumCash }, 
-    yearState
-  );
+  //yearState = processInvestEvents(
+  //  { events, maximumCash }, 
+  //  yearState
+  //);
   
   // 9. Rebalance Events: Rebalance portfolio according to target allocations
-  yearState = processRebalanceEvents(
-    { events }, 
-    yearState
-  );
+  //yearState = processRebalanceEvents(
+  //  { events }, 
+  //  yearState
+  //);
   
   // Calculate total assets at the end of the year
   yearState.totalAssets = calculateTotalAssets(yearState.investments);

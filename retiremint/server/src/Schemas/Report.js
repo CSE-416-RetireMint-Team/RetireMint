@@ -54,7 +54,6 @@ const ReportSchema = new Schema({
   userId: { type: String, required: true }, // Google ID of user who created the report
   scenarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scenario' },
   numSimulations: { type: Number, required: true },
-  numYears: { type: Number, required: true },
   financialGoal: { type: Number, required: true },
   simulationResults: [SimulationResultSchema],
   visualizationData: VisualizationDataSchema,
@@ -73,7 +72,23 @@ const ReportSchema = new Schema({
     minimum: Number,
     maximum: Number,
     average: Number
-  }
+  },
+  // Shared Users array
+  sharedUsers: [{
+    userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'SharedUser'
+    },
+    email: {
+      type: String,
+      ref: 'Email'
+    },
+    permissions : {
+      type: String,
+      enum: ['view', 'edit'],
+      ref: 'Permissions'
+    }
+  }]
 });
 
 module.exports = mongoose.model('Report', ReportSchema); 
