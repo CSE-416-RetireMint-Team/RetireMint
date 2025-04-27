@@ -341,11 +341,11 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
     if (!hasLoggedDataThisSession) {
       //console.log('\n--- Result from fetchAndLogModelData ---');
       //console.log(JSON.stringify(modelData, null, 2)); // Log the actual fetched data
-      console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
+      //console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
       // Log only the scenario part, excluding taxData
-      console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
-      console.log('-------------------------------------\n');
-      console.log('Database model data logged to console (first run this session)');
+      //console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
+      //console.log('-------------------------------------\n');
+      //console.log('Database model data logged to console (first run this session)');
       hasLoggedDataThisSession = true;
     }
     
