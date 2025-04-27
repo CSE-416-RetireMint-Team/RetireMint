@@ -87,6 +87,11 @@ function Dashboard() {
     const handleEditReport = async (reportId) => {
         navigate(`/new-scenario/${reportId}`);
     }
+    
+    const handleEditScenario = async (scenarioId) => {
+        console.log("SCENARIOID: ", scenarioId);
+        navigate(`/new-scenario/${scenarioId}`);
+    }
 
     const handleDeleteReport = async (reportId) => {
         if (window.confirm('Are you sure you want to delete this report?')) {
@@ -286,6 +291,12 @@ function Dashboard() {
                                         className="run-simulation-button"
                                     >
                                         Run Simulation
+                                    </button>
+                                    <button
+                                        onClick={() => handleEditScenario(scenario._id)}
+                                        className='edit-report-button'
+                                    >
+                                        Edit Scenario    
                                     </button>
                                 </div>
                             ))}

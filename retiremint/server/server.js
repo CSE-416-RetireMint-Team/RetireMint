@@ -207,7 +207,7 @@ app.post('/login',async function(req,res){
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
     const { 
-        scenarioIdEdit,
+        scenarioId,
         scenarioName, 
         scenarioType, 
         birthYear, 
@@ -234,9 +234,9 @@ app.post('/scenario', async (req, res) => {
   
     // open existing scenario if an edit is being attempted
     let existingScenario;
-    if (scenarioIdEdit) {
+    if (scenarioId) {
         try {
-            existingScenario = await Scenario.findById(scenarioIdEdit);
+            existingScenario = await Scenario.findById(scenarioId);
             if (!existingScenario) {
                 return (res.status(404).json({ error : 'Scenario to be edited not Found'}))
             }
@@ -724,8 +724,8 @@ app.post('/scenario', async (req, res) => {
 // Returns a list of the InvestmentTypes and all inner documents for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investmentypes', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const investmentIds = scenario.investments;
         const investmentTypeIds = new Set();
         for (i = 0; i < investmentIds.length; i++) {
@@ -755,8 +755,8 @@ app.post('/simulation/scenario/investmentypes', async (req, res) => {
 // Returns a list of the Investments and the InvestmentTypes and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investments', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const investmentIds = scenario.investments;
         const investments = [];
         // Use a set to Store Investment Types to not contain duplicates upon fetching InvestmentTypes later.
@@ -799,8 +799,8 @@ app.post('/simulation/scenario/investments', async (req, res) => {
 // Returns a list of the Events and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/events', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const eventIds = scenario.events;
         const events = [];
         for (let i = 0; i < eventIds.length; i++) {

@@ -14,8 +14,7 @@ function NewScenario() {
     // Handling editing existing scenario (if necessary)
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { reportId } = useParams();
-    const [scenarioIdEdit, setScenarioIdEdit] = useState(null);
+    const { scenarioId } = useParams();
 
     //pages there will be 4 pages to break down the scenario form 
     const [page,setPage]=useState(1);
@@ -128,14 +127,13 @@ function NewScenario() {
 
     // Load all previously inputted values if editting a Scenario
     useEffect(() => {
-        console.log(reportId)
+        console.log("scen id: " , scenarioId);
         const fetchScenario = async () => {
             try {
-                if (reportId !== "new"){
+                if (scenarioId !== "new"){
                     setLoading(true);
                     console.log("Loading");
-                    const response = await axios.get(`http://localhost:8000/simulation/report/${reportId}/scenario`);                    
-                    setScenarioIdEdit(response.data._id);
+                    const response = await axios.post(`http://localhost:8000/simulation/scenario/data`, {scenarioId: scenarioId});                    
                     // Update placeholder values with existing scenario data to be changed.
                     setScenarioName(response.data.name);
                     setScenarioType(response.data.scenarioType);
@@ -183,7 +181,7 @@ function NewScenario() {
                     // --- End Life Expectancy Data --- 
 
                     // Fetch Investments with all id's broken down and convert it to the investment format in the form.
-                    const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioIdEdit: response.data._id});
+                    const responseInvestments = await axios.post(`http://localhost:8000/simulation/scenario/investments`, {scenarioId: response.data._id});
                     const convertedInvestments = convertInvestmentFormat(responseInvestments.data.investments);
                     setInvestments(convertedInvestments);
 
@@ -196,7 +194,7 @@ function NewScenario() {
                     setHasPreTaxInvestments(hasPreTax);
 
                     // Fetch Events with all id's broken down and convert it to the event format in the form.
-                    const responseEvents = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenarioIdEdit: response.data._id});
+                    const responseEvents = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenarioId: response.data._id});
                     const convertedEvents = convertEventFormat(responseEvents.data.events);
                     setEvents(convertedEvents);
 
@@ -283,9 +281,9 @@ function NewScenario() {
             }
         }
         fetchScenario();
-    }, [reportId]);
+    }, [scenarioId]);
 
-    const submitScenario = async (existingReportId) => {
+    const submitScenario = async (scenarioId) => {
         try {
             // Show loading or disable button here if you have UI for it
             
@@ -326,7 +324,7 @@ function NewScenario() {
             console.log('Submitting scenario...');
             const userId = localStorage.getItem('userId') || 'guest';
             const scenarioResponse = await axios.post('http://localhost:8000/scenario', {
-                scenarioIdEdit,
+                scenarioId,
                 scenarioName,
                 scenarioType,
                 birthYear,
@@ -356,8 +354,8 @@ function NewScenario() {
                 return;
             }
             
-            const scenarioId = scenarioResponse.data.scenarioId;
-            console.log('Scenario created/updated with ID:', scenarioId);
+            const newScenarioId = scenarioResponse.data.scenarioId;
+            console.log('Scenario created/updated with ID:', newScenarioId);
             
             // Removed step 2: Running simulation immediately
             
@@ -1131,7 +1129,7 @@ function NewScenario() {
                             }
 
                             // Submit the scenario
-                            submitScenario(reportId);
+                            submitScenario(scenarioId);
                         }}>
                             Submit
                         </button>

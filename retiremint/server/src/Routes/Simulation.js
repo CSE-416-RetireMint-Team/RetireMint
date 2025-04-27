@@ -90,6 +90,33 @@ router.get('/report/:id/scenario', async (req, res) => {
   }
 });
 
+// Get scenario data for a given scenarioId
+router.post('/scenario/data', async (req, res) => {
+  console.log("Received post req! for scenario");
+  try {
+    const {scenarioId} = req.body;
+    console.log(`found scenario: ${scenarioId}`);
+    // Fetch the scenario and populate related data
+    const scenario = await Scenario.findById(scenarioId)
+      .populate({
+        path: 'simulationSettings',
+        populate: {
+          path: 'inflationAssumption'
+        }
+      })
+      .populate('lifeExpectancy') // Populate user life expectancy
+      .populate('spouseLifeExpectancy'); // Populate spouse life expectancy (will be null if not applicable)
+      
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found' });
+    }
+    res.json(scenario);
+  } catch (error) {
+    console.error('Error fetching scenario from scenarioId:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the scenario' });
+  }
+});
+
 // Get all reports for a user
 router.get('/reports/:userId', async (req, res) => {
   try {
