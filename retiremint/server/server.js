@@ -626,7 +626,17 @@ app.post('/scenario', async (req, res) => {
     await inflation.save();
     }
     else {
-        inflation = await Inflation.findByIdAndUpdate(existingSimulationSettings.inflation, inflation, {new: true});
+        const inflationData = {
+            method: inflationAssumption.method,
+            fixedPercentage: inflationAssumption.fixedPercentage,
+            normalPercentage: inflationAssumption.normalPercentage,
+            uniformPercentage: inflationAssumption.uniformPercentage
+        };
+        inflation = await Inflation.findByIdAndUpdate(
+            existingSimulationSettings.inflationAssumption, 
+            inflationData, 
+            {new: true}
+        );
     }
 
     //simulation setting
@@ -644,7 +654,20 @@ app.post('/scenario', async (req, res) => {
         await simulationSettings.save();
     }
     else {
-        simulationSettings = await SimulationSettings.findByIdAndUpdate(existingSimulationSettings._id, simulationSettings, {new: true});
+        const settingsData = {
+            inflationAssumption: inflation._id,
+            expenseWithdrawalStrategies: expenseWithdrawalStrategies,
+            rmdStrategies: rmdStrategies,
+            rothConversionStrategies: rothConversionStrategies,
+            rothOptimizerEnable: RothOptimizerEnable,
+            rothOptimizerStartYear: rothRptimizerStartYear,
+            rothOptimizerEndYear: rothOptimizerEndYear
+        };
+        simulationSettings = await SimulationSettings.findByIdAndUpdate(
+            existingSimulationSettings._id, 
+            settingsData, 
+            {new: true}
+        );
     }
 
     //share setting
