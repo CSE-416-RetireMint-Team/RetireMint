@@ -1,4 +1,6 @@
 attached is the modelData object and output on an example scenario
+this example was designed to be extremely robust. logging of key functionality is provided 
+using this data in simlogs.txt
 
 
 --- Result from fetchAndLogModelData (Scenario Only) ---

@@ -1,0 +1,165 @@
+Logging Simulation Functionality
+
+=================================================================================================
+Dynamic eventSeries generation:
+
+Starting 1 simulations...
+Running simulation #1 for calculated 41 years.
+printing 2025: INITIAL_INVEST_EVENT,entry level job,ss benefits
+
+printing 2026: entry level job,ss benefits,microsoft job
+
+printing 2027: entry level job,ss benefits,microsoft job
+
+printing 2028: entry level job,ss benefits,microsoft job
+
+printing 2029: microsoft job
+
+printing 2030: microsoft job
+
+printing 2031: microsoft job
+
+printing 2032: microsoft job
+
+printing 2033: microsoft job
+
+printing 2034: microsoft job
+
+printing 2035: microsoft job,gaming
+
+printing 2036: microsoft job
+
+printing 2037: microsoft job
+
+printing 2038: microsoft job
+
+printing 2039: microsoft job
+
+printing 2040: microsoft job,buy a house,mid career inv str
+
+printing 2041: microsoft job,buy a house,mid career inv str
+
+printing 2042: microsoft job,buy a house,mid career inv str
+
+printing 2043: microsoft job,buy a house,mid career inv str
+
+printing 2044: microsoft job,buy a house,mid career inv str
+
+printing 2045: microsoft job,buy a house,mid career rebalance
+
+printing 2046: microsoft job,buy a house,mid career rebalance
+
+printing 2047: microsoft job,buy a house,mid career rebalance
+
+printing 2048: microsoft job,buy a house
+
+printing 2049: microsoft job,buy a house
+
+printing 2050: microsoft job,buy a house
+
+printing 2051: microsoft job,buy a house
+
+printing 2052: microsoft job,buy a house
+
+printing 2053: microsoft job,buy a house
+
+printing 2054: buy a house
+
+printing 2055: buy a house,late career invest str
+
+printing 2056: buy a house
+
+printing 2057: buy a house
+
+printing 2058: buy a house
+
+printing 2059: buy a house
+
+printing 2060: retirement rebalance
+
+printing 2061:
+
+printing 2062:
+
+printing 2063:
+
+printing 2064:
+
+printing 2065:
+
+================================================================================================
+
+dynamic inflation generation
+
+SCENARIO DATA RETRIEVED
+
+//normalDistribution - mean 4%, sd 3%
+
+Starting 2 simulations...
+Running simulation #1 for calculated 5 years.
+inflationArray [
+  -0.016500887540710295,
+  0.03949826783439599,
+  0.09169212664371781,
+  0.1329038754252246,
+  0.13966972702618233
+]
+Running simulation #2 for calculated 5 years.
+inflationArray [
+  0.08773797503410896,
+  0.15684511566802292,
+  0.16175628649529805,
+  0.1856553890088127,
+  0.1978914671912009
+]
+
+===========================================================================
+
+dynamic simulation length based on life lifeExpectancy using uniform distribution for inflation
+
+//lifeExpectancy - normalDistribution, birthYear = 2001 mean = 35  sd = 7 
+//inflation - uniformPercentage lowerBound - .03 upperBound - .05
+
+SCENARIO DATA RETRIEVED
+Starting 4 simulations...
+Running simulation #1 for calculated 2 years.
+inflationArray [ 0.034764640569872884, 0.06805990111998142 ]
+Running simulation #2 for calculated 7 years.
+inflationArray [
+  0.03580031659469803,
+  0.0775435791726571,
+  0.12630446816178093,
+  0.17475844417337583,
+  0.22289455436923056,
+  0.2707841681850618,
+  0.3132561029235136
+]
+Running simulation #3 for calculated 3 years.
+inflationArray [ 0.03892741619034243, 0.08353291764692905, 0.12838146096608793 ]
+Running simulation #4 for calculated 20 years.
+inflationArray [
+  0.04208359376049147, 0.08957733861735451,
+   0.1353287446915531, 0.18456799600913223,
+   0.2246515015092348,  0.2711780614436823,
+   0.3192952191627073,   0.355033855390912,
+  0.38589100032427204, 0.41599071713281893,
+   0.4653556701401863,  0.5113850691375493,
+   0.5573133740126661,  0.5910654718335661,
+   0.6260164333481241,  0.6734381481760274,
+   0.7058137985799015,   0.737708832528368,
+   0.7712445899974705,  0.8176554197861001
+]
+--- All Simulation Results ---
+Total simulations run: 4
+
+=================================================================================================
+//Fixed lifeExpectancy and inflation
+
+SCENARIO DATA RETRIEVED
+Starting 3 simulations...
+Running simulation #1 for calculated 5 years.
+inflationArray [ 0.03, 0.06, 0.09, 0.12, 0.15 ]
+Running simulation #2 for calculated 5 years.
+inflationArray [ 0.03, 0.06, 0.09, 0.12, 0.15 ]
+Running simulation #3 for calculated 5 years.
+inflationArray [ 0.03, 0.06, 0.09, 0.12, 0.15 ]
