@@ -1,0 +1,1483 @@
+attached is the modelData object and output on an example scenario
+this example was designed to be extremely robust. logging of key functionality is provided 
+using this data in simlogs.txt
+
+
+--- Result from fetchAndLogModelData (Scenario Only) ---
+{
+  "scenario": {
+    "_id": "680a6cf8d9eb0c270a0ae262",
+    "name": "liams plan",
+    "userId": "680a68b5d9eb0c270a0ae1a5",
+    "scenarioType": "individual",
+    "birthYear": 2001,
+    "spouseBirthYear": null,
+    "lifeExpectancy": {
+      "normalDistribution": {
+        "mean": 30,
+        "standardDeviation": 5
+      },
+      "_id": "680a6cf8d9eb0c270a0ae1b0",
+      "lifeExpectancyMethod": "normalDistribution",
+      "fixedValue": null,
+      "__v": 0
+    },
+    "spouseLifeExpectancy": null,
+    "investments": [
+      {
+        "_id": "680c176144e109e92678b5b1",
+        "name": "japan bond",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5a1",
+          "name": "bond",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b581",
+            "method": "fixedPercentage",
+            "fixedValue": null,
+            "fixedPercentage": 3,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b591",
+            "method": "fixedPercentage",
+            "fixedValue": null,
+            "fixedPercentage": 2,
+            "__v": 0
+          },
+          "expenseRatio": 2,
+          "taxability": "tax-exempt",
+          "__v": 0
+        },
+        "value": 6000,
+        "maxAnnualContribution": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5b3",
+        "name": "euro bond",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5a3",
+          "name": "bond",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b582",
+            "method": "fixedPercentage",
+            "fixedValue": null,
+            "fixedPercentage": 3,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b593",
+            "method": "fixedPercentage",
+            "fixedValue": null,
+            "fixedPercentage": 2,
+            "__v": 0
+          },
+          "expenseRatio": 2,
+          "taxability": "tax-exempt",
+          "__v": 0
+        },
+        "value": 7999,
+        "maxAnnualContribution": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5b5",
+        "name": "gamestop",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5a5",
+          "name": "high risk stock",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 10,
+              "sd": 20
+            },
+            "_id": "680c176044e109e92678b583",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b595",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 3,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 600,
+        "maxAnnualContribution": null,
+        "accountTaxStatus": "non-retirement",
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5b7",
+        "name": "bitcoin etf",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5a7",
+          "name": "high risk stock",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 10,
+              "sd": 20
+            },
+            "_id": "680c176044e109e92678b584",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b597",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 3,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 2500,
+        "maxAnnualContribution": null,
+        "accountTaxStatus": "non-retirement",
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5b9",
+        "name": "microsoft employer contributions",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5a9",
+          "name": "fund or trust",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 4,
+              "sd": 2
+            },
+            "_id": "680c176044e109e92678b585",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b599",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 1,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 200000,
+        "maxAnnualContribution": null,
+        "accountTaxStatus": "pre-tax",
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5bb",
+        "name": "teacher fund",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5ab",
+          "name": "fund or trust",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 4,
+              "sd": 2
+            },
+            "_id": "680c176044e109e92678b586",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b59b",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 1,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 12000,
+        "maxAnnualContribution": null,
+        "accountTaxStatus": "pre-tax",
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5bd",
+        "name": "family trust",
+        "investmentType": {
+          "_id": "680c176044e109e92678b5ad",
+          "name": "fund or trust",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 4,
+              "sd": 2
+            },
+            "_id": "680c176044e109e92678b587",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b59d",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 1,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 15000,
+        "maxAnnualContribution": 60000,
+        "accountTaxStatus": "after-tax",
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b5bf",
+        "name": "nys investor fund",
+        "investmentType": {
+          "_id": "680c176144e109e92678b5af",
+          "name": "fund or trust",
+          "description": "",
+          "expectedAnnualReturn": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 4,
+              "sd": 2
+            },
+            "_id": "680c176044e109e92678b588",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expectedAnnualIncome": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "_id": "680c176044e109e92678b59f",
+            "method": "fixedValue",
+            "fixedValue": 0,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "expenseRatio": 1,
+          "taxability": "taxable",
+          "__v": 0
+        },
+        "value": 0,
+        "maxAnnualContribution": 8000,
+        "accountTaxStatus": "after-tax",
+        "__v": 0
+      }
+    ],
+    "events": [
+      {
+        "_id": "680c176144e109e92678b61d",
+        "name": "INITIAL_INVEST_EVENT",
+        "description": "Initial investment allocation",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5c9",
+          "method": "fixedValue",
+          "fixedValue": 2025,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5dd",
+          "method": "fixedValue",
+          "fixedValue": 1,
+          "__v": 0
+        },
+        "type": "invest",
+        "income": null,
+        "expense": null,
+        "invest": {
+          "investmentStrategy": {
+            "taxStatusAllocation": {
+              "after-tax": 20,
+              "non-retirement": 60,
+              "tax-exempt": 20
+            },
+            "afterTaxAllocation": {
+              "family trust": 50,
+              "nys investor fund": 50
+            },
+            "nonRetirementAllocation": {
+              "gamestop": 50,
+              "bitcoin etf": 50
+            },
+            "taxExemptAllocation": {
+              "japan bond": 50,
+              "euro bond": 50
+            }
+          },
+          "_id": "680c176144e109e92678b609",
+          "allocations": {
+            "_id": "680c176144e109e92678b5f5",
+            "method": "fixedAllocation",
+            "fixedAllocation": [],
+            "glidePath": [],
+            "__v": 0
+          },
+          "modifyMaximumCash": true,
+          "newMaximumCash": 20000,
+          "__v": 0
+        },
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b61f",
+        "name": "entry level job",
+        "description": "teaching",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5ca",
+          "method": "fixedValue",
+          "fixedValue": 2025,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": {
+            "mean": 5,
+            "sd": 2
+          },
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5e1",
+          "method": "normalValue",
+          "fixedValue": null,
+          "__v": 0
+        },
+        "type": "income",
+        "income": {
+          "_id": "680c176144e109e92678b60b",
+          "initialAmount": 65000,
+          "expectedAnnualChange": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "uniformValue": null,
+            "uniformPercentage": null,
+            "_id": "680c176144e109e92678b5f7",
+            "method": "fixedValue",
+            "fixedValue": 2000,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "inflationAdjustment": true,
+          "marriedPercentage": null,
+          "isSocialSecurity": false,
+          "__v": 0
+        },
+        "expense": null,
+        "invest": null,
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b619",
+        "name": "ss benefits",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5cb",
+          "method": "fixedValue",
+          "fixedValue": 2025,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5df",
+          "method": "fixedValue",
+          "fixedValue": 4,
+          "__v": 0
+        },
+        "type": "income",
+        "income": {
+          "_id": "680c176144e109e92678b605",
+          "initialAmount": 7000,
+          "expectedAnnualChange": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "uniformValue": null,
+            "uniformPercentage": null,
+            "_id": "680c176144e109e92678b5f1",
+            "method": "fixedValue",
+            "fixedValue": 1,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "inflationAdjustment": true,
+          "marriedPercentage": null,
+          "isSocialSecurity": true,
+          "__v": 0
+        },
+        "expense": null,
+        "invest": null,
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b621",
+        "name": "microsoft job",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5cc",
+          "method": "yearAfterAnotherEventEnd",
+          "fixedValue": null,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": "entry level job",
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": {
+            "mean": 30,
+            "sd": 3
+          },
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5e3",
+          "method": "normalValue",
+          "fixedValue": null,
+          "__v": 0
+        },
+        "type": "income",
+        "income": {
+          "_id": "680c176144e109e92678b60d",
+          "initialAmount": 120000,
+          "expectedAnnualChange": {
+            "normalValue": null,
+            "normalPercentage": {
+              "mean": 4,
+              "sd": 2
+            },
+            "uniformValue": null,
+            "uniformPercentage": null,
+            "_id": "680c176144e109e92678b5f9",
+            "method": "normalPercentage",
+            "fixedValue": null,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "inflationAdjustment": true,
+          "marriedPercentage": null,
+          "isSocialSecurity": false,
+          "__v": 0
+        },
+        "expense": null,
+        "invest": null,
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b623",
+        "name": "gaming",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5cd",
+          "method": "fixedValue",
+          "fixedValue": 2035,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": {
+            "lowerBound": 5,
+            "upperBound": 7
+          },
+          "_id": "680c176144e109e92678b5e5",
+          "method": "uniformValue",
+          "fixedValue": null,
+          "__v": 0
+        },
+        "type": "expense",
+        "income": null,
+        "expense": {
+          "_id": "680c176144e109e92678b60f",
+          "initialAmount": 500,
+          "expectedAnnualChange": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "uniformValue": null,
+            "uniformPercentage": null,
+            "_id": "680c176144e109e92678b5fb",
+            "method": "fixedValue",
+            "fixedValue": 100,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "inflationAdjustment": true,
+          "marriedPercentage": null,
+          "isDiscretionary": true,
+          "__v": 0
+        },
+        "invest": null,
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b61b",
+        "name": "buy a house",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5ce",
+          "method": "fixedValue",
+          "fixedValue": 2040,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5e9",
+          "method": "fixedValue",
+          "fixedValue": 20,
+          "__v": 0
+        },
+        "type": "expense",
+        "income": null,
+        "expense": {
+          "_id": "680c176144e109e92678b607",
+          "initialAmount": 200000,
+          "expectedAnnualChange": {
+            "normalValue": null,
+            "normalPercentage": null,
+            "uniformValue": null,
+            "uniformPercentage": null,
+            "_id": "680c176144e109e92678b5f3",
+            "method": "fixedValue",
+            "fixedValue": 40000,
+            "fixedPercentage": null,
+            "__v": 0
+          },
+          "inflationAdjustment": false,
+          "marriedPercentage": null,
+          "isDiscretionary": false,
+          "__v": 0
+        },
+        "invest": null,
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b625",
+        "name": "mid career inv str",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5cf",
+          "method": "fixedValue",
+          "fixedValue": 2040,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": {
+            "mean": 5,
+            "sd": 2
+          },
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5e7",
+          "method": "normalValue",
+          "fixedValue": null,
+          "__v": 0
+        },
+        "type": "invest",
+        "income": null,
+        "expense": null,
+        "invest": {
+          "investmentStrategy": {
+            "taxStatusAllocation": {
+              "after-tax": 30,
+              "non-retirement": 40,
+              "tax-exempt": 30
+            },
+            "afterTaxAllocation": {
+              "family trust": 50,
+              "nys investor fund": 50
+            },
+            "nonRetirementAllocation": {
+              "gamestop": 50,
+              "bitcoin etf": 50
+            },
+            "taxExemptAllocation": {
+              "japan bond": 50,
+              "euro bond": 50
+            }
+          },
+          "_id": "680c176144e109e92678b611",
+          "allocations": {
+            "_id": "680c176144e109e92678b5fd",
+            "method": "fixedAllocation",
+            "fixedAllocation": [],
+            "glidePath": [],
+            "__v": 0
+          },
+          "modifyMaximumCash": true,
+          "newMaximumCash": 10000,
+          "__v": 0
+        },
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b627",
+        "name": "mid career rebalance",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5d0",
+          "method": "fixedValue",
+          "fixedValue": 2045,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5eb",
+          "method": "fixedValue",
+          "fixedValue": 3,
+          "__v": 0
+        },
+        "type": "rebalance",
+        "income": null,
+        "expense": null,
+        "invest": null,
+        "rebalance": {
+          "rebalanceStrategy": {
+            "taxStatusAllocation": {
+              "after-tax": 33,
+              "non-retirement": 34,
+              "tax-exempt": 33
+            }
+          },
+          "_id": "680c176144e109e92678b613",
+          "allocations": {
+            "_id": "680c176144e109e92678b5ff",
+            "method": "fixedAllocation",
+            "fixedAllocation": [],
+            "glidePath": [],
+            "__v": 0
+          },
+          "__v": 0
+        },
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b629",
+        "name": "late career invest str",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5d1",
+          "method": "fixedValue",
+          "fixedValue": 2055,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5ed",
+          "method": "fixedValue",
+          "fixedValue": 1,
+          "__v": 0
+        },
+        "type": "invest",
+        "income": null,
+        "expense": null,
+        "invest": {
+          "investmentStrategy": {
+            "taxStatusAllocation": {
+              "after-tax": 45,
+              "non-retirement": 10,
+              "tax-exempt": 45
+            },
+            "afterTaxAllocation": {
+              "family trust": 50,
+              "nys investor fund": 50
+            },
+            "nonRetirementAllocation": {
+              "gamestop": 50,
+              "bitcoin etf": 50
+            },
+            "taxExemptAllocation": {
+              "japan bond": 25,
+              "euro bond": 75
+            }
+          },
+          "_id": "680c176144e109e92678b615",
+          "allocations": {
+            "_id": "680c176144e109e92678b601",
+            "method": "fixedAllocation",
+            "fixedAllocation": [],
+            "glidePath": [],
+            "__v": 0
+          },
+          "modifyMaximumCash": true,
+          "newMaximumCash": 4998,
+          "__v": 0
+        },
+        "rebalance": null,
+        "__v": 0
+      },
+      {
+        "_id": "680c176144e109e92678b62b",
+        "name": "retirement rebalance",
+        "description": "",
+        "startYear": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5d2",
+          "method": "fixedValue",
+          "fixedValue": 2060,
+          "sameYearAsAnotherEvent": null,
+          "yearAfterAnotherEventEnd": null,
+          "__v": 0
+        },
+        "duration": {
+          "normalValue": null,
+          "uniformValue": null,
+          "_id": "680c176144e109e92678b5ef",
+          "method": "fixedValue",
+          "fixedValue": 1,
+          "__v": 0
+        },
+        "type": "rebalance",
+        "income": null,
+        "expense": null,
+        "invest": null,
+        "rebalance": {
+          "rebalanceStrategy": {
+            "taxStatusAllocation": {
+              "after-tax": 40,
+              "non-retirement": 20,
+              "tax-exempt": 40
+            }
+          },
+          "_id": "680c176144e109e92678b617",
+          "allocations": {
+            "_id": "680c176144e109e92678b603",
+            "method": "fixedAllocation",
+            "fixedAllocation": [],
+            "glidePath": [],
+            "__v": 0
+          },
+          "__v": 0
+        },
+        "__v": 0
+      }
+    ],
+    "simulationSettings": {
+      "_id": "680a6cf8d9eb0c270a0ae260",
+      "inflationAssumption": {
+        "normalPercentage": {
+          "mean": 4,
+          "sd": 3
+        },
+        "uniformPercentage": {
+          "lowerBound": null,
+          "upperBound": null
+        },
+        "_id": "680a6cf8d9eb0c270a0ae25e",
+        "method": "normalPercentage",
+        "fixedPercentage": null,
+        "__v": 0
+      },
+      "expenseWithdrawalStrategies": [
+        "gamestop",
+        "family trust",
+        "nys investor fund",
+        "microsoft employer contributions",
+        "teacher fund",
+        "japan bond",
+        "euro bond",
+        "bitcoin etf"
+      ],
+      "rmdStrategies": [
+        "microsoft employer contributions",
+        "teacher fund"
+      ],
+      "rothConversionStrategies": [
+        "microsoft employer contributions",
+        "teacher fund"
+      ],
+      "rothOptimizerEnable": true,
+      "rothOptimizerStartYear": 2045,
+      "rothOptimizerEndYear": 2060,
+      "__v": 0
+    },
+    "financialGoal": 1000000,
+    "maximumCash": 20000,
+    "stateOfResidence": "NY",
+    "sharedUsers": [],
+    "createdAt": "2025-04-24T16:55:20.883Z",
+    "__v": 0
+  }
+}
+---------------------------------------------------------------------------------
+
+Database model data logged to console (first run this session)
+Starting 2 simulations...
+Running simulation #1 for calculated 7 years.
+inflationArray [
+  0.04249496713582301,
+  0.04356747157664496,
+  0.045761418784091186,
+  0.007769662855946005,
+  0,
+  0.052774595036539036,
+  0.051206047770439855
+]
+scenario financial goal 1000000
+Running simulation #2 for calculated 3 years.
+inflationArray [ 0, 0.07427313283285585, 0.017954537026253013 ]
+scenario financial goal 1000000
+--- All Simulation Results ---
+Total simulations run: 2
+
+--- Simulation #1 ---
+  Total Years: 7
+  First 5 Years Results:
+[
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  }
+]
+
+--- Simulation #2 ---
+  Total Years: 3
+  First 5 Years Results:
+[
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  },
+  {
+    "netWorth": 2000000,
+    "meetingFinancialGoal": true
+  }
+]
+
+----------------------------------------------------------------------------------------
+ "taxData": {
+    "incomeTax": [
+      {
+        "_id": "680a689f2fb02b4d7ff5eb99",
+        "filingStatus": "single",
+        "year": 2025,
+        "__v": 0,
+        "brackets": [
+          {
+            "rate": "10%",
+            "minIncome": "$0",
+            "maxIncome": "$11,600",
+            "_id": "680a767a1a46ea3a4e3319ed"
+          },
+          {
+            "rate": "12%",
+            "minIncome": "$11,601",
+            "maxIncome": "$47,150",
+            "_id": "680a767a1a46ea3a4e3319ee"
+          },
+          {
+            "rate": "22%",
+            "minIncome": "$47,151",
+            "maxIncome": "$100,525",
+            "_id": "680a767a1a46ea3a4e3319ef"
+          },
+          {
+            "rate": "24%",
+            "minIncome": "$100,526",
+            "maxIncome": "$191,950",
+            "_id": "680a767a1a46ea3a4e3319f0"
+          },
+          {
+            "rate": "32%",
+            "minIncome": "$191,951",
+            "maxIncome": "$243,725",
+            "_id": "680a767a1a46ea3a4e3319f1"
+          },
+          {
+            "rate": "35%",
+            "minIncome": "$243,726",
+            "maxIncome": "$609,350",
+            "_id": "680a767a1a46ea3a4e3319f2"
+          },
+          {
+            "rate": "37%",
+            "minIncome": "$609,351",
+            "maxIncome": "And up",
+            "_id": "680a767a1a46ea3a4e3319f3"
+          }
+        ]
+      },
+      {
+        "_id": "680a689f2fb02b4d7ff5eb9a",
+        "filingStatus": "married",
+        "year": 2025,
+        "__v": 0,
+        "brackets": [
+          {
+            "rate": "10%",
+            "minIncome": "$0",
+            "maxIncome": "$23,200",
+            "_id": "680a767a1a46ea3a4e3319fc"
+          },
+          {
+            "rate": "12%",
+            "minIncome": "$23,201",
+            "maxIncome": "$94,300",
+            "_id": "680a767a1a46ea3a4e3319fd"
+          },
+          {
+            "rate": "22%",
+            "minIncome": "$94,301",
+            "maxIncome": "$201,050",
+            "_id": "680a767a1a46ea3a4e3319fe"
+          },
+          {
+            "rate": "24%",
+            "minIncome": "$201,051",
+            "maxIncome": "$383,900",
+            "_id": "680a767a1a46ea3a4e3319ff"
+          },
+          {
+            "rate": "32%",
+            "minIncome": "$383,901",
+            "maxIncome": "$487,450",
+            "_id": "680a767a1a46ea3a4e331a00"
+          },
+          {
+            "rate": "35%",
+            "minIncome": "$487,451",
+            "maxIncome": "$731,200",
+            "_id": "680a767a1a46ea3a4e331a01"
+          },
+          {
+            "rate": "37%",
+            "minIncome": "$731,201",
+            "maxIncome": "And up",
+            "_id": "680a767a1a46ea3a4e331a02"
+          }
+        ]
+      }
+    ],
+    "standardDeduction": [
+      {
+        "_id": "680a68a02fb02b4d7ff5eb9d",
+        "filingStatus": "single",
+        "year": 2025,
+        "__v": 0,
+        "standardDeduction": 14600
+      },
+      {
+        "_id": "680a68a02fb02b4d7ff5eb9f",
+        "year": 2025,
+        "filingStatus": "married",
+        "__v": 0,
+        "standardDeduction": 29200
+      }
+    ],
+    "capitalGains": [
+      {
+        "_id": "680a68a02fb02b4d7ff5eba1",
+        "filingStatus": "single",
+        "year": 2025,
+        "__v": 0,
+        "longTermCapitalGains": [
+          {
+            "rate": "0%",
+            "threshold": "$0 – $47,025",
+            "_id": "680a767a1a46ea3a4e331a2d"
+          },
+          {
+            "rate": "15%",
+            "threshold": "$47,026 – $518,900",
+            "_id": "680a767a1a46ea3a4e331a2e"
+          }
+        ]
+      },
+      {
+        "_id": "680a68a02fb02b4d7ff5eba3",
+        "filingStatus": "married",
+        "year": 2025,
+        "__v": 0,
+        "longTermCapitalGains": [
+          {
+            "rate": "0%",
+            "threshold": "$0 – $94,050",
+            "_id": "680a767a1a46ea3a4e331a37"
+          },
+          {
+            "rate": "15%",
+            "threshold": "$94,051 – $583,750",
+            "_id": "680a767a1a46ea3a4e331a38"
+          }
+        ]
+      }
+    ],
+    "rmdTables": [
+      {
+        "_id": "680a689fd9eb0c270a0ae115",
+        "year": 2025,
+        "tableType": "Table III (Uniform Lifetime Table)",
+        "rows": [
+          {
+            "age": 72,
+            "distributionPeriod": 27.4,
+            "_id": "680a689fd9eb0c270a0ae116"
+          },
+          {
+            "age": 73,
+            "distributionPeriod": 26.5,
+            "_id": "680a689fd9eb0c270a0ae117"
+          },
+          {
+            "age": 74,
+            "distributionPeriod": 25.5,
+            "_id": "680a689fd9eb0c270a0ae118"
+          },-------------------
+           {
+            "age": 120,
+            "distributionPeriod": 2,
+            "_id": "680a689fd9eb0c270a0ae146"
+          }
+        ],
+        "__v": 0
+      }
+    ],
+    "stateTaxes": [
+      {
+        "brackets": {
+          "single": [
+            {
+              "rate": 0.02,
+              "min": 0,
+              "max": 10000,
+              "_id": "680a76791a46ea3a4e3319bb"
+            },
+            {
+              "rate": 0.045,
+              "min": 10001,
+              "max": 50000,
+              "_id": "680a76791a46ea3a4e3319bc"
+            },
+            {
+              "rate": 0.055,
+              "min": 50001,
+              "max": 100000,
+              "_id": "680a76791a46ea3a4e3319bd"
+            },
+            {
+              "rate": 0.06,
+              "min": 100001,
+              "max": 200000,
+              "_id": "680a76791a46ea3a4e3319be"
+            },
+            {
+              "rate": 0.065,
+              "min": 200001,
+              "max": 250000,
+              "_id": "680a76791a46ea3a4e3319bf"
+            },
+            {
+              "rate": 0.069,
+              "min": 250001,
+              "max": 500000,
+              "_id": "680a76791a46ea3a4e3319c0"
+            },
+            {
+              "rate": 0.0699,
+              "min": 500001,
+              "max": null,
+              "_id": "680a76791a46ea3a4e3319c1"
+            }
+          ],
+          "married": [
+            {
+              "rate": 0.02,
+              "min": 0,
+              "max": 20000,
+              "_id": "680a76791a46ea3a4e3319b4"
+            },
+            {
+              "rate": 0.045,
+              "min": 20001,
+              "max": 100000,
+              "_id": "680a76791a46ea3a4e3319b5"
+            },
+            {
+              "rate": 0.055,
+              "min": 100001,
+              "max": 200000,
+              "_id": "680a76791a46ea3a4e3319b6"
+            },
+            {
+              "rate": 0.06,
+              "min": 200001,
+              "max": 400000,
+              "_id": "680a76791a46ea3a4e3319b7"
+            },
+            {
+              "rate": 0.065,
+              "min": 400001,
+              "max": 500000,
+              "_id": "680a76791a46ea3a4e3319b8"
+            },
+            {
+              "rate": 0.069,
+              "min": 500001,
+              "max": 1000000,
+              "_id": "680a76791a46ea3a4e3319b9"
+            },
+            {
+              "rate": 0.0699,
+              "min": 1000001,
+              "max": null,
+              "_id": "680a76791a46ea3a4e3319ba"
+            }
+          ]
+        },
+        "_id": "680a689f2fb02b4d7ff5eb95",
+        "stateCode": "CT",
+        "__v": 0
+      },
+      {
+        "brackets": {
+          "single": [
+            {
+              "rate": 0.014,
+              "min": 0,
+              "max": 20000,
+              "_id": "680a767a1a46ea3a4e3319cd"
+            },
+            {
+              "rate": 0.0175,
+              "min": 20001,
+              "max": 35000,
+              "_id": "680a767a1a46ea3a4e3319ce"
+            },
+            {
+              "rate": 0.035,
+              "min": 35001,
+              "max": 40000,
+              "_id": "680a767a1a46ea3a4e3319cf"
+            },
+            {
+              "rate": 0.05525,
+              "min": 40001,
+              "max": 75000,
+              "_id": "680a767a1a46ea3a4e3319d0"
+            },
+            {
+              "rate": 0.0637,
+              "min": 75001,
+              "max": 500000,
+              "_id": "680a767a1a46ea3a4e3319d1"
+            },
+            {
+              "rate": 0.0897,
+              "min": 500001,
+              "max": 1000000,
+              "_id": "680a767a1a46ea3a4e3319d2"
+            },
+            {
+              "rate": 0.1075,
+              "min": 1000001,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319d3"
+            }
+          ],
+          "married": [
+            {
+              "rate": 0.014,
+              "min": 0,
+              "max": 20000,
+              "_id": "680a767a1a46ea3a4e3319c5"
+            },
+            {
+              "rate": 0.0175,
+              "min": 20001,
+              "max": 50000,
+              "_id": "680a767a1a46ea3a4e3319c6"
+            },
+            {
+              "rate": 0.0245,
+              "min": 50001,
+              "max": 70000,
+              "_id": "680a767a1a46ea3a4e3319c7"
+            },
+            {
+              "rate": 0.035,
+              "min": 70001,
+              "max": 80000,
+              "_id": "680a767a1a46ea3a4e3319c8"
+            },
+            {
+              "rate": 0.05525,
+              "min": 80001,
+              "max": 150000,
+              "_id": "680a767a1a46ea3a4e3319c9"
+            },
+            {
+              "rate": 0.0637,
+              "min": 150001,
+              "max": 500000,
+              "_id": "680a767a1a46ea3a4e3319ca"
+            },
+            {
+              "rate": 0.0897,
+              "min": 500001,
+              "max": 1000000,
+              "_id": "680a767a1a46ea3a4e3319cb"
+            },
+            {
+              "rate": 0.1075,
+              "min": 1000001,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319cc"
+            }
+          ]
+        },
+        "_id": "680a689f2fb02b4d7ff5eb96",
+        "stateCode": "NJ",
+        "__v": 0
+      },
+      {
+        "brackets": {
+          "single": [
+            {
+              "rate": 0.04,
+              "min": 0,
+              "max": 8500,
+              "_id": "680a767a1a46ea3a4e3319df"
+            },
+            {
+              "rate": 0.045,
+              "min": 8501,
+              "max": 11700,
+              "_id": "680a767a1a46ea3a4e3319e0"
+            },
+            {
+              "rate": 0.0525,
+              "min": 11701,
+              "max": 13900,
+              "_id": "680a767a1a46ea3a4e3319e1"
+            },
+            {
+              "rate": 0.055,
+              "min": 13901,
+              "max": 80650,
+              "_id": "680a767a1a46ea3a4e3319e2"
+            },
+            {
+              "rate": 0.06,
+              "min": 80651,
+              "max": 215400,
+              "_id": "680a767a1a46ea3a4e3319e3"
+            },
+            {
+              "rate": 0.0685,
+              "min": 215401,
+              "max": 1077550,
+              "_id": "680a767a1a46ea3a4e3319e4"
+            },
+            {
+              "rate": 0.0965,
+              "min": 1077551,
+              "max": 5000000,
+              "_id": "680a767a1a46ea3a4e3319e5"
+            },
+            {
+              "rate": 0.103,
+              "min": 5000001,
+              "max": 25000000,
+              "_id": "680a767a1a46ea3a4e3319e6"
+            },
+            {
+              "rate": 0.109,
+              "min": 25000001,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319e7"
+            }
+          ],
+          "married": [
+            {
+              "rate": 0.04,
+              "min": 0,
+              "max": 17150,
+              "_id": "680a767a1a46ea3a4e3319d6"
+            },
+            {
+              "rate": 0.045,
+              "min": 17151,
+              "max": 23600,
+              "_id": "680a767a1a46ea3a4e3319d7"
+            },
+            {
+              "rate": 0.0525,
+              "min": 23601,
+              "max": 27900,
+              "_id": "680a767a1a46ea3a4e3319d8"
+            },
+            {
+              "rate": 0.055,
+              "min": 27901,
+              "max": 161550,
+              "_id": "680a767a1a46ea3a4e3319d9"
+            },
+            {
+              "rate": 0.06,
+              "min": 161551,
+              "max": 323200,
+              "_id": "680a767a1a46ea3a4e3319da"
+            },
+            {
+              "rate": 0.0685,
+              "min": 323201,
+              "max": 2155350,
+              "_id": "680a767a1a46ea3a4e3319db"
+            },
+            {
+              "rate": 0.0965,
+              "min": 2155351,
+              "max": 5000000,
+              "_id": "680a767a1a46ea3a4e3319dc"
+            },
+            {
+              "rate": 0.103,
+              "min": 5000001,
+              "max": 25000000,
+              "_id": "680a767a1a46ea3a4e3319dd"
+            },
+            {
+              "rate": 0.109,
+              "min": 25000001,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319de"
+            }
+          ]
+        },
+        "_id": "680a689f2fb02b4d7ff5eb97",
+        "stateCode": "NY",
+        "__v": 0
+      },
+      {
+        "brackets": {
+          "single": [
+            {
+              "rate": 0,
+              "min": 0,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319ea"
+            }
+          ],
+          "married": [
+            {
+              "rate": 0,
+              "min": 0,
+              "max": null,
+              "_id": "680a767a1a46ea3a4e3319e9"
+            }
+          ]
+        },
+        "_id": "680a689f2fb02b4d7ff5eb98",
+        "stateCode": "TX",
+        "__v": 0
+      }
+    ]
+  }
+}
+-------------------------------------
+
