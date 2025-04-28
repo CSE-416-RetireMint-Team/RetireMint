@@ -478,456 +478,456 @@ function NewScenario() {
         return <div className="loading">Loading simulation form...</div>;
     }
     return (
-        <div>
+        <div className='new-scenario-form'>
             <Header />
             
             {error && <div className="error-message">{error}</div>}
-
-            {page === 1 && (
-                <div>
-                    <h1>New Scenario Form</h1> 
-                    <div>{/* name of the scenario */}
-                        
-                        <h2>Scenario Name *</h2> 
-                        <input 
-                            type="text" 
-                            placeholder="Enter scenario name" 
-                            value={scenarioName} 
-                            onChange={(e) => setScenarioName(e.target.value)} 
-                        />
-                    </div>
-
-                    <div>  {/*married status */}
-                        <h2>Married status *</h2> 
-                        <label>
+            <div className='new-scenario-form-content'>
+                {page === 1 && (
+                    <div>
+                        <h1>{scenarioId === 'new' ? "New Scenario Form" : "Edit Scenario Form"}</h1> 
+                        <div>{/* name of the scenario */}
+                            
+                            <h2>Scenario Name *</h2> 
                             <input 
-                                type="radio" 
-                                name="scenarioType" 
-                                value="individual"
-                                checked={scenarioType === 'individual'}
-                                onChange={(e) => setScenarioType(e.target.value)}
+                                type="text" 
+                                placeholder="Enter scenario name" 
+                                value={scenarioName} 
+                                onChange={(e) => setScenarioName(e.target.value)} 
                             />
-                            Individual
-                        </label>
-
-                        <label>
-                            <input 
-                                type="radio" 
-                                name="scenarioType" 
-                                value="married"
-                                checked={scenarioType === 'married'}
-                                onChange={(e) => setScenarioType(e.target.value)}
-                            />
-                            Married
-                        </label>
-                    </div>
-
-                    <div>  {/*birthyear */}
-                        <h2>Birthyear(User) *</h2> 
-                        <input 
-                        type="number" 
-                        placeholder="Enter your birth year" 
-                        value={birthYear} 
-                        onChange={(e) => setBirthYear(e.target.value)} 
-                        />
-
-                        {scenarioType === 'married' && (
-                            <>
-                                <h2>Birthyear(Spouse) *</h2> 
-                                <input 
-                                    type="number" 
-                                    placeholder="Enter spouse's birth year" 
-                                    value={spouseBirthYear} 
-                                    onChange={(e) => setSpouseBirthYear(e.target.value)} 
-                                />
-                            </>
-                        )}
-
-                    </div>
-
-                    <div>  {/* life expectancy */}
-                        <div>
-                            <h2>Life Expectancy(User) * </h2>
-                            <button onClick={() => setLifeExpectancyMethod('fixedValue')}>
-                                Enter Fixed Age
-                            </button>
-                            <button onClick={() => setLifeExpectancyMethod('normalDistribution')}>
-                                Sampled from Normal Distribution
-                            </button>
-
-                            {lifeExpectancyMethod === 'fixedValue' && (
-                                <input 
-                                    type="number" 
-                                    placeholder="Enter fixed age" 
-                                    value={fixedValue} 
-                                    onChange={(e) => setFixedValue(e.target.value)} 
-                                />
-                            )}
-
-                            {lifeExpectancyMethod === 'normalDistribution' && (
-                                <div>
-                                    <input 
-                                        type="number" 
-                                        placeholder="Enter mean age" 
-                                        value={mean} 
-                                        onChange={(e) => setMean(e.target.value)} 
-                                    />
-                                    <input 
-                                        type="number" 
-                                        placeholder="Enter standard deviation" 
-                                        value={standardDeviation} 
-                                        onChange={(e) => setStandardDeviation(e.target.value)} 
-                                    />
-                                </div>
-                            )}
                         </div>
 
-                        {scenarioType === 'married' && (
-                            <>
-                                <div>
-                                    <h2>Life Expectancy (Spouse) *</h2>
-                                    <button onClick={() => setSpouseLifeExpectancyMethod('fixedValue')}>
-                                        Enter Fixed Age
-                                    </button>
-                                    <button onClick={() => setSpouseLifeExpectancyMethod('normalDistribution')}>
-                                        Sampled from Normal Distribution
-                                    </button>
-                                </div>
+                        <div>  {/*married status */}
+                            <h2>Married status *</h2> 
+                            <label>
+                                <input 
+                                    type="radio" 
+                                    name="scenarioType" 
+                                    value="individual"
+                                    checked={scenarioType === 'individual'}
+                                    onChange={(e) => setScenarioType(e.target.value)}
+                                />
+                                Individual
+                            </label>
 
-                                {spouseLifeExpectancyMethod === 'fixedValue' && (
+                            <label>
+                                <input 
+                                    type="radio" 
+                                    name="scenarioType" 
+                                    value="married"
+                                    checked={scenarioType === 'married'}
+                                    onChange={(e) => setScenarioType(e.target.value)}
+                                />
+                                Married
+                            </label>
+                        </div>
+
+                        <div>  {/*birthyear */}
+                            <h2>Birthyear(User) *</h2> 
+                            <input 
+                            type="number" 
+                            placeholder="Enter your birth year" 
+                            value={birthYear} 
+                            onChange={(e) => setBirthYear(e.target.value)} 
+                            />
+
+                            {scenarioType === 'married' && (
+                                <>
+                                    <h2>Birthyear(Spouse) *</h2> 
                                     <input 
                                         type="number" 
-                                        placeholder="Enter spouse's fixed age" 
-                                        value={spouseFixedValue} 
-                                        onChange={(e) => setSpouseFixedValue(e.target.value)} 
+                                        placeholder="Enter spouse's birth year" 
+                                        value={spouseBirthYear} 
+                                        onChange={(e) => setSpouseBirthYear(e.target.value)} 
+                                    />
+                                </>
+                            )}
+
+                        </div>
+
+                        <div>  {/* life expectancy */}
+                            <div>
+                                <h2>Life Expectancy(User) * </h2>
+                                <button onClick={() => setLifeExpectancyMethod('fixedValue')}>
+                                    Enter Fixed Age
+                                </button>
+                                <button onClick={() => setLifeExpectancyMethod('normalDistribution')}>
+                                    Sampled from Normal Distribution
+                                </button>
+
+                                {lifeExpectancyMethod === 'fixedValue' && (
+                                    <input 
+                                        type="number" 
+                                        placeholder="Enter fixed age" 
+                                        value={fixedValue} 
+                                        onChange={(e) => setFixedValue(e.target.value)} 
                                     />
                                 )}
 
-                                {spouseLifeExpectancyMethod === 'normalDistribution' && (
+                                {lifeExpectancyMethod === 'normalDistribution' && (
                                     <div>
                                         <input 
                                             type="number" 
-                                            placeholder="Enter spouse's mean age" 
-                                            value={spouseMean} 
-                                            onChange={(e) => setSpouseMean(e.target.value)} 
+                                            placeholder="Enter mean age" 
+                                            value={mean} 
+                                            onChange={(e) => setMean(e.target.value)} 
                                         />
                                         <input 
                                             type="number" 
-                                            placeholder="Enter spouse's standard deviation" 
-                                            value={spouseStandardDeviation} 
-                                            onChange={(e) => setSpouseStandardDeviation(e.target.value)} 
+                                            placeholder="Enter standard deviation" 
+                                            value={standardDeviation} 
+                                            onChange={(e) => setStandardDeviation(e.target.value)} 
                                         />
                                     </div>
                                 )}
-                            </>
-                        )}
+                            </div>
+
+                            {scenarioType === 'married' && (
+                                <>
+                                    <div>
+                                        <h2>Life Expectancy (Spouse) *</h2>
+                                        <button onClick={() => setSpouseLifeExpectancyMethod('fixedValue')}>
+                                            Enter Fixed Age
+                                        </button>
+                                        <button onClick={() => setSpouseLifeExpectancyMethod('normalDistribution')}>
+                                            Sampled from Normal Distribution
+                                        </button>
+                                    </div>
+
+                                    {spouseLifeExpectancyMethod === 'fixedValue' && (
+                                        <input 
+                                            type="number" 
+                                            placeholder="Enter spouse's fixed age" 
+                                            value={spouseFixedValue} 
+                                            onChange={(e) => setSpouseFixedValue(e.target.value)} 
+                                        />
+                                    )}
+
+                                    {spouseLifeExpectancyMethod === 'normalDistribution' && (
+                                        <div>
+                                            <input 
+                                                type="number" 
+                                                placeholder="Enter spouse's mean age" 
+                                                value={spouseMean} 
+                                                onChange={(e) => setSpouseMean(e.target.value)} 
+                                            />
+                                            <input 
+                                                type="number" 
+                                                placeholder="Enter spouse's standard deviation" 
+                                                value={spouseStandardDeviation} 
+                                                onChange={(e) => setSpouseStandardDeviation(e.target.value)} 
+                                            />
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                        </div>
+
+                        <div>
+                            <h2>Initial Maximum Cash *</h2>
+                            <input 
+                                type="number" 
+                                placeholder="Enter maximum cash amount" 
+                                value={maximumCash} 
+                                onChange={(e) => setMaximumCash(e.target.value)} 
+                            />
+                            <p className="helper-text">
+                                This value is used for all invest events to determine the maximum amount of cash to keep.
+                            </p>
+                        </div>
+
+                        <>
+                        {/* Next Button */}
+                            <button onClick={() => {
+                                if (!scenarioName) {
+                                    alert("Scenario Name is required.");
+                                    return;
+                                }
+                                if (!scenarioType) {
+                                    alert("Please select a married status.");
+                                    return;
+                                }
+                                if (!birthYear) {
+                                    alert("Birth Year is required.");
+                                    return;
+                                }
+                                if (!lifeExpectancyMethod) {
+                                    alert("Please select a Life Expectancy method.");
+                                    return;
+                                }
+                                if (lifeExpectancyMethod === 'fixedValue' && !fixedValue) {
+                                    alert("Please enter a fixed life expectancy.");
+                                    return;
+                                }
+                                if (lifeExpectancyMethod === 'normalDistribution' && (!mean || !standardDeviation)) {
+                                    alert("Please enter a mean and standard deviation.");
+                                    return;
+                                }
+                                if (scenarioType === 'married') {
+                                    if (!spouseBirthYear) {
+                                        alert("Spouse's Birth Year is required.");
+                                        return;
+                                    }
+                                    if (!spouseLifeExpectancyMethod) {
+                                        alert("Please select a Life Expectancy method for your spouse.");
+                                        return;
+                                    }
+                                    if (spouseLifeExpectancyMethod === 'fixedValue' && !spouseFixedValue) {
+                                        alert("Please enter a fixed life expectancy for your spouse.");
+                                        return;
+                                    }
+                                    if (spouseLifeExpectancyMethod === 'normalDistribution' && (!spouseMean || !spouseStandardDeviation)) {
+                                        alert("Please enter a mean and standard deviation for your spouse.");
+                                        return;
+                                    }
+                                }
+                                if (!maximumCash) {
+                                    alert("Maximum Cash is required.");
+                                    return;
+                                }
+
+                                // Save birth year and maximum cash to localStorage
+                                localStorage.setItem('dateOfBirth', birthYear);
+                                localStorage.setItem('initialMaximumCash', maximumCash);
+
+                                // if everything is valid, proceed to the next page
+                                setPage(2);
+                            }}>
+                                Next
+                            </button>
+
+                        
+                        </>
 
                     </div>
+                )}
 
-                    <div>
-                        <h2>Initial Maximum Cash *</h2>
-                        <input 
-                            type="number" 
-                            placeholder="Enter maximum cash amount" 
-                            value={maximumCash} 
-                            onChange={(e) => setMaximumCash(e.target.value)} 
-                        />
-                        <p className="helper-text">
-                            This value is used for all invest events to determine the maximum amount of cash to keep.
-                        </p>
-                    </div>
 
+
+                <div>
+
+                {page === 2 && (
                     <>
-                    {/* Next Button */}
-                        <button onClick={() => {
-                            if (!scenarioName) {
-                                alert("Scenario Name is required.");
-                                return;
-                            }
-                            if (!scenarioType) {
-                                alert("Please select a married status.");
-                                return;
-                            }
-                            if (!birthYear) {
-                                alert("Birth Year is required.");
-                                return;
-                            }
-                            if (!lifeExpectancyMethod) {
-                                alert("Please select a Life Expectancy method.");
-                                return;
-                            }
-                            if (lifeExpectancyMethod === 'fixedValue' && !fixedValue) {
-                                alert("Please enter a fixed life expectancy.");
-                                return;
-                            }
-                            if (lifeExpectancyMethod === 'normalDistribution' && (!mean || !standardDeviation)) {
-                                alert("Please enter a mean and standard deviation.");
-                                return;
-                            }
-                            if (scenarioType === 'married') {
-                                if (!spouseBirthYear) {
-                                    alert("Spouse's Birth Year is required.");
-                                    return;
-                                }
-                                if (!spouseLifeExpectancyMethod) {
-                                    alert("Please select a Life Expectancy method for your spouse.");
-                                    return;
-                                }
-                                if (spouseLifeExpectancyMethod === 'fixedValue' && !spouseFixedValue) {
-                                    alert("Please enter a fixed life expectancy for your spouse.");
-                                    return;
-                                }
-                                if (spouseLifeExpectancyMethod === 'normalDistribution' && (!spouseMean || !spouseStandardDeviation)) {
-                                    alert("Please enter a mean and standard deviation for your spouse.");
-                                    return;
-                                }
-                            }
-                            if (!maximumCash) {
-                                alert("Maximum Cash is required.");
-                                return;
-                            }
-
-                            // Save birth year and maximum cash to localStorage
-                            localStorage.setItem('dateOfBirth', birthYear);
-                            localStorage.setItem('initialMaximumCash', maximumCash);
-
-                            // if everything is valid, proceed to the next page
-                            setPage(2);
-                        }}>
-                            Next
-                        </button>
-
+                        <InvestmentTypeForm investmentTypes={investmentTypes} setInvestmentTypes={setInvestmentTypes} setPage={setPage}/>
                     
                     </>
-
-                </div>
-            )}
-
-
-
-            <div>
-
-            {page === 2 && (
-                <>
-                    <InvestmentTypeForm investmentTypes={investmentTypes} setInvestmentTypes={setInvestmentTypes} setPage={setPage}/>
-                
-                </>
-            )}
-                
-            {page === 3 && (
-                <>
-                    <InvestmentForm 
-                        investments={investments} 
-                        setInvestments={setInvestments} 
-                        investmentTypes={investmentTypes}
-                        setInvestmentTypes={setInvestmentTypes}
-                        setPage={setPage}
-                    />
-                
-                </>
-            )}
-
-            {page === 4 && (
-                <>
-                    <EventForm 
-                        events={events} 
-                        setEvents={setEvents} 
-                        scenarioType={scenarioType} 
-                        setPage={setPage}
-                        investments={investments} 
-                    />
-                
-                </>
-            )}
-            
-            {page === 5 && (
-                <>
-                    <h3>Select Inflation Method</h3>
-                    <select onChange={(e) => setInflationMethod(e.target.value)} value={inflationMethod}>
-                        <option value="">Select</option>
-                        <option value="fixedPercentage">Fixed Percentage</option>
-                        <option value="normalPercentage">Normal Distribution</option>
-                        <option value="uniformPercentage">Uniform Distribution</option>
-                    </select>
-
-                    {inflationMethod === 'fixedPercentage' && (
-                        <input 
-                            type="number" 
-                            placeholder="Enter fixed percentage" 
-                            value={fixedPercentage} 
-                            onChange={(e) => setFixedPercentage(e.target.value)} 
+                )}
+                    
+                {page === 3 && (
+                    <>
+                        <InvestmentForm 
+                            investments={investments} 
+                            setInvestments={setInvestments} 
+                            investmentTypes={investmentTypes}
+                            setInvestmentTypes={setInvestmentTypes}
+                            setPage={setPage}
                         />
-                    )}
+                    
+                    </>
+                )}
 
-                    {inflationMethod === 'normalPercentage' && (
-                        <div>
-                            <input 
-                                type="number" 
-                                placeholder="Enter mean" 
-                                value={normalMean} 
-                                onChange={(e) => setNormalMean(e.target.value)} 
-                            />
-                            <input 
-                                type="number" 
-                                placeholder="Enter standard deviation" 
-                                value={normalSd} 
-                                onChange={(e) => setNormalSd(e.target.value)} 
-                            />
-                        </div>
-                    )}
+                {page === 4 && (
+                    <>
+                        <EventForm 
+                            events={events} 
+                            setEvents={setEvents} 
+                            scenarioType={scenarioType} 
+                            setPage={setPage}
+                            investments={investments} 
+                        />
+                    
+                    </>
+                )}
+                
+                {page === 5 && (
+                    <>
+                        <h3>Select Inflation Method</h3>
+                        <select onChange={(e) => setInflationMethod(e.target.value)} value={inflationMethod}>
+                            <option value="">Select</option>
+                            <option value="fixedPercentage">Fixed Percentage</option>
+                            <option value="normalPercentage">Normal Distribution</option>
+                            <option value="uniformPercentage">Uniform Distribution</option>
+                        </select>
 
-                    {inflationMethod === 'uniformPercentage' && (
-                        <div>
+                        {inflationMethod === 'fixedPercentage' && (
                             <input 
                                 type="number" 
-                                placeholder="Enter lower bound" 
-                                value={uniformLower} 
-                                onChange={(e) => setUniformLower(e.target.value)} 
+                                placeholder="Enter fixed percentage" 
+                                value={fixedPercentage} 
+                                onChange={(e) => setFixedPercentage(e.target.value)} 
                             />
-                            <input 
-                                type="number" 
-                                placeholder="Enter upper bound" 
-                                value={uniformUpper} 
-                                onChange={(e) => setUniformUpper(e.target.value)} 
-                            />
-                        </div>
-                    )}
+                        )}
 
-                    {/* Strategy sections with drag and drop */}
-                    <div className="strategies-section">
-                        <h3>Investment Strategies</h3>
-                        <p className="helper-text">
-                            Arrange investments in priority order. Investments at the top of the list will be used first, 
-                            while those at the bottom will be used last. Drag and drop to reorder.
-                        </p>
-                        
-                        <div className="strategy-list">
-                            <h4>Expense Withdrawal Strategy - {expenseWithdrawalStrategies.length} investments</h4>
-                            <p className="helper-text">Priority order for withdrawals to cover expenses</p>
-                            <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'expense')}>
-                                <Droppable droppableId="expenseWithdrawalStrategiesList">
-                                    {(provided) => (
-                                        <ul 
-                                            className="draggable-list"
-                                            {...provided.droppableProps}
-                                            ref={provided.innerRef}
-                                        >
-                                            {expenseWithdrawalStrategies.length > 0 ? (
-                                                expenseWithdrawalStrategies.map((investment, index) => (
-                                                    <Draggable key={`expense-${investment}-${index}`} draggableId={`expense-${investment}-${index}`} index={index}>
-                                                        {(provided) => (
-                                                            <li
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                className="draggable-item"
-                                                            >
-                                                                {investment}
-                                                            </li>
+                        {inflationMethod === 'normalPercentage' && (
+                            <div>
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter mean" 
+                                    value={normalMean} 
+                                    onChange={(e) => setNormalMean(e.target.value)} 
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter standard deviation" 
+                                    value={normalSd} 
+                                    onChange={(e) => setNormalSd(e.target.value)} 
+                                />
+                            </div>
+                        )}
+
+                        {inflationMethod === 'uniformPercentage' && (
+                            <div>
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter lower bound" 
+                                    value={uniformLower} 
+                                    onChange={(e) => setUniformLower(e.target.value)} 
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter upper bound" 
+                                    value={uniformUpper} 
+                                    onChange={(e) => setUniformUpper(e.target.value)} 
+                                />
+                            </div>
+                        )}
+
+                        {/* Strategy sections with drag and drop */}
+                        <div className="strategies-section">
+                            <h3>Investment Strategies</h3>
+                            <p className="helper-text">
+                                Arrange investments in priority order. Investments at the top of the list will be used first, 
+                                while those at the bottom will be used last. Drag and drop to reorder.
+                            </p>
+                            
+                            <div className="strategy-list">
+                                <h4>Expense Withdrawal Strategy - {expenseWithdrawalStrategies.length} investments</h4>
+                                <p className="helper-text">Priority order for withdrawals to cover expenses</p>
+                                <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'expense')}>
+                                    <Droppable droppableId="expenseWithdrawalStrategiesList">
+                                        {(provided) => (
+                                            <ul 
+                                                className="draggable-list"
+                                                {...provided.droppableProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                {expenseWithdrawalStrategies.length > 0 ? (
+                                                    expenseWithdrawalStrategies.map((investment, index) => (
+                                                        <Draggable key={`expense-${investment}-${index}`} draggableId={`expense-${investment}-${index}`} index={index}>
+                                                            {(provided) => (
+                                                                <li
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
+                                                                    className="draggable-item"
+                                                                >
+                                                                    {investment}
+                                                                </li>
+                                                            )}
+                                                        </Draggable>
+                                                    ))
+                                                ) : (
+                                                    <div className="draggable-list-empty">
+                                                        No investments added yet. Please add investments in the Investment Form.
+                                                    </div>
+                                                )}
+                                                {provided.placeholder}
+                                            </ul>
+                                        )}
+                                    </Droppable>
+                                </DragDropContext>
+                            </div>
+                            
+                            {hasPreTaxInvestments && (
+                                <>
+                                    <div className="strategy-list">
+                                        <h4>RMD Strategy (Pre-Tax Investments) - {rmdStrategies.length} investments</h4>
+                                        <p className="helper-text">Priority order for required minimum distributions from pre-tax accounts</p>
+                                        <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'rmd')}>
+                                            <Droppable droppableId="rmdStrategiesList">
+                                                {(provided) => (
+                                                    <ul 
+                                                        className="draggable-list"
+                                                        {...provided.droppableProps}
+                                                        ref={provided.innerRef}
+                                                    >
+                                                        {rmdStrategies.length > 0 ? (
+                                                            rmdStrategies.map((investment, index) => (
+                                                                <Draggable key={`rmd-${investment}-${index}`} draggableId={`rmd-${investment}-${index}`} index={index}>
+                                                                    {(provided) => (
+                                                                        <li
+                                                                            ref={provided.innerRef}
+                                                                            {...provided.draggableProps}
+                                                                            {...provided.dragHandleProps}
+                                                                            className="draggable-item"
+                                                                        >
+                                                                            {investment}
+                                                                        </li>
+                                                                    )}
+                                                                </Draggable>
+                                                            ))
+                                                        ) : (
+                                                            <div className="draggable-list-empty">
+                                                                No pre-tax investments added yet. RMD strategy only applies to pre-tax investments.
+                                                            </div>
                                                         )}
-                                                    </Draggable>
-                                                ))
-                                            ) : (
-                                                <div className="draggable-list-empty">
-                                                    No investments added yet. Please add investments in the Investment Form.
-                                                </div>
-                                            )}
-                                            {provided.placeholder}
-                                        </ul>
-                                    )}
-                                </Droppable>
-                            </DragDropContext>
-                        </div>
-                        
-                        {hasPreTaxInvestments && (
-                            <>
-                                <div className="strategy-list">
-                                    <h4>RMD Strategy (Pre-Tax Investments) - {rmdStrategies.length} investments</h4>
-                                    <p className="helper-text">Priority order for required minimum distributions from pre-tax accounts</p>
-                                    <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'rmd')}>
-                                        <Droppable droppableId="rmdStrategiesList">
-                                            {(provided) => (
-                                                <ul 
-                                                    className="draggable-list"
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                >
-                                                    {rmdStrategies.length > 0 ? (
-                                                        rmdStrategies.map((investment, index) => (
-                                                            <Draggable key={`rmd-${investment}-${index}`} draggableId={`rmd-${investment}-${index}`} index={index}>
-                                                                {(provided) => (
-                                                                    <li
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}
-                                                                        className="draggable-item"
-                                                                    >
-                                                                        {investment}
-                                                                    </li>
-                                                                )}
-                                                            </Draggable>
-                                                        ))
-                                                    ) : (
-                                                        <div className="draggable-list-empty">
-                                                            No pre-tax investments added yet. RMD strategy only applies to pre-tax investments.
-                                                        </div>
-                                                    )}
-                                                    {provided.placeholder}
-                                                </ul>
-                                            )}
-                                        </Droppable>
-                                    </DragDropContext>
-                                </div>
-                                
-                                <div className="strategy-list">
-                                    <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
-                                    <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
-                                    <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
-                                        <Droppable droppableId="rothConversionStrategiesList">
-                                            {(provided) => (
-                                                <ul 
-                                                    className="draggable-list"
-                                                    {...provided.droppableProps}
-                                                    ref={provided.innerRef}
-                                                >
-                                                    {rothConversionStrategies.length > 0 ? (
-                                                        rothConversionStrategies.map((investment, index) => (
-                                                            <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
-                                                                {(provided) => (
-                                                                    <li
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}
-                                                                        className="draggable-item"
-                                                                    >
-                                                                        {investment}
-                                                                    </li>
-                                                                )}
-                                                            </Draggable>
-                                                        ))
-                                                    ) : (
-                                                        <div className="draggable-list-empty">
-                                                            No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
-                                                        </div>
-                                                    )}
-                                                    {provided.placeholder}
-                                                </ul>
-                                            )}
-                                        </Droppable>
-                                    </DragDropContext>
-                                </div>
+                                                        {provided.placeholder}
+                                                    </ul>
+                                                )}
+                                            </Droppable>
+                                        </DragDropContext>
+                                    </div>
+                                    
+                                    <div className="strategy-list">
+                                        <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
+                                        <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
+                                        <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
+                                            <Droppable droppableId="rothConversionStrategiesList">
+                                                {(provided) => (
+                                                    <ul 
+                                                        className="draggable-list"
+                                                        {...provided.droppableProps}
+                                                        ref={provided.innerRef}
+                                                    >
+                                                        {rothConversionStrategies.length > 0 ? (
+                                                            rothConversionStrategies.map((investment, index) => (
+                                                                <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
+                                                                    {(provided) => (
+                                                                        <li
+                                                                            ref={provided.innerRef}
+                                                                            {...provided.draggableProps}
+                                                                            {...provided.dragHandleProps}
+                                                                            className="draggable-item"
+                                                                        >
+                                                                            {investment}
+                                                                        </li>
+                                                                    )}
+                                                                </Draggable>
+                                                            ))
+                                                        ) : (
+                                                            <div className="draggable-list-empty">
+                                                                No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
+                                                            </div>
+                                                        )}
+                                                        {provided.placeholder}
+                                                    </ul>
+                                                )}
+                                            </Droppable>
+                                        </DragDropContext>
+                                    </div>
 
-                                {/* Roth Optimizer section */}
-                                <div className="roth-optimizer">
-                    <h3>Roth Optimization</h3>
-                    <label>
-                        <input 
-                            type="checkbox" 
-                            checked={RothOptimizerEnable} 
-                            onChange={(e) => setRothOptimizerEnable(e.target.checked)} 
-                        />
-                        Enable Roth Optimization
-                    </label>
+                                    {/* Roth Optimizer section */}
+                                    <div className="roth-optimizer">
+                        <h3>Roth Optimization</h3>
+                        <label>
+                            <input 
+                                type="checkbox" 
+                                checked={RothOptimizerEnable} 
+                                onChange={(e) => setRothOptimizerEnable(e.target.checked)} 
+                            />
+                            Enable Roth Optimization
+                        </label>
 
                     {RothOptimizerEnable && (
                         <div>
@@ -950,124 +950,116 @@ function NewScenario() {
                         )}
                     </div>
 
-                    {/* financial goal */}
-                    <h3>Financial Goal: *</h3>
-                    <input 
-                        type="number" 
-                        placeholder="Enter financial goal" 
-                        value={financialGoal} 
-                        onChange={(e) => setFinancialGoal(e.target.value)} 
-                    />
+                        {/* financial goal */}
+                        <h3>Financial Goal: *</h3>
+                        <input 
+                            type="number" 
+                            placeholder="Enter financial goal" 
+                            value={financialGoal} 
+                            onChange={(e) => setFinancialGoal(e.target.value)} 
+                        />
 
 
 
-                    {/* state of residence */}
-                    <h3>State of Residence</h3>
-                    <select value={stateOfResidence} onChange={(e) => setStateOfResidence(e.target.value)}>
-                        <option value="">Select your state</option>
-                        {[
-                              'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
-                              'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-                              'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-                              'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-                              'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-                        ].map(state => (
-                            <option key={state} value={state}>{state}</option>
-                        ))}
-                    </select>
+                        {/* state of residence */}
+                        <h3>State of Residence</h3>
+                        <select value={stateOfResidence} onChange={(e) => setStateOfResidence(e.target.value)}>
+                            <option value="">Select your state</option>
+                            {[
+                                'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+                                'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+                                'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+                                'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+                                'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+                            ].map(state => (
+                                <option key={state} value={state}>{state}</option>
+                            ))}
+                        </select>
 
 
-                    {/* Navigation Buttons */}
-                    <div>
-                        <button onClick={() => setPage(4)}>Previous</button>
-                        <button onClick={() => {
-                            // Validate Inflation Method
-                            if (!inflationMethod) {
-                                alert("Please select an Inflation Method.");
-                                return;
-                            }
-
-                            switch (inflationMethod) {
-                                case 'fixedPercentage':
-                                    if (!fixedPercentage) {
-                                        alert("Please enter a Fixed Percentage.");
-                                        return;
-                                    }
-                                    break;
-                                case 'normalPercentage':
-                                    if (!normalMean || !normalSd) {
-                                        alert("Please enter both Mean and Standard Deviation for Normal Percentage.");
-                                        return;
-                                    }
-                                    break;
-                                case 'uniformPercentage':
-                                    if (!uniformLower || !uniformUpper) {
-                                        alert("Please enter both Lower and Upper Bound for Uniform Percentage.");
-                                        return;
-                                    }
-                                    break;
-                                default:
-                                    // No action needed for unknown fields
-                                    break;
-                            }
-
-                            // Validate investment strategies
-                            if (expenseWithdrawalStrategies.length === 0) {
-                                alert("You must define at least one investment for Expense Withdrawal Strategy.");
-                                return;
-                            }
-
-                            // Only validate pre-tax strategies if user has pre-tax investments
-                            if (hasPreTaxInvestments) {
-                                if (rmdStrategies.length === 0) {
-                                    alert("You must define at least one investment for RMD Strategy.");
+                        {/* Navigation Buttons */}
+                        <div>
+                            <button onClick={() => setPage(4)}>Previous</button>
+                            <button onClick={() => {
+                                // Validate Inflation Method
+                                if (!inflationMethod) {
+                                    alert("Please select an Inflation Method.");
                                     return;
                                 }
-                                
-                                if (rothConversionStrategies.length === 0) {
-                                    alert("You must define at least one investment for Roth Conversion Strategy.");
+
+                                switch (inflationMethod) {
+                                    case 'fixedPercentage':
+                                        if (!fixedPercentage) {
+                                            alert("Please enter a Fixed Percentage.");
+                                            return;
+                                        }
+                                        break;
+                                    case 'normalPercentage':
+                                        if (!normalMean || !normalSd) {
+                                            alert("Please enter both Mean and Standard Deviation for Normal Percentage.");
+                                            return;
+                                        }
+                                        break;
+                                    case 'uniformPercentage':
+                                        if (!uniformLower || !uniformUpper) {
+                                            alert("Please enter both Lower and Upper Bound for Uniform Percentage.");
+                                            return;
+                                        }
+                                        break;
+                                    default:
+                                        // No action needed for unknown fields
+                                        break;
+                                }
+
+                                // Validate investment strategies
+                                if (expenseWithdrawalStrategies.length === 0) {
+                                    alert("You must define at least one investment for Expense Withdrawal Strategy.");
                                     return;
                                 }
-                                
-                                // Validate Roth Optimizer if enabled
-                            if (RothOptimizerEnable) {
-                                if (!rothRptimizerStartYear || !rothOptimizerEndYear) {
-                                    alert("Both Start Year and End Year are required when Roth Optimization is enabled.");
-                                    return;
+
+                                // Only validate pre-tax strategies if user has pre-tax investments
+                                if (hasPreTaxInvestments) {
+                                    if (rmdStrategies.length === 0) {
+                                        alert("You must define at least one investment for RMD Strategy.");
+                                        return;
+                                    }
+                                    
+                                    if (rothConversionStrategies.length === 0) {
+                                        alert("You must define at least one investment for Roth Conversion Strategy.");
+                                        return;
+                                    }
+                                    
+                                    // Validate Roth Optimizer if enabled
+                                if (RothOptimizerEnable) {
+                                    if (!rothRptimizerStartYear || !rothOptimizerEndYear) {
+                                        alert("Both Start Year and End Year are required when Roth Optimization is enabled.");
+                                        return;
+                                        }
                                     }
                                 }
-                            }
 
-                            // Validate Required Fields
-                            if (!financialGoal) {
-                                alert("Financial Goal is required.");
-                                return;
-                            }
+                                // Validate Required Fields
+                                if (!financialGoal) {
+                                    alert("Financial Goal is required.");
+                                    return;
+                                }
 
-                            if (!stateOfResidence) {
-                                alert("State of Residence is required.");
-                                return;
-                            }
+                                if (!stateOfResidence) {
+                                    alert("State of Residence is required.");
+                                    return;
+                                }
 
-                            // Submit the scenario
-                            submitScenario(scenarioId);
-                        }}>
-                            Submit
-                        </button>
-                    </div>
+                                // Submit the scenario
+                                submitScenario(scenarioId);
+                            }}>
+                                Submit
+                            </button>
+                        </div>
+                        
                     
-                
-                </>
-            )}
-
-                
-
-                
-                
-
-
-                
-                
+                    </>
+                )}
+                </div>
             </div>
         </div>
     );
