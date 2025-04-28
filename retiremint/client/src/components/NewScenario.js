@@ -316,11 +316,6 @@ function NewScenario() {
                     : { lowerBound: null, upperBound: null }
             };
 
-            // Format shared users
-            const formattedSharedUsers = sharedUsers.map(user => {
-                const [email, permission] = user.split(";");
-                return { email, permissions: permission }; // match schema structure
-            });
 
             // Step 1: Submit the scenario to get its ID
             console.log('Submitting scenario...');
@@ -346,7 +341,7 @@ function NewScenario() {
                 financialGoal,  
                 maximumCash,
                 stateOfResidence,
-                sharedUsers: formattedSharedUsers,
+                sharedUsers,
                 userId: userId // Include the userId in the scenario data
             });
             
@@ -956,80 +951,6 @@ function NewScenario() {
                             </>
                         )}
                     </div>
-
-                    {/* share setting */}
-                    <h3>Number of Shared Users</h3>
-                        <input 
-                            type="number" 
-                            min="0"
-                            placeholder="Enter number of shared users" 
-                            value={sharedUsers.length} 
-                            onChange={(e) => {
-                                const num = parseInt(e.target.value, 10) || 0;
-                                setSharedUsers(new Array(num).fill(""));
-                            }} 
-                        />
-
-                    {sharedUsers.map((user, index) => {
-                        const parts = user.split(";");
-                        const email = parts[0] || "";
-                        const permission = parts[1] || "readOnly"; // Default to "readOnly"
-
-                        return (
-                            <div key={index}>
-                                <input 
-                                    type="email" 
-                                    placeholder="Enter email" 
-                                    value={email} 
-                                    onChange={(e) => {
-                                        setSharedUsers(prevUsers => {
-                                            const newUsers = [...prevUsers];
-                                            newUsers[index] = `${e.target.value};${permission}`; // Preserve permission
-                                            console.log("Shared Users Updated:", newUsers);
-                                            return newUsers;
-                                        });
-                                    }} 
-                                />
-
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`permission-${index}`}
-                                        value="readOnly"
-                                        checked={permission === "readOnly"}
-                                        onChange={() => {
-                                            setSharedUsers(prevUsers => {
-                                                const newUsers = [...prevUsers];
-                                                newUsers[index] = `${email};readOnly`;
-                                                console.log("Shared Users Updated:", newUsers);
-                                                return newUsers;
-                                            });
-                                        }}
-                                    />
-                                    Read Only
-                                </label>
-
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name={`permission-${index}`}
-                                        value="readWrite"
-                                        checked={permission === "readWrite"}
-                                        onChange={() => {
-                                            setSharedUsers(prevUsers => {
-                                                const newUsers = [...prevUsers];
-                                                newUsers[index] = `${email};readWrite`;
-                                                console.log("Shared Users Updated:", newUsers);
-                                                return newUsers;
-                                            });
-                                        }}
-                                    />
-                                    Read Write
-                                </label>
-                            </div>
-                        );
-                    })}
-
 
                     {/* financial goal */}
                     <h3>Financial Goal: *</h3>
