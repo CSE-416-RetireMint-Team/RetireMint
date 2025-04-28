@@ -234,7 +234,7 @@ app.post('/scenario', async (req, res) => {
   
     // open existing scenario if an edit is being attempted
     let existingScenario;
-    if (scenarioId) {
+    if (scenarioId !== 'new') {
         try {
             existingScenario = await Scenario.findById(scenarioId);
             if (!existingScenario) {
