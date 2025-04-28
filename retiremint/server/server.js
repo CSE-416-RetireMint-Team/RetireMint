@@ -62,7 +62,6 @@ const Rebalance=require('./src/Schemas/Rebalance');
 const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
-const SharedUser=require('./src/Schemas/SharedUser');
 const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
 
@@ -670,18 +669,6 @@ app.post('/scenario', async (req, res) => {
         );
     }
 
-    //share setting
-
-    let sharedUsersList = []; // array to store SharedUser objects
-    if (sharedUsers && sharedUsers.length > 0) {
-        // create and store SharedUser objects
-        sharedUsersList = await Promise.all(sharedUsers.map(async user => {
-            const sharedUser = new SharedUser(user);
-            await sharedUser.save();
-            return sharedUser._id; 
-        }));
-    }
-
     try {
         if (!existingScenario) {
             const newScenario = new Scenario({
@@ -698,7 +685,7 @@ app.post('/scenario', async (req, res) => {
                 financialGoal: financialGoal,
                 maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsersList
+                sharedUsers: sharedUsers
             });
             await newScenario.save();
             console.log('Scenario saved successfully with ID:', newScenario._id);    
@@ -724,7 +711,7 @@ app.post('/scenario', async (req, res) => {
                 financialGoal: financialGoal,
                 maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsersList
+                sharedUsers: sharedUsers
             }, {new: true});
             console.log('Scenario updated with ID:', existingScenario._id); 
             // Return the original scenario ID to the client
