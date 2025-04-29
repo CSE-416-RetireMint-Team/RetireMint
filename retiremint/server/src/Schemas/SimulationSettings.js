@@ -14,32 +14,33 @@ const SimulationSettingsSchema = new Schema({
       }
     },
 
-    expenseWithdrawalStrategies: [ //use the same strategy for both discretionary and non-discretionary expenses,
-      //the difference is implemented in the simulation logic
-      {
-        type: String
-      }
-    ],
+    expenseWithdrawalStrategies: {
+      type: [String],
+      default: []
+    },
 
-    rmdStrategies: [
-      {
-        type: String
-      }
-    ],
+    spendingStrategy: {
+      type: [String],
+      default: []
+    },
 
-    rothConversionStrategies: [
-      {
-        type: String
-      }
-    ],
+    rmdStrategies: {
+      type: [String],
+      default: []
+    },
+
+    rothConversionStrategies: {
+      type: [String],
+      default: []
+    },
 
     // roth optimizer settings
     rothOptimizerEnable: {
       type: Boolean,
+      default: false
     },
     rothOptimizerStartYear: {
       type: Number,
-      
     },
     rothOptimizerEndYear: {
       type: Number,

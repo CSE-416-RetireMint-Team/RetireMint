@@ -31,6 +31,29 @@ const RebalanceSchema = new Schema({
             type: Object,
             default: {}
         }
+    },
+    // Add final rebalance strategy for glide path
+    finalRebalanceStrategy: {
+        taxStatusAllocation: {
+            type: Object,
+            default: {}
+        },
+        preTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        afterTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        nonRetirementAllocation: {
+            type: Object,
+            default: {}
+        },
+        taxExemptAllocation: {
+            type: Object,
+            default: {}
+        }
     }
     // You might also need returnType, executionType, and modify flags here 
     // depending on how SimulationEngine expects the data. Add them if necessary.
