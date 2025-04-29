@@ -250,36 +250,62 @@ app.post('/scenario', async (req, res) => {
     // Delete Investments/Events and any items from other schemas inside that are to be replaced. (Reasoning: The new version may have more/less Investments or Events than the original, may not be 1:1 update)
     if (existingScenario) {
         try {
-            let existingInvestment;
+            // Delete only the Investment documents, not the referenced InvestmentType/ExpectedReturn
             for (let i = 0; i < existingScenario.investments.length; i++) {
-                existingInvestment = await Investment.findById(existingScenario.investments[i]);
-                let existingInvestmentType = await InvestmentType.findById(existingInvestment.investmentType);
-                await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualReturn);
-                await InvestmentType.findByIdAndDelete(existingInvestment.investmentType);
-                await Investment.findByIdAndDelete(existingScenario.investments[i]);
+                // Keep the Investment lookup to ensure it exists before deleting
+                const existingInvestment = await Investment.findById(existingScenario.investments[i]);
+                if (existingInvestment) {
+                    // No longer delete InvestmentType or ExpectedReturn here
+                    /* 
+                    let existingInvestmentType = await InvestmentType.findById(existingInvestment.investmentType);
+                    if (existingInvestmentType) {
+                        await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualReturn);
+                        await ExpectedReturn.findByIdAndDelete(existingInvestmentType.expectedAnnualIncome); // Also delete income return
+                        await InvestmentType.findByIdAndDelete(existingInvestment.investmentType);
+                    }
+                    */
+                    await Investment.findByIdAndDelete(existingScenario.investments[i]);
+                }
             }
+            
+            // Keep the event deletion logic as is
             let existingEvent;
             for (let i = 0; i < existingScenario.events.length; i++) {
                 existingEvent = await Event.findById(existingScenario.events[i]);
-                await StartYear.findByIdAndDelete(existingEvent.startYear);
-                await Duration.findByIdAndDelete(existingEvent.duration);
-                let income = await Income.findById(existingEvent.income);
-                if (income) {
-                    await ExpectedAnnualChange.findByIdAndDelete(income.expectedAnnualChange);
-                    await Income.findByIdAndDelete(existingEvent.income);
-                }
-                let expense = await Expense.findById(existingEvent.expense);
-                if (expense) {
-                    await ExpectedAnnualChange.findByIdAndDelete(expense.expectedAnnualChange);
-                    await Expense.findByIdAndDelete(existingEvent.expense);
-                }
-                await Invest.findByIdAndDelete(existingEvent.invest);
-                await Rebalance.findByIdAndDelete(existingEvent.rebalance);
-                await Event.findByIdAndDelete(existingScenario.events[i]);
-            }
-        }
-        catch (error) {
-            res.status(500).json({ error: 'Error deleting items from other schemas' });
+                if (existingEvent) { // Check if event exists
+                    // Delete associated documents only if they exist
+                    if (existingEvent.startYear) await StartYear.findByIdAndDelete(existingEvent.startYear);
+                    if (existingEvent.duration) await Duration.findByIdAndDelete(existingEvent.duration);
+                    
+                    const income = await Income.findById(existingEvent.income);
+                    if (income) {
+                        if (income.expectedAnnualChange) await ExpectedAnnualChange.findByIdAndDelete(income.expectedAnnualChange);
+                        await Income.findByIdAndDelete(existingEvent.income);
+                    }
+                    
+                    const expense = await Expense.findById(existingEvent.expense);
+                    if (expense) {
+                        if (expense.expectedAnnualChange) await ExpectedAnnualChange.findByIdAndDelete(expense.expectedAnnualChange);
+                        await Expense.findByIdAndDelete(existingEvent.expense);
+                    }
+                    
+                    // Delete Invest/Rebalance/Allocation only if they exist
+                    const invest = await Invest.findById(existingEvent.invest);
+                    if (invest && invest.allocations) await Allocation.findByIdAndDelete(invest.allocations);
+                    if (existingEvent.invest) await Invest.findByIdAndDelete(existingEvent.invest);
+                    
+                    const rebalance = await Rebalance.findById(existingEvent.rebalance);
+                    if (rebalance && rebalance.allocations) await Allocation.findByIdAndDelete(rebalance.allocations);
+                    if (existingEvent.rebalance) await Rebalance.findByIdAndDelete(existingEvent.rebalance);
+                    
+                    // Finally, delete the event itself
+                    await Event.findByIdAndDelete(existingScenario.events[i]);
+                } // End if(existingEvent)
+            } // End for loop for events
+        } catch (error) {
+            console.error("Error during deletion of old scenario sub-documents:", error); // Log the specific error
+            // Decide if this error should halt the process or just be logged
+            // return res.status(500).json({ error: 'Error cleaning up old scenario data' }); 
         }
     }
     
@@ -358,66 +384,56 @@ app.post('/scenario', async (req, res) => {
 
     // process investments from bottom-up
     
-        
     const investmentIds = await Promise.all(investments.map(async inv => {
 
-        // step 1: Create Expected Return
-        const expectedReturnInstance = new ExpectedReturn({
+        // Step 1 & 2: Find or Create ExpectedReturn for Annual Return and Income
+        const returnData = {
             method: inv.investmentType.expectedReturn.returnType,
-            fixedValue: inv.investmentType.expectedReturn.returnType === 'fixedValue' 
-                ? inv.investmentType.expectedReturn.fixedValue 
-                : null,
-            fixedPercentage: inv.investmentType.expectedReturn.returnType === 'fixedPercentage' 
-                ? inv.investmentType.expectedReturn.fixedPercentage 
-                : null,
-            normalValue: inv.investmentType.expectedReturn.returnType === 'normalValue' 
-                ? inv.investmentType.expectedReturn.normalValue 
-                : null,
-            normalPercentage: inv.investmentType.expectedReturn.returnType === 'normalPercentage' 
-                ? inv.investmentType.expectedReturn.normalPercentage 
-                : null,
-        });
-        let expectedReturn;
-        // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
-        expectedReturn = await expectedReturnInstance.save();
+            fixedValue: inv.investmentType.expectedReturn.returnType === 'fixedValue' ? inv.investmentType.expectedReturn.fixedValue : null,
+            fixedPercentage: inv.investmentType.expectedReturn.returnType === 'fixedPercentage' ? inv.investmentType.expectedReturn.fixedPercentage : null,
+            normalValue: inv.investmentType.expectedReturn.returnType === 'normalValue' ? inv.investmentType.expectedReturn.normalValue : null,
+            normalPercentage: inv.investmentType.expectedReturn.returnType === 'normalPercentage' ? inv.investmentType.expectedReturn.normalPercentage : null,
+        };
+        const expectedReturn = await ExpectedReturn.findOneAndUpdate(
+            // Find criteria (adjust if needed, e.g., based on method and values)
+            { method: returnData.method, /* add other unique fields if necessary */ }, 
+            returnData, 
+            { new: true, upsert: true, setDefaultsOnInsert: true } 
+        );
 
-        // step 2: Create Expected Income
-        const expectedIncomeInstance = new ExpectedReturn({
+        const incomeData = {
             method: inv.investmentType.expectedIncome.returnType,
-            fixedValue: inv.investmentType.expectedIncome.returnType === 'fixedValue' 
-                ? inv.investmentType.expectedIncome.fixedValue 
-                : null,
-            fixedPercentage: inv.investmentType.expectedIncome.returnType === 'fixedPercentage' 
-                ? inv.investmentType.expectedIncome.fixedPercentage 
-                : null,
-            normalValue: inv.investmentType.expectedIncome.returnType === 'normalValue' 
-                ? inv.investmentType.expectedIncome.normalValue 
-                : null,
-            normalPercentage: inv.investmentType.expectedIncome.returnType === 'normalPercentage' 
-                ? inv.investmentType.expectedIncome.normalPercentage 
-                : null,
-        });
-        let expectedIncome;
-        // Whether this is a new scenario or an edit, save as new instead of updating since any original is deleted.
-        expectedIncome = await expectedIncomeInstance.save();
+            fixedValue: inv.investmentType.expectedIncome.returnType === 'fixedValue' ? inv.investmentType.expectedIncome.fixedValue : null,
+            fixedPercentage: inv.investmentType.expectedIncome.returnType === 'fixedPercentage' ? inv.investmentType.expectedIncome.fixedPercentage : null,
+            normalValue: inv.investmentType.expectedIncome.returnType === 'normalValue' ? inv.investmentType.expectedIncome.normalValue : null,
+            normalPercentage: inv.investmentType.expectedIncome.returnType === 'normalPercentage' ? inv.investmentType.expectedIncome.normalPercentage : null,
+        };
+        const expectedIncome = await ExpectedReturn.findOneAndUpdate(
+             // Find criteria (adjust if needed)
+            { method: incomeData.method, /* add other unique fields if necessary */ },
+            incomeData, 
+            { new: true, upsert: true, setDefaultsOnInsert: true } 
+        );
 
-        //step 3: create investmentType
-       
-        const investmentType = await new InvestmentType({
+        // Step 3: Find or Create InvestmentType
+        const investmentTypeData = {
             name: inv.investmentType.name,
             description: inv.investmentType.description,
             expectedAnnualReturn: expectedReturn._id,
             expectedAnnualIncome: expectedIncome._id,
             expenseRatio: inv.investmentType.expenseRatio,
             taxability: inv.investmentType.taxability
-        }).save();  // Await the save operation here
-        
+        };
+        const investmentType = await InvestmentType.findOneAndUpdate(
+            { name: inv.investmentType.name }, // Find by unique name
+            investmentTypeData,
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
     
-    
-        // step 4 create investment
+        // Step 4: Create Investment (referencing the found/created InvestmentType)
         const investmentData = {
             name: inv.name,
-            investmentType: investmentType._id,
+            investmentType: investmentType._id, // Use the ID from findOneAndUpdate
             value: inv.value,
             maxAnnualContribution: inv.maxAnnualContribution
         };
@@ -427,7 +443,8 @@ app.post('/scenario', async (req, res) => {
             investmentData.accountTaxStatus = inv.taxStatus;
         }
 
-        const investment = await new Investment(investmentData).save();
+        // Always create a new Investment document, as we delete old ones during edits
+        const investment = await new Investment(investmentData).save(); 
 
         return investment._id;
     }));
