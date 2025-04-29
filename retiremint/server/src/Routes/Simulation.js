@@ -162,6 +162,9 @@ router.post('/run', async (req, res) => {
       .populate({
         path: 'events',
         populate: ['startYear', 'duration', 'income', 'expense', 'invest', 'rebalance']
+      })
+      .populate({
+        path:'sharedUsers',
       });
     
     if (!scenario) {
@@ -334,6 +337,7 @@ router.post('/run', async (req, res) => {
       name: `Simulation Report for ${scenario.name}`,
       userId: userId,
       scenarioId: scenarioId,
+      sharedUsers: scenario.sharedUsers,
       numSimulations: numSimulations,
       successRate: result.successRate,
       financialGoal: scenario.financialGoal || 0,

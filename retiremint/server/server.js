@@ -888,7 +888,7 @@ app.post('/scenario/shareToUser', async (req, res) => {
         const userId = req.body.userId;
         const email = req.body.email;
         const permissions = req.body.permissions;
-        console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${permissions}.`);
+        console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${email}, ${permissions}.`);
 
         const scenario = await Scenario.findById(scenarioId);
         console.log(`Found Scenario: ${scenario}`);
@@ -919,28 +919,30 @@ app.post('/scenario/shareToUser', async (req, res) => {
     }
 });
 
-// Adds a shared user to a given report (given the reportId, userId (non-google), and permissions ('view' or 'edit'))
-// - To be utilized when directly adding a shared user and when generating a new report after editing a scenario.
+// Adds a shared user to all reports for a given Scenario (given the reportId, userId (non-google), and permissions ('view' or 'edit'))
 app.post('/report/shareToUser', async (req, res) => {
     try {
-        const reportId = req.body.reportId;
+        const scenarioId = req.body.scenarioId;
         const userId = req.body.userId;
         const email = req.body.email;
         const permissions = req.body.permissions;
 
-        const report = await Report.findById(reportId);
+        // Find all reports for a given scenario.
+        const reports = await Report.find({scenarioId: scenarioId});
         // Check if the user is already added to the Report.
-        const index = report.sharedUsers.findIndex((user) => user.email === email);
-        if (index == -1) {
-            report.sharedUsers.push({userId: userId, email: email, permissions: permissions});
-        }
-        else {
-            report.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
-        }
-        report.save();
+        reports.map((report) => {
+            const index = report.sharedUsers.findIndex((user) => user.email === email);
+            if (index == -1) {
+                report.sharedUsers.push({userId: userId, email: email, permissions: permissions});
+            }
+            else {
+                report.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
+            }
+            report.save();
+        })
         res.json({
             success: true,
-            message: `Sucessfully added shared user ${userId} to report ${reportId}.`,
+            message: `Sucessfully added shared user ${userId} to reports: ${reports.map((report) => report._id, ", ")}.`,
        })
     }
     catch (error) {
@@ -989,22 +991,24 @@ app.post('/scenario/removeSharedUser', async (req, res) => {
 
 app.post('/report/removeSharedUser', async (req, res) => {
     try {
-        const reportId = req.body.reportId;
+        const scenarioId = req.body.scenarioId;
         const userId = req.body.userId;
         const email = req.body.email;
 
-        const report = await Report.findById(reportId);
+        const reports = await Report.find({scenarioId: scenarioId});
 
-        // Check if the user is already added to the Report.        
-        const index = report.sharedUsers.findIndex((user) => user.email === email);
-        if (index != -1) {
-            report.sharedUsers.splice(index, 1); // Remove Shared User
-        }
-        report.save();
-        console.log(`Successfully removed Shared user from report: ${report.sharedUsers}`);
+        // Check if the user is already added to the Report.   
+        reports.map((report) => {
+            const index = report.sharedUsers.findIndex((user) => user.email === email);
+            if (index != -1) {
+                report.sharedUsers.splice(index, 1); // Remove Shared User
+            }
+            report.save();
+        })     
+        console.log(`Successfully removed Shared user from reports: ${reports.map((report) => report._id, ", ")}`);
         res.json({
             success: true,
-            message: `Sucessfully removed shared user ${userId} from report ${reportId}.`,
+            message: `Sucessfully removed shared user ${userId} from all reports branching from ${scenarioId}.`,
        })
         
     }
