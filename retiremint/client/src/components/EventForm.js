@@ -97,7 +97,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
         }
     // Run only once when events initially load or change significantly
     // Using JSON.stringify helps compare the actual content of events array
-    }, [JSON.stringify(events), setEvents]);
+    // }, [JSON.stringify(events), setEvents]);
+    // Update dependency array to be less sensitive
+    }, [events.length, setEvents]);
 
     // Remove useEffect that loaded initial allocations (lines ~35-186)
     /*
@@ -1890,6 +1892,41 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                 </div>
                                             </div>
                                         )}
+
+                                        {/* ADD Final Pre-Tax Allocation HERE */}
+                                        {preTaxInvestments.length > 0 && event.rebalance.modifyPreTaxAllocation && (
+                                            <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
+                                                <h4>Final Pre-Tax Investment Rebalance</h4>
+                                                <p>Specify how pre-tax investments should be rebalanced at the end of the glide path:</p>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                                    {preTaxInvestments.map(inv => (
+                                                        <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
+                                                            <label style={{ display: 'block', marginBottom: '5px' }}>
+                                                                {inv.name}:
+                                                            </label>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                max="100"
+                                                                value={displayValue(event.rebalance.finalRebalanceStrategy?.preTaxAllocation?.[inv.name])}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                                                                    updateEvent(index, ['rebalance', 'finalRebalanceStrategy', 'preTaxAllocation'], {
+                                                                        ...event.rebalance.finalRebalanceStrategy?.preTaxAllocation || {},
+                                                                        [inv.name]: value
+                                                                    });
+                                                                }}
+                                                                style={{ width: '60px' }}
+                                                            />
+                                                            <span>%</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                                                    Total: {Object.values(event.rebalance.finalRebalanceStrategy?.preTaxAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
@@ -2022,37 +2059,47 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                         
                                 switch (eventData.expectedAnnualChange.returnType) {
                                     case 'fixedValue':
-                                        if (!eventData.expectedAnnualChange.fixedValue) {
+                                        // Allow 0 as a valid value
+                                        if (!eventData.expectedAnnualChange.fixedValue && eventData.expectedAnnualChange.fixedValue !== 0) {
                                             alert(`Event "${event.name}" requires a Fixed Value for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalValue':
-                                        if (!eventData.expectedAnnualChange.normalValue.mean || !eventData.expectedAnnualChange.normalValue.sd) {
+                                        // Allow 0 for mean/sd
+                                        if ((!eventData.expectedAnnualChange.normalValue.mean && eventData.expectedAnnualChange.normalValue.mean !== 0) || 
+                                            (!eventData.expectedAnnualChange.normalValue.sd && eventData.expectedAnnualChange.normalValue.sd !== 0)) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformValue':
-                                        if (!eventData.expectedAnnualChange.uniformValue.lowerBound || !eventData.expectedAnnualChange.uniformValue.upperBound) {
+                                        // Allow 0 for bounds
+                                        if ((!eventData.expectedAnnualChange.uniformValue.lowerBound && eventData.expectedAnnualChange.uniformValue.lowerBound !== 0) || 
+                                            (!eventData.expectedAnnualChange.uniformValue.upperBound && eventData.expectedAnnualChange.uniformValue.upperBound !== 0)) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'fixedPercentage':
-                                        if (!eventData.expectedAnnualChange.fixedPercentage) {
+                                        // Allow 0 as a valid value
+                                        if (!eventData.expectedAnnualChange.fixedPercentage && eventData.expectedAnnualChange.fixedPercentage !== 0) {
                                             alert(`Event "${event.name}" requires a Fixed Percentage for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalPercentage':
-                                        if (!eventData.expectedAnnualChange.normalPercentage.mean || !eventData.expectedAnnualChange.normalPercentage.sd) {
+                                        // Allow 0 for mean/sd
+                                        if ((!eventData.expectedAnnualChange.normalPercentage.mean && eventData.expectedAnnualChange.normalPercentage.mean !== 0) || 
+                                            (!eventData.expectedAnnualChange.normalPercentage.sd && eventData.expectedAnnualChange.normalPercentage.sd !== 0)) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformPercentage':
-                                        if (!eventData.expectedAnnualChange.uniformPercentage.lowerBound || !eventData.expectedAnnualChange.uniformPercentage.upperBound) {
+                                        // Allow 0 for bounds
+                                        if ((!eventData.expectedAnnualChange.uniformPercentage.lowerBound && eventData.expectedAnnualChange.uniformPercentage.lowerBound !== 0) || 
+                                            (!eventData.expectedAnnualChange.uniformPercentage.upperBound && eventData.expectedAnnualChange.uniformPercentage.upperBound !== 0)) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Percentage.`);
                                             validationPassed = false; break;
                                         }
@@ -2063,7 +2110,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                         
                                 if (!validationPassed) break;
                         
-                                if (scenarioType === 'married' && !eventData.marriedPercentage) {
+                                // Allow 0 for married percentage
+                                if (scenarioType === 'married' && (!eventData.marriedPercentage && eventData.marriedPercentage !== 0)) {
                                     alert(`Event "${event.name}" requires a Married Percentage because the scenario is Married.`);
                                     validationPassed = false;
                                 }
