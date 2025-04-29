@@ -884,70 +884,8 @@ using this data in simlogs.txt
     "__v": 0
   }
 }
----------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 
-Database model data logged to console (first run this session)
-Starting 2 simulations...
-Running simulation #1 for calculated 7 years.
-inflationArray [
-  0.04249496713582301,
-  0.04356747157664496,
-  0.045761418784091186,
-  0.007769662855946005,
-  0,
-  0.052774595036539036,
-  0.051206047770439855
-]
-scenario financial goal 1000000
-Running simulation #2 for calculated 3 years.
-inflationArray [ 0, 0.07427313283285585, 0.017954537026253013 ]
-scenario financial goal 1000000
---- All Simulation Results ---
-Total simulations run: 2
-
---- Simulation #1 ---
-  Total Years: 7
-  First 5 Years Results:
-[
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  }
-]
-
---- Simulation #2 ---
-  Total Years: 3
-  First 5 Years Results:
-[
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  },
-  {
-    "netWorth": 2000000,
-    "meetingFinancialGoal": true
-  }
-]
 
 ----------------------------------------------------------------------------------------
  "taxData": {

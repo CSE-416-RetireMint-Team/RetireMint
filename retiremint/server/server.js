@@ -206,6 +206,7 @@ app.post('/login',async function(req,res){
 
 // route to receive a scenario from frontend
 app.post('/scenario', async (req, res) => {
+    //console.log('Received req.body:', req.body); // Log the entire request body
     const { 
         scenarioIdEdit,
         scenarioName, 
@@ -224,10 +225,10 @@ app.post('/scenario', async (req, res) => {
         rothRptimizerStartYear,
         rothOptimizerEndYear,
         financialGoal,
-        maximumCash,
         stateOfResidence,
         sharedUsers,
-        userId  // Add userId to the extracted parameters
+        userId,  // Add userId to the extracted parameters
+        spendingStrategy // Add spendingStrategy
     } = req.body; // extracting data from frontend
 
     console.log('Scenario received!');
@@ -558,9 +559,24 @@ app.post('/scenario', async (req, res) => {
     
             investObj =await  new Invest({
                 allocations: investAllocation.id,
-                modifyMaximumCash: eve.invest.modifyMaximumCash,
-                newMaximumCash: eve.invest.modifyMaximumCash ? eve.invest.newMaximumCash : null,
-                investmentStrategy: eve.invest.investmentStrategy || {}
+                modifyMaximumCash: eve.invest.modifyMaximumCash, // Keep for potential internal use
+                newMaximumCash: eve.invest.newMaximumCash, // Save the value directly
+                investmentStrategy: {
+                    // Only include allocations that are explicitly modified
+                    taxStatusAllocation: eve.invest.modifyTaxStatusAllocation ? eve.invest.investmentStrategy?.taxStatusAllocation || {} : null,
+                    preTaxAllocation: eve.invest.modifyPreTaxAllocation ? eve.invest.investmentStrategy?.preTaxAllocation || {} : null,
+                    afterTaxAllocation: eve.invest.modifyAfterTaxAllocation ? eve.invest.investmentStrategy?.afterTaxAllocation || {} : null,
+                    nonRetirementAllocation: eve.invest.modifyNonRetirementAllocation ? eve.invest.investmentStrategy?.nonRetirementAllocation || {} : null,
+                    taxExemptAllocation: eve.invest.modifyTaxExemptAllocation ? eve.invest.investmentStrategy?.taxExemptAllocation || {} : null
+                },
+                // For finalInvestmentStrategy in glide path, also check modify flags
+                finalInvestmentStrategy: eve.invest.executionType === 'glidePath' ? {
+                    taxStatusAllocation: eve.invest.modifyTaxStatusAllocation ? eve.invest.finalInvestmentStrategy?.taxStatusAllocation || {} : null,
+                    preTaxAllocation: eve.invest.modifyPreTaxAllocation ? eve.invest.finalInvestmentStrategy?.preTaxAllocation || {} : null,
+                    afterTaxAllocation: eve.invest.modifyAfterTaxAllocation ? eve.invest.finalInvestmentStrategy?.afterTaxAllocation || {} : null,
+                    nonRetirementAllocation: eve.invest.modifyNonRetirementAllocation ? eve.invest.finalInvestmentStrategy?.nonRetirementAllocation || {} : null,
+                    taxExemptAllocation: eve.invest.modifyTaxExemptAllocation ? eve.invest.finalInvestmentStrategy?.taxExemptAllocation || {} : null
+                } : null
             }).save()
             
         }else if(eve.eventType==="rebalance"){
@@ -582,7 +598,22 @@ app.post('/scenario', async (req, res) => {
             // Save Rebalance event with BOTH allocation reference AND rebalanceStrategy
             rebalanceObj = await new Rebalance({
                 allocations: rebalanceAllocation.id, // Save reference to Allocation doc
-                rebalanceStrategy: eve.rebalance.rebalanceStrategy || {} // Save the strategy object
+                rebalanceStrategy: {
+                    // Only include allocations that are explicitly modified
+                    taxStatusAllocation: eve.rebalance.modifyTaxStatusAllocation ? eve.rebalance.rebalanceStrategy?.taxStatusAllocation || {} : null,
+                    preTaxAllocation: eve.rebalance.modifyPreTaxAllocation ? eve.rebalance.rebalanceStrategy?.preTaxAllocation || {} : null,
+                    afterTaxAllocation: eve.rebalance.modifyAfterTaxAllocation ? eve.rebalance.rebalanceStrategy?.afterTaxAllocation || {} : null,
+                    nonRetirementAllocation: eve.rebalance.modifyNonRetirementAllocation ? eve.rebalance.rebalanceStrategy?.nonRetirementAllocation || {} : null,
+                    taxExemptAllocation: eve.rebalance.modifyTaxExemptAllocation ? eve.rebalance.rebalanceStrategy?.taxExemptAllocation || {} : null
+                },
+                // For finalRebalanceStrategy in glide path, also check modify flags
+                finalRebalanceStrategy: eve.rebalance.executionType === 'glidePath' ? {
+                    taxStatusAllocation: eve.rebalance.modifyTaxStatusAllocation ? eve.rebalance.finalRebalanceStrategy?.taxStatusAllocation || {} : null,
+                    preTaxAllocation: eve.rebalance.modifyPreTaxAllocation ? eve.rebalance.finalRebalanceStrategy?.preTaxAllocation || {} : null,
+                    afterTaxAllocation: eve.rebalance.modifyAfterTaxAllocation ? eve.rebalance.finalRebalanceStrategy?.afterTaxAllocation || {} : null,
+                    nonRetirementAllocation: eve.rebalance.modifyNonRetirementAllocation ? eve.rebalance.finalRebalanceStrategy?.nonRetirementAllocation || {} : null,
+                    taxExemptAllocation: eve.rebalance.modifyTaxExemptAllocation ? eve.rebalance.finalRebalanceStrategy?.taxExemptAllocation || {} : null
+                } : null
                 // Add other fields if needed (modify flags, etc.)
             }).save()
         }       
@@ -645,6 +676,7 @@ app.post('/scenario', async (req, res) => {
         simulationSettings = new SimulationSettings({
         inflationAssumption: inflation._id,
             expenseWithdrawalStrategies: expenseWithdrawalStrategies,
+            spendingStrategy: spendingStrategy, // Add spendingStrategy
             rmdStrategies: rmdStrategies,
             rothConversionStrategies: rothConversionStrategies,
             rothOptimizerEnable: RothOptimizerEnable,
@@ -657,6 +689,7 @@ app.post('/scenario', async (req, res) => {
         const settingsData = {
             inflationAssumption: inflation._id,
             expenseWithdrawalStrategies: expenseWithdrawalStrategies,
+            spendingStrategy: spendingStrategy, // Add spendingStrategy
             rmdStrategies: rmdStrategies,
             rothConversionStrategies: rothConversionStrategies,
             rothOptimizerEnable: RothOptimizerEnable,
@@ -696,7 +729,6 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
-                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             });
@@ -722,7 +754,6 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
-                maximumCash: maximumCash,
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsersList
             }, {new: true});

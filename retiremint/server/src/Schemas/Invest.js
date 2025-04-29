@@ -37,6 +37,28 @@ const InvestSchema = new Schema({
             type: Object,
             default: {}
         }
+    },
+    finalInvestmentStrategy: {
+        taxStatusAllocation: {
+            type: Object,
+            default: {}
+        },
+        preTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        afterTaxAllocation: {
+            type: Object,
+            default: {}
+        },
+        nonRetirementAllocation: {
+            type: Object,
+            default: {}
+        },
+        taxExemptAllocation: {
+            type: Object,
+            default: {}
+        }
     }
 });
 

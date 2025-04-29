@@ -62,10 +62,6 @@ const ScenarioSchema = new Schema({
     type: Number, 
     required: true 
   },
-  maximumCash: {
-    type: Number,
-    required: true
-  },
   stateOfResidence: { 
     type: String, 
     enum: [
@@ -93,14 +89,12 @@ const ScenarioSchema = new Schema({
       enum: ['view', 'edit'],
       ref: 'Permissions'
     }
-  }]
+  }],
 
-
-
-
-
-  
-  
+  report: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'Report'
+  } 
 });
 
 // an index on the userId to speed up queries for a user's scenarios.
