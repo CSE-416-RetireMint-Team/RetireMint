@@ -1,891 +1,996 @@
 attached is the modelData object and output on an example scenario
 this example was designed to be extremely robust. logging of key functionality is provided 
 using this data in simlogs.txt
-
-
---- Result from fetchAndLogModelData (Scenario Only) ---
 {
-  "scenario": {
-    "_id": "680a6cf8d9eb0c270a0ae262",
-    "name": "liams plan",
-    "userId": "680a68b5d9eb0c270a0ae1a5",
-    "scenarioType": "individual",
-    "birthYear": 2001,
-    "spouseBirthYear": null,
-    "lifeExpectancy": {
-      "normalDistribution": {
-        "mean": 30,
-        "standardDeviation": 5
-      },
-      "_id": "680a6cf8d9eb0c270a0ae1b0",
-      "lifeExpectancyMethod": "normalDistribution",
-      "fixedValue": null,
-      "__v": 0
+  "_id": "681259bc3faef8e2159c7098",
+  "name": "liam plan",
+  "userId": "681254703faef8e2159c6fe7",
+  "scenarioType": "married",
+  "birthYear": 2001,
+  "spouseBirthYear": 2003,
+  "lifeExpectancy": {
+    "normalDistribution": {
+      "mean": 75,
+      "standardDeviation": 10
     },
-    "spouseLifeExpectancy": null,
-    "investments": [
-      {
-        "_id": "680c176144e109e92678b5b1",
-        "name": "japan bond",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5a1",
-          "name": "bond",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b581",
-            "method": "fixedPercentage",
-            "fixedValue": null,
-            "fixedPercentage": 3,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b591",
-            "method": "fixedPercentage",
-            "fixedValue": null,
-            "fixedPercentage": 2,
-            "__v": 0
-          },
-          "expenseRatio": 2,
-          "taxability": "tax-exempt",
-          "__v": 0
-        },
-        "value": 6000,
-        "maxAnnualContribution": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5b3",
-        "name": "euro bond",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5a3",
-          "name": "bond",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b582",
-            "method": "fixedPercentage",
-            "fixedValue": null,
-            "fixedPercentage": 3,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b593",
-            "method": "fixedPercentage",
-            "fixedValue": null,
-            "fixedPercentage": 2,
-            "__v": 0
-          },
-          "expenseRatio": 2,
-          "taxability": "tax-exempt",
-          "__v": 0
-        },
-        "value": 7999,
-        "maxAnnualContribution": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5b5",
-        "name": "gamestop",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5a5",
-          "name": "high risk stock",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 10,
-              "sd": 20
-            },
-            "_id": "680c176044e109e92678b583",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b595",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 3,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 600,
-        "maxAnnualContribution": null,
-        "accountTaxStatus": "non-retirement",
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5b7",
-        "name": "bitcoin etf",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5a7",
-          "name": "high risk stock",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 10,
-              "sd": 20
-            },
-            "_id": "680c176044e109e92678b584",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b597",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 3,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 2500,
-        "maxAnnualContribution": null,
-        "accountTaxStatus": "non-retirement",
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5b9",
-        "name": "microsoft employer contributions",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5a9",
-          "name": "fund or trust",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 4,
-              "sd": 2
-            },
-            "_id": "680c176044e109e92678b585",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b599",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 1,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 200000,
-        "maxAnnualContribution": null,
-        "accountTaxStatus": "pre-tax",
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5bb",
-        "name": "teacher fund",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5ab",
-          "name": "fund or trust",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 4,
-              "sd": 2
-            },
-            "_id": "680c176044e109e92678b586",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b59b",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 1,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 12000,
-        "maxAnnualContribution": null,
-        "accountTaxStatus": "pre-tax",
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5bd",
-        "name": "family trust",
-        "investmentType": {
-          "_id": "680c176044e109e92678b5ad",
-          "name": "fund or trust",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 4,
-              "sd": 2
-            },
-            "_id": "680c176044e109e92678b587",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b59d",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 1,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 15000,
-        "maxAnnualContribution": 60000,
-        "accountTaxStatus": "after-tax",
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b5bf",
-        "name": "nys investor fund",
-        "investmentType": {
-          "_id": "680c176144e109e92678b5af",
-          "name": "fund or trust",
-          "description": "",
-          "expectedAnnualReturn": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 4,
-              "sd": 2
-            },
-            "_id": "680c176044e109e92678b588",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expectedAnnualIncome": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "_id": "680c176044e109e92678b59f",
-            "method": "fixedValue",
-            "fixedValue": 0,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "expenseRatio": 1,
-          "taxability": "taxable",
-          "__v": 0
-        },
-        "value": 0,
-        "maxAnnualContribution": 8000,
-        "accountTaxStatus": "after-tax",
-        "__v": 0
-      }
-    ],
-    "events": [
-      {
-        "_id": "680c176144e109e92678b61d",
-        "name": "INITIAL_INVEST_EVENT",
-        "description": "Initial investment allocation",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5c9",
-          "method": "fixedValue",
-          "fixedValue": 2025,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5dd",
-          "method": "fixedValue",
-          "fixedValue": 1,
-          "__v": 0
-        },
-        "type": "invest",
-        "income": null,
-        "expense": null,
-        "invest": {
-          "investmentStrategy": {
-            "taxStatusAllocation": {
-              "after-tax": 20,
-              "non-retirement": 60,
-              "tax-exempt": 20
-            },
-            "afterTaxAllocation": {
-              "family trust": 50,
-              "nys investor fund": 50
-            },
-            "nonRetirementAllocation": {
-              "gamestop": 50,
-              "bitcoin etf": 50
-            },
-            "taxExemptAllocation": {
-              "japan bond": 50,
-              "euro bond": 50
-            }
-          },
-          "_id": "680c176144e109e92678b609",
-          "allocations": {
-            "_id": "680c176144e109e92678b5f5",
-            "method": "fixedAllocation",
-            "fixedAllocation": [],
-            "glidePath": [],
-            "__v": 0
-          },
-          "modifyMaximumCash": true,
-          "newMaximumCash": 20000,
-          "__v": 0
-        },
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b61f",
-        "name": "entry level job",
-        "description": "teaching",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5ca",
-          "method": "fixedValue",
-          "fixedValue": 2025,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": {
-            "mean": 5,
-            "sd": 2
-          },
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5e1",
-          "method": "normalValue",
-          "fixedValue": null,
-          "__v": 0
-        },
-        "type": "income",
-        "income": {
-          "_id": "680c176144e109e92678b60b",
-          "initialAmount": 65000,
-          "expectedAnnualChange": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "uniformValue": null,
-            "uniformPercentage": null,
-            "_id": "680c176144e109e92678b5f7",
-            "method": "fixedValue",
-            "fixedValue": 2000,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "inflationAdjustment": true,
-          "marriedPercentage": null,
-          "isSocialSecurity": false,
-          "__v": 0
-        },
-        "expense": null,
-        "invest": null,
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b619",
-        "name": "ss benefits",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5cb",
-          "method": "fixedValue",
-          "fixedValue": 2025,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5df",
-          "method": "fixedValue",
-          "fixedValue": 4,
-          "__v": 0
-        },
-        "type": "income",
-        "income": {
-          "_id": "680c176144e109e92678b605",
-          "initialAmount": 7000,
-          "expectedAnnualChange": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "uniformValue": null,
-            "uniformPercentage": null,
-            "_id": "680c176144e109e92678b5f1",
-            "method": "fixedValue",
-            "fixedValue": 1,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "inflationAdjustment": true,
-          "marriedPercentage": null,
-          "isSocialSecurity": true,
-          "__v": 0
-        },
-        "expense": null,
-        "invest": null,
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b621",
-        "name": "microsoft job",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5cc",
-          "method": "yearAfterAnotherEventEnd",
-          "fixedValue": null,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": "entry level job",
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": {
-            "mean": 30,
-            "sd": 3
-          },
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5e3",
-          "method": "normalValue",
-          "fixedValue": null,
-          "__v": 0
-        },
-        "type": "income",
-        "income": {
-          "_id": "680c176144e109e92678b60d",
-          "initialAmount": 120000,
-          "expectedAnnualChange": {
-            "normalValue": null,
-            "normalPercentage": {
-              "mean": 4,
-              "sd": 2
-            },
-            "uniformValue": null,
-            "uniformPercentage": null,
-            "_id": "680c176144e109e92678b5f9",
-            "method": "normalPercentage",
-            "fixedValue": null,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "inflationAdjustment": true,
-          "marriedPercentage": null,
-          "isSocialSecurity": false,
-          "__v": 0
-        },
-        "expense": null,
-        "invest": null,
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b623",
-        "name": "gaming",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5cd",
-          "method": "fixedValue",
-          "fixedValue": 2035,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": {
-            "lowerBound": 5,
-            "upperBound": 7
-          },
-          "_id": "680c176144e109e92678b5e5",
-          "method": "uniformValue",
-          "fixedValue": null,
-          "__v": 0
-        },
-        "type": "expense",
-        "income": null,
-        "expense": {
-          "_id": "680c176144e109e92678b60f",
-          "initialAmount": 500,
-          "expectedAnnualChange": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "uniformValue": null,
-            "uniformPercentage": null,
-            "_id": "680c176144e109e92678b5fb",
-            "method": "fixedValue",
-            "fixedValue": 100,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "inflationAdjustment": true,
-          "marriedPercentage": null,
-          "isDiscretionary": true,
-          "__v": 0
-        },
-        "invest": null,
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b61b",
-        "name": "buy a house",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5ce",
-          "method": "fixedValue",
-          "fixedValue": 2040,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5e9",
-          "method": "fixedValue",
-          "fixedValue": 20,
-          "__v": 0
-        },
-        "type": "expense",
-        "income": null,
-        "expense": {
-          "_id": "680c176144e109e92678b607",
-          "initialAmount": 200000,
-          "expectedAnnualChange": {
-            "normalValue": null,
-            "normalPercentage": null,
-            "uniformValue": null,
-            "uniformPercentage": null,
-            "_id": "680c176144e109e92678b5f3",
-            "method": "fixedValue",
-            "fixedValue": 40000,
-            "fixedPercentage": null,
-            "__v": 0
-          },
-          "inflationAdjustment": false,
-          "marriedPercentage": null,
-          "isDiscretionary": false,
-          "__v": 0
-        },
-        "invest": null,
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b625",
-        "name": "mid career inv str",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5cf",
-          "method": "fixedValue",
-          "fixedValue": 2040,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": {
-            "mean": 5,
-            "sd": 2
-          },
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5e7",
-          "method": "normalValue",
-          "fixedValue": null,
-          "__v": 0
-        },
-        "type": "invest",
-        "income": null,
-        "expense": null,
-        "invest": {
-          "investmentStrategy": {
-            "taxStatusAllocation": {
-              "after-tax": 30,
-              "non-retirement": 40,
-              "tax-exempt": 30
-            },
-            "afterTaxAllocation": {
-              "family trust": 50,
-              "nys investor fund": 50
-            },
-            "nonRetirementAllocation": {
-              "gamestop": 50,
-              "bitcoin etf": 50
-            },
-            "taxExemptAllocation": {
-              "japan bond": 50,
-              "euro bond": 50
-            }
-          },
-          "_id": "680c176144e109e92678b611",
-          "allocations": {
-            "_id": "680c176144e109e92678b5fd",
-            "method": "fixedAllocation",
-            "fixedAllocation": [],
-            "glidePath": [],
-            "__v": 0
-          },
-          "modifyMaximumCash": true,
-          "newMaximumCash": 10000,
-          "__v": 0
-        },
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b627",
-        "name": "mid career rebalance",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5d0",
-          "method": "fixedValue",
-          "fixedValue": 2045,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5eb",
-          "method": "fixedValue",
-          "fixedValue": 3,
-          "__v": 0
-        },
-        "type": "rebalance",
-        "income": null,
-        "expense": null,
-        "invest": null,
-        "rebalance": {
-          "rebalanceStrategy": {
-            "taxStatusAllocation": {
-              "after-tax": 33,
-              "non-retirement": 34,
-              "tax-exempt": 33
-            }
-          },
-          "_id": "680c176144e109e92678b613",
-          "allocations": {
-            "_id": "680c176144e109e92678b5ff",
-            "method": "fixedAllocation",
-            "fixedAllocation": [],
-            "glidePath": [],
-            "__v": 0
-          },
-          "__v": 0
-        },
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b629",
-        "name": "late career invest str",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5d1",
-          "method": "fixedValue",
-          "fixedValue": 2055,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5ed",
-          "method": "fixedValue",
-          "fixedValue": 1,
-          "__v": 0
-        },
-        "type": "invest",
-        "income": null,
-        "expense": null,
-        "invest": {
-          "investmentStrategy": {
-            "taxStatusAllocation": {
-              "after-tax": 45,
-              "non-retirement": 10,
-              "tax-exempt": 45
-            },
-            "afterTaxAllocation": {
-              "family trust": 50,
-              "nys investor fund": 50
-            },
-            "nonRetirementAllocation": {
-              "gamestop": 50,
-              "bitcoin etf": 50
-            },
-            "taxExemptAllocation": {
-              "japan bond": 25,
-              "euro bond": 75
-            }
-          },
-          "_id": "680c176144e109e92678b615",
-          "allocations": {
-            "_id": "680c176144e109e92678b601",
-            "method": "fixedAllocation",
-            "fixedAllocation": [],
-            "glidePath": [],
-            "__v": 0
-          },
-          "modifyMaximumCash": true,
-          "newMaximumCash": 4998,
-          "__v": 0
-        },
-        "rebalance": null,
-        "__v": 0
-      },
-      {
-        "_id": "680c176144e109e92678b62b",
-        "name": "retirement rebalance",
-        "description": "",
-        "startYear": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5d2",
-          "method": "fixedValue",
-          "fixedValue": 2060,
-          "sameYearAsAnotherEvent": null,
-          "yearAfterAnotherEventEnd": null,
-          "__v": 0
-        },
-        "duration": {
-          "normalValue": null,
-          "uniformValue": null,
-          "_id": "680c176144e109e92678b5ef",
-          "method": "fixedValue",
-          "fixedValue": 1,
-          "__v": 0
-        },
-        "type": "rebalance",
-        "income": null,
-        "expense": null,
-        "invest": null,
-        "rebalance": {
-          "rebalanceStrategy": {
-            "taxStatusAllocation": {
-              "after-tax": 40,
-              "non-retirement": 20,
-              "tax-exempt": 40
-            }
-          },
-          "_id": "680c176144e109e92678b617",
-          "allocations": {
-            "_id": "680c176144e109e92678b603",
-            "method": "fixedAllocation",
-            "fixedAllocation": [],
-            "glidePath": [],
-            "__v": 0
-          },
-          "__v": 0
-        },
-        "__v": 0
-      }
-    ],
-    "simulationSettings": {
-      "_id": "680a6cf8d9eb0c270a0ae260",
-      "inflationAssumption": {
-        "normalPercentage": {
-          "mean": 4,
-          "sd": 3
-        },
-        "uniformPercentage": {
-          "lowerBound": null,
-          "upperBound": null
-        },
-        "_id": "680a6cf8d9eb0c270a0ae25e",
-        "method": "normalPercentage",
-        "fixedPercentage": null,
-        "__v": 0
-      },
-      "expenseWithdrawalStrategies": [
-        "gamestop",
-        "family trust",
-        "nys investor fund",
-        "microsoft employer contributions",
-        "teacher fund",
-        "japan bond",
-        "euro bond",
-        "bitcoin etf"
-      ],
-      "rmdStrategies": [
-        "microsoft employer contributions",
-        "teacher fund"
-      ],
-      "rothConversionStrategies": [
-        "microsoft employer contributions",
-        "teacher fund"
-      ],
-      "rothOptimizerEnable": true,
-      "rothOptimizerStartYear": 2045,
-      "rothOptimizerEndYear": 2060,
-      "__v": 0
-    },
-    "financialGoal": 1000000,
-    "maximumCash": 20000,
-    "stateOfResidence": "NY",
-    "sharedUsers": [],
-    "createdAt": "2025-04-24T16:55:20.883Z",
+    "_id": "681259bc3faef8e2159c6ff2",
+    "lifeExpectancyMethod": "normalDistribution",
+    "fixedValue": null,
     "__v": 0
-  }
+  },
+  "spouseLifeExpectancy": {
+    "normalDistribution": {
+      "mean": 78,
+      "standardDeviation": 4
+    },
+    "_id": "681259bc3faef8e2159c6ff4",
+    "lifeExpectancyMethod": "normalDistribution",
+    "fixedValue": null,
+    "__v": 0
+  },
+  "investments": [
+    {
+      "_id": "68125cb0477af00c3a6fecd9",
+      "name": "japan bond",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf75",
+        "name": "bond",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 2,
+        "taxability": "tax-exempt"
+      },
+      "value": 4000,
+      "maxAnnualContribution": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fece3",
+      "name": "euro bond",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf75",
+        "name": "bond",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 2,
+        "taxability": "tax-exempt"
+      },
+      "value": 6000,
+      "maxAnnualContribution": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fecdf",
+      "name": "gamestop",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf76",
+        "name": "high risk stock",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf73",
+          "method": "fixedValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": 0
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 3,
+        "taxability": "taxable"
+      },
+      "value": 12000,
+      "maxAnnualContribution": null,
+      "accountTaxStatus": "non-retirement",
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fecdb",
+      "name": "bitcoin etf",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf76",
+        "name": "high risk stock",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf73",
+          "method": "fixedValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": 0
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 3,
+        "taxability": "taxable"
+      },
+      "value": 0,
+      "maxAnnualContribution": null,
+      "accountTaxStatus": "non-retirement",
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fece1",
+      "name": "family trust",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf74",
+        "name": "fund or trust",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 1,
+        "taxability": "taxable"
+      },
+      "value": 25000,
+      "maxAnnualContribution": null,
+      "accountTaxStatus": "pre-tax",
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fecdd",
+      "name": "microsoft employer contributions",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf74",
+        "name": "fund or trust",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 1,
+        "taxability": "taxable"
+      },
+      "value": 200000,
+      "maxAnnualContribution": null,
+      "accountTaxStatus": "pre-tax",
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fece5",
+      "name": "nys investor fund",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf74",
+        "name": "fund or trust",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 1,
+        "taxability": "taxable"
+      },
+      "value": 0,
+      "maxAnnualContribution": 7000,
+      "accountTaxStatus": "after-tax",
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fecf0",
+      "name": "liberty mutual fund",
+      "investmentType": {
+        "_id": "681259bcad37ccc012f4bf74",
+        "name": "fund or trust",
+        "__v": 0,
+        "description": "",
+        "expectedAnnualIncome": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf72",
+          "method": "fixedPercentage",
+          "__v": 0,
+          "fixedPercentage": 1,
+          "fixedValue": null
+        },
+        "expectedAnnualReturn": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 1
+          },
+          "normalPercentage": null,
+          "_id": "681259bcad37ccc012f4bf6e",
+          "method": "normalValue",
+          "__v": 0,
+          "fixedPercentage": null,
+          "fixedValue": null
+        },
+        "expenseRatio": 1,
+        "taxability": "taxable"
+      },
+      "value": 0,
+      "maxAnnualContribution": 20000,
+      "accountTaxStatus": "after-tax",
+      "__v": 0
+    }
+  ],
+  "events": [
+    {
+      "_id": "68125cb0477af00c3a6fed15",
+      "name": "initial inv str",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf3",
+        "method": "fixedValue",
+        "fixedValue": 2025,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": {
+          "mean": 7,
+          "sd": 2
+        },
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed09",
+        "method": "normalValue",
+        "fixedValue": null,
+        "__v": 0
+      },
+      "type": "invest",
+      "income": null,
+      "expense": null,
+      "invest": {
+        "investmentStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 20,
+            "non-retirement": 60,
+            "tax-exempt": 20
+          },
+          "preTaxAllocation": null,
+          "afterTaxAllocation": {
+            "nys investor fund": 50,
+            "liberty mutual fund": 50
+          },
+          "nonRetirementAllocation": {
+            "gamestop": 50,
+            "bitcoin etf": 50
+          },
+          "taxExemptAllocation": {
+            "japan bond": 50,
+            "euro bond": 50
+          }
+        },
+        "finalInvestmentStrategy": null,
+        "_id": "68125cb0477af00c3a6fed11",
+        "allocations": {
+          "_id": "68125cb0477af00c3a6fed0d",
+          "method": "fixedAllocation",
+          "fixedAllocation": [],
+          "glidePath": [],
+          "__v": 0
+        },
+        "modifyMaximumCash": true,
+        "newMaximumCash": 20000,
+        "__v": 0
+      },
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed47",
+      "name": "entry level job",
+      "description": "teaching",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf4",
+        "method": "fixedValue",
+        "fixedValue": 2025,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": {
+          "mean": 5,
+          "sd": 2
+        },
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed1d",
+        "method": "normalValue",
+        "fixedValue": null,
+        "__v": 0
+      },
+      "type": "income",
+      "income": {
+        "_id": "68125cb0477af00c3a6fed39",
+        "initialAmount": 65000,
+        "expectedAnnualChange": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed2b",
+          "method": "fixedValue",
+          "fixedValue": 2000,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": true,
+        "marriedPercentage": 30,
+        "isSocialSecurity": false,
+        "__v": 0
+      },
+      "expense": null,
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed43",
+      "name": "ss benefits",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf5",
+        "method": "fixedValue",
+        "fixedValue": 2025,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed19",
+        "method": "fixedValue",
+        "fixedValue": 5,
+        "__v": 0
+      },
+      "type": "income",
+      "income": {
+        "_id": "68125cb0477af00c3a6fed35",
+        "initialAmount": 7000,
+        "expectedAnnualChange": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed27",
+          "method": "fixedValue",
+          "fixedValue": 0,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": true,
+        "marriedPercentage": 30,
+        "isSocialSecurity": true,
+        "__v": 0
+      },
+      "expense": null,
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed45",
+      "name": "microsoft job",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf6",
+        "method": "yearAfterAnotherEventEnd",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": "entry level job",
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": {
+          "mean": 30,
+          "sd": 2
+        },
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed1b",
+        "method": "normalValue",
+        "fixedValue": null,
+        "__v": 0
+      },
+      "type": "income",
+      "income": {
+        "_id": "68125cb0477af00c3a6fed37",
+        "initialAmount": 12000,
+        "expectedAnnualChange": {
+          "normalValue": {
+            "mean": 4,
+            "sd": 2
+          },
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed29",
+          "method": "normalValue",
+          "fixedValue": null,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": true,
+        "marriedPercentage": 30,
+        "isSocialSecurity": false,
+        "__v": 0
+      },
+      "expense": null,
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed49",
+      "name": "yearly vacation",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf7",
+        "method": "sameYearAsAnotherEvent",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": "microsoft job",
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed1f",
+        "method": "fixedValue",
+        "fixedValue": 100,
+        "__v": 0
+      },
+      "type": "expense",
+      "income": null,
+      "expense": {
+        "_id": "68125cb0477af00c3a6fed3b",
+        "initialAmount": 7000,
+        "expectedAnnualChange": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed2d",
+          "method": "fixedValue",
+          "fixedValue": 0,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": true,
+        "marriedPercentage": 15,
+        "isDiscretionary": true,
+        "__v": 0
+      },
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed4b",
+      "name": "house down payment",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf8",
+        "method": "fixedValue",
+        "fixedValue": 2037,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed21",
+        "method": "fixedValue",
+        "fixedValue": 1,
+        "__v": 0
+      },
+      "type": "expense",
+      "income": null,
+      "expense": {
+        "_id": "68125cb0477af00c3a6fed3d",
+        "initialAmount": 200000,
+        "expectedAnnualChange": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed2f",
+          "method": "fixedValue",
+          "fixedValue": 0,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": true,
+        "marriedPercentage": 50,
+        "isDiscretionary": false,
+        "__v": 0
+      },
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed4f",
+      "name": "mortgage payment",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecf9",
+        "method": "sameYearAsAnotherEvent",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": "house down payment",
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed25",
+        "method": "fixedValue",
+        "fixedValue": 30,
+        "__v": 0
+      },
+      "type": "expense",
+      "income": null,
+      "expense": {
+        "_id": "68125cb0477af00c3a6fed41",
+        "initialAmount": 20000,
+        "expectedAnnualChange": {
+          "normalValue": null,
+          "normalPercentage": null,
+          "uniformValue": null,
+          "uniformPercentage": null,
+          "_id": "68125cb0477af00c3a6fed33",
+          "method": "fixedValue",
+          "fixedValue": 0,
+          "fixedPercentage": null,
+          "__v": 0
+        },
+        "inflationAdjustment": false,
+        "marriedPercentage": 30,
+        "isDiscretionary": false,
+        "__v": 0
+      },
+      "invest": null,
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed4d",
+      "name": "mid career inv str",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecfa",
+        "method": "sameYearAsAnotherEvent",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": "microsoft job",
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed23",
+        "method": "fixedValue",
+        "fixedValue": 25,
+        "__v": 0
+      },
+      "type": "invest",
+      "income": null,
+      "expense": null,
+      "invest": {
+        "investmentStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 20,
+            "non-retirement": 60,
+            "tax-exempt": 20
+          },
+          "preTaxAllocation": null,
+          "afterTaxAllocation": {
+            "nys investor fund": 50,
+            "liberty mutual fund": 50
+          },
+          "nonRetirementAllocation": {
+            "gamestop": 50,
+            "bitcoin etf": 50
+          },
+          "taxExemptAllocation": {
+            "japan bond": 50,
+            "euro bond": 50
+          }
+        },
+        "finalInvestmentStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 30,
+            "non-retirement": 40,
+            "tax-exempt": 30
+          },
+          "preTaxAllocation": null,
+          "afterTaxAllocation": {
+            "nys investor fund": 50,
+            "liberty mutual fund": 50
+          },
+          "nonRetirementAllocation": {
+            "gamestop": 50,
+            "bitcoin etf": 50
+          },
+          "taxExemptAllocation": {
+            "japan bond": 40,
+            "euro bond": 60
+          }
+        },
+        "_id": "68125cb0477af00c3a6fed3f",
+        "allocations": {
+          "_id": "68125cb0477af00c3a6fed31",
+          "method": "glidePath",
+          "fixedAllocation": [],
+          "glidePath": [],
+          "__v": 0
+        },
+        "modifyMaximumCash": true,
+        "newMaximumCash": 10000,
+        "__v": 0
+      },
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed5d",
+      "name": "late car inv str",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecfb",
+        "method": "yearAfterAnotherEventEnd",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": "mid career inv str",
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed51",
+        "method": "fixedValue",
+        "fixedValue": 5,
+        "__v": 0
+      },
+      "type": "invest",
+      "income": null,
+      "expense": null,
+      "invest": {
+        "investmentStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 45,
+            "non-retirement": 10,
+            "tax-exempt": 45
+          },
+          "preTaxAllocation": null,
+          "afterTaxAllocation": {
+            "nys investor fund": 50,
+            "liberty mutual fund": 50
+          },
+          "nonRetirementAllocation": {
+            "gamestop": 50,
+            "bitcoin etf": 50
+          },
+          "taxExemptAllocation": {
+            "japan bond": 25,
+            "euro bond": 75
+          }
+        },
+        "finalInvestmentStrategy": null,
+        "_id": "68125cb0477af00c3a6fed59",
+        "allocations": {
+          "_id": "68125cb0477af00c3a6fed55",
+          "method": "fixedAllocation",
+          "fixedAllocation": [],
+          "glidePath": [],
+          "__v": 0
+        },
+        "modifyMaximumCash": true,
+        "newMaximumCash": 5000,
+        "__v": 0
+      },
+      "rebalance": null,
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed5f",
+      "name": "mid car reb",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecfc",
+        "method": "fixedValue",
+        "fixedValue": 2040,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": null,
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed53",
+        "method": "fixedValue",
+        "fixedValue": 3,
+        "__v": 0
+      },
+      "type": "rebalance",
+      "income": null,
+      "expense": null,
+      "invest": null,
+      "rebalance": {
+        "rebalanceStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 33,
+            "non-retirement": 34,
+            "tax-exempt": 33
+          },
+          "preTaxAllocation": {
+            "family trust": 60,
+            "microsoft employer contributions": 40
+          },
+          "afterTaxAllocation": null,
+          "nonRetirementAllocation": null,
+          "taxExemptAllocation": null
+        },
+        "finalRebalanceStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 40,
+            "non-retirement": 20,
+            "tax-exempt": 40
+          },
+          "preTaxAllocation": {
+            "family trust": 75,
+            "microsoft employer contributions": 25
+          },
+          "afterTaxAllocation": null,
+          "nonRetirementAllocation": null,
+          "taxExemptAllocation": null
+        },
+        "_id": "68125cb0477af00c3a6fed5b",
+        "allocations": {
+          "_id": "68125cb0477af00c3a6fed57",
+          "method": "glidePath",
+          "fixedAllocation": [],
+          "glidePath": [],
+          "__v": 0
+        },
+        "__v": 0
+      },
+      "__v": 0
+    },
+    {
+      "_id": "68125cb0477af00c3a6fed17",
+      "name": "retirement reb",
+      "description": "",
+      "startYear": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fecfd",
+        "method": "yearAfterAnotherEventEnd",
+        "fixedValue": null,
+        "sameYearAsAnotherEvent": null,
+        "yearAfterAnotherEventEnd": "microsoft job",
+        "__v": 0
+      },
+      "duration": {
+        "normalValue": null,
+        "uniformValue": null,
+        "_id": "68125cb0477af00c3a6fed0b",
+        "method": "fixedValue",
+        "fixedValue": 1,
+        "__v": 0
+      },
+      "type": "rebalance",
+      "income": null,
+      "expense": null,
+      "invest": null,
+      "rebalance": {
+        "rebalanceStrategy": {
+          "taxStatusAllocation": {
+            "after-tax": 45,
+            "non-retirement": 10,
+            "tax-exempt": 45
+          },
+          "preTaxAllocation": null,
+          "afterTaxAllocation": null,
+          "nonRetirementAllocation": null,
+          "taxExemptAllocation": null
+        },
+        "finalRebalanceStrategy": null,
+        "_id": "68125cb0477af00c3a6fed13",
+        "allocations": {
+          "_id": "68125cb0477af00c3a6fed0f",
+          "method": "fixedAllocation",
+          "fixedAllocation": [],
+          "glidePath": [],
+          "__v": 0
+        },
+        "__v": 0
+      },
+      "__v": 0
+    }
+  ],
+  "simulationSettings": {
+    "_id": "681259bc3faef8e2159c7096",
+    "inflationAssumption": {
+      "normalPercentage": {
+        "mean": 4,
+        "sd": 3
+      },
+      "uniformPercentage": {
+        "lowerBound": null,
+        "upperBound": null
+      },
+      "_id": "681259bc3faef8e2159c7094",
+      "method": "normalPercentage",
+      "fixedPercentage": null,
+      "__v": 0
+    },
+    "expenseWithdrawalStrategies": [
+      "gamestop",
+      "nys investor fund",
+      "liberty mutual fund",
+      "family trust",
+      "microsoft employer contributions",
+      "japan bond",
+      "euro bond",
+      "bitcoin etf"
+    ],
+    "spendingStrategy": [
+      "yearly vacation"
+    ],
+    "rmdStrategies": [
+      "family trust",
+      "microsoft employer contributions"
+    ],
+    "rothConversionStrategies": [
+      "family trust",
+      "microsoft employer contributions"
+    ],
+    "rothOptimizerEnable": true,
+    "rothOptimizerStartYear": 2040,
+    "rothOptimizerEndYear": 2055,
+    "__v": 0
+  },
+  "financialGoal": 10000,
+  "stateOfResidence": "NY",
+  "sharedUsers": [],
+  "createdAt": "2025-04-30T17:11:24.327Z",
+  "__v": 0
 }
-------------------------------------------------------------------------------
-
 
 ----------------------------------------------------------------------------------------
  "taxData": {
