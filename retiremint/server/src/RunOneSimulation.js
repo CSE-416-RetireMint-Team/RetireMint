@@ -50,7 +50,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
 
     let startYear = currentYear; // Default
     let duration = 1; // Default
-    // --- Calculate Start Year ---
+    // --- Calculate Start Year --- 
     if (event.startYear && event.startYear.method) { // Check if startYear and method exist
         const method = event.startYear.method;
         //console.log(`[Timing Calc] Start Year Method for "${eventName}": ${method}`); // LOG: Start year method
@@ -58,7 +58,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
         switch (method) {
             case 'fixedValue':
                 if (event.startYear.fixedValue != null) {
-                     startYear = event.startYear.fixedValue;
+            startYear = event.startYear.fixedValue;
                 } else {
                     //console.warn(`[Timing Calc] Warn: Method is fixedValue but fixedValue is null/undefined for "${eventName}". Using default.`);
                 }
@@ -88,8 +88,8 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                         //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on SAME YEAR as "${refEventNameSame}". Making recursive call...`); // LOG: Before recursive call (same year)
                         const refTiming = getOrCalculateEventTiming(refEventNameSame, events, currentYear, eventTimingsCache, processing);
                         //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameSame}":`, refTiming); // LOG: After recursive call (same year)
-                        startYear = refTiming.startYear;
-                    } catch (error) {
+                startYear = refTiming.startYear;
+            } catch (error) {
                         console.error(`[Timing Calc] Error: Failed calculating start for "${eventName}" based on "${refEventNameSame}": ${error.message}`);
                         processing.delete(eventName); // Clean up processing set on error before throwing
                         throw error;
@@ -105,8 +105,8 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                         //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on YEAR AFTER end of "${refEventNameAfter}". Making recursive call...`); // LOG: Before recursive call (year after)
                         const refTiming = getOrCalculateEventTiming(refEventNameAfter, events, currentYear, eventTimingsCache, processing);
                         //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameAfter}":`, refTiming); // LOG: After recursive call (year after)
-                        startYear = refTiming.startYear + refTiming.duration;
-                    } catch (error) {
+                startYear = refTiming.startYear + refTiming.duration;
+            } catch (error) {
                         console.error(`[Timing Calc] Error: Failed calculating start for "${eventName}" based on end of "${refEventNameAfter}": ${error.message}`);
                         processing.delete(eventName); // Clean up processing set on error before throwing
                         throw error;
@@ -262,24 +262,24 @@ function runOneSimulation(modelData, simulationIndex) {
 
         for (let i = 0; i < numYears; i++) {
             let sampledRate = 0.02; // Default rate if method is unknown or fails
-
-            switch (inflationSettings.method) {
-                case 'fixedPercentage':
+        
+        switch (inflationSettings.method) {
+            case 'fixedPercentage':
                     sampledRate = (inflationSettings.fixedPercentage ?? 2) / 100;
-                    break;
-                case 'normalPercentage':
+                break;
+            case 'normalPercentage':
                     const mean = (inflationSettings.normalPercentage?.mean ?? 4) / 100;
                     const sd = (inflationSettings.normalPercentage?.sd ?? 3) / 100;
-                    if (sd < 0) throw new Error("Standard deviation for normal inflation cannot be negative.");
+                 if (sd < 0) throw new Error("Standard deviation for normal inflation cannot be negative.");
                     sampledRate = sampleNormal(mean, sd);
-                    break;
-                case 'uniformPercentage':
+                break;
+            case 'uniformPercentage':
                     const lower = (inflationSettings.uniformPercentage?.lowerBound ?? 1) / 100;
                     const upper = (inflationSettings.uniformPercentage?.upperBound ?? 5) / 100;
-                    if (lower > upper) throw new Error("Lower bound for uniform inflation cannot exceed upper bound.");
+                if (lower > upper) throw new Error("Lower bound for uniform inflation cannot exceed upper bound.");
                     sampledRate = sampleUniform(lower, upper);
-                    break;
-                default:
+                break;
+            default:
                     if (i === 0) { // Log warning only once per simulation
                          console.warn(`Sim ${simulationIndex + 1}: Unknown inflation method '${inflationSettings.method}'. Defaulting to 2% fixed for simulation.`);
                     }
@@ -349,7 +349,299 @@ function runOneSimulation(modelData, simulationIndex) {
     //console.log(`--- End eventsByYear ---\n`);
 
     //------------------------------------------------------------------------------------------------------
-    // determine investment strategy
+    // --- Helper Function for Glide Path Interpolation (Nested Strategy Objects - For Invest Array) ---
+    function interpolateNestedStrategy(initialStrategyObj, finalStrategyObj, fraction) {
+        const interpolated = {};
+        const initial = initialStrategyObj || {}; // Default to empty object if null/undefined
+        const final = finalStrategyObj || {};   // Default to empty object if null/undefined
+
+        // Get all top-level keys (taxStatusAllocation, preTaxAllocation, etc.)
+        const allTopLevelKeys = new Set([...Object.keys(initial), ...Object.keys(final)]);
+
+        allTopLevelKeys.forEach(key => {
+            // Ensure the values being interpolated are objects themselves (like taxStatusAllocation)
+             const initialSubObj = initial[key] || {};
+             const finalSubObj = final[key] || {};
+             const interpolatedSubObj = {};
+
+             // Get all keys within the sub-object (e.g., non-retirement, pre-tax for taxStatusAllocation)
+             const subKeys = new Set([...Object.keys(initialSubObj), ...Object.keys(finalSubObj)]);
+             subKeys.forEach(subKey => {
+                 const initialValue = Number(initialSubObj[subKey]) || 0; // Default to 0
+                 const finalValue = Number(finalSubObj[subKey]) || 0;     // Default to 0
+                 interpolatedSubObj[subKey] = initialValue + (finalValue - initialValue) * fraction;
+             });
+             // Only add the sub-object if it contains keys
+             if (Object.keys(interpolatedSubObj).length > 0) {
+                interpolated[key] = interpolatedSubObj; // Store the interpolated sub-object
+             }
+        });
+        return interpolated;
+    }
+    
+    // --- Helper Function for Glide Path Interpolation (Simple Allocation Objects - For Rebalance Array) ---
+    function interpolateSimpleAllocation(initialAllocObj, finalAllocObj, fraction) {
+        const interpolated = {};
+        const initial = initialAllocObj || {}; // Default to empty object
+        const final = finalAllocObj || {};   // Default to empty object
+        
+        // Get all unique keys from both simple allocation objects
+        const allKeys = new Set([...Object.keys(initial), ...Object.keys(final)]);
+
+        allKeys.forEach(key => {
+            const initialValue = Number(initial[key]) || 0; // Default to 0 if missing or not a number
+            const finalValue = Number(final[key]) || 0;     // Default to 0 if missing or not a number
+            
+            // Linear interpolation for direct key-value pairs
+            interpolated[key] = initialValue + (finalValue - initialValue) * fraction;
+        });
+        return interpolated;
+    }
+    // --- End Helper Functions ---
+
+    //------------------------------------------------------------------------------------------------------
+    // --- Create Rebalance Array ---
+    const rebalanceArray = Array(numYears).fill(null); // Initialize with nulls
+
+    try {
+        for (let yearIndex = 0; yearIndex < numYears; yearIndex++) {
+            const eventsInYear = eventsByYear[yearIndex];
+            let applicableRebalance = null;
+
+            // Find the last rebalance event specified for this year
+            for (let i = eventsInYear.length - 1; i >= 0; i--) {
+                const eventName = eventsInYear[i];
+                const eventObject = events.find(e => e.name === eventName);
+
+                if (eventObject && eventObject.type === 'rebalance' && eventObject.rebalance && eventObject.rebalance.allocations) {
+                     const rebalanceData = eventObject.rebalance;
+                     const allocationMethod = rebalanceData.allocations.method;
+                     const initialStrategy = rebalanceData.rebalanceStrategy;
+                     const finalStrategy = rebalanceData.finalRebalanceStrategy;
+
+                    if (allocationMethod === 'glidePath') {
+                        const timing = eventTimingsCache.get(eventName); // Assumes timing is cached
+                        if (!timing) {
+                             console.error(`Sim ${simulationIndex + 1}: Error - Timing info missing for glide path rebalance event "${eventName}". Skipping rebalance calculation for year ${currentYear + yearIndex}.`);
+                             applicableRebalance = null; // Cannot calculate
+                             break; // Move to next logic block
+                        }
+
+                        if (!initialStrategy || !finalStrategy) {
+                            console.warn(`Sim ${simulationIndex + 1}: Warn - Glide path rebalance for "${eventName}" missing initial or final strategy. Using initial strategy only for year ${currentYear + yearIndex}.`);
+                            // Fallback to using only the initial strategy (treat as fixed)
+                             applicableRebalance = {
+                                method: 'fixedAllocation', // Fallback method
+                                strategy: cleanStrategyObject(initialStrategy)
+                             };
+                             break;
+                        }
+
+                        const eventStartIndex = timing.startYear - currentYear;
+                        const totalDuration = timing.duration;
+                        const yearsElapsed = yearIndex - eventStartIndex; // How many full years into the event are we?
+
+                         // Calculate glide fraction (0 for first year, 1 for last year)
+                         const glideSpan = totalDuration - 1;
+                         let glideFraction = 0;
+                         if (glideSpan > 0) {
+                              glideFraction = Math.max(0, Math.min(1, yearsElapsed / glideSpan));
+                         } // If glideSpan is 0 (duration 1), fraction remains 0
+
+                        // Interpolate each part of the strategy using the SIMPLE helper
+                        const interpolatedStrategy = {
+                             taxStatusAllocation: interpolateSimpleAllocation(initialStrategy.taxStatusAllocation, finalStrategy.taxStatusAllocation, glideFraction),
+                             preTaxAllocation: interpolateSimpleAllocation(initialStrategy.preTaxAllocation, finalStrategy.preTaxAllocation, glideFraction),
+                             afterTaxAllocation: interpolateSimpleAllocation(initialStrategy.afterTaxAllocation, finalStrategy.afterTaxAllocation, glideFraction),
+                             nonRetirementAllocation: interpolateSimpleAllocation(initialStrategy.nonRetirementAllocation, finalStrategy.nonRetirementAllocation, glideFraction),
+                             taxExemptAllocation: interpolateSimpleAllocation(initialStrategy.taxExemptAllocation, finalStrategy.taxExemptAllocation, glideFraction),
+                         };
+
+                         applicableRebalance = {
+                            method: 'glidePath', // Keep original method type
+                            strategy: interpolatedStrategy
+                         };
+
+                    } else { // Fixed allocation or other methods handled similarly
+                         applicableRebalance = {
+                            method: allocationMethod, // e.g., 'fixedAllocation'
+                            strategy: cleanStrategyObject(initialStrategy)
+                         };
+                    }
+                    break; // Use the last rebalance event found for the year
+                }
+            }
+            rebalanceArray[yearIndex] = applicableRebalance; // Store the found strategy (or null)
+        }
+    } catch (error) {
+         console.error(`Simulation ${simulationIndex + 1}: Error creating rebalanceArray: ${error.message}`);
+         rebalanceArray.fill(null); // Clear potentially partial array on error
+    }
+
+    // Print the rebalance array for verification
+    console.log(`\n--- Simulation ${simulationIndex + 1} - Calculated rebalanceArray ---`);
+    rebalanceArray.forEach((rebalanceInfo, index) => {
+         const year = currentYear + index;
+         if (rebalanceInfo) {
+             console.log(`Year ${year} (Index ${index}): Method=${rebalanceInfo.method}, Strategy=`, rebalanceInfo.strategy);
+         } else {
+             console.log(`Year ${year} (Index ${index}): No Rebalance`);
+         }
+    });
+    console.log(`--- End rebalanceArray ---\n`);
+    // --- End Rebalance Array Creation ---
+
+    //------------------------------------------------------------------------------------------------------
+    // --- Calculate Investment Strategies Array ---
+    const investArray = Array(numYears).fill(null); // Initialize with nulls
+    const allEventObjects = modelData.scenario.events; // Keep a reference to full event objects
+
+    // Helper function to create a clean, plain JS object copy of a strategy
+    function cleanStrategyObject(strategy) {
+      if (!strategy) return null;
+      try {
+          // Deep clone assuming strategy and its nested properties are simple objects/values
+          return JSON.parse(JSON.stringify({
+              taxStatusAllocation: strategy.taxStatusAllocation,
+              preTaxAllocation: strategy.preTaxAllocation,
+              afterTaxAllocation: strategy.afterTaxAllocation,
+              nonRetirementAllocation: strategy.nonRetirementAllocation,
+              taxExemptAllocation: strategy.taxExemptAllocation,
+          }));
+      } catch (e) {
+          console.error("Error cloning strategy object:", e, strategy);
+          return null; // Return null if cloning fails
+      }
+    }
+
+    try {
+        for (let yearIndex = 0; yearIndex < numYears; yearIndex++) {
+            const eventsThisYear = eventsByYear[yearIndex];
+            let investEventName = null;
+            let investEventObject = null;
+            let isActiveInvestEventFound = false;
+
+            // Find the last active invest event for this specific year
+            for (let j = eventsThisYear.length - 1; j >= 0; j--) {
+                const eventName = eventsThisYear[j];
+                const eventData = allEventObjects.find(e => e.name === eventName);
+
+                if (eventData && eventData.type === 'invest') {
+                    const timing = eventTimingsCache.get(eventName);
+                    if (timing) {
+                         const eventStartIndex = timing.startYear - currentYear;
+                         const eventEndIndex = eventStartIndex + timing.duration;
+                         // Check if the CURRENT yearIndex falls within the event's duration
+                         if (yearIndex >= eventStartIndex && yearIndex < eventEndIndex) {
+                             investEventName = eventName;
+                             investEventObject = eventData;
+                             isActiveInvestEventFound = true;
+                             break; // Found the relevant active invest event for this year
+                         }
+                    }
+                }
+            }
+
+            if (isActiveInvestEventFound && investEventObject) {
+                // --- Found an active invest event for this year ---
+                if (!investEventObject.invest || !investEventObject.invest.allocations) {
+                     console.error(`Simulation ${simulationIndex + 1}: Invest event '${investEventName}' data is incomplete (missing invest or allocations). Carrying forward previous state for year ${currentYear + yearIndex}.`);
+                     investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null; // Carry forward previous or null
+                     continue;
+                }
+
+                const allocationMethod = investEventObject.invest.allocations.method;
+                const targetStrategy = investEventObject.invest.investmentStrategy; // Initial/Target strategy
+                const finalGlideTarget = investEventObject.invest.finalInvestmentStrategy; // Glide end target
+
+                const timing = eventTimingsCache.get(investEventName); // Get timing again (safe)
+                 if (!timing) { 
+                     console.error(`Sim ${simulationIndex + 1}: Error - Timing info missing for invest event "${investEventName}". Carrying forward previous state for year ${currentYear + yearIndex}.`);
+                     investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
+                     continue;
+                 }
+                 const eventStartIndex = timing.startYear - currentYear;
+                 const totalDuration = timing.duration;
+                 const yearsElapsed = yearIndex - eventStartIndex; // 0 for the first year of the event
+
+                if (allocationMethod === 'fixedAllocation') {
+                     if (!targetStrategy) {
+                         console.error(`Sim ${simulationIndex + 1}: Fixed invest event '${investEventName}' missing investmentStrategy. Carrying forward previous state for year ${currentYear + yearIndex}.`);
+                         investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
+                         continue;
+                     }
+                     investArray[yearIndex] = {
+                         method: 'fixedAllocation',
+                         strategy: cleanStrategyObject(targetStrategy)
+                     };
+
+                } else if (allocationMethod === 'glidePath') {
+                     if (!targetStrategy || !finalGlideTarget) {
+                         console.warn(`Sim ${simulationIndex + 1}: Warn - Glide path invest event "${investEventName}" missing initial (investmentStrategy) or final (finalInvestmentStrategy). Treating as fixed allocation with initial strategy for year ${currentYear + yearIndex}.`);
+                         investArray[yearIndex] = {
+                              method: 'fixedAllocation', // Fallback for this year
+                              strategy: cleanStrategyObject(targetStrategy)
+                         };
+                         continue; // Continue to next year
+                     }
+
+                    // Define the fixed start and end points for interpolation
+                    const fixedStartStrategy = cleanStrategyObject(targetStrategy);
+                    const fixedEndStrategy = cleanStrategyObject(finalGlideTarget);
+                    
+                    if (!fixedStartStrategy || !fixedEndStrategy) { // Check if cleaning/cloning failed
+                        console.error(`Sim ${simulationIndex + 1}: Error cleaning start or end strategy for glide path '${investEventName}'. Skipping year ${currentYear + yearIndex}.`);
+                        investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
+                        continue;
+                    }
+                    
+                    const eventStartIndex = timing.startYear - currentYear;
+                    const yearsElapsed = yearIndex - eventStartIndex; // 0 for the first year, 1 for second, etc.
+                    const totalDuration = timing.duration;
+                    
+                    // Calculate glide fraction (progress from start (0) to end (1))
+                    const glideSpan = totalDuration - 1; // Number of steps (e.g., 3yr duration -> 2 steps)
+                    let glideFraction = 0;
+                    if (glideSpan > 0) {
+                        glideFraction = Math.min(1, yearsElapsed / glideSpan); // Ensure fraction doesn't exceed 1
+                    } else { // Handle duration of 1 year
+                        glideFraction = 0; // Or 1? If duration is 1, use the start strategy.
+                    }
+
+                    // Interpolate between the FIXED start and FIXED end strategies
+                    const currentStrategy = interpolateNestedStrategy(fixedStartStrategy, fixedEndStrategy, glideFraction);
+
+                    investArray[yearIndex] = {
+                        method: 'glidePath',
+                        strategy: currentStrategy // Store the calculated object for the current year
+                    };
+                }
+                 // Add handling for other potential methods if necessary
+            } else {
+                 // No *active* invest event this year. Set to null.
+                 investArray[yearIndex] = null;
+            }
+        }
+    } catch (error) {
+        console.error(`Simulation ${simulationIndex + 1}: Error creating investArray: ${error.message}`);
+        investArray.fill(null); // Clear potentially partial array on error
+    }
+
+    // Print the invest array for verification
+    console.log(`\n--- Simulation ${simulationIndex + 1} - Calculated investArray ---`);
+    investArray.forEach((investInfo, index) => {
+        const year = currentYear + index;
+        if (investInfo && investInfo.strategy) {
+            // Now logging the strategy object directly
+            console.log(`Year ${year} (Index ${index}): Method=${investInfo.method}, Strategy=`, investInfo.strategy); 
+        } else {
+            console.log(`Year ${year} (Index ${index}): No Invest Strategy`);
+        }
+    });
+    console.log(`--- End investArray ---\n`);
+    // --- End Investment Strategies Array Creation ---
+
+    //------------------------------------------------------------------------------------------------------
     
     // --- Placeholder for Yearly Simulation Loop ---
     const yearlyResults = []; 
