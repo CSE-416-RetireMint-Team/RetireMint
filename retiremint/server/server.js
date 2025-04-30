@@ -4,7 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
-const { fetchAllCollections } = require('./src/FetchModelData'); // Import fetchAllCollections
+const { fetchAllCollections, fetchAndLogModelData } = require('./src/FetchModelData'); // Import fetchAllCollections and fetchAndLogModelData
 
 // initialize app
 const app = express();
@@ -775,6 +775,15 @@ app.post('/scenario', async (req, res) => {
                 sharedUsers: sharedUsersList
             }, {new: true});
             console.log('Scenario updated with ID:', existingScenario._id); 
+            
+            // --- DEBUGGING: Log modelData after update ---
+            if (existingScenario && existingScenario._id) {
+                console.log(`--- Fetching and Logging Model Data for Updated Scenario: ${existingScenario._id} ---`);
+                await fetchAndLogModelData(existingScenario._id); 
+                console.log(`--- Finished Logging Model Data for Updated Scenario: ${existingScenario._id} ---`);
+            }
+            // --- END DEBUGGING ---
+
             // Return the original scenario ID to the client
             res.status(201).json({
                 success: true,  
@@ -836,17 +845,48 @@ app.post('/simulation/scenario/investments', async (req, res) => {
         // Fetch all investments and store all investmentType Ids
         for (let i = 0; i < investmentIds.length; i++) {
             let investment = await Investment.findById(investmentIds[i]);
+            // Add null check for investment itself
+            if (!investment) {
+                console.warn(`Investment not found for ID: ${investmentIds[i]}, skipping.`);
+                continue; // Skip to next investment
+            }
+            
             let investmentType = await InvestmentType.findById(investment.investmentType);
+            
+            // --> ADD NULL CHECK HERE <--
+            if (!investmentType) {
+                console.warn(`InvestmentType not found for Investment ID: ${investment._id} (Type ID: ${investment.investmentType}), skipping population.`);
+                // Optionally add the investment with null type to the list if needed for UI
+                // investments.push(investment); 
+                continue; // Skip population for this investment
+            }
+            // --> END NULL CHECK <--
+            
             investment.investmentType = investmentType;
             let expectedReturn = await ExpectedReturnOrIncome.findById(investmentType.expectedAnnualReturn);
             let expectedIncome = await ExpectedReturnOrIncome.findById(investmentType.expectedAnnualIncome);
             
-            investment.investmentType.expectedAnnualReturn = expectedReturn;
-            investment.investmentType.expectedAnnualIncome = expectedIncome;
-            
-            investmentType.expectedAnnualReturn = expectedReturn;
-            investmentType.expectedAnnualIncome = expectedIncome;
+            // Add null checks before accessing properties
+            if (expectedReturn) {
+                investment.investmentType.expectedAnnualReturn = expectedReturn;
+                investmentType.expectedAnnualReturn = expectedReturn; // Keep this sync?
+            } else {
+                console.warn(`ExpectedAnnualReturn not found for InvestmentType: ${investmentType._id}`);
+                // Handle missing return: maybe set to null or a default object?
+                investment.investmentType.expectedAnnualReturn = null; 
+                investmentType.expectedAnnualReturn = null;
+            }
 
+            if (expectedIncome) {
+                investment.investmentType.expectedAnnualIncome = expectedIncome;
+                investmentType.expectedAnnualIncome = expectedIncome; // Keep this sync?
+            } else {
+                 console.warn(`ExpectedAnnualIncome not found for InvestmentType: ${investmentType._id}`);
+                // Handle missing income: maybe set to null or a default object?
+                investment.investmentType.expectedAnnualIncome = null;
+                investmentType.expectedAnnualIncome = null;
+            }
+            
             investments.push(investment);
             investmentTypesSet.add(investmentType);
         }

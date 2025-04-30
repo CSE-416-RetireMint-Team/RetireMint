@@ -163,3 +163,40 @@ Running simulation #2 for calculated 5 years.
 inflationArray [ 0.03, 0.06, 0.09, 0.12, 0.15 ]
 Running simulation #3 for calculated 5 years.
 inflationArray [ 0.03, 0.06, 0.09, 0.12, 0.15 ]
+
+====================================================================
+
+Starting 3 simulations...
+Sim 1: Current User Age: 24
+Sim 1: User LE Mean: 30, StdDev: 2
+Sim 1: User Sampled Age (Raw): 30.087071957561356
+Sim 1: User Target Age (Rounded): 30
+Sim 1: User Target Age (Before Clamp): 30
+Sim 1: User Target Age (After Clamp): 30
+Sim 1: numYears (After Ceiling): 6
+Sim 1: Marital status changes to single in year 2028 (index 3) due to spouse LE.
+Simulation 1 - Marital Status Array: [ 'married', 'married', 'married', 'single', 'single', 'single' ]
+Running simulation #1 for calculated 6 years.
+Sim 2: Current User Age: 24
+Sim 2: User LE Mean: 30, StdDev: 2
+Sim 2: User Sampled Age (Raw): 29.661686376521736
+Sim 2: User Target Age (Rounded): 30
+Sim 2: User Target Age (Before Clamp): 30
+Sim 2: User Target Age (After Clamp): 30
+Sim 2: numYears (After Ceiling): 6
+Sim 2: Marital status changes to single in year 2028 (index 3) due to spouse LE.
+Simulation 2 - Marital Status Array: [ 'married', 'married', 'married', 'single', 'single', 'single' ]
+Running simulation #2 for calculated 6 years.
+Sim 3: Current User Age: 24
+Sim 3: User LE Mean: 30, StdDev: 2
+Sim 3: User Sampled Age (Raw): 28.540919896524453
+Sim 3: User Target Age (Rounded): 29
+Sim 3: User Target Age (Before Clamp): 29
+Sim 3: User Target Age (After Clamp): 29
+Sim 3: numYears (After Ceiling): 5
+Sim 3: Marital status changes to single in year 2028 (index 3) due to spouse LE.
+Simulation 3 - Marital Status Array: [ 'married', 'married', 'married', 'single', 'single' ]
+Running simulation #3 for calculated 5 years.
+
+
+=============================================================================

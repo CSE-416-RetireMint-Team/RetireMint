@@ -107,94 +107,94 @@ function runOneSimulation(modelData, simulationIndex) {
     const currentYear = new Date().getFullYear();
     let numYears = 30; // Default
     let initialMaritalStatus = 'single';
-    let maritalStatusArray = []; // Initialize
+    let userTargetAge = 0; 
+    let spouseTargetAge = Infinity; // Default to infinite if single or missing data
 
     try {
         const scenario = modelData.scenario;
-        if (!scenario || !scenario.birthYear) {
-            throw new Error("Scenario or birthYear missing in modelData");
+        if (!scenario || !scenario.birthYear || !scenario.lifeExpectancy) {
+            throw new Error("Scenario, birthYear, or lifeExpectancy missing");
         }
-        //console.log("scenario.simulationSettings", scenario.simulationSettings);
-        //console.log("scenario.simulationSettings.inflationAssumption", scenario.simulationSettings.inflationAssumption);
         if (!scenario.simulationSettings || !scenario.simulationSettings.inflationAssumption) {
-            throw new Error("inflationAssumption missing in scenario.simulationSettings");
+            throw new Error("inflationAssumption missing");
         }
 
         initialMaritalStatus = scenario.scenarioType === 'married' ? 'married' : 'single';
         const currentUserAge = currentYear - scenario.birthYear;
-        let userTargetAge = currentUserAge + 30; // Default target
 
-        // Determine user target age based on life expectancy settings
-        if (scenario.lifeExpectancy) {
-            if (scenario.lifeExpectancy.lifeExpectancyMethod === 'fixedValue') {
-                userTargetAge = scenario.lifeExpectancy.fixedValue;
-            } else if (scenario.lifeExpectancy.lifeExpectancyMethod === 'normalDistribution') {
-                const mean = scenario.lifeExpectancy.normalDistribution?.mean;
-                const stdDev = scenario.lifeExpectancy.normalDistribution?.standardDeviation;
-                if (mean != null && stdDev != null) {
-                    // Use the existing sampleNormal for age (which rounds)
-                    userTargetAge = Math.round(sampleNormal(mean, stdDev)); 
-                } else {
-                  console.warn(`Simulation ${simulationIndex+1}: Missing mean/stdDev for user normal distribution LE, using default age.`);
-                }
+        // --- Calculate User Target Age ---
+        if (scenario.lifeExpectancy.lifeExpectancyMethod === 'fixedValue') {
+            userTargetAge = scenario.lifeExpectancy.fixedValue;
+        } else if (scenario.lifeExpectancy.lifeExpectancyMethod === 'normalDistribution') {
+            const mean = scenario.lifeExpectancy.normalDistribution?.mean;
+            const stdDev = scenario.lifeExpectancy.normalDistribution?.standardDeviation;
+            if (mean != null && stdDev != null) {
+                userTargetAge = Math.round(sampleNormal(mean, stdDev));
+            } else {
+                console.warn(`Sim ${simulationIndex+1}: Missing mean/stdDev for user LE, using default age.`);
+                userTargetAge = currentUserAge + 30; // Fallback
             }
+        } else {
+             userTargetAge = currentUserAge + 30; // Fallback for unknown method
         }
-        
-        // Clamp user target age to be at least current age + 1 year simulation minimum
-        userTargetAge = Math.max(currentUserAge + 1, userTargetAge);
-        numYears = userTargetAge - currentUserAge; // User determines the primary simulation length
+        userTargetAge = Math.max(currentUserAge + 1, userTargetAge); // Clamp: ensure at least 1 year sim
+        numYears = Math.ceil(userTargetAge - currentUserAge); // Calculate simulation years
 
-        let spouseNumYears = -1; // Sentinel value if not married or no spouse LE data
-
-        // Calculate potential spouse simulation years if married
+        // --- Calculate Spouse Target Age (only if married & data exists) ---
         if (initialMaritalStatus === 'married' && scenario.spouseBirthYear && scenario.spouseLifeExpectancy) {
             const currentSpouseAge = currentYear - scenario.spouseBirthYear;
-            let spouseTargetAge = currentSpouseAge + 30; // Default target
-
             if (scenario.spouseLifeExpectancy.lifeExpectancyMethod === 'fixedValue') {
                 spouseTargetAge = scenario.spouseLifeExpectancy.fixedValue;
             } else if (scenario.spouseLifeExpectancy.lifeExpectancyMethod === 'normalDistribution') {
-                const mean = scenario.spouseLifeExpectancy.normalDistribution?.mean;
-                const stdDev = scenario.spouseLifeExpectancy.normalDistribution?.standardDeviation;
+                 const mean = scenario.spouseLifeExpectancy.normalDistribution?.mean;
+                 const stdDev = scenario.spouseLifeExpectancy.normalDistribution?.standardDeviation;
                  if (mean != null && stdDev != null) {
-                    // Use the existing sampleNormal for age (which rounds)
-                    spouseTargetAge = Math.round(sampleNormal(mean, stdDev)); 
-                } else {
-                  console.warn(`Simulation ${simulationIndex+1}: Missing mean/stdDev for spouse normal distribution LE, using default age.`);
-                }
+                    spouseTargetAge = Math.round(sampleNormal(mean, stdDev));
+                    console.log(`Simulation ${simulationIndex+1}: Spouse sampled target age: ${spouseTargetAge}`);
+                 } else {
+                    console.warn(`Sim ${simulationIndex+1}: Missing mean/stdDev for spouse LE, using default age.`);
+                    spouseTargetAge = currentSpouseAge + 30; // Fallback
+                 }
+            } else {
+                spouseTargetAge = currentSpouseAge + 30; // Fallback
             }
-            
-            // Clamp spouse target age
-            spouseTargetAge = Math.max(currentSpouseAge + 1, spouseTargetAge);
-            spouseNumYears = spouseTargetAge - currentSpouseAge; 
-            // DO NOT set numYears = Math.max(numYears, spouseNumYears) here anymore
-        }
+            spouseTargetAge = Math.max(currentSpouseAge + 1, spouseTargetAge); // Clamp: ensure at least 1 year sim
+        } 
+        // If single, or married but missing data, spouseTargetAge remains Infinity
 
     } catch (error) {
-        console.error(`Simulation ${simulationIndex+1}: Error calculating numYears/ages:`, error);
+        console.error(`Simulation ${simulationIndex+1}: Error calculating ages/numYears:`, error);
         console.warn(`Simulation ${simulationIndex+1}: Defaulting simulation duration to 30 years.`);
-        numYears = 30; // Fallback to default
-        initialMaritalStatus = modelData.scenario?.scenarioType === 'married' ? 'married' : 'single'; // Attempt to get status
-        spouseNumYears = -1; // Reset spouse years on error
+        numYears = 30; // Fallback
+        initialMaritalStatus = modelData.scenario?.scenarioType === 'married' ? 'married' : 'single';
+        // Cannot reliably determine spouse age on error, assume they outlive primary user for this sim
+        spouseTargetAge = Infinity; 
     }
-    
-    numYears = Math.max(1, Math.ceil(numYears)); // Ensure at least 1 year and integer
 
-    // Initialize maritalStatusArray based on calculated numYears
-    maritalStatusArray = Array(numYears).fill(initialMaritalStatus);
+    numYears = Math.max(1, numYears); // Final check: ensure at least 1 year
 
-    // Adjust maritalStatusArray if spouse's calculated lifespan is shorter
-    if (initialMaritalStatus === 'married' && spouseNumYears > 0 && spouseNumYears < numYears) {
-        for (let i = Math.ceil(spouseNumYears); i < numYears; i++) {
-             if (i >= 0) { // Ensure index is not negative
-                maritalStatusArray[i] = 'single';
+    // --- Determine Marital Status Array --- 
+    let maritalStatusArray = Array(numYears).fill(initialMaritalStatus);
+
+    if (initialMaritalStatus === 'married' && spouseTargetAge !== Infinity) {
+        const currentSpouseAge = currentYear - modelData.scenario.spouseBirthYear; // Recalculate here safely
+        // Index of the last year the spouse is alive in the simulation's timeframe
+        const spouseLastYearIndex = Math.ceil(spouseTargetAge - currentSpouseAge) - 1; 
+        
+        // If spouse dies before the user within the simulation period
+        if (spouseLastYearIndex < numYears - 1) { 
+            // Start changing status from the year *after* the spouse's last year
+            for (let i = spouseLastYearIndex + 1; i < numYears; i++) {
+                if (i >= 0) { // Just in case index calculation is negative (shouldn't happen)
+                    maritalStatusArray[i] = 'single';
+                }
             }
+             console.log(`Sim ${simulationIndex + 1}: Marital status changes to single in year ${currentYear + spouseLastYearIndex + 1} (index ${spouseLastYearIndex + 1}) due to spouse LE.`);
         }
-        console.log(`Simulation ${simulationIndex + 1}: Marital status changes to single in year ${currentYear + Math.ceil(spouseNumYears)} (index ${Math.ceil(spouseNumYears)}) due to spouse LE.`);
     }
 
+    //console.log(`Simulation ${simulationIndex + 1} - Marital Status Array:`, maritalStatusArray);
     console.log(`Running simulation #${simulationIndex + 1} for calculated ${numYears} years.`);
-
 
     //------------------------------------------------------------------------------------------------------
     // --- Calculate Inflation Array ---
