@@ -25,80 +25,137 @@ function sampleUniform(min, max) {
 
 // --- Event Timing Calculation Helper ---
 function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsCache, processing = new Set()) {
+    //console.log(`[Timing Calc] Enter: Calculating timing for "${eventName}"...`); // LOG: Function entry
+
     if (eventTimingsCache.has(eventName)) {
-        return eventTimingsCache.get(eventName);
+        const cachedTiming = eventTimingsCache.get(eventName);
+        //console.log(`[Timing Calc] Cache Hit: Found timing for "${eventName}":`, cachedTiming); // LOG: Cache hit
+        return cachedTiming;
     }
+    //console.log(`[Timing Calc] Cache Miss: No cached timing for "${eventName}".`); // LOG: Cache miss
 
     if (processing.has(eventName)) {
+        console.error(`[Timing Calc] Error: Circular dependency detected involving event: ${eventName}`); // Use console.error for actual errors
         throw new Error(`Circular dependency detected involving event: ${eventName}`);
     }
 
     const event = events.find(e => e.name === eventName);
     if (!event) {
+        console.error(`[Timing Calc] Error: Referenced event not found: ${eventName}`); // Use console.error
         throw new Error(`Referenced event not found: ${eventName}`);
     }
 
+    //console.log(`[Timing Calc] Processing: Adding "${eventName}" to processing set.`); // LOG: Add to processing
     processing.add(eventName);
 
     let startYear = currentYear; // Default
     let duration = 1; // Default
+    // --- Calculate Start Year ---
+    if (event.startYear && event.startYear.method) { // Check if startYear and method exist
+        const method = event.startYear.method;
+        //console.log(`[Timing Calc] Start Year Method for "${eventName}": ${method}`); // LOG: Start year method
 
-    // --- Calculate Start Year --- 
-    if (event.startYear) {
-        if (event.startYear.fixedValue) {
-            startYear = event.startYear.fixedValue;
-        } else if (event.startYear.normalValue) {
-            const mean = event.startYear.normalValue.mean || currentYear + 1; // Sensible default
-            const sd = event.startYear.normalValue.sd || 1;
-            startYear = Math.max(currentYear, Math.round(sampleNormal(mean, sd))); // Ensure >= currentYear
-        } else if (event.startYear.uniformValue) {
-            const min = event.startYear.uniformValue.lowerBound || currentYear + 1;
-            const max = event.startYear.uniformValue.upperBound || currentYear + 5;
-            startYear = Math.max(currentYear, Math.round(sampleUniform(min, max))); // Ensure >= currentYear
-        } else if (event.startYear.sameYearAsAnotherEvent) {
-            const refEventName = event.startYear.sameYearAsAnotherEvent;
-            try {
-                const refTiming = getOrCalculateEventTiming(refEventName, events, currentYear, eventTimingsCache, processing);
-                startYear = refTiming.startYear;
-            } catch (error) {
-                console.error(`Error calculating start year for ${eventName} based on ${refEventName}: ${error.message}`);
-                // Decide on fallback behavior - use default or re-throw?
-                throw error; // Re-throw for now to indicate failure
-            }
-        } else if (event.startYear.yearAfterAnotherEventEnd) {
-            const refEventName = event.startYear.yearAfterAnotherEventEnd;
-             try {
-                const refTiming = getOrCalculateEventTiming(refEventName, events, currentYear, eventTimingsCache, processing);
-                startYear = refTiming.startYear + refTiming.duration;
-            } catch (error) {
-                console.error(`Error calculating start year for ${eventName} based on end of ${refEventName}: ${error.message}`);
-                throw error; // Re-throw 
-            }
+        switch (method) {
+            case 'fixedValue':
+                if (event.startYear.fixedValue != null) {
+                     startYear = event.startYear.fixedValue;
+                } else {
+                    //console.warn(`[Timing Calc] Warn: Method is fixedValue but fixedValue is null/undefined for "${eventName}". Using default.`);
+                }
+                break;
+            case 'normalValue':
+                if (event.startYear.normalValue) {
+                    const mean = event.startYear.normalValue.mean ?? currentYear + 1;
+                    const sd = event.startYear.normalValue.sd ?? 1;
+                    startYear = Math.max(currentYear, Math.round(sampleNormal(mean, sd)));
+                } else {
+                     //console.warn(`[Timing Calc] Warn: Method is normalValue but normalValue details are missing for "${eventName}". Using default.`);
+                }
+                break;
+            case 'uniformValue':
+                 if (event.startYear.uniformValue) {
+                    const min = event.startYear.uniformValue.lowerBound ?? currentYear + 1;
+                    const max = event.startYear.uniformValue.upperBound ?? currentYear + 5;
+                    startYear = Math.max(currentYear, Math.round(sampleUniform(min, max)));
+                 } else {
+                     //console.warn(`[Timing Calc] Warn: Method is uniformValue but uniformValue details are missing for "${eventName}". Using default.`);
+                 }
+                break;
+            case 'sameYearAsAnotherEvent':
+                const refEventNameSame = event.startYear.sameYearAsAnotherEvent;
+                if (refEventNameSame) {
+                    try {
+                        //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on SAME YEAR as "${refEventNameSame}". Making recursive call...`); // LOG: Before recursive call (same year)
+                        const refTiming = getOrCalculateEventTiming(refEventNameSame, events, currentYear, eventTimingsCache, processing);
+                        //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameSame}":`, refTiming); // LOG: After recursive call (same year)
+                        startYear = refTiming.startYear;
+                    } catch (error) {
+                        console.error(`[Timing Calc] Error: Failed calculating start for "${eventName}" based on "${refEventNameSame}": ${error.message}`);
+                        processing.delete(eventName); // Clean up processing set on error before throwing
+                        throw error;
+                    }
+                } else {
+                     //console.warn(`[Timing Calc] Warn: Method is sameYearAsAnotherEvent but reference event name is missing for "${eventName}". Using default.`);
+                }
+                break;
+            case 'yearAfterAnotherEventEnd':
+                const refEventNameAfter = event.startYear.yearAfterAnotherEventEnd;
+                 if (refEventNameAfter) {
+                    try {
+                        //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on YEAR AFTER end of "${refEventNameAfter}". Making recursive call...`); // LOG: Before recursive call (year after)
+                        const refTiming = getOrCalculateEventTiming(refEventNameAfter, events, currentYear, eventTimingsCache, processing);
+                        //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameAfter}":`, refTiming); // LOG: After recursive call (year after)
+                        startYear = refTiming.startYear + refTiming.duration;
+                    } catch (error) {
+                        console.error(`[Timing Calc] Error: Failed calculating start for "${eventName}" based on end of "${refEventNameAfter}": ${error.message}`);
+                        processing.delete(eventName); // Clean up processing set on error before throwing
+                        throw error;
+                    }
+                 } else {
+                     //console.warn(`[Timing Calc] Warn: Method is yearAfterAnotherEventEnd but reference event name is missing for "${eventName}". Using default.`);
+                 }
+                break;
+            default:
+                 //console.warn(`[Timing Calc] Warn: Unknown startYear method "${method}" for "${eventName}". Using default.`);
         }
+    } else {
+         //console.log(`[Timing Calc] Start Year Method for "${eventName}": No startYear or method defined, using default ${currentYear}.`); // LOG: No start year/method
     }
     // Ensure startYear is at least the current year
     startYear = Math.max(currentYear, startYear);
+    //console.log(`[Timing Calc] Calculated Raw Start Year for "${eventName}": ${startYear} (clamped to >= ${currentYear})`); // LOG: Calculated start year
 
     // --- Calculate Duration --- (Should be independent of start year calculation)
-    if (event.duration) {
-        if (event.duration.fixedValue) {
+    if (event.duration && event.duration.method) { // Check if duration and method exist
+        const method = event.duration.method;
+        //console.log(`[Timing Calc] Duration Method for "${eventName}": ${method}`); // LOG: Duration method
+        if (event.duration.fixedValue != null) {
             duration = event.duration.fixedValue;
         } else if (event.duration.normalValue) {
-            const mean = event.duration.normalValue.mean || 1;
-            const sd = event.duration.normalValue.sd || 0.5;
+            const mean = event.duration.normalValue.mean ?? 1;
+            const sd = event.duration.normalValue.sd ?? 0.5;
             duration = Math.max(1, Math.round(sampleNormal(mean, sd)));
         } else if (event.duration.uniformValue) {
-            const min = event.duration.uniformValue.lowerBound || 1;
-            const max = event.duration.uniformValue.upperBound || 5;
+            const min = event.duration.uniformValue.lowerBound ?? 1;
+            const max = event.duration.uniformValue.upperBound ?? 5;
             duration = Math.max(1, Math.round(sampleUniform(min, max)));
+        } else {
+             //console.warn(`[Timing Calc] Warn: Unknown duration method "${method}" or missing details for "${eventName}". Using default.`);
         }
+    } else {
+        //console.log(`[Timing Calc] Duration Method for "${eventName}": No duration or method defined, using default 1.`); // LOG: No duration/method
     }
     duration = Math.max(1, duration); // Ensure duration is at least 1
+    //console.log(`[Timing Calc] Calculated Raw Duration for "${eventName}": ${duration} (clamped to >= 1)`); // LOG: Calculated duration
 
     const timing = { startYear, duration };
+    //console.log(`[Timing Calc] Caching: Storing timing for "${eventName}":`, timing); // LOG: Caching result
     eventTimingsCache.set(eventName, timing);
+
+    //console.log(`[Timing Calc] Processing: Removing "${eventName}" from processing set.`); // LOG: Remove from processing
     processing.delete(eventName); // Remove from processing set after successful calculation
 
+    //console.log(`[Timing Calc] Exit: Returning timing for "${eventName}":`, timing); // LOG: Function exit
     return timing;
 }
 // --- End Event Timing Helper ---
@@ -201,52 +258,46 @@ function runOneSimulation(modelData, simulationIndex) {
     const inflationArray = [];
     const inflationSettings = modelData.scenario.simulationSettings.inflationAssumption;
     try {
-        let cumulativeInflation = 0; // Track cumulative inflation
-        
-        switch (inflationSettings.method) {
-            case 'fixedPercentage':
-                const fixedRate = (inflationSettings.fixedPercentage ?? 2) / 100; // Default to 2% if null/undefined
-                for (let i = 0; i < numYears; i++) {
-                    cumulativeInflation += fixedRate;
-                    inflationArray.push(cumulativeInflation);
-                }
-                break;
-            case 'normalPercentage':
-                const mean = (inflationSettings.normalPercentage?.mean ?? 4) / 100; // Default 4%
-                const sd = (inflationSettings.normalPercentage?.sd ?? 3) / 100;     // Default 3%
-                 if (sd < 0) throw new Error("Standard deviation for normal inflation cannot be negative.");
-                for (let i = 0; i < numYears; i++) {
-                    // Sample new inflation value and add to cumulative total
-                    cumulativeInflation += sampleNormal(mean, sd);
-                    inflationArray.push(cumulativeInflation);
-                }
-                break;
-            case 'uniformPercentage':
-                const lower = (inflationSettings.uniformPercentage?.lowerBound ?? 1) / 100; // Default 1%
-                const upper = (inflationSettings.uniformPercentage?.upperBound ?? 5) / 100; // Default 5%
-                if (lower > upper) throw new Error("Lower bound for uniform inflation cannot exceed upper bound.");
-                for (let i = 0; i < numYears; i++) {
-                    // Sample new inflation value and add to cumulative total
-                    cumulativeInflation += sampleUniform(lower, upper);
-                    inflationArray.push(cumulativeInflation);
-                }
-                break;
-            default:
-                console.warn(`Sim ${simulationIndex + 1}: Unknown inflation method '${inflationSettings.method}'. Defaulting to 2% fixed.`);
-                const defaultRate = 0.02;
-                 for (let i = 0; i < numYears; i++) {
-                    cumulativeInflation += defaultRate;
-                    inflationArray.push(cumulativeInflation);
-                }
+        let cumulativeFactor = 1.0; // Track cumulative inflation FACTOR, start at 1
+
+        for (let i = 0; i < numYears; i++) {
+            let sampledRate = 0.02; // Default rate if method is unknown or fails
+
+            switch (inflationSettings.method) {
+                case 'fixedPercentage':
+                    sampledRate = (inflationSettings.fixedPercentage ?? 2) / 100;
+                    break;
+                case 'normalPercentage':
+                    const mean = (inflationSettings.normalPercentage?.mean ?? 4) / 100;
+                    const sd = (inflationSettings.normalPercentage?.sd ?? 3) / 100;
+                    if (sd < 0) throw new Error("Standard deviation for normal inflation cannot be negative.");
+                    sampledRate = sampleNormal(mean, sd);
+                    break;
+                case 'uniformPercentage':
+                    const lower = (inflationSettings.uniformPercentage?.lowerBound ?? 1) / 100;
+                    const upper = (inflationSettings.uniformPercentage?.upperBound ?? 5) / 100;
+                    if (lower > upper) throw new Error("Lower bound for uniform inflation cannot exceed upper bound.");
+                    sampledRate = sampleUniform(lower, upper);
+                    break;
+                default:
+                    if (i === 0) { // Log warning only once per simulation
+                         console.warn(`Sim ${simulationIndex + 1}: Unknown inflation method '${inflationSettings.method}'. Defaulting to 2% fixed for simulation.`);
+                    }
+                    sampledRate = 0.02;
+            }
+
+            // Compound the factor
+            cumulativeFactor *= (1 + sampledRate);
+            inflationArray.push(cumulativeFactor);
         }
     } catch (error) {
-        console.error(`Sim ${simulationIndex + 1}: Error calculating inflation: ${error.message}. Defaulting to 2% fixed.`);
+        console.error(`Sim ${simulationIndex + 1}: Error calculating inflation: ${error.message}. Defaulting to 2% fixed compound factor.`);
         const defaultRate = 0.02;
         inflationArray.length = 0; // Clear potentially partial array
-        let cumulativeInflation = 0;
+        let cumulativeFactor = 1.0; // Reset factor for fallback
          for (let i = 0; i < numYears; i++) {
-            cumulativeInflation += defaultRate;
-            inflationArray.push(cumulativeInflation);
+            cumulativeFactor *= (1 + defaultRate);
+            inflationArray.push(cumulativeFactor);
         }
     }
     // --- End Inflation Calculation ---
@@ -263,6 +314,11 @@ function runOneSimulation(modelData, simulationIndex) {
         // Process each event to determine when it occurs using the helper function
         events.forEach(event => {
             const timing = getOrCalculateEventTiming(event.name, events, currentYear, eventTimingsCache);
+            
+            // --- DEBUG: Log calculated timing for each event ---
+            //console.log(`Sim ${simulationIndex + 1} - Event: "${event.name}", Calculated Start: ${timing.startYear}, Calculated Duration: ${timing.duration}`);
+            // --- END DEBUG ---
+            
             const startYear = timing.startYear;
             const duration = timing.duration;
             
@@ -284,195 +340,13 @@ function runOneSimulation(modelData, simulationIndex) {
         for(let i=0; i<eventsByYear.length; i++) { eventsByYear[i] = []; } // Clear partially filled events
     }
     
-    // Print events by year in a simple format (optional debugging)
-
-    /*
-    let printYear = currentYear;
-    for (let i = 0; i < eventsByYear.length; i++) {
-        console.log("printing " + printYear + ": " + (eventsByYear[i].length > 0 ? eventsByYear[i].join(', ') : 'No Events') + "\n");
-        printYear++;
-    }
-    */
-
-    //------------------------------------------------------------------------------------------------------
-    // --- Calculate Investment Strategies Array ---
-    const investArray = Array(numYears).fill().map(() => []);
-    const allEventObjects = modelData.scenario.events; // Keep a reference to full event objects
-
-
-    // Helper to format the raw strategy object into the layered array structure
-    function formatLayeredAllocation(allocationName, strategyObject) {
-        const formatted = [[allocationName, -1]];
-        if (!strategyObject) return formatted; // Handle empty strategy
-
-        // Sort layer names for consistent output (optional)
-        const layerNames = Object.keys(strategyObject).sort();
-
-        layerNames.forEach(layerName => {
-            if (Object.prototype.hasOwnProperty.call(strategyObject, layerName)) {
-                const layerData = strategyObject[layerName];
-                const layerItems = [];
-                if (layerData && typeof layerData === 'object') {
-                    // Exclude mongoose internal fields explicitly and filter out non-numeric values
-                    const validKeys = Object.keys(layerData)
-                                       .filter(key => key !== '_id' && key !== '__v' && typeof layerData[key] === 'number');
-
-                    // Sort item keys alphabetically for consistent output order (optional)
-                    validKeys.sort(); 
-                    
-                    validKeys.forEach(itemName => {
-                        layerItems.push([itemName, layerData[itemName]]);
-                    });
-                }
-                 if (layerItems.length > 0) { // Only add layer if it has items
-                     formatted.push([layerName, layerItems]);
-                 }
-            }
-        });
-        return formatted;
-    }
-
-    // Helper to parse the layered array structure back into a strategy object
-    function parseLayeredAllocation(layeredArray) {
-        const strategyObject = {};
-        if (!layeredArray || layeredArray.length < 1) return strategyObject;
-
-        for (let i = 1; i < layeredArray.length; i++) { // Start from index 1 to skip [allocationName, -1]
-            const layer = layeredArray[i];
-            if (layer && layer.length === 2 && typeof layer[0] === 'string' && Array.isArray(layer[1])) {
-                const layerName = layer[0];
-                const items = layer[1];
-                const layerMap = {};
-                items.forEach(item => {
-                    if (item && item.length === 2 && typeof item[0] === 'string' && typeof item[1] === 'number') {
-                        layerMap[item[0]] = item[1];
-                    }
-                });
-                 if (Object.keys(layerMap).length > 0) { // Only add layer if it has items
-                    strategyObject[layerName] = layerMap;
-                 }
-            }
-        }
-        return strategyObject;
-    }
-
-    // NOTE: getInitialAllocationMap returns a FLAT map, which doesn't fit the layered structure directly.
-    // This initial state needs careful handling, especially for the first glide path event.
-    // const initialAllocationMap = getInitialAllocationMap(modelData.scenario.investments || []);
-
-    for (let i = 0; i < numYears; i++) {
-        if (investArray[i].length > 0) continue; // Already processed by a glide path
-
-        const eventsThisYear = eventsByYear[i];
-        let investEventName = null;
-        for (let j = eventsThisYear.length - 1; j >= 0; j--) {
-            const eventName = eventsThisYear[j];
-            const eventData = allEventObjects.find(e => e.name === eventName);
-            if (eventData && eventData.type === 'invest') {
-                investEventName = eventName;
-                break;
-            }
-        }
-
-        if (investEventName) {
-            const eventData = allEventObjects.find(e => e.name === investEventName);
-            if (!eventData || !eventData.invest || !eventData.invest.allocations || !eventData.invest.investmentStrategy) {
-                 console.error(`Simulation ${simulationIndex + 1}: Invest event '${investEventName}' data is incomplete. Skipping year ${currentYear + i}.`);
-                 continue;
-            }
-
-            const allocationMethod = eventData.invest.allocations.method;
-            const targetStrategyObject = eventData.invest.investmentStrategy; // The target structure
-
-            if (allocationMethod === 'fixedAllocation') {
-                // Format the raw strategy object directly
-                investArray[i] = formatLayeredAllocation(eventData.name, targetStrategyObject);
-
-            } else if (allocationMethod === 'glidePath') {
-                // 1. Determine Glide Duration
-                let glideDuration = 0;
-                for (let k = i; k < numYears; k++) {
-                    if (eventsByYear[k].includes(investEventName)) {
-                        glideDuration++;
-                    } else {
-                        break;
-                    }
-                }
-                if (glideDuration === 0) continue;
-
-                // 2. Find Start Allocation Object
-                let startStrategyObject = null;
-                let previousStateIndex = -1;
-                if (i > 0) {
-                    for (let prev_i = i - 1; prev_i >= 0; prev_i--) {
-                        if (investArray[prev_i].length > 0) {
-                            startStrategyObject = parseLayeredAllocation(investArray[prev_i]);
-                            previousStateIndex = prev_i;
-                            break;
-                        }
-                    }
-                }
-
-                // 3. Interpolate and Fill investArray
-                let effectiveStartObject = startStrategyObject;
-                let glideStartIndex = 0;
-
-                if (!startStrategyObject) {
-                    // Handle the case where this is the first invest event or no prior state found
-                    // Set the first year to the target, and glide from target for the remaining duration
-                    console.warn(`Simulation ${simulationIndex + 1}: Glide path '${investEventName}' starting at year ${currentYear + i} has no defined previous state. Setting first year to target.`);
-                    investArray[i] = formatLayeredAllocation(eventData.name, targetStrategyObject);
-                    effectiveStartObject = targetStrategyObject; // Glide from target for the rest
-                    glideStartIndex = 1; // Start interpolation from the second year
-                }
-
-                // Combine all layer names and item names from start and target
-                const allLayerNames = new Set([...Object.keys(effectiveStartObject || {}), ...Object.keys(targetStrategyObject)]);
-                const allItemNamesByLayer = {};
-
-                allLayerNames.forEach(layerName => {
-                    allItemNamesByLayer[layerName] = new Set([
-                        ...Object.keys((effectiveStartObject || {})[layerName] || {}),
-                        ...Object.keys(targetStrategyObject[layerName] || {})
-                    ]);
-                });
-
-                for (let j = glideStartIndex; j < glideDuration; j++) {
-                    const currentYearIndex = i + j;
-                    if (currentYearIndex >= numYears) break; // Boundary check
-
-                    // Interpolation factor: t goes from a small value towards 1 over the remaining duration
-                    // For j=glideStartIndex=1, t = 1 / (glideDuration - glideStartIndex + 1) ? No, simpler.
-                    // If j=1 (second year), t = 1 / (duration -1) ? Needs care if duration = 1.
-                    // Let t represent the fraction of the way *through* the glide (excluding the first year if handled separately)
-                    const remainingDuration = glideDuration - glideStartIndex;
-                    const t = remainingDuration <= 0 ? 1 : (j - glideStartIndex + 1) / remainingDuration;
-
-                    const interpolatedStrategyObject = {};
-
-                    allLayerNames.forEach(layerName => {
-                        interpolatedStrategyObject[layerName] = {};
-                        const startLayer = (effectiveStartObject || {})[layerName] || {};
-                        const targetLayer = targetStrategyObject[layerName] || {};
-
-                        allItemNamesByLayer[layerName].forEach(itemName => {
-                            const startPercent = startLayer[itemName] || 0;
-                            const targetPercent = targetLayer[itemName] || 0;
-                            const interpolatedPercent = startPercent + (targetPercent - startPercent) * t;
-                            // Store even if zero during interpolation, formatLayered will filter later
-                            interpolatedStrategyObject[layerName][itemName] = interpolatedPercent;
-                        });
-                    });
-
-                    investArray[currentYearIndex] = formatLayeredAllocation(eventData.name, interpolatedStrategyObject);
-                }
-
-                // 4. Advance Outer Loop
-                i += glideDuration - 1;
-            }
-        }
-    }
-    //console.log(`Sim ${simulationIndex + 1} - Final Invest Array:`, JSON.stringify(investArray));
+    // Print events by year
+    //console.log(`\n--- Simulation ${simulationIndex + 1} - Calculated eventsByYear ---`);
+    //eventsByYear.forEach((eventsInYear, index) => {
+    //    const year = currentYear + index;
+    //    console.log(`Year ${year} (Index ${index}): ${eventsInYear.length > 0 ? eventsInYear.join(', ') : 'No Events'}`);
+    //});
+    //console.log(`--- End eventsByYear ---\n`);
 
     //------------------------------------------------------------------------------------------------------
     // determine investment strategy
