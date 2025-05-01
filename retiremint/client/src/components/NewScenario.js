@@ -45,6 +45,7 @@ function NewScenario() {
     const [expenseWithdrawalStrategies, setExpenseWithdrawalStrategies] = useState([]); 
     const [rmdStrategies, setRmdStrategies] = useState([]);
     const [rothConversionStrategies, setRothConversionStrategies] = useState([]);
+    const [spendingStrategy, setSpendingStrategy] = useState([]); 
     
     // Legacy strategy text inputs (kept for backward compatibility)
     const [expenseWithdrawalStrategiesInput, setExpenseWithdrawalStrategiesInput] = useState('');
@@ -68,7 +69,6 @@ function NewScenario() {
 
     // financial goal and state of residence
     const [financialGoal, setFinancialGoal] = useState('');
-    const [maximumCash, setMaximumCash] = useState('');
     const [stateOfResidence, setStateOfResidence] = useState('');
 
     //shared users 
@@ -85,7 +85,8 @@ function NewScenario() {
         const items = Array.from(
             strategyType === 'expense' ? expenseWithdrawalStrategies : 
             strategyType === 'rmd' ? rmdStrategies : 
-            rothConversionStrategies
+            strategyType === 'roth' ? rothConversionStrategies :
+            spendingStrategy
         );
         
         // Reorder the item in the array
@@ -99,9 +100,12 @@ function NewScenario() {
         } else if (strategyType === 'rmd') {
             console.log("Updated RMD strategies after drag:", items);
             setRmdStrategies(items);
-        } else {
+        } else if (strategyType === 'roth') {
             console.log("Updated Roth conversion strategies after drag:", items);
             setRothConversionStrategies(items);
+        } else if (strategyType === 'spending') {
+            console.log("Updated spending strategies after drag:", items);
+            setSpendingStrategy(items);
         }
     };
 
@@ -142,7 +146,6 @@ function NewScenario() {
                     setScenarioType(response.data.scenarioType);
                     setBirthYear(response.data.birthYear);
                     setSpouseBirthYear(response.data.spouseBirthYear);
-                    setMaximumCash(response.data.maximumCash);
 
                     // --- Load Life Expectancy Data --- 
                     // User
@@ -340,12 +343,14 @@ function NewScenario() {
                 rothRptimizerStartYear: RothOptimizerEnable ? rothRptimizerStartYear : null,
                 rothOptimizerEndYear: RothOptimizerEnable ? rothOptimizerEndYear : null,
                 financialGoal,  
-                maximumCash,
                 stateOfResidence,
                 sharedUsers,
-                userId: userId // Include the userId in the scenario data
+                userId: userId, // Include the userId in the scenario data
+                spendingStrategy: spendingStrategy // ADD spendingStrategy here
             });
             
+            console.log('Spending Strategy before submit:', spendingStrategy);
+
             if (!scenarioResponse.data || !scenarioResponse.data.scenarioId) {
                 console.error('No scenario ID received from server');
                 alert('Error creating scenario. Please try again.');
@@ -413,6 +418,11 @@ function NewScenario() {
                 .filter(inv => inv.taxStatus === 'non-retirement')
                 .map(inv => inv.name);
             
+            // Filter discretionary expenses
+            const discretionaryExpenses = events
+                .filter(event => event.eventType === 'expense' && event.expense?.isDiscretionary)
+                .map(event => event.name);
+            
             // All investments in preferred order
             const allAvailableInvestments = [
                 ...postTaxInvestments,
@@ -473,8 +483,22 @@ function NewScenario() {
             } else {
                 setHasPreTaxInvestments(false);
             }
+
+            // Update spending strategy - preserve order
+            setSpendingStrategy(prevStrategies => {
+                // Remove expenses that no longer exist or are no longer discretionary
+                const filteredStrategies = prevStrategies.filter(
+                    expenseName => discretionaryExpenses.includes(expenseName)
+                );
+                // Add new discretionary expenses not already in the list
+                const newExpenses = discretionaryExpenses.filter(
+                    expenseName => !filteredStrategies.includes(expenseName)
+                );
+                console.log("Updating spending strategy - adding:", newExpenses);
+                return [...filteredStrategies, ...newExpenses];
+            });
         }
-    }, [page, investments]);
+    }, [page, investments, events]);
 
     if (loading) {
         console.log(`loading: ${loading}`);
@@ -625,74 +649,56 @@ function NewScenario() {
                                 </>
                             )}
 
-                        </div>
+                    </div>
 
-                        <div>
-                            <h2>Initial Maximum Cash *</h2>
-                            <input 
-                                type="number" 
-                                placeholder="Enter maximum cash amount" 
-                                value={maximumCash} 
-                                onChange={(e) => setMaximumCash(e.target.value)} 
-                            />
-                            <p className="helper-text">
-                                This value is used for all invest events to determine the maximum amount of cash to keep.
-                            </p>
-                        </div>
+                    <>
+                    {/* Next Button */}
+                        <button onClick={() => {
+                            if (!scenarioName) {
+                                alert("Scenario Name is required.");
+                                return;
+                            }
+                            if (!scenarioType) {
+                                alert("Please select a married status.");
+                                return;
+                            }
+                            if (!birthYear) {
+                                alert("Birth Year is required.");
+                                return;
+                            }
+                            if (!lifeExpectancyMethod) {
+                                alert("Please select a Life Expectancy method.");
+                                return;
+                            }
+                            if (lifeExpectancyMethod === 'fixedValue' && !fixedValue) {
+                                alert("Please enter a fixed life expectancy.");
+                                return;
+                            }
+                            if (lifeExpectancyMethod === 'normalDistribution' && (!mean || !standardDeviation)) {
+                                alert("Please enter a mean and standard deviation.");
+                                return;
+                            }
+                            if (scenarioType === 'married') {
+                                if (!spouseBirthYear) {
+                                    alert("Spouse's Birth Year is required.");
+                                    return;
+                                }
+                                if (!spouseLifeExpectancyMethod) {
+                                    alert("Please select a Life Expectancy method for your spouse.");
+                                    return;
+                                }
+                                if (spouseLifeExpectancyMethod === 'fixedValue' && !spouseFixedValue) {
+                                    alert("Please enter a fixed life expectancy for your spouse.");
+                                    return;
+                                }
+                                if (spouseLifeExpectancyMethod === 'normalDistribution' && (!spouseMean || !spouseStandardDeviation)) {
+                                    alert("Please enter a mean and standard deviation for your spouse.");
+                                    return;
+                                }
+                            }
 
-                        <>
-                        {/* Next Button */}
-                            <button onClick={() => {
-                                if (!scenarioName) {
-                                    alert("Scenario Name is required.");
-                                    return;
-                                }
-                                if (!scenarioType) {
-                                    alert("Please select a married status.");
-                                    return;
-                                }
-                                if (!birthYear) {
-                                    alert("Birth Year is required.");
-                                    return;
-                                }
-                                if (!lifeExpectancyMethod) {
-                                    alert("Please select a Life Expectancy method.");
-                                    return;
-                                }
-                                if (lifeExpectancyMethod === 'fixedValue' && !fixedValue) {
-                                    alert("Please enter a fixed life expectancy.");
-                                    return;
-                                }
-                                if (lifeExpectancyMethod === 'normalDistribution' && (!mean || !standardDeviation)) {
-                                    alert("Please enter a mean and standard deviation.");
-                                    return;
-                                }
-                                if (scenarioType === 'married') {
-                                    if (!spouseBirthYear) {
-                                        alert("Spouse's Birth Year is required.");
-                                        return;
-                                    }
-                                    if (!spouseLifeExpectancyMethod) {
-                                        alert("Please select a Life Expectancy method for your spouse.");
-                                        return;
-                                    }
-                                    if (spouseLifeExpectancyMethod === 'fixedValue' && !spouseFixedValue) {
-                                        alert("Please enter a fixed life expectancy for your spouse.");
-                                        return;
-                                    }
-                                    if (spouseLifeExpectancyMethod === 'normalDistribution' && (!spouseMean || !spouseStandardDeviation)) {
-                                        alert("Please enter a mean and standard deviation for your spouse.");
-                                        return;
-                                    }
-                                }
-                                if (!maximumCash) {
-                                    alert("Maximum Cash is required.");
-                                    return;
-                                }
-
-                                // Save birth year and maximum cash to localStorage
-                                localStorage.setItem('dateOfBirth', birthYear);
-                                localStorage.setItem('initialMaximumCash', maximumCash);
+                            // Save birth year to localStorage
+                            localStorage.setItem('dateOfBirth', birthYear);
 
                                 // if everything is valid, proceed to the next page
                                 setPage(2);
@@ -953,6 +959,119 @@ function NewScenario() {
                         )}
                     </div>
 
+                    {/* Spending Strategy List */}
+                    <div className="strategy-list">
+                        <h4>Spending Strategy - {spendingStrategy.length} expenses</h4>
+                        <p className="helper-text">Priority order for covering discretionary expenses</p>
+                        <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'spending')}>
+                            <Droppable droppableId="spendingStrategyList">
+                                {(provided) => (
+                                    <ul 
+                                        className="draggable-list"
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                    >
+                                        {spendingStrategy.length > 0 ? (
+                                            spendingStrategy.map((expenseName, index) => (
+                                                <Draggable key={`spending-${expenseName}-${index}`} draggableId={`spending-${expenseName}-${index}`} index={index}>
+                                                    {(provided) => (
+                                                        <li
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            className="draggable-item"
+                                                        >
+                                                            {expenseName}
+                                                        </li>
+                                                    )}
+                                                </Draggable>
+                                            ))
+                                        ) : (
+                                            <div className="draggable-list-empty">
+                                                No discretionary expense events added yet.
+                                            </div>
+                                        )}
+                                        {provided.placeholder}
+                                    </ul>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
+                    </div>
+
+                    {/* share setting */}
+                    <h3>Number of Shared Users</h3>
+                        <input 
+                            type="number" 
+                            min="0"
+                            placeholder="Enter number of shared users" 
+                            value={sharedUsers.length} 
+                            onChange={(e) => {
+                                const num = parseInt(e.target.value, 10) || 0;
+                                setSharedUsers(new Array(num).fill(""));
+                            }} 
+                        />
+
+                    {sharedUsers.map((user, index) => {
+                        const parts = user.split(";");
+                        const email = parts[0] || "";
+                        const permission = parts[1] || "readOnly"; // Default to "readOnly"
+
+                        return (
+                            <div key={index}>
+                                <input 
+                                    type="email" 
+                                    placeholder="Enter email" 
+                                    value={email} 
+                                    onChange={(e) => {
+                                        setSharedUsers(prevUsers => {
+                                            const newUsers = [...prevUsers];
+                                            newUsers[index] = `${e.target.value};${permission}`; // Preserve permission
+                                            console.log("Shared Users Updated:", newUsers);
+                                            return newUsers;
+                                        });
+                                    }} 
+                                />
+
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name={`permission-${index}`}
+                                        value="readOnly"
+                                        checked={permission === "readOnly"}
+                                        onChange={() => {
+                                            setSharedUsers(prevUsers => {
+                                                const newUsers = [...prevUsers];
+                                                newUsers[index] = `${email};readOnly`;
+                                                console.log("Shared Users Updated:", newUsers);
+                                                return newUsers;
+                                            });
+                                        }}
+                                    />
+                                    Read Only
+                                </label>
+
+                                <label>
+                                    <input
+                                        type="radio"
+                                        name={`permission-${index}`}
+                                        value="readWrite"
+                                        checked={permission === "readWrite"}
+                                        onChange={() => {
+                                            setSharedUsers(prevUsers => {
+                                                const newUsers = [...prevUsers];
+                                                newUsers[index] = `${email};readWrite`;
+                                                console.log("Shared Users Updated:", newUsers);
+                                                return newUsers;
+                                            });
+                                        }}
+                                    />
+                                    Read Write
+                                </label>
+                            </div>
+                        );
+                    })}
+
+
                         {/* financial goal */}
                         <h3>Financial Goal: *</h3>
                         <input 
@@ -1019,6 +1138,17 @@ function NewScenario() {
                                     alert("You must define at least one investment for Expense Withdrawal Strategy.");
                                     return;
                                 }
+
+                            // Validate spending strategy (optional, but good practice)
+                            if (spendingStrategy.length === 0) {
+                                // Check if there ARE any discretionary expenses first
+                                const anyDiscretionary = events.some(event => event.eventType === 'expense' && event.expense?.isDiscretionary);
+                                if (anyDiscretionary) {
+                                    alert("You have discretionary expenses but haven't defined a Spending Strategy order.");
+                                    // Decide if this should block submission or just warn
+                                    // return; 
+                                }
+                            }
 
                                 // Only validate pre-tax strategies if user has pre-tax investments
                                 if (hasPreTaxInvestments) {
@@ -1260,14 +1390,27 @@ function convertEventFormat(dbEvents) {
                     afterTaxAllocation: dbEvents[i].invest?.investmentStrategy?.afterTaxAllocation ?? {},
                     nonRetirementAllocation: dbEvents[i].invest?.investmentStrategy?.nonRetirementAllocation ?? {},
                     taxExemptAllocation: dbEvents[i].invest?.investmentStrategy?.taxExemptAllocation ?? {},
-                }
+                },
+                // Add the finalInvestmentStrategy for glide path
+                finalInvestmentStrategy: {
+                    taxStatusAllocation: dbEvents[i].invest?.finalInvestmentStrategy?.taxStatusAllocation ?? {},
+                    preTaxAllocation: dbEvents[i].invest?.finalInvestmentStrategy?.preTaxAllocation ?? {},
+                    afterTaxAllocation: dbEvents[i].invest?.finalInvestmentStrategy?.afterTaxAllocation ?? {},
+                    nonRetirementAllocation: dbEvents[i].invest?.finalInvestmentStrategy?.nonRetirementAllocation ?? {},
+                    taxExemptAllocation: dbEvents[i].invest?.finalInvestmentStrategy?.taxExemptAllocation ?? {},
+                },
+                // Set the executionType based on whether we have glide path data
+                executionType: dbEvents[i].invest?.executionType || 
+                              (dbEvents[i].invest?.finalInvestmentStrategy && 
+                               Object.keys(dbEvents[i].invest?.finalInvestmentStrategy).some(key => 
+                                   Object.keys(dbEvents[i].invest?.finalInvestmentStrategy[key] || {}).length > 0) 
+                               ? 'glidePath' : 'fixedAllocation')
             },
             rebalance: {
                 allocations : {
                     returnType: dbEvents[i].rebalance?.allocations?.method ?? '',
                     fixedAllocation: dbEvents[i].rebalance?.allocations?.fixedAllocation ?? '',
                     glidePath: dbEvents[i].rebalance?.allocations?.glidePath ?? '',
-
                 },
                 // Add the rebalanceStrategy object with null checks
                 rebalanceStrategy: {
@@ -1276,7 +1419,21 @@ function convertEventFormat(dbEvents) {
                     afterTaxAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.afterTaxAllocation ?? {},
                     nonRetirementAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.nonRetirementAllocation ?? {},
                     taxExemptAllocation: dbEvents[i].rebalance?.rebalanceStrategy?.taxExemptAllocation ?? {}
-                }
+                },
+                // Add finalRebalanceStrategy for glide path
+                finalRebalanceStrategy: {
+                    taxStatusAllocation: dbEvents[i].rebalance?.finalRebalanceStrategy?.taxStatusAllocation ?? {},
+                    preTaxAllocation: dbEvents[i].rebalance?.finalRebalanceStrategy?.preTaxAllocation ?? {},
+                    afterTaxAllocation: dbEvents[i].rebalance?.finalRebalanceStrategy?.afterTaxAllocation ?? {},
+                    nonRetirementAllocation: dbEvents[i].rebalance?.finalRebalanceStrategy?.nonRetirementAllocation ?? {},
+                    taxExemptAllocation: dbEvents[i].rebalance?.finalRebalanceStrategy?.taxExemptAllocation ?? {}
+                },
+                // Set the executionType based on whether we have glide path data
+                executionType: dbEvents[i].rebalance?.executionType || 
+                              (dbEvents[i].rebalance?.finalRebalanceStrategy && 
+                               Object.keys(dbEvents[i].rebalance?.finalRebalanceStrategy).some(key => 
+                                   Object.keys(dbEvents[i].rebalance?.finalRebalanceStrategy[key] || {}).length > 0) 
+                               ? 'glidePath' : 'fixedAllocation')
             }
         });
         
