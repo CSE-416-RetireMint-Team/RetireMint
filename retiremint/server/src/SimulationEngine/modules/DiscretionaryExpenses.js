@@ -8,7 +8,7 @@
  * 4. Tracking capital gains and income
  */
 
-const { sellInvestment } = require('./6_NonDiscretionaryExpenses');
+const { sellInvestment } = require('./NonDiscretionaryExpenses');
 
 /**
  * Calculate the total assets value

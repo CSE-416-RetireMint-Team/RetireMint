@@ -1,0 +1,402 @@
+inflation to thresholds for capital gains, standard deduction, statetaxes, and incomeTax
+
+
+============================================================================================================================================
+Starting 2 simulations...
+Running simulation #1 for calculated 2 years.
+Year 2025 (Idx 0): Adjusted Capital Gains Brackets = [
+  {
+    rate: '0%',
+    adjustedMinThreshold: 0,
+    adjustedMaxThreshold: 98832.50713424741
+  },
+  {
+    rate: '15%',
+    adjustedMinThreshold: 98833.55798493465,
+    adjustedMaxThreshold: 613434.088672163
+  }
+]
+Year 2025 (Idx 0): Adjusted Standard Deduction = 30684.84006719856
+Year 2025 (Idx 0): Adjusted Federal Brackets = [
+  {
+    rate: '10%',
+    adjustedMinIncome: 0,
+    adjustedMaxIncome: 24379.735943801596
+  },
+  {
+    rate: '12%',
+    adjustedMinIncome: 24380.786794488828,
+    adjustedMaxIncome: 99095.21980605563
+  },
+  {
+    rate: '22%',
+    adjustedMinIncome: 99096.27065674285,
+    adjustedMaxIncome: 211273.53066815995
+  },
+  {
+    rate: '24%',
+    adjustedMinIncome: 211274.58151884718,
+    adjustedMaxIncome: 403421.5788286824
+  },
+  {
+    rate: '32%',
+    adjustedMinIncome: 403422.6296793697,
+    adjustedMaxIncome: 512237.1674916417
+  },
+  {
+    rate: '35%',
+    adjustedMinIncome: 512238.2183423289,
+    adjustedMaxIncome: 768382.0225046434
+  },
+  {
+    rate: '37%',
+    adjustedMinIncome: 768383.0733553306,
+    adjustedMaxIncome: Infinity
+  }
+]
+Year 2025 (Idx 0): Adjusted State Brackets (married) = [
+  { rate: 0.04, adjustedMin: 0, adjustedMax: 18022.08928604299 },
+  {
+    rate: 0.045,
+    adjustedMin: 18023.14013673022,
+    adjustedMax: 24800.076218694725
+  },
+  {
+    rate: 0.0525,
+    adjustedMin: 24801.12706938196,
+    adjustedMax: 29318.734173795885
+  },
+  {
+    rate: 0.055,
+    adjustedMin: 29319.785024483117,
+    adjustedMax: 169764.92852246328
+  },
+  {
+    rate: 0.06,
+    adjustedMin: 169765.9793731505,
+    adjustedMax: 339634.9421136498
+  },
+  {
+    rate: 0.0685,
+    adjustedMin: 339635.99296433706,
+    adjustedMax: 2264951.0287272744
+  },
+  {
+    rate: 0.0965,
+    adjustedMin: 2264952.079577962,
+    adjustedMax: 5254253.436164137
+  },
+  {
+    rate: 0.103,
+    adjustedMin: 5254254.4870148245,
+    adjustedMax: 26271267.180820685
+  },
+  {
+    rate: 0.109,
+    adjustedMin: 26271268.23167137,
+    adjustedMax: Infinity
+  }
+]
+Year 2026 (Idx 1): Adjusted Capital Gains Brackets = [
+  {
+    rate: '0%',
+    adjustedMinThreshold: 0,
+    adjustedMaxThreshold: 105432.61561200597
+  },
+  {
+    rate: '15%',
+    adjustedMinThreshold: 105433.73663928521,
+    adjustedMaxThreshold: 654399.6742531471
+  }
+]
+Year 2026 (Idx 1): Adjusted Standard Deduction = 32733.996553647787
+Year 2026 (Idx 1): Adjusted Federal Brackets = [
+  {
+    rate: '10%',
+    adjustedMinIncome: 0,
+    adjustedMaxIncome: 26007.832878240708
+  },
+  {
+    rate: '12%',
+    adjustedMinIncome: 26008.953905519942,
+    adjustedMaxIncome: 105712.8724318146
+  },
+  {
+    rate: '22%',
+    adjustedMinIncome: 105713.99345909384,
+    adjustedMaxIncome: 225382.5344900989
+  },
+  {
+    rate: '24%',
+    adjustedMinIncome: 225383.65551737812,
+    adjustedMaxIncome: 430362.37249812967
+  },
+  {
+    rate: '32%',
+    adjustedMinIncome: 430363.4935254089,
+    adjustedMaxIncome: 546444.7472628636
+  },
+  {
+    rate: '35%',
+    adjustedMinIncome: 546445.8682901427,
+    adjustedMaxIncome: 819695.1465762762
+  },
+  {
+    rate: '37%',
+    adjustedMinIncome: 819696.2676035553,
+    adjustedMaxIncome: Infinity
+  }
+]
+Year 2026 (Idx 1): Adjusted State Brackets (married) = [
+  { rate: 0.04, adjustedMin: 0, adjustedMax: 19225.6178388719 },
+  {
+    rate: 0.045,
+    adjustedMin: 19226.738866151136,
+    adjustedMax: 26456.243789934513
+  },
+  {
+    rate: 0.0525,
+    adjustedMin: 26457.364817213747,
+    adjustedMax: 31276.66109064292
+  },
+  {
+    rate: 0.055,
+    adjustedMin: 31277.782117922154,
+    adjustedMax: 181101.9569603356
+  },
+  {
+    rate: 0.06,
+    adjustedMin: 181103.07798761484,
+    adjustedMax: 362316.0166485947
+  },
+  {
+    rate: 0.0685,
+    adjustedMin: 362317.13767587394,
+    adjustedMax: 2416206.146298108
+  },
+  {
+    rate: 0.0965,
+    adjustedMin: 2416207.2673253873,
+    adjustedMax: 5605136.396172566
+  },
+  {
+    rate: 0.103,
+    adjustedMin: 5605137.517199846,
+    adjustedMax: 28025681.980862834
+  },
+  {
+    rate: 0.109,
+    adjustedMin: 28025683.101890113,
+    adjustedMax: Infinity
+  }
+]
+Running simulation #2 for calculated 2 years.
+Year 2025 (Idx 0): Adjusted Capital Gains Brackets = [
+  {
+    rate: '0%',
+    adjustedMinThreshold: 0,
+    adjustedMaxThreshold: 97383.18572966245
+  },
+  {
+    rate: '15%',
+    adjustedMinThreshold: 97384.22117023374,
+    adjustedMaxThreshold: 604438.4334895317
+  }
+]
+Year 2025 (Idx 0): Adjusted Standard Deduction = 30234.86468161769
+Year 2025 (Idx 0): Adjusted Federal Brackets = [
+  {
+    rate: '10%',
+    adjustedMinIncome: 0,
+    adjustedMaxIncome: 24022.221253888027
+  },
+  {
+    rate: '12%',
+    adjustedMinIncome: 24023.256694459316,
+    adjustedMaxIncome: 97642.04587248452
+  },
+  {
+    rate: '22%',
+    adjustedMinIncome: 97643.08131305581,
+    adjustedMaxIncome: 208175.3268575081
+  },
+  {
+    rate: '24%',
+    adjustedMinIncome: 208176.3622980794,
+    adjustedMaxIncome: 397505.63531756954
+  },
+  {
+    rate: '32%',
+    adjustedMinIncome: 397506.67075814086,
+    adjustedMaxIncome: 504725.50647447066
+  },
+  {
+    rate: '35%',
+    adjustedMinIncome: 504726.5419150419,
+    adjustedMaxIncome: 757114.1457259882
+  },
+  {
+    rate: '37%',
+    adjustedMinIncome: 757115.1811665595,
+    adjustedMaxIncome: Infinity
+  }
+]
+Year 2025 (Idx 0): Adjusted State Brackets (married) = [
+  { rate: 0.04, adjustedMin: 0, adjustedMax: 17757.805797593952 },
+  {
+    rate: 0.045,
+    adjustedMin: 17758.841238165238,
+    adjustedMax: 24436.39748240334
+  },
+  {
+    rate: 0.0525,
+    adjustedMin: 24437.432922974625,
+    adjustedMax: 28888.79193894293
+  },
+  {
+    rate: 0.055,
+    adjustedMin: 28889.82737951422,
+    adjustedMax: 167275.42429162117
+  },
+  {
+    rate: 0.06,
+    adjustedMin: 167276.45973219245,
+    adjustedMax: 334654.39264037117
+  },
+  {
+    rate: 0.0685,
+    adjustedMin: 334655.4280809424,
+    adjustedMax: 2231736.835326188
+  },
+  {
+    rate: 0.0965,
+    adjustedMin: 2231737.8707667594,
+    adjustedMax: 5177202.856441385
+  },
+  {
+    rate: 0.103,
+    adjustedMin: 5177203.891881957,
+    adjustedMax: 25886014.282206926
+  },
+  {
+    rate: 0.109,
+    adjustedMin: 25886015.317647498,
+    adjustedMax: Infinity
+  }
+]
+Year 2026 (Idx 1): Adjusted Capital Gains Brackets = [
+  {
+    rate: '0%',
+    adjustedMinThreshold: 0,
+    adjustedMaxThreshold: 99986.0111000393
+  },
+  {
+    rate: '15%',
+    adjustedMinThreshold: 99987.07421552148,
+    adjustedMaxThreshold: 620593.6627288456
+  }
+]
+Year 2026 (Idx 1): Adjusted Standard Deduction = 31042.972079969666
+Year 2026 (Idx 1): Adjusted Federal Brackets = [
+  {
+    rate: '10%',
+    adjustedMinIncome: 0,
+    adjustedMaxIncome: 24664.279186825213
+  },
+  {
+    rate: '12%',
+    adjustedMinIncome: 24665.342302307406,
+    adjustedMaxIncome: 100251.78997058698
+  },
+  {
+    rate: '22%',
+    adjustedMinIncome: 100252.85308606917,
+    adjustedMaxIncome: 213739.36769444868
+  },
+  {
+    rate: '24%',
+    adjustedMinIncome: 213740.43080993087,
+    adjustedMaxIncome: 408130.03361302585
+  },
+  {
+    rate: '32%',
+    adjustedMinIncome: 408131.09672850807,
+    adjustedMaxIncome: 518215.6417938772
+  },
+  {
+    rate: '35%',
+    adjustedMinIncome: 518216.7049093594,
+    adjustedMaxIncome: 777350.0405778706
+  },
+  {
+    rate: '37%',
+    adjustedMinIncome: 777351.1036933528,
+    adjustedMaxIncome: Infinity
+  }
+]
+Year 2026 (Idx 1): Adjusted State Brackets (married) = [
+  { rate: 0.04, adjustedMin: 0, adjustedMax: 18232.430519571226 },
+  {
+    rate: 0.045,
+    adjustedMin: 18233.493635053415,
+    adjustedMax: 25089.52537970151
+  },
+  {
+    rate: 0.0525,
+    adjustedMin: 25090.588495183703,
+    adjustedMax: 29660.921953121702
+  },
+  {
+    rate: 0.055,
+    adjustedMin: 29661.98506860389,
+    adjustedMax: 171746.30614791438
+  },
+  {
+    rate: 0.06,
+    adjustedMin: 171747.36926339657,
+    adjustedMax: 343598.9238440478
+  },
+  {
+    rate: 0.0685,
+    adjustedMin: 343599.98695953004,
+    adjustedMax: 2291385.954539816
+  },
+  {
+    rate: 0.0965,
+    adjustedMin: 2291387.017655298,
+    adjustedMax: 5315577.41095371
+  },
+  {
+    rate: 0.103,
+    adjustedMin: 5315578.474069192,
+    adjustedMax: 26577887.05476855
+  },
+  {
+    rate: 0.109,
+    adjustedMin: 26577888.117884032,
+    adjustedMax: Infinity
+  }
+]
+Total simulations run: 2
+
+================================================================================================================================
+
+income SCENARIO DATA RETRIEVED
+Starting 3 simulations...
+Running simulation #1 for calculated 2 years.
+--- Year 2025 (Idx 0): Processing Income Events ---
+Year 2025: Income Processed. Returned -> Cash: 77333.30196539921, Taxable Income: 77333.30196539921, SS Income: 7315.312348078303
+--- Year 2026 (Idx 1): Processing Income Events ---
+Year 2026: Income Processed. Returned -> Cash: 166839.71632529463, Taxable Income: 89506.41435989541, SS Income: 8253.373576770186
+Running simulation #2 for calculated 2 years.
+--- Year 2025 (Idx 0): Processing Income Events ---
+Year 2025: Income Processed. Returned -> Cash: 79613.66017162646, Taxable Income: 79613.66017162646, SS Income: 7531.021908126827
+--- Year 2026 (Idx 1): Processing Income Events ---
+Year 2026: Income Processed. Returned -> Cash: 169390.5065467458, Taxable Income: 89776.84637511933, SS Income: 8284.292059341004
+Running simulation #3 for calculated 2 years.
+--- Year 2025 (Idx 0): Processing Income Events ---
+Year 2025: Income Processed. Returned -> Cash: 74861.3512290744, Taxable Income: 74861.3512290744, SS Income: 7081.479170317849
+--- Year 2026 (Idx 1): Processing Income Events ---
+Year 2026: Income Processed. Returned -> Cash: 154241.80174791484, Taxable Income: 79380.45051884043, SS Income: 7313.571748228354
+
+================================================================================================================================
