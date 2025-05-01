@@ -443,6 +443,12 @@ function Dashboard() {
                                             >
                                                 View Results
                                             </button>
+                                            <button 
+                                                onClick={() => handleDeleteReport(report._id)}
+                                                className="delete-report-button"
+                                            >
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
                                 ))}
