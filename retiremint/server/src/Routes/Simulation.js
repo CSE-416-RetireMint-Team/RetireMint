@@ -203,7 +203,7 @@ router.post('/run', async (req, res) => {
     const result = await runSimulations(
       scenario, 
       { 
-        _id: userId,
+        _id: scenario.userId,
         age: new Date().getFullYear() - scenario.birthYear,
         hasSpouse: scenario.scenarioType === 'married',
         spouseAge: scenario.spouseBirthYear ? 
@@ -224,11 +224,11 @@ router.post('/run', async (req, res) => {
       }
       
       const datetime = new Date().toISOString().replace(/[:.]/g, '-');
-      const username = userId || 'anonymous';
+      const username = scenario.userId || 'anonymous';
       const logFile = path.join(logDir, `data_verification_${username}_${datetime}.log`);
       
       let logContent = `Data Verification for Scenario: ${scenario.name}\n`;
-      logContent += `User ID: ${userId}\n`;
+      logContent += `User ID: ${scenario.userId}\n`;
       logContent += `Scenario ID: ${scenarioId}\n`;
       logContent += `Timestamp: ${new Date().toISOString()}\n\n`;
       logContent += `Verification Status: ${result.dataVerified ? 'SUCCESS' : 'FAILED'}\n`;
@@ -246,7 +246,7 @@ router.post('/run', async (req, res) => {
         mockReport: {
           _id: `mock_${new Date().getTime()}`,
           name: `Data Verification for ${scenario.name}`,
-          userId: userId,
+          userId: scenario.userId,
           scenarioId: scenarioId,
           numSimulations: numSimulations,
           numYears: result.numYears,
@@ -274,7 +274,7 @@ router.post('/run', async (req, res) => {
     }
     
     const datetime = new Date().toISOString().replace(/[:.]/g, '-');
-    const username = userId || 'anonymous';
+    const username = scenario.userId || 'anonymous';
     
     // Log first simulation to CSV
     const csvFile = path.join(logDir, `${username}_${datetime}.csv`);
@@ -298,7 +298,7 @@ router.post('/run', async (req, res) => {
     // Log detailed events
     const logFile = path.join(logDir, `${username}_${datetime}.log`);
     let logContent = `Simulation Report for ${scenario.name}\n`;
-    logContent += `User ID: ${userId}\n`;
+    logContent += `User ID: ${scenario.userId}\n`;
     logContent += `Number of Simulations: ${numSimulations}\n`;
     logContent += `Number of Years: ${result.numYears}\n`;
     
@@ -335,7 +335,7 @@ router.post('/run', async (req, res) => {
     // Create a report document with possibly reduced data to avoid MongoDB document size limits
     const report = new Report({
       name: `Simulation Report for ${scenario.name}`,
-      userId: userId,
+      userId: scenario.userId,
       scenarioId: scenarioId,
       sharedUsers: scenario.sharedUsers,
       numSimulations: numSimulations,
@@ -413,7 +413,7 @@ router.post('/run', async (req, res) => {
       reportId: report._id,
       report: {
         _id: report._id,
-        userId: userId,
+        userId: scenario.userId,
         scenarioId: scenarioId,
         numSimulations: numSimulations,
         successRate: result.successRate,
@@ -470,6 +470,19 @@ router.get('/sharedreports/:userId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching reports:', error);
     res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
+
+// Get all scenarios shared with a given user
+router.get('/sharedscenarios/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const scenarios = await Scenario.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
+    console.log("Found scenarios shared with this user: ", scenarios);
+    res.json(scenarios);
+  } catch (error) {
+    console.error('Error fetching scenarios:', error);
+    res.status(500).json({ error: 'Error fetching scenarios' });
   }
 });
 

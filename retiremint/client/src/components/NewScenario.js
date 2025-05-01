@@ -19,6 +19,7 @@ function NewScenario() {
     //pages there will be 4 pages to break down the scenario form 
     const [page,setPage]=useState(1);
 
+    const [scenarioAuthorId, setScenarioAuthorId] = useState('');
     const [scenarioName, setScenarioName] = useState('');
     const [scenarioType, setScenarioType] = useState('');
     const [birthYear, setBirthYear] = useState('');
@@ -133,7 +134,9 @@ function NewScenario() {
                 if (scenarioId !== "new"){
                     setLoading(true);
                     console.log("Loading");
-                    const response = await axios.post(`http://localhost:8000/simulation/scenario/data`, {scenarioId: scenarioId});                    
+                    const response = await axios.post(`http://localhost:8000/simulation/scenario/data`, {scenarioId: scenarioId});      
+                    // Maintain orginal userId if being edited by another user
+                    setScenarioAuthorId(response.data.userId)              
                     // Update placeholder values with existing scenario data to be changed.
                     setScenarioName(response.data.name);
                     setScenarioType(response.data.scenarioType);
@@ -317,7 +320,7 @@ function NewScenario() {
 
             // Step 1: Submit the scenario to get its ID
             console.log('Submitting scenario...');
-            const userId = localStorage.getItem('userId') || 'guest';
+            const userId = scenarioId === 'new' ? localStorage.getItem('userId') || 'guest' : scenarioAuthorId;
             const scenarioResponse = await axios.post('http://localhost:8000/scenario', {
                 scenarioId,
                 scenarioName,

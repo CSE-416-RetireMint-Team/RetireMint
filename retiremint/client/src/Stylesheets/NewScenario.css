@@ -142,3 +142,28 @@ input[type=text], input[type=number] {
   font-size: 1em;
   font-weight: 400;
 }
+
+.investment-container , .investment-type-container, .event-container {
+  padding-left: 10px;
+  padding-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
+  padding-top: 0px;
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-top-color: #ededed66;
+  border-left-color: #ededed8a;
+  border-right-color: #ededed8a;
+  border-bottom-color: #ededed8a;
+}
+
+.investment-container h3, .investment-type-container h3, .event-container h3 {
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.investment-heading, .investment-type-heading {
+  font-weight: 600;
+}
