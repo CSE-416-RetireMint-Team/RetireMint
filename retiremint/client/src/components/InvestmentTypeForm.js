@@ -106,19 +106,19 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
             />
 
             {investmentTypes.map((investmentType, index) => (
-                <div key={index}>
-                    <h2>Investment Type {index + 1}</h2>
+                <div key={index}  className='investment-type-container'>
+                    <h2 className='investment-type-heading'>Investment Type {index + 1}</h2>
                     
                     <>
                     {/* name and description */}
-                        <h2>Name: *</h2>
+                        <h3>Name: *</h3>
                         <input 
                             type="text" 
                             placeholder="Investment Type Name" 
                             value={investmentType.name || ''} 
                             onChange={(e) => updateInvestmentType(index, ['name'], e.target.value)} 
                         />
-                         <h2>Description:</h2>
+                         <h3>Description:</h3>
                         <input 
                             type="text" 
                             placeholder="Investment Type Description" 
@@ -129,7 +129,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                     <> {/* expected annual return */}
                         <div>
-                            <h2>Expected Annual Return: *</h2>
+                            <h3>Expected Annual Return: *</h3>
                             
                             <button onClick={() => updateInvestmentType(index, ['expectedReturn', 'returnType'], 'fixedValue')}>
                                 Fixed Value
@@ -214,7 +214,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                      {/* expense ratio */}
                      <div>
-                        <h2>Expense Ratio (%) *:</h2>
+                        <h3>Expense Ratio (%) *:</h3>
                         <input
                             type="number"
                             placeholder="Expense Ratio"
@@ -226,7 +226,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                     <> {/* expected annual income */}
                         <div>
-                            <h2>Expected Annual Income from Interest or Dividends: *</h2>
+                            <h3>Expected Annual Income from Interest or Dividends: *</h3>
 
                             <button onClick={() => updateInvestmentType(index, ['expectedIncome', 'returnType'], 'fixedValue')}>
                                 Fixed Value
@@ -309,7 +309,7 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                     {/* taxability section */}
                     <div>
-                        <h2>Taxability: *</h2>
+                        <h3>Taxability: *</h3>
                         <ul>
                             <li>
                                 <label>

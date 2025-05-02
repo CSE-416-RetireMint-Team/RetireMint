@@ -62,7 +62,6 @@ const Rebalance=require('./src/Schemas/Rebalance');
 const ExpectedAnnualChange = require('./src/Schemas/ExpectedAnnualChange');
 const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
-const SharedUser=require('./src/Schemas/SharedUser');
 const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
 
@@ -208,7 +207,7 @@ app.post('/login',async function(req,res){
 app.post('/scenario', async (req, res) => {
     //console.log('Received req.body:', req.body); // Log the entire request body
     const { 
-        scenarioIdEdit,
+        scenarioId,
         scenarioName, 
         scenarioType, 
         birthYear, 
@@ -235,9 +234,9 @@ app.post('/scenario', async (req, res) => {
   
     // open existing scenario if an edit is being attempted
     let existingScenario;
-    if (scenarioIdEdit) {
+    if (scenarioId !== 'new') {
         try {
-            existingScenario = await Scenario.findById(scenarioIdEdit);
+            existingScenario = await Scenario.findById(scenarioId);
             if (!existingScenario) {
                 return (res.status(404).json({ error : 'Scenario to be edited not Found'}))
             }
@@ -720,18 +719,6 @@ app.post('/scenario', async (req, res) => {
         );
     }
 
-    //share setting
-
-    let sharedUsersList = []; // array to store SharedUser objects
-    if (sharedUsers && sharedUsers.length > 0) {
-        // create and store SharedUser objects
-        sharedUsersList = await Promise.all(sharedUsers.map(async user => {
-            const sharedUser = new SharedUser(user);
-            await sharedUser.save();
-            return sharedUser._id; 
-        }));
-    }
-
     try {
         if (!existingScenario) {
             const newScenario = new Scenario({
@@ -747,7 +734,7 @@ app.post('/scenario', async (req, res) => {
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsersList
+                sharedUsers: sharedUsers
             });
             await newScenario.save();
             console.log('Scenario saved successfully with ID:', newScenario._id);    
@@ -772,7 +759,7 @@ app.post('/scenario', async (req, res) => {
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsersList
+                sharedUsers: sharedUsers
             }, {new: true});
             console.log('Scenario updated with ID:', existingScenario._id); 
             
@@ -804,8 +791,8 @@ app.post('/scenario', async (req, res) => {
 // Returns a list of the InvestmentTypes and all inner documents for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investmentypes', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const investmentIds = scenario.investments;
         const investmentTypeIds = new Set();
         for (i = 0; i < investmentIds.length; i++) {
@@ -835,8 +822,8 @@ app.post('/simulation/scenario/investmentypes', async (req, res) => {
 // Returns a list of the Investments and the InvestmentTypes and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/investments', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const investmentIds = scenario.investments;
         const investments = [];
         // Use a set to Store Investment Types to not contain duplicates upon fetching InvestmentTypes later.
@@ -910,8 +897,8 @@ app.post('/simulation/scenario/investments', async (req, res) => {
 // Returns a list of the Events and all inner objects for a given Scenario (not just IDs)
 app.post('/simulation/scenario/events', async (req, res) => {
     try {
-        const scenarioIdEdit = req.body.scenarioIdEdit;
-        const scenario = await Scenario.findById(scenarioIdEdit);
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
         const eventIds = scenario.events;
         const events = [];
         for (let i = 0; i < eventIds.length; i++) {
@@ -989,7 +976,7 @@ app.post('/scenario/shareToUser', async (req, res) => {
         const userId = req.body.userId;
         const email = req.body.email;
         const permissions = req.body.permissions;
-        console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${permissions}.`);
+        console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${email}, ${permissions}.`);
 
         const scenario = await Scenario.findById(scenarioId);
         console.log(`Found Scenario: ${scenario}`);
@@ -1020,28 +1007,30 @@ app.post('/scenario/shareToUser', async (req, res) => {
     }
 });
 
-// Adds a shared user to a given report (given the reportId, userId (non-google), and permissions ('view' or 'edit'))
-// - To be utilized when directly adding a shared user and when generating a new report after editing a scenario.
+// Adds a shared user to all reports for a given Scenario (given the reportId, userId (non-google), and permissions ('view' or 'edit'))
 app.post('/report/shareToUser', async (req, res) => {
     try {
-        const reportId = req.body.reportId;
+        const scenarioId = req.body.scenarioId;
         const userId = req.body.userId;
         const email = req.body.email;
         const permissions = req.body.permissions;
 
-        const report = await Report.findById(reportId);
+        // Find all reports for a given scenario.
+        const reports = await Report.find({scenarioId: scenarioId});
         // Check if the user is already added to the Report.
-        const index = report.sharedUsers.findIndex((user) => user.email === email);
-        if (index == -1) {
-            report.sharedUsers.push({userId: userId, email: email, permissions: permissions});
-        }
-        else {
-            report.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
-        }
-        report.save();
+        reports.map((report) => {
+            const index = report.sharedUsers.findIndex((user) => user.email === email);
+            if (index == -1) {
+                report.sharedUsers.push({userId: userId, email: email, permissions: permissions});
+            }
+            else {
+                report.sharedUsers[index] = {userId: userId, email: email, permissions: permissions};
+            }
+            report.save();
+        })
         res.json({
             success: true,
-            message: `Sucessfully added shared user ${userId} to report ${reportId}.`,
+            message: `Sucessfully added shared user ${userId} to reports: ${reports.map((report) => report._id, ", ")}.`,
        })
     }
     catch (error) {
@@ -1090,22 +1079,24 @@ app.post('/scenario/removeSharedUser', async (req, res) => {
 
 app.post('/report/removeSharedUser', async (req, res) => {
     try {
-        const reportId = req.body.reportId;
+        const scenarioId = req.body.scenarioId;
         const userId = req.body.userId;
         const email = req.body.email;
 
-        const report = await Report.findById(reportId);
+        const reports = await Report.find({scenarioId: scenarioId});
 
-        // Check if the user is already added to the Report.        
-        const index = report.sharedUsers.findIndex((user) => user.email === email);
-        if (index != -1) {
-            report.sharedUsers.splice(index, 1); // Remove Shared User
-        }
-        report.save();
-        console.log(`Successfully removed Shared user from report: ${report.sharedUsers}`);
+        // Check if the user is already added to the Report.   
+        reports.map((report) => {
+            const index = report.sharedUsers.findIndex((user) => user.email === email);
+            if (index != -1) {
+                report.sharedUsers.splice(index, 1); // Remove Shared User
+            }
+            report.save();
+        })     
+        console.log(`Successfully removed Shared user from reports: ${reports.map((report) => report._id, ", ")}`);
         res.json({
             success: true,
-            message: `Sucessfully removed shared user ${userId} from report ${reportId}.`,
+            message: `Sucessfully removed shared user ${userId} from all reports branching from ${scenarioId}.`,
        })
         
     }

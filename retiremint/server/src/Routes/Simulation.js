@@ -90,6 +90,33 @@ router.get('/report/:id/scenario', async (req, res) => {
   }
 });
 
+// Get scenario data for a given scenarioId
+router.post('/scenario/data', async (req, res) => {
+  console.log("Received post req! for scenario");
+  try {
+    const {scenarioId} = req.body;
+    console.log(`found scenario: ${scenarioId}`);
+    // Fetch the scenario and populate related data
+    const scenario = await Scenario.findById(scenarioId)
+      .populate({
+        path: 'simulationSettings',
+        populate: {
+          path: 'inflationAssumption'
+        }
+      })
+      .populate('lifeExpectancy') // Populate user life expectancy
+      .populate('spouseLifeExpectancy'); // Populate spouse life expectancy (will be null if not applicable)
+      
+    if (!scenario) {
+      return res.status(404).json({ error: 'Scenario not found' });
+    }
+    res.json(scenario);
+  } catch (error) {
+    console.error('Error fetching scenario from scenarioId:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the scenario' });
+  }
+});
+
 // Get all reports for a user
 router.get('/reports/:userId', async (req, res) => {
   try {
@@ -111,7 +138,7 @@ router.get('/reports/:userId', async (req, res) => {
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
   try {
-    const { scenarioId, numSimulations, userId } = req.body;
+    const { scenarioId, numSimulations, userId, reportName} = req.body;
     
     console.log(`Starting simulation for scenario: ${scenarioId}, user: ${userId}`);
     console.log(`Simulation parameters: ${numSimulations} simulations`);
@@ -135,6 +162,9 @@ router.post('/run', async (req, res) => {
       .populate({
         path: 'events',
         populate: ['startYear', 'duration', 'income', 'expense', 'invest', 'rebalance']
+      })
+      .populate({
+        path:'sharedUsers',
       });
     
     if (!scenario) {
@@ -173,7 +203,7 @@ router.post('/run', async (req, res) => {
     const result = await runSimulations(
       scenario, 
       { 
-        _id: userId,
+        _id: scenario.userId,
         age: new Date().getFullYear() - scenario.birthYear,
         hasSpouse: scenario.scenarioType === 'married',
         spouseAge: scenario.spouseBirthYear ? 
@@ -194,11 +224,11 @@ router.post('/run', async (req, res) => {
       }
       
       const datetime = new Date().toISOString().replace(/[:.]/g, '-');
-      const username = userId || 'anonymous';
+      const username = scenario.userId || 'anonymous';
       const logFile = path.join(logDir, `data_verification_${username}_${datetime}.log`);
       
       let logContent = `Data Verification for Scenario: ${scenario.name}\n`;
-      logContent += `User ID: ${userId}\n`;
+      logContent += `User ID: ${scenario.userId}\n`;
       logContent += `Scenario ID: ${scenarioId}\n`;
       logContent += `Timestamp: ${new Date().toISOString()}\n\n`;
       logContent += `Verification Status: ${result.dataVerified ? 'SUCCESS' : 'FAILED'}\n`;
@@ -216,7 +246,7 @@ router.post('/run', async (req, res) => {
         mockReport: {
           _id: `mock_${new Date().getTime()}`,
           name: `Data Verification for ${scenario.name}`,
-          userId: userId,
+          userId: scenario.userId,
           scenarioId: scenarioId,
           numSimulations: numSimulations,
           numYears: result.numYears,
@@ -244,7 +274,7 @@ router.post('/run', async (req, res) => {
     }
     
     const datetime = new Date().toISOString().replace(/[:.]/g, '-');
-    const username = userId || 'anonymous';
+    const username = scenario.userId || 'anonymous';
     
     // Log first simulation to CSV
     const csvFile = path.join(logDir, `${username}_${datetime}.csv`);
@@ -268,7 +298,7 @@ router.post('/run', async (req, res) => {
     // Log detailed events
     const logFile = path.join(logDir, `${username}_${datetime}.log`);
     let logContent = `Simulation Report for ${scenario.name}\n`;
-    logContent += `User ID: ${userId}\n`;
+    logContent += `User ID: ${scenario.userId}\n`;
     logContent += `Number of Simulations: ${numSimulations}\n`;
     logContent += `Number of Years: ${result.numYears}\n`;
     
@@ -304,9 +334,10 @@ router.post('/run', async (req, res) => {
     
     // Create a report document with possibly reduced data to avoid MongoDB document size limits
     const report = new Report({
-      name: `Simulation Report for ${scenario.name}`,
-      userId: userId,
+      name: reportName,
+      userId: scenario.userId,
       scenarioId: scenarioId,
+      sharedUsers: scenario.sharedUsers,
       numSimulations: numSimulations,
       successRate: result.successRate,
       financialGoal: scenario.financialGoal || 0,
@@ -382,7 +413,7 @@ router.post('/run', async (req, res) => {
       reportId: report._id,
       report: {
         _id: report._id,
-        userId: userId,
+        userId: scenario.userId,
         scenarioId: scenarioId,
         numSimulations: numSimulations,
         successRate: result.successRate,
@@ -418,6 +449,18 @@ router.delete('/report/:reportId', async (req, res) => {
   }
 });
 
+// Delete a Scenario
+router.delete('/scenario/:scenarioId', async (req, res) => {
+  try {
+    const { scenarioId } = req.params;
+    await Scenario.findByIdAndDelete(scenarioId);
+    return (res.json({ success: true }));
+  } catch (error) {
+    console.error('Error deleting scenario:' , error);
+    res.status(500).json({ error: 'Error deleting scenario' });
+  }
+});
+
 // Get all shared reports for a user
 router.get('/sharedreports/:userId', async (req, res) => {
   try {
@@ -427,6 +470,19 @@ router.get('/sharedreports/:userId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching reports:', error);
     res.status(500).json({ error: 'Error fetching reports' });
+  }
+});
+
+// Get all scenarios shared with a given user
+router.get('/sharedscenarios/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const scenarios = await Scenario.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
+    console.log("Found scenarios shared with this user: ", scenarios);
+    res.json(scenarios);
+  } catch (error) {
+    console.error('Error fetching scenarios:', error);
+    res.status(500).json({ error: 'Error fetching scenarios' });
   }
 });
 

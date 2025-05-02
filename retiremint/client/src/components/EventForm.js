@@ -547,11 +547,11 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
             {events.map((event, index) => (
                 // Remove filtering logic for INITIAL_INVEST_EVENT here as well if it existed
-                <div key={index}>
+                <div key={index} className='event-container'>
                     <h2>Event {index + 1}</h2>
 
                     {/* Name Input */}
-                    <h2>Name: *</h2>
+                    <h3>Name: *</h3>
                     <input 
                         type="text" 
                         placeholder="Event Name" 
@@ -560,7 +560,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                     />
 
                     {/* Description Input */}
-                    <h2>Description:</h2>
+                    <h3>Description:</h3>
                     <input 
                         type="text" 
                         placeholder="Event Description" 
@@ -570,7 +570,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
 
                     {/* Start Year */}
-                    <h2>Start Year: *</h2>
+                    <h3>Start Year: *</h3>
                     <select
                         value={event.startYear.returnType}
                         onChange={(e) => updateEvent(index, ['startYear', 'returnType'], e.target.value)}
@@ -650,7 +650,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
 
                     {/* Duration */}
-                    <h2>Duration: *</h2>
+                    <h3>Duration: *</h3>
 
                     {/* Buttons to select return type */}
                     <button onClick={() => updateEvent(index, ['duration', 'returnType'], 'fixedValue')}>
@@ -714,7 +714,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
                     {/* Event Type */}
                     <div>
-                        <h2>Event Type: *</h2>
+                        <h3>Event Type: *</h3>
                         <select 
                             value={event.eventType} 
                             onChange={(e) => updateEvent(index, ['eventType'], e.target.value)}

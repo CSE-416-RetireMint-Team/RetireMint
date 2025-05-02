@@ -18,8 +18,11 @@ function Header() {
 
   return (
     <div className="header">
-      <h1 className="header-title" onClick={() => navigateTo('/dashboard')}>RetireMint</h1>
-      <div className="header-subtitle">Lifetime Financial Planner</div>
+      <div className='header-text'>
+        <h1 className="header-title" onClick={() => navigateTo('/dashboard')}>RetireMint</h1>
+        <div className="header-subtitle">Lifetime Financial Planner</div>
+      </div>
+
       
       {isLoggedIn && (
         <div className="header-buttons">

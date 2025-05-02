@@ -9,14 +9,16 @@ function Dashboard() {
     const [scenarios, setScenarios] = useState([]);
     const [reports, setReports] = useState([]);
     const [sharedReportsData, setSharedReportsData] = useState([]);
-    const [reportView, setReportView] = useState('users-reports');
+    const [sharedScenariosData, setSharedScenariosData] = useState([]);
+
+    const [ownerView, setOwnerView] = useState('users');
     const [loading, setLoading] = useState(true);
     const [selectedScenario, setSelectedScenario] = useState(null);
     const [showSimulationForm, setShowSimulationForm] = useState(false);
     const [error, setError] = useState(null);
     const [stateWarning, setStateWarning] = useState(null);
     const [file, setFile] = useState(null);
-    const [shareReport, setShareReport] = useState(null);
+    const [shareScenario, setShareScenario] = useState(null);
     const [showShareMenu, setShowShareMenu] = useState(false);
     const [shareEmail, setShareEmail] = useState('');
     const [sharePermissions, setSharePermissions] = useState('view');
@@ -33,10 +35,23 @@ function Dashboard() {
                 // Fetch user's scenarios
                 const scenariosResponse = await axios.get(`http://localhost:8000/user/${userId}/scenarios`);
                 setScenarios(scenariosResponse.data);
-                
+
                 // Fetch user's simulation reports
                 const reportsResponse = await axios.get(`http://localhost:8000/simulation/reports/${userId}`);
                 setReports(reportsResponse.data);
+
+                // Fetch scenarios shared with user and the respective permissions
+                const sharedScenariosResponse = await axios.get(`http://localhost:8000/simulation/sharedscenarios/${userId}`);
+                console.log("Shared Scenarios Response: ", sharedScenariosResponse.data);
+                const sharedScenarios = [];
+                sharedScenariosResponse.data.map((scenario) => {
+                    const userParameters = scenario.sharedUsers.find((userData) => userData.userId === userId);
+                    if (userParameters != undefined) {
+                        sharedScenarios.push({scenario: scenario, permissions: userParameters.permissions})
+                    }
+                })
+                console.log("Shared Scenarios: ", sharedScenarios);
+                setSharedScenariosData(sharedScenarios);
                 
                 // Fetch reports shared with user and the respective permissions
                 const sharedReportsResponse = await axios.get(`http://localhost:8000/simulation/sharedreports/${userId}`)
@@ -87,6 +102,11 @@ function Dashboard() {
     const handleEditReport = async (reportId) => {
         navigate(`/new-scenario/${reportId}`);
     }
+    
+    const handleEditScenario = async (scenarioId) => {
+        console.log("SCENARIOID: ", scenarioId);
+        navigate(`/new-scenario/${scenarioId}`);
+    }
 
     const handleDeleteReport = async (reportId) => {
         if (window.confirm('Are you sure you want to delete this report?')) {
@@ -96,6 +116,20 @@ function Dashboard() {
             } catch (err) {
                 console.error('Error deleting report:', err);
                 setError('Failed to delete the report. Please try again later.');
+            }
+        }
+    };
+
+    const handleDeleteScenario = async (scenarioId) => {
+        if (window.confirm('Are you sure you want to delete this report?')) {
+            console.log("Deleting Scenario: ", scenarioId);
+            try {
+                await axios.delete(`http://localhost:8000/simulation/scenario/${scenarioId}`);
+                setScenarios(scenarios.filter(scenario => scenario._id !== scenarioId));
+                console.log("Successfully deleted scenario ", scenarioId);
+            } catch (err) {
+                console.error('Error deleting scenario:', err);
+                setError('Failed to delete the scenario. Please try again later.');
             }
         }
     };
@@ -112,17 +146,30 @@ function Dashboard() {
             setError('Failed to open the share menu. Please try again later.');
         }
     }
+
+    // Handle opening the Share Menu on a given report.
+    const handleShareScenario = async (scenarioId) => {
+        try{
+            const scenario = await axios.post(`http://localhost:8000/simulation/scenario/data`, {scenarioId: scenarioId});
+            setShareScenario(scenario.data)
+            setShowShareMenu(true);
+        }
+        catch (error) { 
+            console.error('Error opening share menu:', err);
+            setError('Failed to open the share menu. Please try again later.');
+        }
+    }
     // Handle sharing a report with another user by adding it to the Scenario and Report in the DB.
     const handleShareUser = async  () => {        
-        if (shareReport) {
+        if (shareScenario) {
             try {
                 // Reset any previous errors from attempting to share
                 setShareError(null);
                 const sharedUserId = (await axios.get(`http://localhost:8000/user/email/${shareEmail}`)).data;
-                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
-                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareScenario._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {scenarioId: shareScenario._id, userId: sharedUserId, email: shareEmail, permissions: sharePermissions});
                 // Update shareReport on the front-end to show new shared users.
-                handleShareReport(shareReport._id);
+                handleShareScenario(shareScenario._id);
             }   
             catch (error) {
                 console.error("Share Error");
@@ -136,14 +183,14 @@ function Dashboard() {
 
     // Handle changing a shared user's existing permissions to a given report.
     const handleChangeSharePermissions = async (user, permissions) => {
-        if (shareReport) {
+        if (shareScenario) {
             try {
                 // Reset any previous errors from attempting to share
                 setShareError(null);
-                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email, permissions: permissions});
-                await axios.post('http://localhost:8000/report/shareToUser', {reportId: shareReport._id, userId: user.userId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/scenario/shareToUser', {scenarioId: shareScenario._id, userId: user.userId, email: user.email, permissions: permissions});
+                await axios.post('http://localhost:8000/report/shareToUser', {scenarioId: shareScenario._id, userId: user.userId, email: user.email, permissions: permissions});
                 // Update shareReport on the front-end to show new shared users.
-                handleShareReport(shareReport._id);
+                handleShareScenario(shareScenario._id);
             }   
             catch (error) {
                 console.error("Share Error");
@@ -151,19 +198,19 @@ function Dashboard() {
             }
         }
         else {
-            setShareError("No proper report selected.")
+            setShareError("No proper scenario selected.")
         }
     }
 
     const handleRemoveSharedUser = async (user) => {
-        if (shareReport) {
+        if (shareScenario) {
             try {
                 // Reset any previous errors from attempting to share
                 setShareError(null);
-                await axios.post('http://localhost:8000/scenario/removeSharedUser', {scenarioId: shareReport.scenarioId, userId: user.userId, email: user.email});
-                await axios.post('http://localhost:8000/report/removeSharedUser', {reportId: shareReport._id, userId: user.userId, email: user.email});
+                await axios.post('http://localhost:8000/scenario/removeSharedUser', {scenarioId: shareScenario._id, userId: user.userId, email: user.email});
+                await axios.post('http://localhost:8000/report/removeSharedUser', {scenarioId: shareScenario._id, userId: user.userId, email: user.email});
                 // Update shareReport on the front-end to show new shared users.
-                handleShareReport(shareReport._id);
+                handleShareScenario(shareScenario._id);
             }   
             catch (error) {
                 console.error("Remove Shared User Error");
@@ -261,49 +308,115 @@ function Dashboard() {
                     Create New Scenario
                 </button>
             </div>
+            <select name="reports-view" onChange={(e) => setOwnerView(e.target.value)}>
+                <option value="users">Your Reports</option>   
+                <option value="shared">Shared With You</option> 
+            </select>
             
             <div className="dashboard-content">
                 <div className="scenarios-section">
-                    <h2>Your Financial Scenarios</h2>
-                    
-                    {scenarios.length === 0 ? (
-                        <div className="empty-state">
-                            <p>You haven't created any scenarios yet.</p>
-                            <button onClick={handleNewScenario}>Create Your First Scenario</button>
-                        </div>
-                    ) : (
-                        <div className="scenarios-list">
-                            {scenarios.map(scenario => (
-                                <div key={scenario._id} className="scenario-card">
-                                    <h3>{scenario.name}</h3>
-                                    <p>{scenario.description || 'No description'}</p>
-                                    <div className="scenario-details">
-                                        <p>Type: {scenario.scenario_type}</p>
-                                        <p>Financial Goal: ${scenario.financial_goal?.toLocaleString() || 0}</p>
+
+                    {/* User is viewing their own Reports */}
+                    {ownerView === 'users' ? (
+                        <>
+                        <h2>Your Financial Scenarios</h2>
+                        
+                        {scenarios.length === 0 ? (
+                            <div className="empty-state">
+                                <p>You haven't created any scenarios yet.</p>
+                                <button onClick={handleNewScenario}>Create Your First Scenario</button>
+                            </div>
+                        ) : (
+                            <div className="scenarios-list">
+                                {scenarios.map(scenario => (
+                                    <div key={scenario._id} className="scenario-card">
+                                        <h3>{scenario.name}</h3>
+                                        <p>{scenario.description || 'No description'}</p>
+                                        <button 
+                                            onClick={() => handleShareScenario(scenario._id)}>
+                                            Share
+                                        </button>
+                                        <div className="scenario-details">
+                                            <p>Type: {scenario.scenario_type}</p>
+                                            <p>Financial Goal: ${scenario.financial_goal?.toLocaleString() || 0}</p>
+                                        </div>
+                                        <div className='report-actions'>
+                                            <button 
+                                                onClick={() => handleSelectScenario(scenario)}
+                                                className="run-simulation-button"
+                                            >
+                                                Run Simulation
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditScenario(scenario._id)}
+                                                className='edit-scenario-button'
+                                            >
+                                                Edit Scenario    
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteScenario(scenario._id)}
+                                                className="delete-report-button"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button 
-                                        onClick={() => handleSelectScenario(scenario)}
-                                        className="run-simulation-button"
-                                    >
-                                        Run Simulation
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
+                        </>
+                    ) : (
+                        <>
+                        <h2>Shared Financial Scenarios</h2>
+                        
+                        {sharedScenariosData.length === 0 ? (
+                            <div className="empty-state">
+                                <p>No scenarios have been shared with you yet yet.</p>
+                            </div>
+                        ) : (
+                            <div className="scenarios-list">
+                                {sharedScenariosData.map(scenarioData => {
+                                    const scenario = scenarioData.scenario;
+                                    return(
+                                        <div key={scenario._id} className="scenario-card">
+                                            <h3>{scenario.name}</h3>
+                                            <p>{scenario.description || 'No description'}</p>
+                                            <div className="scenario-details">
+                                                <p>Type: {scenario.scenario_type}</p>
+                                                <p>Financial Goal: ${scenario.financial_goal?.toLocaleString() || 0}</p>
+                                            </div>
+                                            <div className='report-actions'>
+                                                <button 
+                                                    onClick={() => handleSelectScenario(scenario)}
+                                                    className="run-simulation-button"
+                                                >
+                                                    Run Simulation
+                                                </button>
+                                                {scenarioData.permissions === 'edit' ? ( 
+                                                    <button
+                                                        onClick={() => handleEditScenario(scenario._id)}
+                                                        className='edit-scenario-button'
+                                                    >
+                                                    Edit Scenario    
+                                                    </button>
+                                                ) : (<></>)}
+                                            </div>
+                                        </div>
+                                    )}
+                                )}
+                            </div>
+                        )}
+                        </>
                     )}
                 </div>
                 
                 <div className="reports-section">
                     <div>
                         <h2>Recent Simulation Reports</h2>
-                        <select name="reports-view" onChange={(e) => setReportView(e.target.value)}>
-                            <option value="users-reports">Your Reports</option>   
-                            <option value="shared-reports">Shared With You</option> 
-                        </select>
                     </div>
                     
                     {/* User is viewing their own Reports */}
-                    {reportView === 'users-reports' ? (
+                    {ownerView === 'users' ? (
                         <>
                         {reports.length === 0 ? (
                             <div className="empty-state">
@@ -318,10 +431,6 @@ function Dashboard() {
                                     <div key={report._id} className="report-card">
                                         <div>
                                             <h3>{report.name}</h3>
-                                            <button 
-                                                onClick={() => handleShareReport(report._id)}>
-                                                Share
-                                            </button>
                                         </div>
                                         <div className="report-details">
                                             <p>Date: {new Date(report.createdAt).toLocaleDateString()}</p>
@@ -333,12 +442,6 @@ function Dashboard() {
                                                 className="view-report-button"
                                             >
                                                 View Results
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditReport(report._id)}
-                                                className='edit-report-button'
-                                            >
-                                                Edit Scenario    
                                             </button>
                                             <button 
                                                 onClick={() => handleDeleteReport(report._id)}
@@ -380,14 +483,6 @@ function Dashboard() {
                                             >
                                                 View Results
                                             </button>
-                                            {reportData.permissions === "edit" && (
-                                                <button
-                                                    onClick={() => handleEditReport(report._id)}
-                                                    className='edit-report-button'
-                                                >
-                                                    Edit Scenario    
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
                                 )})}
@@ -398,7 +493,7 @@ function Dashboard() {
                 </div>
             </div>
 
-            {showShareMenu && shareReport && (
+            {showShareMenu && shareScenario && (
                 <div className='share-menu-background'>
                     <div className='share-menu-box'>
                         <button 
@@ -408,14 +503,14 @@ function Dashboard() {
                             Close Share Menu
                         </button>
                         <div className='share-menu-header-container'>
-                            <h3 className='share-menu-header'>Share <span className='green'>{shareReport.name}</span></h3>
+                            <h3 className='share-menu-header'>Share <span className='green'>{shareScenario.name}</span></h3>
                             <p>Shared Users:</p>
                         </div>
                         <div className='shared-user-list'>
-                            {shareReport.sharedUsers.length === 0 ? (
+                            {shareScenario.sharedUsers.length === 0 ? (
                                 <div>No shared users</div>
                             ) : (
-                                shareReport.sharedUsers.map((user) => (
+                                shareScenario.sharedUsers.map((user) => (
                                 <div key={user.userId} className='shared-user-box'>
                                     <p>{user.email}</p>
                                     <div className='shared-user-permissions'>
