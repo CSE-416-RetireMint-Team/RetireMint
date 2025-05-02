@@ -21,231 +21,6 @@ const { runOneSimulation } = require('./RunOneSimulation'); // Import the new fu
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
 
-/**
- * Prepare a single simulation for execution
- * @param {Object} scenario - User's financial scenario 
- * @param {Object} userData - User data (age, spouse, etc.)
- * @param {Object} taxData - Tax data (brackets, rates, etc.)
- * @param {Number} numYears - Number of years to simulate
- * @param {Number} simulationIndex - Index of this simulation
- * @returns {Promise<Object>} - Result of the simulation
- */
-/*
-async function runSingleSimulation(scenario, userData, taxData, numYears, simulationIndex) {
-  try {
-    console.log(`Starting simulation #${simulationIndex+1} of ${numYears} years`);
-    
-    // Extract key parameters from scenario
-    const currentYear = new Date().getFullYear();
-    const userBirthYear = scenario.birthYear;
-    const userAge = currentYear - userBirthYear;
-    let spouseAge = null;
-    
-    if (scenario.scenarioType === 'married' && scenario.spouseBirthYear) {
-      spouseAge = currentYear - scenario.spouseBirthYear;
-    }
-    
-    // Initialize investments - fix the null reference error
-    const initialInvestments = scenario.investments
-      .filter(inv => inv && inv.investmentType) // Skip invalid investments
-      .map(inv => ({
-        name: inv.investmentType?.name || `Investment ${Math.random().toString(36).substring(7)}`,
-        investmentType: inv.investmentType,
-        taxStatus: inv.accountTaxStatus || 'unknown',
-        value: inv.value || 0,
-        purchasePrice: inv.value || 0 // Initial value = purchase price for capital gains
-      }));
-    
-    console.log(`Processed ${initialInvestments.length} valid investments out of ${scenario.investments.length} total`);
-    
-    // Check if we have any valid investments
-    if (initialInvestments.length === 0) {
-      console.error('No valid investments found in scenario');
-      throw new Error('No valid investments found in scenario');
-    }
-    
-    // Prepare simulation params
-    const params = {
-      // User data
-      userAge,
-      spouseAge,
-      lifeExpectancy: scenario.lifeExpectancy,
-      spouseLifeExpectancy: scenario.spouseLifeExpectancy,
-      scenarioType: scenario.scenarioType,
-      
-      // Financial data
-      investments: initialInvestments,
-      events: scenario.events,
-      inflationAssumption: scenario.simulationSettings.inflationAssumption,
-      financialGoal: scenario.financialGoal,
-      maximumCash: scenario.maximumCash,
-      
-      // Strategy data
-      expenseWithdrawalStrategies: scenario.simulationSettings.expenseWithdrawalStrategies,
-      rmdStrategies: scenario.simulationSettings.rmdStrategies,
-      rothConversionStrategies: scenario.simulationSettings.rothConversionStrategies,
-      
-      // Roth optimizer settings
-      rothOptimizerEnable: scenario.simulationSettings.rothOptimizerEnable,
-      rothOptimizerStartYear: scenario.simulationSettings.rothOptimizerStartYear,
-      rothOptimizerEndYear: scenario.simulationSettings.rothOptimizerEndYear,
-      
-      // Tax data
-      taxData,
-      
-      // Simulation index (for tracking)
-      simulationIndex
-    };
-    
-    // Run the simulation year by year
-    let previousYearState = null;
-    const yearlyResults = [];
-    
-    for (let year = currentYear; year < currentYear + numYears; year++) {
-      // Update year and ages for this iteration
-      params.year = year;
-      params.userAge = userAge + (year - currentYear);
-      
-      if (spouseAge !== null) {
-        params.spouseAge = spouseAge + (year - currentYear);
-      }
-      
-      try {
-        // Simulate this year
-        const yearState = simulateYear(params, previousYearState);
-        
-        // Store year results
-        yearlyResults.push({
-          year,
-          totalAssets: yearState.totalAssets || 0,
-          income: yearState.curYearIncome || 0,
-          expenses: 0, // Would need to calculate from expenses processed
-          socialSecurity: yearState.curYearSS || 0,
-          capitalGains: yearState.curYearGains || 0,
-          inflationRate: yearState.inflationRate || 0.02,
-          investmentValues: yearState.investments ? yearState.investments.reduce((acc, inv) => {
-            // Add a safeguard for missing investment names
-            const safeInvName = inv.name || `Investment_${Math.random().toString(36).substring(7)}`;
-            acc[safeInvName] = inv.value || 0;
-            return acc;
-          }, {}) : {}
-        });
-        
-        // Update previous year state for next iteration
-        previousYearState = yearState;
-      } catch (error) {
-        console.error(`Error simulating year ${year} in simulation #${simulationIndex+1}:`, error);
-        // Add a default year result to avoid breaking the simulation
-        yearlyResults.push({
-          year,
-          totalAssets: previousYearState ? previousYearState.totalAssets || 0 : 0,
-          income: 0,
-          expenses: 0,
-          socialSecurity: 0,
-          capitalGains: 0,
-          inflationRate: 0.02,
-          investmentValues: {}
-        });
-      }
-    }
-    
-    // Determine if simulation was successful (met financial goal at end)
-    const success = previousYearState ? previousYearState.financialGoalMet : false;
-    const finalTotalAssets = previousYearState ? previousYearState.totalAssets || 0 : 0;
-    
-    console.log(`Completed simulation #${simulationIndex+1} - success: ${success}, final assets: ${finalTotalAssets}`);
-    
-    return {
-      simulationId: simulationIndex + 1,
-      success,
-      finalTotalAssets,
-      yearlyResults,
-      finalState: {
-        totalAssets: finalTotalAssets,
-        curYearIncome: previousYearState ? previousYearState.curYearIncome || 0 : 0,
-        curYearSS: previousYearState ? previousYearState.curYearSS || 0 : 0,
-        curYearGains: previousYearState ? previousYearState.curYearGains || 0 : 0,
-        inflationRate: previousYearState ? previousYearState.inflationRate || 0.02 : 0.02
-      }
-    };
-  } catch (error) {
-    console.error(`Fatal error in simulation #${simulationIndex+1}:`, error);
-    // Return minimal valid simulation data to prevent the entire batch from failing
-    return {
-      simulationId: simulationIndex + 1,
-      success: false,
-      finalTotalAssets: 0,
-      yearlyResults: Array.from({ length: numYears }, (_, i) => ({
-        year: new Date().getFullYear() + i,
-        totalAssets: 0,
-        income: 0,
-        expenses: 0,
-        socialSecurity: 0,
-        capitalGains: 0,
-        inflationRate: 0.02,
-        investmentValues: {}
-      })),
-      finalState: {
-        totalAssets: 0,
-        curYearIncome: 0,
-        curYearSS: 0,
-        curYearGains: 0,
-        inflationRate: 0.02
-      }
-    };
-  }
-}
-*/
-
-/**
- * Calculate statistics for final assets across all simulations
- * @param {Array} simulations - Results of all simulations
- * @returns {Object} - Statistical summary
- */
-/*
-function calculateFinalAssetStatistics(simulations) {
-  if (!simulations || simulations.length === 0) {
-    return {
-      min: 0,
-      max: 0,
-      mean: 0,
-      median: 0,
-      p10: 0, // 10th percentile
-      p90: 0  // 90th percentile
-    };
-  }
-  
-  // Extract final asset values
-  const assetValues = simulations.map(sim => sim.finalTotalAssets).sort((a, b) => a - b);
-  const count = assetValues.length;
-  
-  // Calculate statistics
-  const min = assetValues[0];
-  const max = assetValues[count - 1];
-  const mean = assetValues.reduce((sum, val) => sum + val, 0) / count;
-  
-  // Calculate median (50th percentile)
-  const median = count % 2 === 0 
-    ? (assetValues[count / 2 - 1] + assetValues[count / 2]) / 2
-    : assetValues[Math.floor(count / 2)];
-  
-  // Calculate 10th and 90th percentiles
-  const p10Index = Math.floor(count * 0.1);
-  const p90Index = Math.floor(count * 0.9);
-  
-  const p10 = assetValues[p10Index];
-  const p90 = assetValues[p90Index];
-  
-  return {
-    min,
-    max,
-    mean,
-    median,
-    p10,
-    p90
-  };
-}
-*/
 
 /**
  * Create asset trajectory data for visualization
@@ -362,42 +137,60 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
     }
 
     // Wait for all simulations to complete
-    const allSimulationResults = await Promise.all(simulationPromises);
+    const allSimulationResultsRaw = await Promise.all(simulationPromises);
 
-    // --- Log Final Results ---
-    console.log('--- All Simulation Results ---');
-    // Log a summary for clarity, full log might be too large
-    console.log(`Total simulations run: ${allSimulationResults.length}`);
-    
-    // Loop through each simulation result and log details
-    allSimulationResults.forEach((singleResult, index) => {
-        console.log(`\n--- Simulation #${index + 1} ---`);
-        console.log(`  Total Years: ${singleResult.length}`);
-        console.log(`  First 5 Years Results:`);
-        console.log(JSON.stringify(singleResult.slice(0, 5), null, 2));
+    // --- Aggregate Detailed Results --- 
+    const aggregatedResults = {
+        yearlyResults: [],        // Array of yearlyResults arrays
+        cashArrays: [],           // Array of cashArrays
+        investmentValueArrays: [],// Array of investmentsValueArrays
+        expensesArrays: [],       // Array of expensesArrays
+        earlyWithdrawalArrays: [] // Array of earlyWithdrawalArrays
+    };
+
+    allSimulationResultsRaw.forEach(singleResult => {
+        // singleResult is the object returned by runOneSimulation
+        aggregatedResults.yearlyResults.push(singleResult.yearlyResults);
+        aggregatedResults.cashArrays.push(singleResult.cashArray);
+        aggregatedResults.investmentValueArrays.push(singleResult.investmentsValueArray);
+        aggregatedResults.expensesArrays.push(singleResult.expensesArray);
+        aggregatedResults.earlyWithdrawalArrays.push(singleResult.earlyWithdrawalArray);
     });
 
-    console.log('\n-------------------------------------\n');
+    // --- Log Final Results --- 
+    //console.log('--- Aggregated Simulation Results ---');
+    // Log a summary for clarity, full log might be too large
+    console.log(`Total simulations run: ${aggregatedResults.yearlyResults.length}`);
+    // Example: Log details from the first simulation's arrays
+    const numSimsToLog = Math.min(4, aggregatedResults.yearlyResults.length); // Log up to 4 simulations
+    if (numSimsToLog > 0) {
+        for (let i = 0; i < numSimsToLog; i++) {
+            console.log(`\n--- Details from Simulation #${i + 1} ---`);
+            console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
+            console.log(`  Cash Array:`, aggregatedResults.cashArrays[i]); // Log the full array
+            // Keep others sliced for brevity, or remove if not needed
+            // console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
+            // console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
+            // console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
+        }
+    }
+    //console.log('\n-------------------------------------\n');
 
-    // --- Return a simplified response --- 
-    // The old detailed response generation is bypassed
+
+    // --- Return Results --- 
+    // Decide what needs to be returned. Returning everything might be large.
+    // Maybe return aggregated statistics or just the success rate and trajectory data?
+    // For now, returning the aggregated structure:
     return {
-      status: 'mock_simulation_completed',
-      message: `Ran ${numSimulations} mock simulations.`,
-      numSimulationsRun: allSimulationResults.length,
-      // numYearsSimulated: numYears, // Removed
-      // numYears: numYears, // Removed
-      // Optionally include a small sample of results if needed by frontend
-      // resultsSample: allSimulationResults.slice(0, 1) 
+      status: 'simulations_completed',
+      message: `Successfully ran ${numSimulations} simulations.`,
+      numSimulationsRun: aggregatedResults.yearlyResults.length,
+      // Return the aggregated data 
+      aggregatedResults: aggregatedResults 
+      // TODO: Add back statistical analysis and trajectory calculation if needed, 
+      // using the data within aggregatedResults.
     };
 
-    /* 
-    --- OLD LOGIC TO BE BYPASSED --- 
-    console.log(`Verifying scenario data for simulation`);
-// ... existing code ...
-      numYears: numYears
-    };
-    */
   } catch (error) {
     console.error('Error in runSimulations:', error);
     return {

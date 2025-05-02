@@ -14,242 +14,158 @@
  */
 
 // Import all component modules
-const { runPreliminaries } = require('./modules/1_Preliminaries');
-const { runIncomeEvents } = require('./modules/2_IncomeEvents');
-const { processRequiredMinimumDistributions } = require('./modules/3_RequiredMinimumDistributions');
-const { processInvestmentReturns } = require('./modules/4_InvestmentReturns');
-const { processRothConversion } = require('./modules/5_RothConversion');
-const { processNonDiscretionaryExpenses } = require('./modules/6_NonDiscretionaryExpenses');
-const { processDiscretionaryExpenses } = require('./modules/7_DiscretionaryExpenses');
-const { processInvestEvents } = require('./modules/8_InvestEvents');
-const { processRebalanceEvents } = require('./modules/9_RebalanceEvents');
-
-/**
- * Determine if a person is alive in the current year based on their life expectancy
- * @param {Object} lifeExpectancy - Life expectancy configuration
- * @param {Number} currentAge - Current age
- * @returns {Boolean} - True if person is alive, false otherwise
- */
-function isPersonAlive(lifeExpectancy, currentAge) {
-  if (!lifeExpectancy) {
-    return false;
-  }
-  
-  // Handle both object and array formats for compatibility
-  if (Array.isArray(lifeExpectancy)) {
-    const [method, fixedValue, distribution] = lifeExpectancy;
-    
-    switch (method) {
-      case 'fixedValue':
-        return currentAge <= fixedValue;
-        
-      case 'normalDistribution':
-        if (distribution && typeof distribution.mean === 'number' && typeof distribution.standardDeviation === 'number') {
-          // Sample from the normal distribution
-          const u1 = Math.random();
-          const u2 = Math.random();
-          const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-          const sampleAge = z0 * distribution.standardDeviation + distribution.mean;
-          
-          return currentAge <= sampleAge;
-        }
-        return false;
-        
-      default:
-        return false;
-    }
-  } 
-  // Handle object format (from schema)
-  else if (typeof lifeExpectancy === 'object') {
-    const { lifeExpectancyMethod, fixedValue, normalDistribution, computedValue } = lifeExpectancy;
-    
-    // If there's a computed value already, use that
-    if (typeof computedValue === 'number') {
-      return currentAge <= computedValue;
-    }
-    
-    switch (lifeExpectancyMethod) {
-      case 'fixedValue':
-        return currentAge <= fixedValue;
-        
-      case 'normalDistribution':
-        if (normalDistribution && typeof normalDistribution.mean === 'number' && typeof normalDistribution.standardDeviation === 'number') {
-          // Sample from the normal distribution
-          const u1 = Math.random();
-          const u2 = Math.random();
-          const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-          const sampleAge = z0 * normalDistribution.standardDeviation + normalDistribution.mean;
-          
-          return currentAge <= sampleAge;
-        }
-        return false;
-        
-      default:
-        return false;
-    }
-  }
-  
-  // If lifeExpectancy is neither an array nor an object, return false
-  return false;
-}
-
-/**
- * Calculate the total assets value
- * @param {Array} investments - Array of all investments
- * @returns {Number} - Total assets value
- */
-function calculateTotalAssets(investments) {
-  if (!investments || !Array.isArray(investments)) {
-    return 0;
-  }
-  
-  return investments.reduce((total, inv) => total + (inv.value || 0), 0);
-}
+const { runIncomeEvents } = require('./modules/IncomeEvents');
+const { processRequiredMinimumDistributions } = require('./modules/RequiredMinimumDistributions');
+const { processInvestmentReturns } = require('./modules/InvestmentReturns');
+const { processRothConversion } = require('./modules/RothConversion');
+const { processNonDiscretionaryExpenses } = require('./modules/NonDiscretionaryExpenses');
+const { processDiscretionaryExpenses } = require('./modules/DiscretionaryExpenses');
+const { processInvestEvents } = require('./modules/InvestEvents');
+const { processRebalanceEvents } = require('./modules/RebalanceEvents');
+const { calculateAdjustedTaxData } = require('./modules/Preliminaries'); // Import the new function
 
 /**
  * Simulate a single year of financial activity
- * @param {Object} params - Simulation parameters
- * @param {Object} previousYearState - State from the previous year
+ * @param {Object} modelData - Contains scenario, taxData, etc.
+ * @param {Array} investArray - Yearly investment strategy info or null
+ * @param {Array} eventsByYear - Array of active event names per year
+ * @param {Array} rebalanceArray - Yearly rebalance info or null
+ * @param {Array} inflationArray - Yearly compounded inflation factor
+ * @param {Array} maritalStatusArray - Yearly marital status ('single' or 'married')
+ * @param {Number} currentYearIndex - The index (0 to numYears-1) of the year being simulated
+ * @param {Object} previousYearState - State object from the previous year's simulation
  * @returns {Object} - Final state for the current year
  */
-function simulateYear(params, previousYearState = null) {
-  const {
-    // User data
-    userAge,
-    spouseAge,
-    lifeExpectancy,
-    spouseLifeExpectancy,
-    scenarioType,
-    
-    // Financial data
-    investments,
-    events,
-    inflationAssumption,
-    financialGoal,
-    maximumCash,
-    
-    // Strategy data
-    expenseWithdrawalStrategies,
-    rmdStrategies,
-    rothConversionStrategies,
-    
-    // Roth optimizer settings
-    rothOptimizerEnable,
-    rothOptimizerStartYear,
-    rothOptimizerEndYear,
-    
-    // Tax data
-    taxData,
-    
-    // Simulation year
-    year
-  } = params;
+function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, inflationArray, maritalStatusArray, currentYearIndex, previousYearState = null) {
   
-  // Initialize the state for this year
-  let yearState = {
-    year,
-    userAge,
-    spouseAge,
-    scenarioType,
-    
-    // Determine if user and spouse are alive this year
-    userAlive: isPersonAlive(lifeExpectancy, userAge),
-    spouseAlive: scenarioType === 'married' ? isPersonAlive(spouseLifeExpectancy, spouseAge) : false,
-    
-    // Deep clone investments to avoid modifying the original
-    investments: JSON.parse(JSON.stringify(investments)),
-    
-    // Initialize running totals
-    curYearIncome: 0,
-    curYearSS: 0, // Social Security income
-    curYearGains: 0, // Capital gains
-    curYearEarlyWithdrawals: 0 // Early withdrawals from retirement accounts
-  };
-  
-  // Skip processing if both user and spouse are dead
-  if (scenarioType === 'married' && !yearState.userAlive && !yearState.spouseAlive) {
-    return yearState;
-  } else if (scenarioType === 'individual' && !yearState.userAlive) {
-    return yearState;
+  // --- Extract Core Data from modelData --- 
+  const scenario = modelData.scenario;
+  const taxData = modelData.taxData;
+  if (!scenario || !taxData) {
+      throw new Error(`SimulateYear Error: Missing scenario or taxData in modelData for year index ${currentYearIndex}.`);
   }
+  const currentYear = new Date().getFullYear() + currentYearIndex;
   
-  // 1. Preliminaries: Calculate inflation rate and adjust tax brackets
-  const preliminaryData = runPreliminaries({ 
-    inflationAssumption, 
-    taxData, 
-    year 
-  }, previousYearState);
+  // --- Extract Data Specific to This Year --- 
+  const currentInvestStrategyInfo = investArray[currentYearIndex]; 
+  const currentRebalanceInfo = rebalanceArray[currentYearIndex];   
+  const currentInflationFactor = inflationArray[currentYearIndex]; 
+  const eventsActiveThisYear = eventsByYear[currentYearIndex];     
+  const maritalStatusThisYear = maritalStatusArray[currentYearIndex]; // Get status for the current year
+
+  // --- User/Spouse Ages & Status (derive from scenario and index) --- 
+  const userAge = scenario.birthYear ? (currentYear - scenario.birthYear) : null;
+  const spouseAge = (scenario.scenarioType === 'married' && scenario.spouseBirthYear) ? (currentYear - scenario.spouseBirthYear) : null;
   
-  // Merge preliminary data into year state
-  yearState = { ...yearState, ...preliminaryData };
+  // --- Extract Other Necessary Parameters --- 
+  const financialGoal = scenario.financialGoal;
+  // Extract strategies from simulationSettings within scenario
+  const simulationSettings = scenario.simulationSettings || {}; 
+  const spendingStrategies = simulationSettings.spendingStrategies;
+  const expenseWithdrawalStrategies = simulationSettings.expenseWithdrawalStrategies;
+  const rmdStrategies = simulationSettings.rmdStrategies;
+  const rothConversionStrategies = simulationSettings.rothConversionStrategies;
+  const rothOptimizerEnable = simulationSettings.rothOptimizerEnable;
+  const rothOptimizerStartYear = simulationSettings.rothOptimizerStartYear;
+  const rothOptimizerEndYear = simulationSettings.rothOptimizerEndYear;
+
+  const userState = scenario.stateOfResidence;
+  // 1) preliminaries.js
   
-  // 2. Income events: Process all income events for the current year
-  const incomeResult = runIncomeEvents(
-    events, 
-    params, 
-    yearState, 
-    previousYearState?.eventsState || {}
+  // --- Calculate Adjusted Tax Data using Preliminaries module --- 
+  const {
+      adjustedStandardDeduction,
+      adjustedIncomeTaxBrackets,
+      adjustedStateTaxBrackets,
+      adjustedCapitalGainsBrackets
+  } = calculateAdjustedTaxData(
+      taxData, 
+      maritalStatusThisYear, 
+      currentYear, 
+      currentYearIndex, 
+      currentInflationFactor, 
+      userState
   );
-  
-  yearState = incomeResult.yearState;
-  
-  // Store events state for next year
-  //yearState.eventsState = incomeResult.eventsState;
-  
-  // 3. Required Minimum Distributions: Process RMDs if applicable
-  //yearState = processRequiredMinimumDistributions(
-  //  { rmdStrategies, rmdTable: taxData?.rmdTable }, 
-  //  yearState, 
-  //  previousYearState || {}
-  //);
-  
-  // 4. Investment Returns: Update investment values based on returns
-  //yearState = processInvestmentReturns(params, yearState);
-  
-  // 5. Roth Conversion: Process Roth conversions based on tax optimization
-  //yearState = processRothConversion({
-  //  rothOptimizerEnable,
-  //  rothOptimizerStartYear,
-  //  rothOptimizerEndYear,
-  //  rothConversionStrategies
-  //}, yearState);
-  
-  // 6. Non-Discretionary Expenses: Pay necessary expenses and taxes
-  //yearState = processNonDiscretionaryExpenses(
-  //  { events, expenseWithdrawalStrategies }, 
-  //  yearState, 
-  //  previousYearState
-  //);
-  
-  // 7. Discretionary Expenses: Pay discretionary expenses if they don't violate financial goal
-  //yearState = processDiscretionaryExpenses(
-  //  { events, expenseWithdrawalStrategies, financialGoal }, 
-  //  yearState
-  //);
-  
-  // 8. Invest Events: Process investments of excess cash
-  //yearState = processInvestEvents(
-  //  { events, maximumCash }, 
-  //  yearState
-  //);
-  
-  // 9. Rebalance Events: Rebalance portfolio according to target allocations
-  //yearState = processRebalanceEvents(
-  //  { events }, 
-  //  yearState
-  //);
-  
-  // Calculate total assets at the end of the year
-  yearState.totalAssets = calculateTotalAssets(yearState.investments);
-  
+
+  // Initialize the state for this year based on the previous state
+  let yearState = {
+    year: currentYear,
+    userAge,
+    spouseAge,
+    scenarioType: maritalStatusThisYear,
+    cash: previousYearState?.cash ?? (scenario.initialCash || 0), // Initialize cash correctly
+    totalAssets: 0, // Will be calculated later
+    investments: previousYearState?.investments ? JSON.parse(JSON.stringify(previousYearState.investments)) : (scenario.investments ? JSON.parse(JSON.stringify(scenario.investments)) : []),
+    incomeEventStates: previousYearState?.incomeEventStates || {},
+    curYearIncome: 0, // Initialize yearly totals
+    curYearExpenses: 0,
+    curYearTaxes: 0,
+    curYearSS: 0,
+    curYearGains: 0,
+    curYearEarlyWithdrawals: 0,
+    totalInvestmentValue: 0, // Placeholder
+    // incomeEventStates will be set after income calc
+  };
+
+  // Initial asset calculation if first year
+   if (currentYearIndex === 0) {
+       yearState.totalInvestmentValue = calculateTotalAssets(yearState.investments); // Calculate initial investment value
+       yearState.totalAssets = yearState.totalInvestmentValue + yearState.cash; // Initial total assets
+   } else if (previousYearState) {
+       // Carry over total assets from previous year before modifications THIS YEAR
+       yearState.totalAssets = previousYearState.totalAssets;
+       yearState.totalInvestmentValue = previousYearState.totalInvestmentValue;
+       // Cash is already carried over
+   }
+
+  // --- Core Simulation Logic --- 
+
+  // 2) Run Income Events
+  console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Income Events ---`);
+  try {
+      const initialCashForYear = yearState.cash; // Cash before income is added
+      const incomeResult = runIncomeEvents(
+          modelData,                // Pass full model data (contains events)
+          eventsActiveThisYear,     // Pass active event names
+          maritalStatusThisYear,
+          currentInflationFactor,
+          previousYearState?.incomeEventStates, // Pass the income states from the *previous* year
+          initialCashForYear        // Pass cash *before* income processing
+      );
+
+      // Update yearState with the results from runIncomeEvents
+      yearState.cash = incomeResult.cash;
+      yearState.curYearIncome = incomeResult.curYearIncome;
+      yearState.curYearSS = incomeResult.curYearSS;
+      // Store the calculated states for the *next* year's previous state
+      yearState.incomeEventStates = incomeResult.incomeEventStates;
+
+      // Log the returned values
+      console.log(`Year ${currentYear}: Income Processed. Returned -> Cash: ${incomeResult.cash}, Taxable Income: ${incomeResult.curYearIncome}, SS Income: ${incomeResult.curYearSS}`);
+
+  } catch (error) {
+       console.error(`Year ${currentYear}: Error processing income events:`, error);
+       // Decide how to handle error - stop simulation? Continue with 0 income impact?
+       // Resetting calculated income for safety in case of partial processing
+       yearState.curYearIncome = 0;
+       yearState.curYearSS = 0;
+       // Cash might be inconsistent if error occurred mid-way. Revert or use last known good?
+       yearState.cash = previousYearState?.cash ?? (scenario.initialCash || 0); // Revert cash to previous state
+       yearState.incomeEventStates = previousYearState?.incomeEventStates || {}; // Revert states
+  }
+
   // Check if financial goal is met
-  yearState.financialGoalMet = yearState.totalAssets >= financialGoal;
-  
+  yearState.financialGoalMet = yearState.totalAssets >= financialGoal; // Use final totalAssets
+
   return yearState;
+}
+
+function calculateTotalAssets(investments) {
+    let total = 0;
+    (investments || []).forEach(inv => { total += inv?.value || 0 });
+    return total;
 }
 
 module.exports = {
   simulateYear,
-  isPersonAlive,
-  calculateTotalAssets
 }; 

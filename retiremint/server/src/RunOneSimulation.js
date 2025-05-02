@@ -1,12 +1,15 @@
 /**
  * Runs a single simulation trial.
  * Calculates its own numYears based on life expectancy data.
- * For now, it returns a hardcoded array representing yearly net worth and failure status.
+ * Pre-calculates yearly data arrays (inflation, events, strategies).
+ * Calls an external simulateYear function for each year.
  * 
  * @param {Object} modelData - The fetched model data (scenario, tax info, etc.).
  * @param {Number} simulationIndex - The index of this specific simulation run.
- * @returns {Array<Array<Number|Boolean>>} - An array where each element is [netWorth, failedStatus] for a year.
+ * @returns {Array<Object>} - An array where each element is { netWorth: Number, meetingFinancialGoal: Boolean } for a year.
  */
+
+const { simulateYear } = require('./SimulationEngine/SimulateYear'); // Import the external function
 
 // Helper function to sample from a normal distribution using Box-Muller transform
 function sampleNormal(mean, stdDev) {
@@ -207,7 +210,7 @@ function runOneSimulation(modelData, simulationIndex) {
                  const stdDev = scenario.spouseLifeExpectancy.normalDistribution?.standardDeviation;
                  if (mean != null && stdDev != null) {
                     spouseTargetAge = Math.round(sampleNormal(mean, stdDev));
-                    console.log(`Simulation ${simulationIndex+1}: Spouse sampled target age: ${spouseTargetAge}`);
+                    //console.log(`Simulation ${simulationIndex+1}: Spouse sampled target age: ${spouseTargetAge}`);
                  } else {
                     console.warn(`Sim ${simulationIndex+1}: Missing mean/stdDev for spouse LE, using default age.`);
                     spouseTargetAge = currentSpouseAge + 30; // Fallback
@@ -479,6 +482,7 @@ function runOneSimulation(modelData, simulationIndex) {
     }
 
     // Print the rebalance array for verification
+    /*
     console.log(`\n--- Simulation ${simulationIndex + 1} - Calculated rebalanceArray ---`);
     rebalanceArray.forEach((rebalanceInfo, index) => {
          const year = currentYear + index;
@@ -489,6 +493,7 @@ function runOneSimulation(modelData, simulationIndex) {
          }
     });
     console.log(`--- End rebalanceArray ---\n`);
+    */
     // --- End Rebalance Array Creation ---
 
     //------------------------------------------------------------------------------------------------------
@@ -628,6 +633,7 @@ function runOneSimulation(modelData, simulationIndex) {
     }
 
     // Print the invest array for verification
+    /*
     console.log(`\n--- Simulation ${simulationIndex + 1} - Calculated investArray ---`);
     investArray.forEach((investInfo, index) => {
         const year = currentYear + index;
@@ -639,37 +645,75 @@ function runOneSimulation(modelData, simulationIndex) {
         }
     });
     console.log(`--- End investArray ---\n`);
+    */
     // --- End Investment Strategies Array Creation ---
 
     //------------------------------------------------------------------------------------------------------
     
-    // --- Placeholder for Yearly Simulation Loop ---
+    // --- Yearly Simulation Loop --- 
     const yearlyResults = []; 
-    const scenario = modelData.scenario; // Get scenario for financial goal
-    //console.log("scenario financial goal", scenario.financialGoal);
-    const financialGoal = scenario?.financialGoal ?? 0; // Default to 0 if not found
-    const hardcodedNetWorth = 2000000; // Hardcoded value for now
+    const cashArray = Array(numYears).fill(0); // Initialize yearly cash array
+    const investmentsValueArray = Array(numYears).fill(0); // Initialize yearly total investment value array
+    const expensesArray = Array(numYears).fill(0); // Initialize yearly total expenses array
+    const earlyWithdrawalArray = Array(numYears).fill(0); // Initialize yearly early withdrawal array
+    
+    let previousYearState = null; // Initialize state before the loop
 
     for (let i = 0; i < numYears; i++) {
-        // TODO: Implement actual year simulation logic using:
-        // - modelData (scenario, taxData)
-        // - simulationIndex
-        // - currentYear + i (the actual year being simulated)
-        // - maritalStatusArray[i] (marital status for this year)
-        // - inflationArray[i] (inflation rate for this year)
-        // - previous year's state (investments, income, etc.)
-        
-        const meetingFinancialGoal = hardcodedNetWorth > financialGoal;
+        try {
+            // Call the *imported* simulateYear function
+            const currentState = simulateYear( 
+                modelData,          // Pass the full model data
+                investArray,        // Pass the pre-calculated array
+                eventsByYear,       // Pass the pre-calculated array
+                rebalanceArray,     // Pass the pre-calculated array
+                inflationArray,     // Pass the pre-calculated array
+                maritalStatusArray, // Pass the pre-calculated array
+                i,                  // Pass the current year index
+                previousYearState   // Pass the state from the previous year
+                // Note: We don't pass the result arrays themselves to simulateYear,
+                // as it calculates the state *for* the current year.
+            );
+            
+            // Store results needed for the final output/analysis
+            yearlyResults.push({ 
+                netWorth: currentState.totalAssets, // Assuming totalAssets is calculated
+                meetingFinancialGoal: currentState.financialGoalMet
+            }); 
+            
+            // Store the detailed results in their respective arrays
+            cashArray[i] = currentState.cash ?? 0;
+            investmentsValueArray[i] = currentState.totalInvestmentValue ?? 0;
+            expensesArray[i] = currentState.curYearExpenses ?? 0;
+            earlyWithdrawalArray[i] = currentState.curYearEarlyWithdrawals ?? 0;
 
+            // Update previous state for the next iteration
+            previousYearState = currentState;
+
+        } catch (yearError) {
+            console.error(`Simulation ${simulationIndex + 1}: Error calling simulateYear for year index ${i} (${currentYear + i}):`, yearError);
         yearlyResults.push({ 
-            netWorth: hardcodedNetWorth,
-            meetingFinancialGoal: meetingFinancialGoal
-        }); 
+                 netWorth: previousYearState?.totalAssets ?? 0, 
+                 meetingFinancialGoal: false 
+             });
+             // Keep detailed arrays at 0 or previous value upon error? For now, default to 0.
+             cashArray[i] = previousYearState?.cash ?? 0; // Carry forward cash on error? Or 0?
+             investmentsValueArray[i] = previousYearState?.totalInvestmentValue ?? 0; 
+             expensesArray[i] = 0; // Error means likely no expenses calculated
+             earlyWithdrawalArray[i] = 0;
+             // previousYearState remains the same as the last successful year
+        }
     }
-    // --- End Placeholder ---
-
-    // Return ONLY the yearlyResults array
-    return yearlyResults;
+    // --- End Yearly Simulation Loop ---
+    
+    // Return an object containing all the calculated arrays for this simulation run
+    return {
+        yearlyResults, // Array of { netWorth, meetingFinancialGoal }
+        cashArray,
+        investmentsValueArray,
+        expensesArray,
+        earlyWithdrawalArray
+    };
 }
 
 module.exports = {

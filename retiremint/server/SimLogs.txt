@@ -201,167 +201,386 @@ Running simulation #3 for calculated 5 years.
 
 =============================================================================
 
+--- Simulation 1 - Calculated rebalanceArray ---
+Year 2025 (Index 0): No Rebalance
+Year 2026 (Index 1): No Rebalance
+Year 2027 (Index 2): No Rebalance
+Year 2028 (Index 3): No Rebalance
+Year 2029 (Index 4): No Rebalance
+Year 2030 (Index 5): No Rebalance
+Year 2031 (Index 6): No Rebalance
+Year 2032 (Index 7): No Rebalance
+Year 2033 (Index 8): No Rebalance
+Year 2034 (Index 9): No Rebalance
+Year 2035 (Index 10): No Rebalance
+Year 2036 (Index 11): No Rebalance
+Year 2037 (Index 12): No Rebalance
+Year 2038 (Index 13): No Rebalance
+Year 2039 (Index 14): No Rebalance
+Year 2040 (Index 15): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 33, 'non-retirement': 34, 'tax-exempt': 33 },
+  preTaxAllocation: { 'family trust': 60, 'microsoft employer contributions': 40 },
+  afterTaxAllocation: {},
+  nonRetirementAllocation: {},
+  taxExemptAllocation: {}
+}
+Year 2041 (Index 16): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 36.5, 'non-retirement': 27, 'tax-exempt': 36.5 },
+  preTaxAllocation: { 'family trust': 67.5, 'microsoft employer contributions': 32.5 },
+  afterTaxAllocation: {},
+  nonRetirementAllocation: {},
+  taxExemptAllocation: {}
+}
+Year 2042 (Index 17): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 40, 'non-retirement': 20, 'tax-exempt': 40 },
+  preTaxAllocation: { 'family trust': 75, 'microsoft employer contributions': 25 },
+  afterTaxAllocation: {},
+  nonRetirementAllocation: {},
+  taxExemptAllocation: {}
+}
+Year 2043 (Index 18): No Rebalance
+Year 2044 (Index 19): No Rebalance
+Year 2045 (Index 20): No Rebalance
+Year 2046 (Index 21): No Rebalance
+Year 2047 (Index 22): No Rebalance
+Year 2048 (Index 23): No Rebalance
+Year 2049 (Index 24): No Rebalance
+Year 2050 (Index 25): No Rebalance
+Year 2051 (Index 26): No Rebalance
+Year 2052 (Index 27): No Rebalance
+Year 2053 (Index 28): No Rebalance
+Year 2054 (Index 29): No Rebalance
+Year 2055 (Index 30): No Rebalance
+Year 2056 (Index 31): No Rebalance
+Year 2057 (Index 32): No Rebalance
+Year 2058 (Index 33): No Rebalance
+Year 2059 (Index 34): No Rebalance
+Year 2060 (Index 35): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: null,
+  nonRetirementAllocation: null,
+  taxExemptAllocation: null
+}
+Year 2061 (Index 36): No Rebalance
+Year 2062 (Index 37): No Rebalance
+Year 2063 (Index 38): No Rebalance
+Year 2064 (Index 39): No Rebalance
+Year 2065 (Index 40): No Rebalance
+Year 2066 (Index 41): No Rebalance
+Year 2067 (Index 42): No Rebalance
+Year 2068 (Index 43): No Rebalance
+Year 2069 (Index 44): No Rebalance
+Year 2070 (Index 45): No Rebalance
+Year 2071 (Index 46): No Rebalance
+Year 2072 (Index 47): No Rebalance
+Year 2073 (Index 48): No Rebalance
+Year 2074 (Index 49): No Rebalance
+Year 2075 (Index 50): No Rebalance
+Year 2076 (Index 51): No Rebalance
+--- End rebalanceArray ---
+======================================================================================================================================
 
---- Simulation 1 - Calculated Invest Array ---
-Year 2025 (Index 0): Event = mid career inv str [Glide 1/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 50.00%, japan bond: 50.00%
-  Layer [taxStatusAllocation]: after-tax: 20.00%, non-retirement: 60.00%, tax-exempt: 20.00%
-Year 2026 (Index 1): Event = mid career inv str [Glide 2/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 50.42%, japan bond: 49.58%
-  Layer [taxStatusAllocation]: after-tax: 20.42%, non-retirement: 59.17%, tax-exempt: 20.42%
-Year 2027 (Index 2): Event = mid career inv str [Glide 3/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 50.83%, japan bond: 49.17%
-  Layer [taxStatusAllocation]: after-tax: 20.83%, non-retirement: 58.33%, tax-exempt: 20.83%
-Year 2028 (Index 3): Event = mid career inv str [Glide 4/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 51.25%, japan bond: 48.75%
-  Layer [taxStatusAllocation]: after-tax: 21.25%, non-retirement: 57.50%, tax-exempt: 21.25%
-Year 2029 (Index 4): Event = mid career inv str [Glide 5/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 51.67%, japan bond: 48.33%
-  Layer [taxStatusAllocation]: after-tax: 21.67%, non-retirement: 56.67%, tax-exempt: 21.67%
-Year 2030 (Index 5): Event = mid career inv str [Glide 6/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 52.08%, japan bond: 47.92%
-  Layer [taxStatusAllocation]: after-tax: 22.08%, non-retirement: 55.83%, tax-exempt: 22.08%
-Year 2031 (Index 6): Event = mid career inv str [Glide 7/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 52.50%, japan bond: 47.50%
-  Layer [taxStatusAllocation]: after-tax: 22.50%, non-retirement: 55.00%, tax-exempt: 22.50%
-Year 2032 (Index 7): Event = mid career inv str [Glide 8/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 52.92%, japan bond: 47.08%
-  Layer [taxStatusAllocation]: after-tax: 22.92%, non-retirement: 54.17%, tax-exempt: 22.92%
-Year 2033 (Index 8): Event = mid career inv str [Glide 9/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 53.33%, japan bond: 46.67%
-  Layer [taxStatusAllocation]: after-tax: 23.33%, non-retirement: 53.33%, tax-exempt: 23.33%
-Year 2034 (Index 9): Event = mid career inv str [Glide 10/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 53.75%, japan bond: 46.25%
-  Layer [taxStatusAllocation]: after-tax: 23.75%, non-retirement: 52.50%, tax-exempt: 23.75%
-Year 2035 (Index 10): Event = mid career inv str [Glide 11/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 54.17%, japan bond: 45.83%
-  Layer [taxStatusAllocation]: after-tax: 24.17%, non-retirement: 51.67%, tax-exempt: 24.17%
-Year 2036 (Index 11): Event = mid career inv str [Glide 12/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 54.58%, japan bond: 45.42%
-  Layer [taxStatusAllocation]: after-tax: 24.58%, non-retirement: 50.83%, tax-exempt: 24.58%
-Year 2037 (Index 12): Event = mid career inv str [Glide 13/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 55.00%, japan bond: 45.00%
-  Layer [taxStatusAllocation]: after-tax: 25.00%, non-retirement: 50.00%, tax-exempt: 25.00%
-Year 2038 (Index 13): Event = mid career inv str [Glide 14/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 55.42%, japan bond: 44.58%
-  Layer [taxStatusAllocation]: after-tax: 25.42%, non-retirement: 49.17%, tax-exempt: 25.42%
-Year 2039 (Index 14): Event = mid career inv str [Glide 15/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 55.83%, japan bond: 44.17%
-  Layer [taxStatusAllocation]: after-tax: 25.83%, non-retirement: 48.33%, tax-exempt: 25.83%
-Year 2040 (Index 15): Event = mid career inv str [Glide 16/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 56.25%, japan bond: 43.75%
-  Layer [taxStatusAllocation]: after-tax: 26.25%, non-retirement: 47.50%, tax-exempt: 26.25%
-Year 2041 (Index 16): Event = mid career inv str [Glide 17/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 56.67%, japan bond: 43.33%
-  Layer [taxStatusAllocation]: after-tax: 26.67%, non-retirement: 46.67%, tax-exempt: 26.67%
-Year 2042 (Index 17): Event = mid career inv str [Glide 18/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 57.08%, japan bond: 42.92%
-  Layer [taxStatusAllocation]: after-tax: 27.08%, non-retirement: 45.83%, tax-exempt: 27.08%
-Year 2043 (Index 18): Event = mid career inv str [Glide 19/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 57.50%, japan bond: 42.50%
-  Layer [taxStatusAllocation]: after-tax: 27.50%, non-retirement: 45.00%, tax-exempt: 27.50%
-Year 2044 (Index 19): Event = mid career inv str [Glide 20/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 57.92%, japan bond: 42.08%
-  Layer [taxStatusAllocation]: after-tax: 27.92%, non-retirement: 44.17%, tax-exempt: 27.92%
-Year 2045 (Index 20): Event = mid career inv str [Glide 21/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 58.33%, japan bond: 41.67%
-  Layer [taxStatusAllocation]: after-tax: 28.33%, non-retirement: 43.33%, tax-exempt: 28.33%
-Year 2046 (Index 21): Event = mid career inv str [Glide 22/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 58.75%, japan bond: 41.25%
-  Layer [taxStatusAllocation]: after-tax: 28.75%, non-retirement: 42.50%, tax-exempt: 28.75%
-Year 2047 (Index 22): Event = mid career inv str [Glide 23/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 59.17%, japan bond: 40.83%
-  Layer [taxStatusAllocation]: after-tax: 29.17%, non-retirement: 41.67%, tax-exempt: 29.17%
-Year 2048 (Index 23): Event = mid career inv str [Glide 24/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 59.58%, japan bond: 40.42%
-  Layer [taxStatusAllocation]: after-tax: 29.58%, non-retirement: 40.83%, tax-exempt: 29.58%
-Year 2049 (Index 24): Event = mid career inv str [Glide 25/25]
-  Layer [afterTaxAllocation]: liberty mutual fund: 50.00%, nys investor fund: 50.00%
-  Layer [nonRetirementAllocation]: bitcoin etf: 50.00%, gamestop: 50.00%
-  Layer [taxExemptAllocation]: euro bond: 60.00%, japan bond: 40.00%
-  Layer [taxStatusAllocation]: after-tax: 30.00%, non-retirement: 40.00%, tax-exempt: 30.00%
-Year 2050 (Index 25): No Allocation
-Year 2051 (Index 26): No Allocation
-Year 2052 (Index 27): No Allocation
-Year 2053 (Index 28): No Allocation
-Year 2054 (Index 29): No Allocation
-Year 2055 (Index 30): No Allocation
-Year 2056 (Index 31): No Allocation
-Year 2057 (Index 32): No Allocation
-Year 2058 (Index 33): No Allocation
-Year 2059 (Index 34): No Allocation
-Year 2060 (Index 35): No Allocation
-Year 2061 (Index 36): No Allocation
-Year 2062 (Index 37): No Allocation
-Year 2063 (Index 38): No Allocation
-Year 2064 (Index 39): No Allocation
-Year 2065 (Index 40): No Allocation
-Year 2066 (Index 41): No Allocation
-Year 2067 (Index 42): No Allocation
-Year 2068 (Index 43): No Allocation
-Year 2069 (Index 44): No Allocation
-Year 2070 (Index 45): No Allocation
-Year 2071 (Index 46): No Allocation
-Year 2072 (Index 47): No Allocation
-Year 2073 (Index 48): No Allocation
-Year 2074 (Index 49): No Allocation
-Year 2075 (Index 50): No Allocation
-Year 2076 (Index 51): No Allocation
-Year 2077 (Index 52): No Allocation
-Year 2078 (Index 53): No Allocation
-Year 2079 (Index 54): No Allocation
-Year 2080 (Index 55): No Allocation
-Year 2081 (Index 56): No Allocation
-Year 2082 (Index 57): No Allocation
-Year 2083 (Index 58): No Allocation
---- End Invest Array ---
-
-
+--- Simulation 1 - Calculated investArray ---
+Year 2025 (Index 0): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2026 (Index 1): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2027 (Index 2): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2028 (Index 3): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2029 (Index 4): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2030 (Index 5): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 20, 'non-retirement': 60, 'tax-exempt': 20 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 50, 'euro bond': 50 }
+}
+Year 2031 (Index 6): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 20.416666666666668,
+    'non-retirement': 59.166666666666664,
+    'tax-exempt': 20.416666666666668
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 49.583333333333336, 'euro bond': 50.416666666666664 }
+}
+Year 2032 (Index 7): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 20.833333333333332,
+    'non-retirement': 58.333333333333336,
+    'tax-exempt': 20.833333333333332
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 49.166666666666664, 'euro bond': 50.833333333333336 }
+}
+Year 2033 (Index 8): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 21.25, 'non-retirement': 57.5, 'tax-exempt': 21.25 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 48.75, 'euro bond': 51.25 }
+}
+Year 2034 (Index 9): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 21.666666666666668,
+    'non-retirement': 56.666666666666664,
+    'tax-exempt': 21.666666666666668
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 48.333333333333336, 'euro bond': 51.666666666666664 }
+}
+Year 2035 (Index 10): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 22.083333333333332,
+    'non-retirement': 55.833333333333336,
+    'tax-exempt': 22.083333333333332
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 47.916666666666664, 'euro bond': 52.083333333333336 }
+}
+Year 2036 (Index 11): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 22.5, 'non-retirement': 55, 'tax-exempt': 22.5 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 47.5, 'euro bond': 52.5 }
+}
+Year 2037 (Index 12): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 22.916666666666668,
+    'non-retirement': 54.166666666666664,
+    'tax-exempt': 22.916666666666668
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 47.083333333333336, 'euro bond': 52.916666666666664 }
+}
+Year 2038 (Index 13): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 23.333333333333332,
+    'non-retirement': 53.333333333333336,
+    'tax-exempt': 23.333333333333332
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 46.666666666666664, 'euro bond': 53.333333333333336 }
+}
+Year 2039 (Index 14): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 23.75, 'non-retirement': 52.5, 'tax-exempt': 23.75 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 46.25, 'euro bond': 53.75 }
+}
+Year 2040 (Index 15): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 24.166666666666668,
+    'non-retirement': 51.666666666666664,
+    'tax-exempt': 24.166666666666668
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 45.833333333333336, 'euro bond': 54.166666666666664 }
+}
+Year 2041 (Index 16): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 24.583333333333332,
+    'non-retirement': 50.833333333333336,
+    'tax-exempt': 24.583333333333332
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 45.416666666666664, 'euro bond': 54.583333333333336 }
+}
+Year 2042 (Index 17): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 25, 'non-retirement': 50, 'tax-exempt': 25 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 45, 'euro bond': 55 }
+}
+Year 2043 (Index 18): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 25.416666666666664,
+    'non-retirement': 49.16666666666667,
+    'tax-exempt': 25.416666666666664
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 44.583333333333336, 'euro bond': 55.416666666666664 }
+}
+Year 2044 (Index 19): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 25.833333333333336,
+    'non-retirement': 48.33333333333333,
+    'tax-exempt': 25.833333333333336
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 44.166666666666664, 'euro bond': 55.833333333333336 }
+}
+Year 2045 (Index 20): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 26.25, 'non-retirement': 47.5, 'tax-exempt': 26.25 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 43.75, 'euro bond': 56.25 }
+}
+Year 2046 (Index 21): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 26.666666666666664,
+    'non-retirement': 46.66666666666667,
+    'tax-exempt': 26.666666666666664
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 43.333333333333336, 'euro bond': 56.666666666666664 }
+}
+Year 2047 (Index 22): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 27.083333333333336,
+    'non-retirement': 45.83333333333333,
+    'tax-exempt': 27.083333333333336
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 42.916666666666664, 'euro bond': 57.083333333333336 }
+}
+Year 2048 (Index 23): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 27.5, 'non-retirement': 45, 'tax-exempt': 27.5 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 42.5, 'euro bond': 57.5 }
+}
+Year 2049 (Index 24): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 27.916666666666664,
+    'non-retirement': 44.16666666666667,
+    'tax-exempt': 27.916666666666664
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 42.083333333333336, 'euro bond': 57.916666666666664 }
+}
+Year 2050 (Index 25): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 28.333333333333336,
+    'non-retirement': 43.33333333333333,
+    'tax-exempt': 28.333333333333336
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 41.666666666666664, 'euro bond': 58.333333333333336 }
+}
+Year 2051 (Index 26): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 28.75, 'non-retirement': 42.5, 'tax-exempt': 28.75 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 41.25, 'euro bond': 58.75 }
+}
+Year 2052 (Index 27): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 29.166666666666664,
+    'non-retirement': 41.66666666666667,
+    'tax-exempt': 29.166666666666664
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 40.833333333333336, 'euro bond': 59.166666666666664 }
+}
+Year 2053 (Index 28): Method=glidePath, Strategy= {
+  taxStatusAllocation: {
+    'after-tax': 29.583333333333336,
+    'non-retirement': 40.83333333333333,
+    'tax-exempt': 29.583333333333336
+  },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 40.416666666666664, 'euro bond': 59.583333333333336 }
+}
+Year 2054 (Index 29): Method=glidePath, Strategy= {
+  taxStatusAllocation: { 'after-tax': 30, 'non-retirement': 40, 'tax-exempt': 30 },
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 40, 'euro bond': 60 }
+}
+Year 2055 (Index 30): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 25, 'euro bond': 75 }
+}
+Year 2056 (Index 31): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 25, 'euro bond': 75 }
+}
+Year 2057 (Index 32): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 25, 'euro bond': 75 }
+}
+Year 2058 (Index 33): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 25, 'euro bond': 75 }
+}
+Year 2059 (Index 34): Method=fixedAllocation, Strategy= {
+  taxStatusAllocation: { 'after-tax': 45, 'non-retirement': 10, 'tax-exempt': 45 },
+  preTaxAllocation: null,
+  afterTaxAllocation: { 'nys investor fund': 50, 'liberty mutual fund': 50 },
+  nonRetirementAllocation: { gamestop: 50, 'bitcoin etf': 50 },
+  taxExemptAllocation: { 'japan bond': 25, 'euro bond': 75 }
+}
+Year 2060 (Index 35): No Invest Strategy
+Year 2061 (Index 36): No Invest Strategy
+Year 2062 (Index 37): No Invest Strategy
+Year 2063 (Index 38): No Invest Strategy
+Year 2064 (Index 39): No Invest Strategy
+Year 2065 (Index 40): No Invest Strategy
+Year 2066 (Index 41): No Invest Strategy
+Year 2067 (Index 42): No Invest Strategy
+Year 2068 (Index 43): No Invest Strategy
+Year 2069 (Index 44): No Invest Strategy
+Year 2070 (Index 45): No Invest Strategy
+Year 2071 (Index 46): No Invest Strategy
+Year 2072 (Index 47): No Invest Strategy
+Year 2073 (Index 48): No Invest Strategy
+Year 2074 (Index 49): No Invest Strategy
+Year 2075 (Index 50): No Invest Strategy
+Year 2076 (Index 51): No Invest Strategy
+--- End investArray ---
