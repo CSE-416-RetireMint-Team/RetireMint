@@ -1,4 +1,3 @@
-// src/__tests__/NewScenario.test.js
 import React from 'react';
 import axios from 'axios';
 import { render, screen, fireEvent } from '@testing-library/react';

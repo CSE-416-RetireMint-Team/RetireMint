@@ -5,6 +5,7 @@ import '../Stylesheets/RunSimulation.css';
 
 const RunSimulation = ({ scenarioId, scenarioName }) => {
   const [numSimulations, setNumSimulations] = useState(100);
+  const [reportName, setReportName] = useState(`Simulation Report for ${scenarioName}`);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       const response = await axios.post('http://localhost:8000/simulation/run', {
         scenarioId,
         numSimulations,
-        userId
+        userId,
+        reportName
       });
       
       // Store the reportId in localStorage for easy access
@@ -49,17 +51,29 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="numSimulations">Number of Simulations:</label>
-          <input
-            type="number"
-            id="numSimulations"
-            value={numSimulations}
-            onChange={(e) => setNumSimulations(Math.max(1, parseInt(e.target.value) || 1))}
-            min="1"
-            max="1000"
-            required
-          />
-          <p className="help-text">More simulations provide more accurate results but take longer to run. Recommended: 100-500.</p>
+          <div>
+            <label>Report Name:</label>
+            <input 
+              type='text' 
+              id='reportName' 
+              value={reportName}
+              onChange={(e) => setReportName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="numSimulations">Number of Simulations:</label>
+            <input
+              type="number"
+              id="numSimulations"
+              value={numSimulations}
+              onChange={(e) => setNumSimulations(Math.max(1, parseInt(e.target.value) || 1))}
+              min="1"
+              max="1000"
+              required
+            />
+            <p className="help-text">More simulations provide more accurate results but take longer to run. Recommended: 100-500.</p>
+          </div>
         </div>
         
         <button type="submit" disabled={loading} className="submit-button">

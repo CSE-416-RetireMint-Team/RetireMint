@@ -94,12 +94,12 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
             </p>
 
             {investments.map((investment, index) => (
-                <div key={index}>
-                    <h2>Investment {index + 1}</h2>
+                <div key={index} className='investment-container'>
+                    <h2 className='investment-heading'>Investment {index + 1}</h2>
                     
                     <>
                     {/* name */}
-                        <h2>Name: *</h2>
+                        <h3>Name: *</h3>
                         <input 
                             type="text" 
                             placeholder="Investment Name" 
@@ -110,7 +110,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
 
                         <div>
                     {/* picking a investment type */}
-                        <h2>Investment Type: *</h2>
+                        <h3>Investment Type: *</h3>
                         <select
                             value={investment.investmentType.name}
                             onChange={(e) => {
@@ -157,7 +157,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     </div>
 
                     {/* value in dollars */}
-                    <h2>Value In Dollars: *</h2>
+                    <h3>Value In Dollars: *</h3>
                     <input 
                         type="number" 
                         placeholder="Value in dollars" 
@@ -168,10 +168,9 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     {/* Only show tax status section if investment type is taxable */}
                     {(!investment.investmentType.taxability || investment.investmentType.taxability === 'taxable') && (
                         <>
-                    <h2>Tax Status: *</h2>
+                    <h3>Tax Status: *</h3>
                     {/* tax status */}
                     <div>
-                        <label>Tax Status:</label>
                         <div>
                             <label>
                                 <input
@@ -213,7 +212,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                     {/* Show Maximum Annual Contribution only for after-tax investments */}
                     {(investment.taxStatus === "after-tax") && (
                         <div>
-                            <h2>Maximum Annual Contribution ($): *</h2>
+                            <h3>Maximum Annual Contribution ($): *</h3>
                             <input 
                                 type="number" 
                                 placeholder="Maximum annual contribution in dollars" 

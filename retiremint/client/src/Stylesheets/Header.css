@@ -10,12 +10,18 @@
   margin-bottom: 30px;
 }
 
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
 .header-title {
   margin: 0;
-  font-size: 24px;
-  font-weight: bold;
+  font-family: Lora;
+  font-size: 30px;
+  font-weight: 400;
   cursor: pointer;
-  color: #3498db;
+  color: #edf8ff;
   transition: color 0.3s;
 }
 
@@ -24,9 +30,6 @@
 }
 
 .header-subtitle {
-  position: absolute;
-  left: 25px;
-  top: 45px;
   font-size: 14px;
   color: #bdc3c7;
 }
