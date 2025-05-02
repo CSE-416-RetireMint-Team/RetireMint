@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../Stylesheets/RunSimulation.css';
@@ -8,8 +8,35 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
   const [reportName, setReportName] = useState(`Simulation Report for ${scenarioName}`);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [scenario, setScenario] = useState(null);
+  const [events, setEvents] = useState([]);
+  const [exploreMode, setExploreMode] = useState('one-dimensional');
+  const [scenarioParameter, setScenarioParameter] = useState('');
+  const [lowerBound, setLowerBound] = useState('');
+  const [upperBound, setUpperBound] = useState('');
+  const [stepSize, setStepSize] = useState('');
+
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
+
+  // Fetch Scenario Data (to fetch events/investments data for Scenario Exploration)
+  useEffect(() => {
+    try{
+      const fetchScenario = async () => {
+        const response = await axios.post(`http://localhost:8000/simulation/scenario/data`, {scenarioId: scenarioId});  
+        setScenario(response.data);
+        const responseEvents = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenarioId: response.data._id});
+        setEvents(responseEvents.data.events); 
+      }
+      fetchScenario();
+    }
+    catch(error) {
+      console.error('Error fetching scenario:', error);
+      setError('Error loading scenario');
+    }
+
+  }, [scenarioId])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,6 +76,48 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       
       {error && <div className="error-message">{error}</div>}
       
+      <select onChange={(e) => setExploreMode(e.target.value)}>
+        <option value={'none'}>Run Simulations</option>
+        <option value={'one-dimensional'}>One-Dimensional Scenario Exploration</option>
+        <option value={'two-dimensional'}>Two-Dimensional Scenario Exploration</option>
+      </select>
+
+      {exploreMode === 'none' ? 
+        <>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <div>
+              <label>Report Name:</label>
+              <input 
+                type='text' 
+                id='reportName' 
+                value={reportName}
+                onChange={(e) => setReportName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="numSimulations">Number of Simulations:</label>
+              <input
+                type="number"
+                id="numSimulations"
+                value={numSimulations}
+                onChange={(e) => setNumSimulations(Math.max(1, parseInt(e.target.value) || 1))}
+                min="1"
+                max="1000"
+                required
+              />
+              <p className="help-text">More simulations provide more accurate results but take longer to run. Recommended: 100-500.</p>
+            </div>
+          </div>
+          
+          <button type="submit" disabled={loading} className="submit-button">
+            {loading ? 'Running Simulation...' : 'Run Simulation'}
+          </button>
+        </form>
+        </> 
+      : exploreMode === 'one-dimensional' ? 
+      <>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <div>
@@ -74,12 +143,72 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
             />
             <p className="help-text">More simulations provide more accurate results but take longer to run. Recommended: 100-500.</p>
           </div>
+          <div>
+            <label>Scenario Parameter</label>
+            <select value={scenarioParameter} onChange={(e) => setScenarioParameter(e.target.value)}>
+              <option value={''}>-Choose a Scenario Parameter-</option>
+              <option value={"roth-optimizer"}>Roth Optimizer</option>
+              <option value={"event-start-year"}>Event Series Start Year</option>
+              <option value={"event-duration"}>Event Series Duration</option>
+              <option value={"event-initial-amount"}>Event Series Initial Amount</option>
+              <option value={"investment-allocation"}>Investment Allocation Percentage</option>
+            </select>
+          </div>
+          <div>
+            {(scenarioParameter === 'roth-optimizer') ? 
+              <div>
+                <input
+                  type='checkbox'
+                />
+                <label>Roth Optimizer Enabled</label>
+              </div>
+              : (scenarioParameter !== '') && (
+                <>
+                <label>Lower Bound</label>
+                <input type='number' value={lowerBound} onChange={(e) => setLowerBound(e.target.value)}/>
+
+                <label>Upper Bound</label>
+                <input type='number' value={upperBound} onChange={(e) => setUpperBound(e.target.value)}/>
+
+                <label>Step Size</label>
+                <input type='number' value={stepSize} onChange={(e) => setStepSize(e.target.value)}/>
+                
+                {(scenarioParameter === 'event-start-year' || scenarioParameter === 'event-duration') && (
+                  <>
+                    <label>Choose Event Series</label>
+                    <select>
+                      {events.map((event,index) => (<option key={index}>{event.name}</option>))}
+                    </select>
+                  </>
+                )}
+
+                {(scenarioParameter === 'event-initial-amount') && (
+                  <>
+                    <label>Choose Income / Expense Event Series</label>
+                    <select>
+                      {(events.filter((event) => (event.type === 'income' || event.type === 'expense'))).map((event,index) => (<option key={index}>{event.name}</option>))}
+
+                    </select>
+                  </>
+                )}
+                </>
+              )
+            }
+          </div>
         </div>
+        
         
         <button type="submit" disabled={loading} className="submit-button">
           {loading ? 'Running Simulation...' : 'Run Simulation'}
         </button>
       </form>
+      </> 
+      : 
+        <>
+          
+        </>
+      }
+      
       
       {loading && (
         <div className="loading-message">
