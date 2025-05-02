@@ -138,7 +138,7 @@ router.get('/reports/:userId', async (req, res) => {
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
   try {
-    const { scenarioId, numSimulations, userId } = req.body;
+    const { scenarioId, numSimulations, userId, reportName} = req.body;
     
     console.log(`Starting simulation for scenario: ${scenarioId}, user: ${userId}`);
     console.log(`Simulation parameters: ${numSimulations} simulations`);
@@ -334,7 +334,7 @@ router.post('/run', async (req, res) => {
     
     // Create a report document with possibly reduced data to avoid MongoDB document size limits
     const report = new Report({
-      name: `Simulation Report for ${scenario.name}`,
+      name: reportName,
       userId: scenario.userId,
       scenarioId: scenarioId,
       sharedUsers: scenario.sharedUsers,
