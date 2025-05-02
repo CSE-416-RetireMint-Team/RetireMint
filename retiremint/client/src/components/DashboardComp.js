@@ -23,6 +23,10 @@ function Dashboard() {
     const [shareEmail, setShareEmail] = useState('');
     const [sharePermissions, setSharePermissions] = useState('view');
     const [shareError, setShareError] = useState(null);
+    const [showImportOptions, setShowImportOptions] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState(null);
+
+
 
     const navigate = useNavigate();
 
@@ -288,6 +292,16 @@ function Dashboard() {
         );
     }
 
+    const handleScenarioExport = (scenarioId) => {
+        alert(`Exporting scenario ${scenarioId} (TODO: hook up backend)`);
+      };     
+      
+    const handleScenarioImport = (file) => {
+        if (!file) return;
+        alert(`Importing: ${file.name}`);
+        setShowImportOptions(false);  // hide options after file is selected
+    };
+      
     return (
         <>
         <Header />
@@ -308,7 +322,7 @@ function Dashboard() {
                     Create New Scenario
                 </button>
             </div>
-            <select name="reports-view" onChange={(e) => setOwnerView(e.target.value)}>
+            <select name="reports-view" onChange={(e) => setOwnerView(e.target.value)} className="reports-view-dropdown">
                 <option value="users">Your Reports</option>   
                 <option value="shared">Shared With You</option> 
             </select>
@@ -319,8 +333,36 @@ function Dashboard() {
                     {/* User is viewing their own Reports */}
                     {ownerView === 'users' ? (
                         <>
-                        <h2>Your Financial Scenarios</h2>
-                        
+                        <div className="scenarios-header">
+                            <h2 className="scenarios-title">Your Financial Scenarios</h2>
+                            {!showImportOptions ? (
+                                <button 
+                                onClick={() => setShowImportOptions(true)} 
+                                className="import-scenario-header-button"
+                                >
+                                Import Scenario
+                                </button>
+                            ) : (
+                                <div className="import-options-box">
+                                <label htmlFor="scenarioImportInput" className="import-button-label">
+                                    <input
+                                    type="file"
+                                    id="scenarioImportInput"
+                                    accept=".yaml"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) => handleScenarioImport(e.target.files[0])}
+                                    />
+                                    <span className="import-button">Upload YAML File</span>
+                                </label>
+                                <button 
+                                    onClick={() => setShowImportOptions(false)} 
+                                    className="cancel-import-button"
+                                >
+                                    Cancel
+                                </button>
+                                </div>
+                            )}
+                        </div>
                         {scenarios.length === 0 ? (
                             <div className="empty-state">
                                 <p>You haven't created any scenarios yet.</p>
@@ -330,12 +372,26 @@ function Dashboard() {
                             <div className="scenarios-list">
                                 {scenarios.map(scenario => (
                                     <div key={scenario._id} className="scenario-card">
-                                        <h3>{scenario.name}</h3>
+                                        <div className="scenario-card-header">
+                                            <h3 className="scenario-title">{scenario.name}</h3>
+                                            <button
+                                                className="scenario-menu-button"
+                                                onClick={() =>
+                                                setOpenMenuId(openMenuId === scenario._id ? null : scenario._id)
+                                                }
+                                            >
+                                                ︙
+                                            </button>
+                                            {openMenuId === scenario._id && (
+                                                <div className="scenario-dropdown">
+                                                <button onClick={() => handleEditScenario(scenario._id)}>Edit</button>
+                                                <button onClick={() => handleScenarioExport(scenario._id)}>Export</button>
+                                                <button onClick={() => handleShareScenario(scenario._id)}>Share</button>
+                                                <button onClick={() => handleDeleteScenario(scenario._id)}>Delete</button>
+                                                </div>
+                                            )}
+                                        </div>
                                         <p>{scenario.description || 'No description'}</p>
-                                        <button 
-                                            onClick={() => handleShareScenario(scenario._id)}>
-                                            Share
-                                        </button>
                                         <div className="scenario-details">
                                             <p>Type: {scenario.scenario_type}</p>
                                             <p>Financial Goal: ${scenario.financial_goal?.toLocaleString() || 0}</p>
@@ -346,18 +402,6 @@ function Dashboard() {
                                                 className="run-simulation-button"
                                             >
                                                 Run Simulation
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditScenario(scenario._id)}
-                                                className='edit-scenario-button'
-                                            >
-                                                Edit Scenario    
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteScenario(scenario._id)}
-                                                className="delete-report-button"
-                                            >
-                                                Delete
                                             </button>
                                         </div>
                                     </div>
