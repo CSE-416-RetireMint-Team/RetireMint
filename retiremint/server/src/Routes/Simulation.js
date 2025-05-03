@@ -478,7 +478,6 @@ router.get('/sharedscenarios/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     const scenarios = await Scenario.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
-    console.log("Found scenarios shared with this user: ", scenarios);
     res.json(scenarios);
   } catch (error) {
     console.error('Error fetching scenarios:', error);

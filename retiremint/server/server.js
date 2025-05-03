@@ -230,8 +230,6 @@ app.post('/scenario', async (req, res) => {
         spendingStrategy // Add spendingStrategy
     } = req.body; // extracting data from frontend
 
-    console.log('Scenario received!');
-  
     // open existing scenario if an edit is being attempted
     let existingScenario;
     if (scenarioId !== 'new') {
@@ -1002,7 +1000,7 @@ app.post('/scenario/shareToUser', async (req, res) => {
         console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${email}, ${permissions}.`);
 
         const scenario = await Scenario.findById(scenarioId);
-        console.log(`Found Scenario: ${scenario}`);
+        console.log(`Found Scenario: ${scenarioId}`);
 
         // Check if the user is already added to the Scenario.        
         const index = scenario.sharedUsers.findIndex((user) => user.email === email);
@@ -1080,7 +1078,7 @@ app.post('/scenario/removeSharedUser', async (req, res) => {
             scenario.sharedUsers.splice(index, 1); // Remove Shared User
         }
         else {
-            console.log(`Removed User!!! ${email}`);
+            console.log(`Removed User: ${email}`);
         }
         scenario.save();
         console.log(`Successfully removed Shared User from Scenario: ${scenario.sharedUsers}`);
