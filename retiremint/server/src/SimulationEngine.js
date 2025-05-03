@@ -169,9 +169,9 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
             console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
             console.log(`  Cash Array:`, aggregatedResults.cashArrays[i]); // Log the full array
             // Keep others sliced for brevity, or remove if not needed
-            // console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
-            // console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
-            // console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
+             console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
+             console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
+             console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
         }
     }
     //console.log('\n-------------------------------------\n');

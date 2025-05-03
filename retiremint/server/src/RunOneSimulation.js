@@ -249,7 +249,7 @@ function runOneSimulation(modelData, simulationIndex) {
                     maritalStatusArray[i] = 'single';
                 }
             }
-             console.log(`Sim ${simulationIndex + 1}: Marital status changes to single in year ${currentYear + spouseLastYearIndex + 1} (index ${spouseLastYearIndex + 1}) due to spouse LE.`);
+            //console.log(`Sim ${simulationIndex + 1}: Marital status changes to single in year ${currentYear + spouseLastYearIndex + 1} (index ${spouseLastYearIndex + 1}) due to spouse LE.`);
         }
     }
 
