@@ -165,13 +165,13 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
     const numSimsToLog = Math.min(4, aggregatedResults.yearlyResults.length); // Log up to 4 simulations
     if (numSimsToLog > 0) {
         for (let i = 0; i < numSimsToLog; i++) {
-            //console.log(`\n--- Details from Simulation #${i + 1} ---`);
-            //console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
-            //console.log(`  Cash Array:`, aggregatedResults.cashArrays[i]); // Log the full array
+            console.log(`\n--- Details from Simulation #${i + 1} ---`);
+            console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
+            console.log(`  Cash Array:`, aggregatedResults.cashArrays[i]); // Log the full array
             // Keep others sliced for brevity, or remove if not needed
-            // console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
-            // console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
-            // console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
+             console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
+             console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
+             console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
         }
     }
     //console.log('\n-------------------------------------\n');

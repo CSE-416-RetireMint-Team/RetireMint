@@ -73,17 +73,17 @@ function calculateTargetValues(investments, strategy) {
  */
 function processRebalanceEvents(rebalanceInfo, yearState) {
     if (!rebalanceInfo || !rebalanceInfo.strategy) {
-        console.log(`Year ${yearState.year}: No rebalance strategy active.`);
+        // console.log(`Year ${yearState.year}: No rebalance strategy active.`);
         return yearState;
     }
 
-    console.log(`Year ${yearState.year}: Processing Rebalance Event.`);
+    // console.log(`Year ${yearState.year}: Processing Rebalance Event.`);
     
     const strategy = rebalanceInfo.strategy; // Assuming glide path already resolved into strategy
     const targetValues = calculateTargetValues(yearState.investments, strategy);
 
     if (Object.keys(targetValues).length === 0) {
-        console.log(`    No target values calculated, skipping rebalance.`);
+        // console.log(`    No target values calculated, skipping rebalance.`);
         return yearState;
     }
 
@@ -111,11 +111,11 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
 
     // Optional: Check for cash neutrality (should be close)
     if (Math.abs(totalSellAmount - totalBuyAmount) > 1.00) { // Allow $1 difference for rounding
-        console.warn(`Year ${yearState.year}: Rebalance Warning: Total sells (${totalSellAmount.toFixed(2)}) differ significantly from total buys (${totalBuyAmount.toFixed(2)}).`);
+        // console.warn(`Year ${yearState.year}: Rebalance Warning: Total sells (${totalSellAmount.toFixed(2)}) differ significantly from total buys (${totalBuyAmount.toFixed(2)}).`);
     }
 
     // --- Process Sales --- 
-    console.log(`Year ${yearState.year}: Rebalance - Processing Sales...`);
+    // console.log(`Year ${yearState.year}: Rebalance - Processing Sales...`);
     sales.forEach(sale => {
         const { index, amount, investment } = sale;
         const currentValue = investment.value; // Value *before* sale
@@ -125,7 +125,7 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
         
         const fractionSold = currentValue > 0 ? amountSold / currentValue : 1;
 
-        console.log(`    Selling ${amountSold.toFixed(2)} from '${investment.name}'`);
+        // console.log(`    Selling ${amountSold.toFixed(2)} from '${investment.name}'`);
 
         // Update value
         yearState.investments[index].value -= amountSold;
@@ -137,21 +137,22 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
                 yearState.curYearGains += gain;
                 // Update cost basis
                 yearState.investments[index].costBasis *= (1 - fractionSold);
-                 console.log(`      Gain/Loss: ${gain.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+                 // console.log(`      Gain/Loss: ${gain.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
             } else {
+                 // Keep this warning
                  console.warn(`Year ${yearState.year} Rebalance Warn: Missing cost basis for sold investment '${investment.name}'. Cannot calculate gains/update basis.`);
             }
         }
     });
 
     // --- Process Purchases --- 
-    console.log(`Year ${yearState.year}: Rebalance - Processing Purchases...`);
+    // console.log(`Year ${yearState.year}: Rebalance - Processing Purchases...`);
     purchases.forEach(purchase => {
         const { index, amount, investment } = purchase;
         
         if (amount <= 0) return; // Skip negligible buys
         
-        console.log(`    Buying ${amount.toFixed(2)} for '${investment.name}'`);
+        // console.log(`    Buying ${amount.toFixed(2)} for '${investment.name}'`);
 
         // Update value
         yearState.investments[index].value += amount;
@@ -161,14 +162,14 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
              yearState.investments[index].costBasis = 0; // Initialize if missing
         }
         yearState.investments[index].costBasis += amount;
-         console.log(`      New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+         // console.log(`      New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
     });
 
     // Recalculate totals (value changed directly)
     yearState.totalInvestmentValue = (yearState.investments || []).reduce((sum, inv) => sum + (inv?.value || 0), 0);
     yearState.totalAssets = yearState.totalInvestmentValue + yearState.cash; // Cash unchanged by rebalance
     
-    console.log(`Year ${yearState.year}: Finished Rebalance Event. Final Assets: ${yearState.totalAssets.toFixed(2)}`);
+    // console.log(`Year ${yearState.year}: Finished Rebalance Event. Final Assets: ${yearState.totalAssets.toFixed(2)}`);
 
     return yearState;
 }
