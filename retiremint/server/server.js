@@ -948,6 +948,29 @@ app.post('/simulation/scenario/events', async (req, res) => {
     }
 }) 
 
+// Returns the Simulation Settings for a given scenarioId
+app.post('/simulation/scenario/settings', async (req, res) => {
+    try {
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
+        const settingsId = scenario.simulationSettings;
+        const settings = await SimulationSettings.findById(settingsId);
+
+        res.json({
+            success: true,
+            message: 'Simulation Setting object successfully found',
+            settings: settings
+        });
+    } catch (error) {
+        console.error('Error finding simulation settings:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to find simulation settings',
+            details: error.message
+        });
+    }
+})
+
 app.post('/simulation/scenario/lifeexpectancy', async (req, res) => {
     try {
         const scenarioId = req.body.scenarioId;
@@ -1109,6 +1132,53 @@ app.post('/report/removeSharedUser', async (req, res) => {
         });
     }
 });
+
+// Create a temporary Scenario that is to be editted for 1D exploration.
+app.post('/simulation/explore-scenario/create', async (req, res) => {
+    try {
+        const originalScenarioId = req.body.scenarioId;
+        const scenarioParameter = req.body.scenarioParameter;
+        const changedValue = req.body.changedValue;
+
+        const originalScenario = await Scenario.findById(originalScenarioId);
+        originalScenario._id = new mongoose.Types.ObjectId();
+        originalScenario.name = "wawaweewa!";
+        originalScenario.isNew = true;
+        originalScenario.save();
+        res.json({
+            success: true,
+            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${originalScenario._id}.`,
+       })
+    }
+    catch {
+        console.error('Error duplicating and editing existing Scenario: ', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to duplicate and edit Scenario.',
+            details: error.message
+        });
+    }
+})
+
+// Delete a temporary Scenario that was editted for 1D exploration any other duplicated/edited documents.
+app.delete('/simulation/explore-scenario/remove', async (req, res) => {
+    try {
+        const temporaryScenarioId = req.body.scenarioId;
+        const scenarioParameter = req.body.scenarioParameter;
+
+        Scenario.findByIdAndDelete(temporaryScenarioId);
+        // TODO: Get back to this and check scenario parameter to remove any new nested documents potentially created by some of the modes.
+
+        res.json({
+            success: true,
+            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${originalScenario._id}.`,
+       })
+    }
+    catch {
+        console.error('Error deleting temporary scenario:' , error);
+        res.status(500).json({ error: 'Error deleting temporary scenario.' });
+    }
+})
 
 // Function to seed default tax data if none exists
 async function seedDefaultTaxData() {

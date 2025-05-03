@@ -11,11 +11,14 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
 
   const [scenario, setScenario] = useState(null);
   const [events, setEvents] = useState([]);
+  const [settings, setSettings] = useState(null);
   const [exploreMode, setExploreMode] = useState('one-dimensional');
   const [scenarioParameter, setScenarioParameter] = useState('');
   const [lowerBound, setLowerBound] = useState('');
   const [upperBound, setUpperBound] = useState('');
   const [stepSize, setStepSize] = useState('');
+  const [parameterEvent, setParameterEvent] = useState('');
+
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -28,6 +31,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
         setScenario(response.data);
         const responseEvents = await axios.post(`http://localhost:8000/simulation/scenario/events`, {scenarioId: response.data._id});
         setEvents(responseEvents.data.events); 
+        const responseSettings = await axios.post(`http://localhost:8000/simulation/scenario/settings`, {scenarioId: response.data._id});
+        setSettings(responseSettings.data.settings);
       }
       fetchScenario();
     }
@@ -46,27 +51,70 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       return;
     }
     
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await axios.post('http://localhost:8000/simulation/run', {
-        scenarioId,
-        numSimulations,
-        userId,
-        reportName
-      });
-      
-      // Store the reportId in localStorage for easy access
-      localStorage.setItem('latestReportId', response.data.reportId);
-      
-      // Navigate to the results page
-      navigate(`/simulation-results/${response.data.reportId}`);
-    } catch (err) {
-      console.error('Error running simulation:', err);
-      setError('Error running simulation. Please try again later.');
-    } finally {
-      setLoading(false);
+    if (exploreMode === 'none') {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await axios.post('http://localhost:8000/simulation/run', {
+          scenarioId,
+          numSimulations,
+          userId,
+          reportName
+        });
+        
+        // Store the reportId in localStorage for easy access
+        localStorage.setItem('latestReportId', response.data.reportId);
+        
+        // Navigate to the results page
+        navigate(`/simulation-results/${response.data.reportId}`);
+      } catch (err) {
+        console.error('Error running simulation:', err);
+        setError('Error running simulation. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    else if (exploreMode === 'one-dimensional') {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (scenarioParameter !== '') {
+          // Create a temporary scenario that has the scenario parameter changed. 
+          const response = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
+            scenarioId: scenarioId,
+            scenarioParameter: scenarioParameter,
+            changedValue: 'blah'
+          });
+
+          // Delete temporary scenario, saving the results.
+        }
+        else {
+          setError('Invalid Scenario Parameter')
+          setLoading(false);
+        }
+        /*
+        
+        const response = await axios.post('http://localhost:8000/simulation/run', {
+          scenarioId,
+          numSimulations,
+          userId,
+          reportName
+        });
+        
+        // Store the reportId in localStorage for easy access
+        localStorage.setItem('latestReportId', response.data.reportId);
+        
+        // Navigate to the results page
+        navigate(`/simulation-results/${response.data.reportId}`);
+        */
+      } catch (err) {
+        console.error('Error running simulation:', err);
+        setError('Error running simulation. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -146,8 +194,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           <div>
             <label>Scenario Parameter</label>
             <select value={scenarioParameter} onChange={(e) => setScenarioParameter(e.target.value)}>
-              <option value={''}>-Choose a Scenario Parameter-</option>
-              <option value={"roth-optimizer"}>Roth Optimizer</option>
+              <option value={''}>--Choose a Scenario Parameter--</option>
+              {settings !== null && settings.rothOptimizerEnable === true && (<option value={"roth-optimizer"}>Roth Optimizer</option>)}
               <option value={"event-start-year"}>Event Series Start Year</option>
               <option value={"event-duration"}>Event Series Duration</option>
               <option value={"event-initial-amount"}>Event Series Initial Amount</option>
@@ -176,8 +224,9 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
                 {(scenarioParameter === 'event-start-year' || scenarioParameter === 'event-duration') && (
                   <>
                     <label>Choose Event Series</label>
-                    <select>
-                      {events.map((event,index) => (<option key={index}>{event.name}</option>))}
+                    <select value={parameterEvent} onChange={(e) => {setParameterEvent(e.target.value); console.log(parameterEvent);}}>
+                      <option value={''}>-- Choose --</option>
+                      {events.map((event,index) => (<option key={index} value={event._id}>{event.name}</option>))}
                     </select>
                   </>
                 )}
@@ -186,8 +235,20 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
                   <>
                     <label>Choose Income / Expense Event Series</label>
                     <select>
-                      {(events.filter((event) => (event.type === 'income' || event.type === 'expense'))).map((event,index) => (<option key={index}>{event.name}</option>))}
+                      <option value={''}>-- Choose --</option>
+                      {(events.filter((event) => (event.type === 'income' || event.type === 'expense'))).map((event,index) => (<option key={index} value={event._id}>{event.name}</option>))}
 
+                    </select>
+                  </>
+                )}
+
+                {(scenarioParameter === 'investment-allocation') && (
+                  <>
+                    <label>Choose Invest Event</label>
+                    <select>
+                      <option value={''}>-- Choose --</option>
+                      {(events.filter((event) => (event.type === 'invest'))).map((event,index) => (<option key={index} value={event._id}>{event.name}</option>))}
+                      {/* Return to this */}
                     </select>
                   </>
                 )}
