@@ -80,20 +80,40 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
         setLoading(true);
         setError(null);
 
-        if (scenarioParameter !== '') {
-          // Create a temporary scenario that has the scenario parameter changed. 
-          const response = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
-            scenarioId: scenarioId,
-            scenarioParameter: scenarioParameter,
-            changedValue: 'blah'
-          });
-
-          // Delete temporary scenario, saving the results.
-        }
-        else {
+        if (scenarioParameter === '') {
           setError('Invalid Scenario Parameter')
           setLoading(false);
         }
+        else if (lowerBound === NaN || upperBound === NaN || stepSize === NaN){
+          setError('Invalid set of values (among Upper Bound, Lower Bound, or Step Size')
+          setLoading(false);
+        }
+        else if (lowerBound >= upperBound) {
+          setError('Lower Bound cannot be greater than or equal to the lower Bound');
+          setLoading(false);
+        }
+        else {
+            for (let i = lowerBound; i < upperBound; i += stepSize) {
+              // Create a temporary scenario that has the scenario parameter changed. 
+              const tempScenarioResponse = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
+                scenarioId: scenarioId,
+                scenarioParameter: scenarioParameter,
+                parameterEventId: parameterEvent,
+                changedValue: i,
+              });
+
+              // Run Simulations on Temporary Adjusted Scenario:
+              const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
+                scenarioId,
+                numSimulations,
+                userId,
+                reportName
+              });
+              //console.log("Temporary Scenario: ", response.data.scenarioId);
+              // Delete temporary scenario, saving the results.
+            }
+        }
+        
         /*
         
         const response = await axios.post('http://localhost:8000/simulation/run', {
@@ -124,7 +144,7 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
       
       {error && <div className="error-message">{error}</div>}
       
-      <select onChange={(e) => setExploreMode(e.target.value)}>
+      <select value={exploreMode} onChange={(e) => setExploreMode(e.target.value)}>
         <option value={'none'}>Run Simulations</option>
         <option value={'one-dimensional'}>One-Dimensional Scenario Exploration</option>
         <option value={'two-dimensional'}>Two-Dimensional Scenario Exploration</option>
@@ -195,7 +215,9 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
             <label>Scenario Parameter</label>
             <select value={scenarioParameter} onChange={(e) => setScenarioParameter(e.target.value)}>
               <option value={''}>--Choose a Scenario Parameter--</option>
-              {settings !== null && settings.rothOptimizerEnable === true && (<option value={"roth-optimizer"}>Roth Optimizer</option>)}
+              {settings !== null && settings.rothOptimizerEnable === true && (
+                <option value={"roth-optimizer"}>Roth Optimizer</option>
+              )}
               <option value={"event-start-year"}>Event Series Start Year</option>
               <option value={"event-duration"}>Event Series Duration</option>
               <option value={"event-initial-amount"}>Event Series Initial Amount</option>
@@ -213,13 +235,13 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
               : (scenarioParameter !== '') && (
                 <>
                 <label>Lower Bound</label>
-                <input type='number' value={lowerBound} onChange={(e) => setLowerBound(e.target.value)}/>
+                <input type='number' value={lowerBound} onChange={(e) => setLowerBound(parseInt(e.target.value))}/>
 
                 <label>Upper Bound</label>
-                <input type='number' value={upperBound} onChange={(e) => setUpperBound(e.target.value)}/>
+                <input type='number' value={upperBound} onChange={(e) => setUpperBound(parseInt(e.target.value))}/>
 
                 <label>Step Size</label>
-                <input type='number' value={stepSize} onChange={(e) => setStepSize(e.target.value)}/>
+                <input type='number' value={stepSize} onChange={(e) => setStepSize(parseInt(e.target.value))}/>
                 
                 {(scenarioParameter === 'event-start-year' || scenarioParameter === 'event-duration') && (
                   <>

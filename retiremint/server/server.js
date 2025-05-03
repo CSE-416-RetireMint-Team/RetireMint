@@ -1138,19 +1138,34 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
     try {
         const originalScenarioId = req.body.scenarioId;
         const scenarioParameter = req.body.scenarioParameter;
+        const parameterEventId = req.body.parameterEventId;
         const changedValue = req.body.changedValue;
 
-        const originalScenario = await Scenario.findById(originalScenarioId);
-        originalScenario._id = new mongoose.Types.ObjectId();
-        originalScenario.name = "wawaweewa!";
-        originalScenario.isNew = true;
-        originalScenario.save();
+        const scenario = await Scenario.findById(originalScenarioId);
+        scenario._id = new mongoose.Types.ObjectId();
+
+        if (scenarioParameter === 'event-start-year') {
+            console.log("Editting Start Year:");
+            const parameterEvent = await Event.findById(parameterEventId);
+            const startYear = await new StartYear({method: 'fixedValue', fixedValue: changedValue}).save();
+            parameterEvent._id = new mongoose.Types.ObjectId();
+            parameterEvent.startYear = startYear;
+            parameterEvent.isNew = true;
+            parameterEvent.save();
+            // Replace original event in events list with new event with adjusted Start Year.
+            scenario.events[scenario.events.indexOf(parameterEventId)] = parameterEvent._id;
+        }
+
+        scenario.name = "wawaweewa!";
+        scenario.isNew = true;
+        scenario.save();
         res.json({
             success: true,
-            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${originalScenario._id}.`,
+            scenarioId: scenario._id,
+            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${scenario._id}.`,
        })
     }
-    catch {
+    catch (error) {
         console.error('Error duplicating and editing existing Scenario: ', error);
         res.status(500).json({
             success: false,
@@ -1165,6 +1180,11 @@ app.delete('/simulation/explore-scenario/remove', async (req, res) => {
     try {
         const temporaryScenarioId = req.body.scenarioId;
         const scenarioParameter = req.body.scenarioParameter;
+        if (scenarioParameter === 'event-start-year') {
+            const parameterEvent = await Event.findById(parameterEventId);
+            await StartYear.findByIdAndDelete(parameterEvent.startYear);
+            await Event.findByIdAndDelete(parameterEventId);
+        }
 
         Scenario.findByIdAndDelete(temporaryScenarioId);
         // TODO: Get back to this and check scenario parameter to remove any new nested documents potentially created by some of the modes.
@@ -1174,7 +1194,7 @@ app.delete('/simulation/explore-scenario/remove', async (req, res) => {
             message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${originalScenario._id}.`,
        })
     }
-    catch {
+    catch (error) {
         console.error('Error deleting temporary scenario:' , error);
         res.status(500).json({ error: 'Error deleting temporary scenario.' });
     }
