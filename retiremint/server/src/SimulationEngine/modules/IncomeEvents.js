@@ -2,14 +2,12 @@
  * IncomeEvents.js - Module for processing income events in the simulation
  * 
  * This module handles:
- * 1. Calculating income from income events based on previous state.
- * 2. Applying expected annual changes.
- * 3. Adjusting for inflation.
- * 4. Adjusting for user/spouse mortality and marital status.
- * 5. Returning the calculated income totals and event states for the year.
+ * 1. Calculating the uninflated base income amount for the current year based on the previous year's base and expected annual changes.
+ * 2. Adjusting the current base amount for inflation if applicable.
+ * 3. Adjusting for marital status.
+ * 4. Returning the calculated income totals (cash added, taxable income, SS income) and the *uninflated* base amounts for the next year's calculation.
  */
 
-// Assuming sampleNormal and sampleUniform are defined/imported if needed for expectedAnnualChange
 // Helper function to sample from a normal distribution using Box-Muller transform
 function sampleNormal(mean, stdDev) {
   let u1 = 0, u2 = 0;
@@ -32,61 +30,60 @@ function sampleUniform(min, max) {
 }
 
 /**
- * Calculate the expected annual change *amount* based on the method.
- * Note: This needs the previous amount to calculate the new amount for fixedValue changes.
- * For percentage changes, it returns a multiplier.
+ * Calculates the *uninflated base amount* for the current year.
+ * Applies the specified annual change method to the previous year's *uninflated base amount*.
  * @param {Object} changeConfig - The expectedAnnualChange configuration object from the event.
- * @param {number} previousAmount - The income amount from the previous year for this specific event.
- * @returns {number} - The new absolute amount (for fixedValue) or the multiplier (for percentages).
+ * @param {number} previousBaseAmount - The uninflated base income amount from the previous year for this specific event.
+ * @returns {number} - The calculated uninflated base amount for the current year.
  */
-function calculateNextAmount(changeConfig, previousAmount) {
+function calculateCurrentBaseAmount(changeConfig, previousBaseAmount) {
   if (!changeConfig || !changeConfig.method) {
-    return previousAmount; // No change defined
+    return previousBaseAmount; // No change defined, carry forward previous base
   }
 
   const method = changeConfig.method;
-  // Default previousAmount to 0 if null/undefined
-  const prevAmountNum = typeof previousAmount === 'number' ? previousAmount : 0;
+  // Default previousBaseAmount to 0 if null/undefined
+  const prevBaseAmountNum = typeof previousBaseAmount === 'number' ? previousBaseAmount : 0;
 
   switch (method) {
     case 'fixedValue':
-      // Adds a fixed value change each year
+      // Adds a fixed value change (assumed to be in base year dollars) each year
       const changeVal = typeof changeConfig.fixedValue === 'number' ? changeConfig.fixedValue : 0;
-      return prevAmountNum + changeVal;
+      return prevBaseAmountNum + changeVal;
 
     case 'fixedPercentage':
       const percentChange = (typeof changeConfig.fixedPercentage === 'number' ? changeConfig.fixedPercentage : 0) / 100;
-      return prevAmountNum * (1 + percentChange);
+      return prevBaseAmountNum * (1 + percentChange);
 
     case 'normalValue':
-       // Adds a normally distributed value change each year
+       // Adds a normally distributed value change (assumed base year dollars)
        const meanVal = changeConfig.normalValue?.mean;
        const sdVal = changeConfig.normalValue?.sd;
        const sampledValueChange = sampleNormal(meanVal, sdVal);
-       return prevAmountNum + sampledValueChange;
+       return prevBaseAmountNum + sampledValueChange;
 
     case 'normalPercentage':
       const meanPercent = changeConfig.normalPercentage?.mean;
       const sdPercent = changeConfig.normalPercentage?.sd;
       const sampledPercent = sampleNormal(meanPercent, sdPercent) / 100;
-      return prevAmountNum * (1 + sampledPercent);
+      return prevBaseAmountNum * (1 + sampledPercent);
 
     case 'uniformValue':
-        // Adds a uniformly distributed value change each year
+        // Adds a uniformly distributed value change (assumed base year dollars)
         const lowerVal = changeConfig.uniformValue?.lowerBound;
         const upperVal = changeConfig.uniformValue?.upperBound;
         const sampledUniformVal = sampleUniform(lowerVal, upperVal);
-        return prevAmountNum + sampledUniformVal;
+        return prevBaseAmountNum + sampledUniformVal;
 
     case 'uniformPercentage':
       const lowerPercent = changeConfig.uniformPercentage?.lowerBound;
       const upperPercent = changeConfig.uniformPercentage?.upperBound;
       const sampledUniformPercent = sampleUniform(lowerPercent, upperPercent) / 100;
-      return prevAmountNum * (1 + sampledUniformPercent);
+      return prevBaseAmountNum * (1 + sampledUniformPercent);
 
     default:
       console.warn(`Unsupported expectedAnnualChange method: ${method}`);
-      return prevAmountNum; // No change if method is unknown
+      return prevBaseAmountNum; // No change if method is unknown
   }
 }
 
@@ -96,7 +93,7 @@ function calculateNextAmount(changeConfig, previousAmount) {
  * @param {Array<string>} eventsActiveThisYear - Array of active event names for the year.
  * @param {string} maritalStatusThisYear - 'single' or 'married'.
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year (1.0 = base year).
- * @param {Object} previousIncomeEventStates - Map of event states from the previous year { eventName: { amount: number } }.
+ * @param {Object} previousIncomeEventStates - Map of event states from the previous year { eventName: { baseAmount: number } }.
  * @param {number} initialCash - Cash balance at the start of the year before income.
  * @returns {Object} - { cash: updatedCash, curYearIncome: totalTaxableIncome, curYearSS: totalSSIncome, incomeEventStates: stateForNextYear }
  */
@@ -105,14 +102,14 @@ function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear,
     let currentCash = initialCash;
     let curYearIncome = 0; // Total income for tax purposes this year
     let curYearSS = 0;     // Total SS income this year
-    const currentIncomeEventStates = {}; // Store calculated amounts for *next* year's previous state
+    const currentIncomeEventStates = {}; // Store calculated *base* amounts for *next* year's previous state
 
     if (!eventsActiveThisYear || eventsActiveThisYear.length === 0) {
         return { cash: currentCash, curYearIncome, curYearSS, incomeEventStates: currentIncomeEventStates };
     }
 
     const allEvents = modelData.scenario.events;
-    const inflationFactorToApply = currentInflationFactor; // Use the cumulative factor directly
+    const inflationFactorToApply = currentInflationFactor; // Use the cumulative factor
 
     for (const eventName of eventsActiveThisYear) {
         const event = allEvents.find(e => e.name === eventName);
@@ -123,47 +120,42 @@ function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear,
         }
 
         const incomeDetails = event.income;
+        // Get the UNINFLATED base amount from the previous year, or use initialAmount if first time
         const previousState = previousIncomeEventStates[eventName] || null;
-        const previousAmount = previousState ? previousState.amount : incomeDetails.initialAmount;
+        const previousBaseAmount = previousState ? previousState.baseAmount : incomeDetails.initialAmount;
 
-        // a. Calculate next amount based on previous amount and expected change
-        let currentAmount = calculateNextAmount(incomeDetails.expectedAnnualChange, previousAmount);
+        // a. Calculate the UNINFLATED base amount for the current year
+        const currentBaseAmount = calculateCurrentBaseAmount(incomeDetails.expectedAnnualChange, previousBaseAmount);
 
-        // b. Apply inflation adjustment if enabled (applied to the calculated amount)
+        // b. Calculate the INFLATED amount for the current year if applicable
+        let inflatedCurrentAmount;
         if (incomeDetails.inflationAdjustment) {
-            // Apply simple inflation scaling based on the cumulative factor relative to base year (factor=1)
-            // This assumes initialAmount is in base year dollars.
-            currentAmount *= inflationFactorToApply;
+            // Adjust the *current base* amount by the *cumulative* inflation factor
+            inflatedCurrentAmount = currentBaseAmount * inflationFactorToApply;
+        } else {
+            // If no inflation adjustment, the amount received is the uninflated base
+            inflatedCurrentAmount = currentBaseAmount;
         }
 
-        // c. Adjust for marital status
+        // c. Adjust for marital status (applied to the inflated amount received this year)
         if (maritalStatusThisYear === 'married') {
-            // Assume spouse gets 'marriedPercentage', user gets the rest. Default 50/50 if not specified.
             const spousePercentage = (typeof incomeDetails.marriedPercentage === 'number' ? incomeDetails.marriedPercentage : 50);
-            // We are calculating the income *for the user/household defined in the scenario*.
-            // If spouse gets X%, the *household* still gets 100%, but we might need to know the split later for taxes?
-            // For now, assume `currentAmount` represents the total household amount from this event.
-            // If the scenario owner (user) isn't specified as primary beneficiary, this might need adjustment.
-            // Let's keep total amount for now. Adjustments might be needed in tax modules if spouse income is taxed differently.
+            // As before, keep total amount for now. Tax module might need split later.
         }
-        // Note: Logic for adjusting based on mortality is missing, would require user/spouse alive status.
 
-        // d. Add the calculated income to cash
-        currentCash += currentAmount;
+        // d. Add the USER'S PORTION of the INFLATED income amount to cash
+        currentCash += inflatedCurrentAmount;
 
-        // e. Update running total curYearIncome (taxable income)
-        //    Assuming pre-tax status means it's NOT taxed now (e.g., 401k contributions treated elsewhere)
-        //    Need clarity on `isPreTax` flag if it exists. Assuming income is taxable unless specified otherwise.
-        //    TODO: Add check for pre-tax status if available in schema.
-        curYearIncome += currentAmount; // Add to taxable income for now
+        // e. Update running total curYearIncome (taxable income) with FULL INFLATED amount
+        curYearIncome += inflatedCurrentAmount;
 
-        // f. Update running total curYearSS if applicable
+        // f. Update running total curYearSS with FULL INFLATED amount if applicable
         if (incomeDetails.isSocialSecurity) {
-            curYearSS += currentAmount;
+            curYearSS += inflatedCurrentAmount;
         }
 
-        // Store the calculated amount for this event, this will be the 'previousAmount' for the *next* year
-        currentIncomeEventStates[eventName] = { amount: currentAmount };
+        // Store the UNINFLATED base amount for this event, to be used as 'previousBaseAmount' for the *next* year
+        currentIncomeEventStates[eventName] = { baseAmount: currentBaseAmount };
     }
 
     return {

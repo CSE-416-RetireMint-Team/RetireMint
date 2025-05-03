@@ -381,6 +381,8 @@ Total simulations run: 2
 
 ================================================================================================================================
 
+Investment returns.
+
 income SCENARIO DATA RETRIEVED
 Starting 3 simulations...
 Running simulation #1 for calculated 2 years.
@@ -400,3 +402,1667 @@ Year 2025: Income Processed. Returned -> Cash: 74861.3512290744, Taxable Income:
 Year 2026: Income Processed. Returned -> Cash: 154241.80174791484, Taxable Income: 79380.45051884043, SS Income: 7313.571748228354
 
 ================================================================================================================================
+
+rmd Tables
+
+Year 2074: RMDs processed. curYearIncome: 0
+--- Year 2075 (Idx 50): Processing RMDs ---
+Year 2075: RMD Calculation - Prev PreTax Bal (s): 225000.00, Age: 74, Period (d): 25.5 (from 2025 table), RMD Amount: 8823.53 (3.92% of balance)
+Creating new non-retirement account for RMD transfer from family trust
+Year 2075: RMD Transfer - Withdrew 8823.53 from family trust, Remaining RMD: 0.00
+Year 2075: RMDs processed. curYearIncome: 8823.529411764706
+--- Year 2076 (Idx 51): Processing RMDs ---
+Year 2076: RMD Calculation - Prev PreTax Bal (s): 216176.47, Age: 75, Period (d): 24.6 (from 2025 table), RMD Amount: 8787.66 (4.07% of balance)
+Year 2076: RMD Transfer - Withdrew 8787.66 from family trust, Remaining RMD: 0.00
+Year 2076: RMDs processed. curYearIncome: 8787.661406025825
+--- Year 2077 (Idx 52): Processing RMDs ---
+Year 2077: RMD Calculation - Prev PreTax Bal (s): 207388.81, Age: 76, Period (d): 23.7 (from 2025 table), RMD Amount: 8750.58 (4.22% of balance)
+Year 2077: RMD Transfer - Withdrew 7388.81 from family trust, Remaining RMD: 1361.77
+Year 2077: RMD Transfer - Withdrew 1361.77 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2077: RMDs processed. curYearIncome: 8750.58266591601
+--- Year 2078 (Idx 53): Processing RMDs ---
+Year 2078: RMD Calculation - Prev PreTax Bal (s): 198638.23, Age: 77, Period (d): 22.9 (from 2025 table), RMD Amount: 8674.16 (4.37% of balance)
+Year 2078: RMD Transfer - Withdrew 8674.16 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2078: RMDs processed. curYearIncome: 8674.15836315692
+--- Year 2079 (Idx 54): Processing RMDs ---
+Year 2079: RMD Calculation - Prev PreTax Bal (s): 189964.07, Age: 78, Period (d): 22 (from 2025 table), RMD Amount: 8634.73 (4.55% of balance)
+Year 2079: RMD Transfer - Withdrew 8634.73 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2079: RMDs processed. curYearIncome: 8634.730370597115
+--- Year 2080 (Idx 55): Processing RMDs ---
+Year 2080: RMD Calculation - Prev PreTax Bal (s): 181329.34, Age: 79, Period (d): 21.1 (from 2025 table), RMD Amount: 8593.81 (4.74% of balance)
+Year 2080: RMD Transfer - Withdrew 8593.81 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2080: RMDs processed. curYearIncome: 8593.807477845468
+--- Year 2081 (Idx 56): Processing RMDs ---
+Year 2081: RMD Calculation - Prev PreTax Bal (s): 172735.53, Age: 80, Period (d): 20.2 (from 2025 table), RMD Amount: 8551.26 (4.95% of balance)
+Year 2081: RMD Transfer - Withdrew 8551.26 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2081: RMDs processed. curYearIncome: 8551.263876469997
+--- Year 2082 (Idx 57): Processing RMDs ---
+Year 2082: RMD Calculation - Prev PreTax Bal (s): 164184.27, Age: 81, Period (d): 19.4 (from 2025 table), RMD Amount: 8463.11 (5.15% of balance)
+Year 2082: RMD Transfer - Withdrew 8463.11 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2082: RMDs processed. curYearIncome: 8463.10651691876
+--- Year 2083 (Idx 58): Processing RMDs ---
+Year 2083: RMD Calculation - Prev PreTax Bal (s): 155721.16, Age: 82, Period (d): 18.5 (from 2025 table), RMD Amount: 8417.36 (5.41% of balance)
+Year 2083: RMD Transfer - Withdrew 8417.36 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2083: RMDs processed. curYearIncome: 8417.359995205685
+--- Year 2084 (Idx 59): Processing RMDs ---
+Year 2084: RMD Calculation - Prev PreTax Bal (s): 147303.80, Age: 83, Period (d): 17.7 (from 2025 table), RMD Amount: 8322.25 (5.65% of balance)
+Year 2084: RMD Transfer - Withdrew 8322.25 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2084: RMDs processed. curYearIncome: 8322.24858283048
+--- Year 2085 (Idx 60): Processing RMDs ---
+Year 2085: RMD Calculation - Prev PreTax Bal (s): 138981.55, Age: 84, Period (d): 16.8 (from 2025 table), RMD Amount: 8272.71 (5.95% of balance)
+Year 2085: RMD Transfer - Withdrew 8272.71 from microsoft employer contributions, Remaining RMD: 0.00
+Year 2085: RMDs processed. curYearIncome: 8272.71138888506
+Total simulations run: 1
+
+===========================================================================================================
+INVESTMENT RETURN Calculation
+
+SCENARIO DATA RETRIEVED
+Starting 1 simulations...
+Sim 1: Marital status changes to single in year 2078 (index 53) due to spouse LE.
+Running simulation #1 for calculated 61 years.
+--- Year 2025 (Idx 0): Processing Investment Returns ---
+Year 2025: Investment 'japan bond' - Start: 4000.00, Income: 40.00, Value Change: 221.39, Expenses: 82.61, End: 4178.77  
+Year 2025: Investment 'euro bond' - Start: 6000.00, Income: 60.00, Value Change: 286.30, Expenses: 123.46, End: 6222.84  
+Year 2025: Investment 'gamestop' - Start: 12000.00, Income: 0.00, Value Change: 721.20, Expenses: 370.82, End: 12350.38  
+Year 2025: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2025: Investment 'family trust' - Start: 25000.00, Income: 250.00, Value Change: 862.61, Expenses: 255.56, End: 25857.04
+Year 2025: Investment 'microsoft employer contributions' - Start: 200000.00, Income: 2000.00, Value Change: 7564.51, Expenses: 2047.82, End: 207516.69
+Year 2025: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2025: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2025: Investment Returns processed. curYearIncome: 78927.54, totalAssets: 335053.25
+--- Year 2026 (Idx 1): Processing Investment Returns ---
+Year 2026: Investment 'japan bond' - Start: 4178.77, Income: 41.79, Value Change: 176.18, Expenses: 85.76, End: 4310.98  
+Year 2026: Investment 'euro bond' - Start: 6222.84, Income: 62.23, Value Change: 252.02, Expenses: 127.60, End: 6409.49  
+Year 2026: Investment 'gamestop' - Start: 12350.38, Income: 0.00, Value Change: 336.30, Expenses: 375.56, End: 12311.12  
+Year 2026: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2026: Investment 'family trust' - Start: 25857.04, Income: 258.57, Value Change: 1053.82, Expenses: 265.13, End: 26904.30
+Year 2026: Investment 'microsoft employer contributions' - Start: 207516.69, Income: 2075.17, Value Change: 6451.82, Expenses: 2117.80, End: 213925.87
+Year 2026: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2026: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2026: Investment Returns processed. curYearIncome: 84707.10, totalAssets: 427496.41
+--- Year 2027 (Idx 2): Processing Investment Returns ---
+Year 2027: Investment 'japan bond' - Start: 4310.98, Income: 43.11, Value Change: 151.97, Expenses: 88.17, End: 4417.89  
+Year 2027: Investment 'euro bond' - Start: 6409.49, Income: 64.09, Value Change: 322.85, Expenses: 132.06, End: 6664.38  
+Year 2027: Investment 'gamestop' - Start: 12311.12, Income: 0.00, Value Change: 512.76, Expenses: 377.03, End: 12446.86  
+Year 2027: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2027: Investment 'family trust' - Start: 26904.30, Income: 269.04, Value Change: 982.88, Expenses: 275.30, End: 27880.92
+Year 2027: Investment 'microsoft employer contributions' - Start: 213925.87, Income: 2139.26, Value Change: 6467.23, Expenses: 2182.29, End: 220350.07
+Year 2027: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2027: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2027: Investment Returns processed. curYearIncome: 94617.87, totalAssets: 530012.63
+--- Year 2028 (Idx 3): Processing Investment Returns ---
+Year 2028: Investment 'japan bond' - Start: 4417.89, Income: 44.18, Value Change: 85.55, Expenses: 89.66, End: 4457.97   
+Year 2028: Investment 'euro bond' - Start: 6664.38, Income: 66.64, Value Change: 340.49, Expenses: 137.36, End: 6934.16  
+Year 2028: Investment 'gamestop' - Start: 12446.86, Income: 0.00, Value Change: 517.25, Expenses: 381.16, End: 12582.94  
+Year 2028: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2028: Investment 'family trust' - Start: 27880.92, Income: 278.81, Value Change: 1713.19, Expenses: 288.77, End: 29584.15
+Year 2028: Investment 'microsoft employer contributions' - Start: 220350.07, Income: 2203.50, Value Change: 7809.82, Expenses: 2253.57, End: 228109.82
+Year 2028: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2028: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2028: Investment Returns processed. curYearIncome: 104354.76, totalAssets: 644276.31
+--- Year 2029 (Idx 4): Processing Investment Returns ---
+Year 2029: Investment 'japan bond' - Start: 4457.97, Income: 44.58, Value Change: 200.52, Expenses: 91.61, End: 4611.46  
+Year 2029: Investment 'euro bond' - Start: 6934.16, Income: 69.34, Value Change: 304.66, Expenses: 142.42, End: 7165.74  
+Year 2029: Investment 'gamestop' - Start: 12582.94, Income: 0.00, Value Change: 551.54, Expenses: 385.76, End: 12748.72  
+Year 2029: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2029: Investment 'family trust' - Start: 29584.15, Income: 295.84, Value Change: 849.92, Expenses: 301.57, End: 30428.34
+Year 2029: Investment 'microsoft employer contributions' - Start: 228109.82, Income: 2281.10, Value Change: 5608.80, Expenses: 2320.55, End: 233679.17
+Year 2029: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2029: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2029: Investment Returns processed. curYearIncome: 106166.80, totalAssets: 757407.49
+--- Year 2030 (Idx 5): Processing Investment Returns ---
+Year 2030: Investment 'japan bond' - Start: 4611.46, Income: 46.11, Value Change: 180.55, Expenses: 94.50, End: 4743.63  
+Year 2030: Investment 'euro bond' - Start: 7165.74, Income: 71.66, Value Change: 305.63, Expenses: 147.09, End: 7395.94  
+Year 2030: Investment 'gamestop' - Start: 12748.72, Income: 0.00, Value Change: 571.15, Expenses: 391.03, End: 12928.84  
+Year 2030: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2030: Investment 'family trust' - Start: 30428.34, Income: 304.28, Value Change: 1392.43, Expenses: 312.77, End: 31812.28
+Year 2030: Investment 'microsoft employer contributions' - Start: 233679.17, Income: 2336.79, Value Change: 10533.29, Expenses: 2401.14, End: 244148.11
+Year 2030: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2030: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2030: Investment Returns processed. curYearIncome: 108985.17, totalAssets: 878788.03
+--- Year 2031 (Idx 6): Processing Investment Returns ---
+Year 2031: Investment 'japan bond' - Start: 4743.63, Income: 47.44, Value Change: 275.70, Expenses: 98.10, End: 4968.66  
+Year 2031: Investment 'euro bond' - Start: 7395.94, Income: 73.96, Value Change: 245.11, Expenses: 151.11, End: 7563.89  
+Year 2031: Investment 'gamestop' - Start: 12928.84, Income: 0.00, Value Change: 433.11, Expenses: 394.36, End: 12967.59  
+Year 2031: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2031: Investment 'family trust' - Start: 31812.28, Income: 318.12, Value Change: 1243.74, Expenses: 325.93, End: 33048.22
+Year 2031: Investment 'microsoft employer contributions' - Start: 244148.11, Income: 2441.48, Value Change: 4648.47, Expenses: 2476.93, End: 248761.13
+Year 2031: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2031: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2031: Investment Returns processed. curYearIncome: 17120.95, totalAssets: 902189.67
+--- Year 2032 (Idx 7): Processing Investment Returns ---
+Year 2032: Investment 'japan bond' - Start: 4968.66, Income: 49.69, Value Change: 197.47, Expenses: 101.84, End: 5113.97 
+Year 2032: Investment 'euro bond' - Start: 7563.89, Income: 75.64, Value Change: 253.23, Expenses: 154.57, End: 7738.20  
+Year 2032: Investment 'gamestop' - Start: 12967.59, Income: 0.00, Value Change: 323.08, Expenses: 393.87, End: 12896.79  
+Year 2032: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2032: Investment 'family trust' - Start: 33048.22, Income: 330.48, Value Change: 1194.48, Expenses: 338.11, End: 34235.07
+Year 2032: Investment 'microsoft employer contributions' - Start: 248761.13, Income: 2487.61, Value Change: 9898.64, Expenses: 2549.54, End: 258597.84
+Year 2032: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2032: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2032: Investment Returns processed. curYearIncome: 17425.64, totalAssets: 930887.69
+--- Year 2033 (Idx 8): Processing Investment Returns ---
+Year 2033: Investment 'japan bond' - Start: 5113.97, Income: 51.14, Value Change: 223.69, Expenses: 105.03, End: 5283.77 
+Year 2033: Investment 'euro bond' - Start: 7738.20, Income: 77.38, Value Change: 293.03, Expenses: 158.47, End: 7950.14  
+Year 2033: Investment 'gamestop' - Start: 12896.79, Income: 0.00, Value Change: 421.81, Expenses: 393.23, End: 12925.37  
+Year 2033: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2033: Investment 'family trust' - Start: 34235.07, Income: 342.35, Value Change: 1563.15, Expenses: 351.88, End: 35788.69
+Year 2033: Investment 'microsoft employer contributions' - Start: 258597.84, Income: 2585.98, Value Change: 12907.50, Expenses: 2663.45, End: 271427.87
+Year 2033: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2033: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2033: Investment Returns processed. curYearIncome: 17926.25, totalAssets: 963607.92
+--- Year 2034 (Idx 9): Processing Investment Returns ---
+Year 2034: Investment 'japan bond' - Start: 5283.77, Income: 52.84, Value Change: 275.44, Expenses: 108.96, End: 5503.09 
+Year 2034: Investment 'euro bond' - Start: 7950.14, Income: 79.50, Value Change: 301.22, Expenses: 162.81, End: 8168.05  
+Year 2034: Investment 'gamestop' - Start: 12925.37, Income: 0.00, Value Change: 601.53, Expenses: 396.78, End: 13130.12  
+Year 2034: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2034: Investment 'family trust' - Start: 35788.69, Income: 357.89, Value Change: 1297.26, Expenses: 366.16, End: 37077.67
+Year 2034: Investment 'microsoft employer contributions' - Start: 271427.87, Income: 2714.28, Value Change: 17010.83, Expenses: 2812.90, End: 288340.07
+Year 2034: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2034: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2034: Investment Returns processed. curYearIncome: 19033.44, totalAssets: 1001484.53
+--- Year 2035 (Idx 10): Processing Investment Returns ---
+Year 2035: Investment 'japan bond' - Start: 5503.09, Income: 55.03, Value Change: 154.53, Expenses: 112.16, End: 5600.49 
+Year 2035: Investment 'euro bond' - Start: 8168.05, Income: 81.68, Value Change: 103.70, Expenses: 165.21, End: 8188.22
+Year 2035: Investment 'gamestop' - Start: 13130.12, Income: 0.00, Value Change: 441.75, Expenses: 400.53, End: 13171.34  
+Year 2035: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2035: Investment 'family trust' - Start: 37077.67, Income: 370.78, Value Change: 1591.63, Expenses: 380.59, End: 38659.49
+Year 2035: Investment 'microsoft employer contributions' - Start: 288340.07, Income: 2883.40, Value Change: 8154.63, Expenses: 2938.59, End: 296439.51
+Year 2035: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2035: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2035: Investment Returns processed. curYearIncome: 19459.95, totalAssets: 1030784.50
+--- Year 2036 (Idx 11): Processing Investment Returns ---
+Year 2036: Investment 'japan bond' - Start: 5600.49, Income: 56.00, Value Change: 243.95, Expenses: 115.01, End: 5785.43 
+Year 2036: Investment 'euro bond' - Start: 8188.22, Income: 81.88, Value Change: 402.14, Expenses: 168.60, End: 8503.64  
+Year 2036: Investment 'gamestop' - Start: 13171.34, Income: 0.00, Value Change: 563.77, Expenses: 403.60, End: 13331.51  
+Year 2036: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2036: Investment 'family trust' - Start: 38659.49, Income: 386.59, Value Change: 1432.58, Expenses: 395.69, End: 40082.97
+Year 2036: Investment 'microsoft employer contributions' - Start: 296439.51, Income: 2964.40, Value Change: 13848.90, Expenses: 3048.46, End: 310204.34
+Year 2036: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2036: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2036: Investment Returns processed. curYearIncome: 21225.26, totalAssets: 1067858.61
+--- Year 2037 (Idx 12): Processing Investment Returns ---
+Year 2037: Investment 'japan bond' - Start: 5785.43, Income: 57.85, Value Change: 263.89, Expenses: 118.93, End: 5988.25 
+Year 2037: Investment 'euro bond' - Start: 8503.64, Income: 85.04, Value Change: 360.95, Expenses: 174.53, End: 8775.09  
+Year 2037: Investment 'gamestop' - Start: 13331.51, Income: 0.00, Value Change: 515.84, Expenses: 407.68, End: 13439.67  
+Year 2037: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2037: Investment 'family trust' - Start: 40082.97, Income: 400.83, Value Change: 1040.69, Expenses: 408.04, End: 41116.45
+Year 2037: Investment 'microsoft employer contributions' - Start: 310204.34, Income: 3102.04, Value Change: 13987.11, Expenses: 3187.49, End: 324106.00
+Year 2037: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2037: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2037: Investment Returns processed. curYearIncome: 21366.03, totalAssets: 1104742.21
+--- Year 2038 (Idx 13): Processing Investment Returns ---
+Year 2038: Investment 'japan bond' - Start: 5988.25, Income: 59.88, Value Change: 277.23, Expenses: 123.14, End: 6202.22 
+Year 2038: Investment 'euro bond' - Start: 8775.09, Income: 87.75, Value Change: 425.64, Expenses: 180.64, End: 9107.85  
+Year 2038: Investment 'gamestop' - Start: 13439.67, Income: 0.00, Value Change: 584.89, Expenses: 411.96, End: 13612.59  
+Year 2038: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2038: Investment 'family trust' - Start: 41116.45, Income: 411.16, Value Change: 1546.53, Expenses: 420.95, End: 42653.20
+Year 2038: Investment 'microsoft employer contributions' - Start: 324106.00, Income: 3241.06, Value Change: 19742.06, Expenses: 3355.98, End: 343733.15
+Year 2038: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2038: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2038: Investment Returns processed. curYearIncome: 21491.26, totalAssets: 1148117.02
+--- Year 2039 (Idx 14): Processing Investment Returns ---
+Year 2039: Investment 'japan bond' - Start: 6202.22, Income: 62.02, Value Change: 218.03, Expenses: 126.85, End: 6355.43 
+Year 2039: Investment 'euro bond' - Start: 9107.85, Income: 91.08, Value Change: 280.09, Expenses: 185.87, End: 9293.15  
+Year 2039: Investment 'gamestop' - Start: 13612.59, Income: 0.00, Value Change: 905.72, Expenses: 421.96, End: 14096.34  
+Year 2039: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2039: Investment 'family trust' - Start: 42653.20, Income: 426.53, Value Change: 1528.91, Expenses: 436.31, End: 44172.33
+Year 2039: Investment 'microsoft employer contributions' - Start: 343733.15, Income: 3437.33, Value Change: 15138.61, Expenses: 3530.21, End: 358778.87
+Year 2039: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2039: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2039: Investment Returns processed. curYearIncome: 21655.24, totalAssets: 1187159.38
+--- Year 2040 (Idx 15): Processing Investment Returns ---
+Year 2040: Investment 'japan bond' - Start: 6355.43, Income: 63.55, Value Change: 251.47, Expenses: 130.26, End: 6540.20 
+Year 2040: Investment 'euro bond' - Start: 9293.15, Income: 92.93, Value Change: 423.67, Expenses: 191.03, End: 9618.72  
+Year 2040: Investment 'gamestop' - Start: 14096.34, Income: 0.00, Value Change: 747.24, Expenses: 434.10, End: 14409.49  
+Year 2040: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2040: Investment 'family trust' - Start: 44172.33, Income: 441.72, Value Change: 1336.43, Expenses: 450.61, End: 45499.87
+Year 2040: Investment 'microsoft employer contributions' - Start: 358778.87, Income: 3587.79, Value Change: 17349.24, Expenses: 3692.47, End: 376023.42
+Year 2040: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2040: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2040: Investment Returns processed. curYearIncome: 22305.64, totalAssets: 1228860.59
+--- Year 2041 (Idx 16): Processing Investment Returns ---
+Year 2041: Investment 'japan bond' - Start: 6540.20, Income: 65.40, Value Change: 147.98, Expenses: 132.94, End: 6620.64 
+Year 2041: Investment 'euro bond' - Start: 9618.72, Income: 96.19, Value Change: 332.71, Expenses: 196.66, End: 9850.95  
+Year 2041: Investment 'gamestop' - Start: 14409.49, Income: 0.00, Value Change: 744.42, Expenses: 443.45, End: 14710.46  
+Year 2041: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2041: Investment 'family trust' - Start: 45499.87, Income: 455.00, Value Change: 2103.83, Expenses: 467.79, End: 47590.91
+Year 2041: Investment 'microsoft employer contributions' - Start: 376023.42, Income: 3760.23, Value Change: 8628.29, Expenses: 3822.18, End: 384589.77
+Year 2041: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2041: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2041: Investment Returns processed. curYearIncome: 24019.66, totalAssets: 1264151.28
+--- Year 2042 (Idx 17): Processing Investment Returns ---
+Year 2042: Investment 'japan bond' - Start: 6620.64, Income: 66.21, Value Change: 270.83, Expenses: 135.78, End: 6821.89 
+Year 2042: Investment 'euro bond' - Start: 9850.95, Income: 98.51, Value Change: 444.29, Expenses: 202.45, End: 10191.30 
+Year 2042: Investment 'gamestop' - Start: 14710.46, Income: 0.00, Value Change: 366.79, Expenses: 446.82, End: 14630.43  
+Year 2042: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2042: Investment 'family trust' - Start: 47590.91, Income: 475.91, Value Change: 1879.42, Expenses: 487.69, End: 49458.55
+Year 2042: Investment 'microsoft employer contributions' - Start: 384589.77, Income: 3845.90, Value Change: 13716.88, Expenses: 3933.71, End: 398218.84
+Year 2042: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2042: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2042: Investment Returns processed. curYearIncome: 25197.34, totalAssets: 1305306.90
+--- Year 2043 (Idx 18): Processing Investment Returns ---
+Year 2043: Investment 'japan bond' - Start: 6821.89, Income: 68.22, Value Change: 320.10, Expenses: 140.32, End: 7069.89 
+Year 2043: Investment 'euro bond' - Start: 10191.30, Income: 101.91, Value Change: 337.67, Expenses: 208.22, End: 10422.66
+Year 2043: Investment 'gamestop' - Start: 14630.43, Income: 0.00, Value Change: 545.38, Expenses: 447.09, End: 14728.72  
+Year 2043: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2043: Investment 'family trust' - Start: 49458.55, Income: 494.59, Value Change: 2031.36, Expenses: 507.22, End: 51477.28
+Year 2043: Investment 'microsoft employer contributions' - Start: 398218.84, Income: 3982.19, Value Change: 14219.81, Expenses: 4073.20, End: 412347.64
+Year 2043: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2043: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2043: Investment Returns processed. curYearIncome: 25392.01, totalAssets: 1347424.08
+--- Year 2044 (Idx 19): Processing Investment Returns ---
+Year 2044: Investment 'japan bond' - Start: 7069.89, Income: 70.70, Value Change: 200.21, Expenses: 144.11, End: 7196.69 
+Year 2044: Investment 'euro bond' - Start: 10422.66, Income: 104.23, Value Change: 457.44, Expenses: 214.07, End: 10770.26
+Year 2044: Investment 'gamestop' - Start: 14728.72, Income: 0.00, Value Change: 606.01, Expenses: 450.95, End: 14883.78  
+Year 2044: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2044: Investment 'family trust' - Start: 51477.28, Income: 514.77, Value Change: 2448.51, Expenses: 529.59, End: 53910.97
+Year 2044: Investment 'microsoft employer contributions' - Start: 412347.64, Income: 4123.48, Value Change: 17596.83, Expenses: 4232.08, End: 429835.87
+Year 2044: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2044: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2044: Investment Returns processed. curYearIncome: 26122.45, totalAssets: 1394097.92
+--- Year 2045 (Idx 20): Processing Investment Returns ---
+Year 2045: Investment 'japan bond' - Start: 7196.69, Income: 71.97, Value Change: 261.14, Expenses: 147.26, End: 7382.53 
+Year 2045: Investment 'euro bond' - Start: 10770.26, Income: 107.70, Value Change: 605.86, Expenses: 222.54, End: 11261.28
+Year 2045: Investment 'gamestop' - Start: 14883.78, Income: 0.00, Value Change: 471.83, Expenses: 453.59, End: 14902.02  
+Year 2045: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2045: Investment 'family trust' - Start: 53910.97, Income: 539.11, Value Change: 2906.06, Expenses: 556.34, End: 56799.81
+Year 2045: Investment 'microsoft employer contributions' - Start: 429835.87, Income: 4298.36, Value Change: 12639.12, Expenses: 4383.05, End: 442390.30
+Year 2045: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2045: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2045: Investment Returns processed. curYearIncome: 26298.72, totalAssets: 1436535.00
+--- Year 2046 (Idx 21): Processing Investment Returns ---
+Year 2046: Investment 'japan bond' - Start: 7382.53, Income: 73.83, Value Change: 356.78, Expenses: 151.96, End: 7661.18 
+Year 2046: Investment 'euro bond' - Start: 11261.28, Income: 112.61, Value Change: 301.67, Expenses: 229.37, End: 11446.19
+Year 2046: Investment 'gamestop' - Start: 14902.02, Income: 0.00, Value Change: 371.69, Expenses: 452.64, End: 14821.08  
+Year 2046: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2046: Investment 'family trust' - Start: 56799.81, Income: 568.00, Value Change: 2072.53, Expenses: 581.20, End: 58859.14
+Year 2046: Investment 'microsoft employer contributions' - Start: 442390.30, Income: 4423.90, Value Change: 17376.15, Expenses: 4532.90, End: 459657.45
+Year 2046: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2046: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2046: Investment Returns processed. curYearIncome: 27686.93, totalAssets: 1483931.03
+--- Year 2047 (Idx 22): Processing Investment Returns ---
+Year 2047: Investment 'japan bond' - Start: 7661.18, Income: 76.61, Value Change: 241.55, Expenses: 156.41, End: 7822.94 
+Year 2047: Investment 'euro bond' - Start: 11446.19, Income: 114.46, Value Change: 259.16, Expenses: 232.66, End: 11587.15
+Year 2047: Investment 'gamestop' - Start: 14821.08, Income: 0.00, Value Change: 542.85, Expenses: 452.77, End: 14911.15  
+Year 2047: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2047: Investment 'family trust' - Start: 58859.14, Income: 588.59, Value Change: 3062.64, Expenses: 606.85, End: 61903.52
+Year 2047: Investment 'microsoft employer contributions' - Start: 459657.45, Income: 4596.57, Value Change: 16531.05, Expenses: 4702.21, End: 476082.86
+Year 2047: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2047: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2047: Investment Returns processed. curYearIncome: 28094.68, totalAssets: 1531888.29
+--- Year 2048 (Idx 23): Processing Investment Returns ---
+Year 2048: Investment 'japan bond' - Start: 7822.94, Income: 78.23, Value Change: 370.27, Expenses: 160.94, End: 8110.49 
+Year 2048: Investment 'euro bond' - Start: 11587.15, Income: 115.87, Value Change: 564.95, Expenses: 238.55, End: 12029.41
+Year 2048: Investment 'gamestop' - Start: 14911.15, Income: 0.00, Value Change: 641.23, Expenses: 456.95, End: 15095.43  
+Year 2048: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2048: Investment 'family trust' - Start: 61903.52, Income: 619.04, Value Change: 3075.56, Expenses: 637.51, End: 64960.61
+Year 2048: Investment 'microsoft employer contributions' - Start: 476082.86, Income: 4760.83, Value Change: 15758.48, Expenses: 4863.43, End: 491738.75
+Year 2048: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2048: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2048: Investment Returns processed. curYearIncome: 28701.08, totalAssets: 1580216.44
+--- Year 2049 (Idx 24): Processing Investment Returns ---
+Year 2049: Investment 'japan bond' - Start: 8110.49, Income: 81.10, Value Change: 154.70, Expenses: 164.57, End: 8181.72 
+Year 2049: Investment 'euro bond' - Start: 12029.41, Income: 120.29, Value Change: 355.39, Expenses: 245.35, End: 12259.76
+Year 2049: Investment 'gamestop' - Start: 15095.43, Income: 0.00, Value Change: 473.06, Expenses: 459.96, End: 15108.52  
+Year 2049: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2049: Investment 'family trust' - Start: 64960.61, Income: 649.61, Value Change: 2888.99, Expenses: 667.30, End: 67831.91
+Year 2049: Investment 'microsoft employer contributions' - Start: 491738.75, Income: 4917.39, Value Change: 13011.43, Expenses: 5007.03, End: 504660.53
+Year 2049: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2049: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2049: Investment Returns processed. curYearIncome: 27697.44, totalAssets: 1624021.63
+--- Year 2050 (Idx 25): Processing Investment Returns ---
+Year 2050: Investment 'japan bond' - Start: 8181.72, Income: 81.82, Value Change: 325.34, Expenses: 167.71, End: 8421.18 
+Year 2050: Investment 'euro bond' - Start: 12259.76, Income: 122.60, Value Change: 325.24, Expenses: 249.67, End: 12457.92
+Year 2050: Investment 'gamestop' - Start: 15108.52, Income: 0.00, Value Change: 582.02, Expenses: 461.99, End: 15228.56  
+Year 2050: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2050: Investment 'family trust' - Start: 67831.91, Income: 678.32, Value Change: 3343.41, Expenses: 698.43, End: 71155.20
+Year 2050: Investment 'microsoft employer contributions' - Start: 504660.53, Income: 5046.61, Value Change: 14553.22, Expenses: 5144.60, End: 519115.74
+Year 2050: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2050: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2050: Investment Returns processed. curYearIncome: 28834.13, totalAssets: 1671191.92
+--- Year 2051 (Idx 26): Processing Investment Returns ---
+Year 2051: Investment 'japan bond' - Start: 8421.18, Income: 84.21, Value Change: 290.61, Expenses: 172.17, End: 8623.83 
+Year 2051: Investment 'euro bond' - Start: 12457.92, Income: 124.58, Value Change: 442.39, Expenses: 254.83, End: 12770.06
+Year 2051: Investment 'gamestop' - Start: 15228.56, Income: 0.00, Value Change: 472.41, Expenses: 463.94, End: 15237.03  
+Year 2051: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2051: Investment 'family trust' - Start: 71155.20, Income: 711.55, Value Change: 3373.89, Expenses: 731.98, End: 74508.67
+Year 2051: Investment 'microsoft employer contributions' - Start: 519115.74, Income: 5191.16, Value Change: 19000.37, Expenses: 5312.12, End: 537995.15
+Year 2051: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2051: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2051: Investment Returns processed. curYearIncome: 29901.88, totalAssets: 1723849.93
+--- Year 2052 (Idx 27): Processing Investment Returns ---
+Year 2052: Investment 'japan bond' - Start: 8623.83, Income: 86.24, Value Change: 252.37, Expenses: 175.86, End: 8786.57 
+Year 2052: Investment 'euro bond' - Start: 12770.06, Income: 127.70, Value Change: 628.11, Expenses: 262.96, End: 13262.91
+Year 2052: Investment 'gamestop' - Start: 15237.03, Income: 0.00, Value Change: 578.20, Expenses: 465.78, End: 15349.45  
+Year 2052: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2052: Investment 'family trust' - Start: 74508.67, Income: 745.09, Value Change: 3752.22, Expenses: 767.57, End: 78238.40
+Year 2052: Investment 'microsoft employer contributions' - Start: 537995.15, Income: 5379.95, Value Change: 19560.48, Expenses: 5504.65, End: 557430.93
+Year 2052: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2052: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2052: Investment Returns processed. curYearIncome: 31316.62, totalAssets: 1779100.08
+--- Year 2053 (Idx 28): Processing Investment Returns ---
+Year 2053: Investment 'japan bond' - Start: 8786.57, Income: 87.87, Value Change: 291.24, Expenses: 179.52, End: 8986.16 
+Year 2053: Investment 'euro bond' - Start: 13262.91, Income: 132.63, Value Change: 518.12, Expenses: 271.77, End: 13641.90
+Year 2053: Investment 'gamestop' - Start: 15349.45, Income: 0.00, Value Change: 670.76, Expenses: 470.54, End: 15549.66  
+Year 2053: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2053: Investment 'family trust' - Start: 78238.40, Income: 782.38, Value Change: 3229.97, Expenses: 802.45, End: 81448.31
+Year 2053: Investment 'microsoft employer contributions' - Start: 557430.93, Income: 5574.31, Value Change: 25484.33, Expenses: 5729.60, End: 582759.96
+Year 2053: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2053: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2053: Investment Returns processed. curYearIncome: 32840.47, totalAssets: 1841258.28
+--- Year 2054 (Idx 29): Processing Investment Returns ---
+Year 2054: Investment 'japan bond' - Start: 8986.16, Income: 89.86, Value Change: 453.63, Expenses: 185.16, End: 9344.49 
+Year 2054: Investment 'euro bond' - Start: 13641.90, Income: 136.42, Value Change: 507.76, Expenses: 279.28, End: 14006.80
+Year 2054: Investment 'gamestop' - Start: 15549.66, Income: 0.00, Value Change: 466.85, Expenses: 473.49, End: 15543.01  
+Year 2054: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2054: Investment 'family trust' - Start: 81448.31, Income: 814.48, Value Change: 4092.36, Expenses: 839.02, End: 85516.14
+Year 2054: Investment 'microsoft employer contributions' - Start: 582759.96, Income: 5827.60, Value Change: 20760.68, Expenses: 5960.54, End: 603387.70
+Year 2054: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2054: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2054: Investment Returns processed. curYearIncome: 33336.94, totalAssets: 1900007.37
+--- Year 2055 (Idx 30): Processing Investment Returns ---
+Year 2055: Investment 'japan bond' - Start: 9344.49, Income: 93.44, Value Change: 375.65, Expenses: 191.58, End: 9622.00 
+Year 2055: Investment 'euro bond' - Start: 14006.80, Income: 140.07, Value Change: 851.10, Expenses: 290.05, End: 14707.92
+Year 2055: Investment 'gamestop' - Start: 15543.01, Income: 0.00, Value Change: 365.13, Expenses: 471.77, End: 15436.38
+Year 2055: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2055: Investment 'family trust' - Start: 85516.14, Income: 855.16, Value Change: 4441.38, Expenses: 881.64, End: 89931.04
+Year 2055: Investment 'microsoft employer contributions' - Start: 603387.70, Income: 6033.88, Value Change: 32653.91, Expenses: 6227.32, End: 635848.18
+Year 2055: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2055: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2055: Investment Returns processed. curYearIncome: 35105.12, totalAssets: 1972859.86
+--- Year 2056 (Idx 31): Processing Investment Returns ---
+Year 2056: Investment 'japan bond' - Start: 9622.00, Income: 96.22, Value Change: 434.64, Expenses: 197.75, End: 9955.11 
+Year 2056: Investment 'euro bond' - Start: 14707.92, Income: 147.08, Value Change: 717.23, Expenses: 302.80, End: 15269.43
+Year 2056: Investment 'gamestop' - Start: 15436.38, Income: 0.00, Value Change: 717.52, Expenses: 473.85, End: 15680.05  
+Year 2056: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2056: Investment 'family trust' - Start: 89931.04, Income: 899.31, Value Change: 2418.08, Expenses: 915.90, End: 92332.53
+Year 2056: Investment 'microsoft employer contributions' - Start: 635848.18, Income: 6358.48, Value Change: 20340.70, Expenses: 6491.98, End: 656055.39
+Year 2056: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2056: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2056: Investment Returns processed. curYearIncome: 37459.70, totalAssets: 2034066.54
+--- Year 2057 (Idx 32): Processing Investment Returns ---
+Year 2057: Investment 'japan bond' - Start: 9955.11, Income: 99.55, Value Change: 388.61, Expenses: 203.98, End: 10239.29
+Year 2057: Investment 'euro bond' - Start: 15269.43, Income: 152.69, Value Change: 199.17, Expenses: 308.91, End: 15312.38
+Year 2057: Investment 'gamestop' - Start: 15680.05, Income: 0.00, Value Change: 789.17, Expenses: 482.24, End: 15986.97  
+Year 2057: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2057: Investment 'family trust' - Start: 92332.53, Income: 923.33, Value Change: 4519.41, Expenses: 950.54, End: 96824.73
+Year 2057: Investment 'microsoft employer contributions' - Start: 656055.39, Income: 6560.55, Value Change: 33236.34, Expenses: 6759.54, End: 689092.74
+Year 2057: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2057: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2057: Investment Returns processed. curYearIncome: 38424.51, totalAssets: 2110654.67
+--- Year 2058 (Idx 33): Processing Investment Returns ---
+Year 2058: Investment 'japan bond' - Start: 10239.29, Income: 102.39, Value Change: 399.03, Expenses: 209.80, End: 10530.91
+Year 2058: Investment 'euro bond' - Start: 15312.38, Income: 153.12, Value Change: 682.01, Expenses: 314.60, End: 15832.92
+Year 2058: Investment 'gamestop' - Start: 15986.97, Income: 0.00, Value Change: 763.47, Expenses: 491.06, End: 16259.38  
+Year 2058: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2058: Investment 'family trust' - Start: 96824.73, Income: 968.25, Value Change: 3855.95, Expenses: 992.37, End: 100656.56
+Year 2058: Investment 'microsoft employer contributions' - Start: 689092.74, Income: 6890.93, Value Change: 26655.45, Expenses: 7058.66, End: 715580.46
+Year 2058: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2058: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2058: Investment Returns processed. curYearIncome: 39909.21, totalAssets: 2181968.00
+--- Year 2059 (Idx 34): Processing Investment Returns ---
+Year 2059: Investment 'japan bond' - Start: 10530.91, Income: 105.31, Value Change: 597.42, Expenses: 217.65, End: 11015.99
+Year 2059: Investment 'euro bond' - Start: 15832.92, Income: 158.33, Value Change: 794.94, Expenses: 326.19, End: 16460.00
+Year 2059: Investment 'gamestop' - Start: 16259.38, Income: 0.00, Value Change: 543.74, Expenses: 495.94, End: 16307.18  
+Year 2059: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2059: Investment 'family trust' - Start: 100656.56, Income: 1006.57, Value Change: 2238.09, Expenses: 1022.79, End: 102878.43
+Year 2059: Investment 'microsoft employer contributions' - Start: 715580.46, Income: 7155.80, Value Change: 32217.17, Expenses: 7352.67, End: 747600.76
+Year 2059: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2059: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2059: Investment Returns processed. curYearIncome: 40653.57, totalAssets: 2258023.70
+--- Year 2060 (Idx 35): Processing Investment Returns ---
+Year 2060: Investment 'japan bond' - Start: 11015.99, Income: 110.16, Value Change: 514.46, Expenses: 226.57, End: 11414.05
+Year 2060: Investment 'euro bond' - Start: 16460.00, Income: 164.60, Value Change: 427.12, Expenses: 335.12, End: 16716.60
+Year 2060: Investment 'gamestop' - Start: 16307.18, Income: 0.00, Value Change: 847.77, Expenses: 501.93, End: 16653.02  
+Year 2060: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2060: Investment 'family trust' - Start: 102878.43, Income: 1028.78, Value Change: 4479.72, Expenses: 1056.33, End: 107330.61
+Year 2060: Investment 'microsoft employer contributions' - Start: 747600.76, Income: 7476.01, Value Change: 32434.35, Expenses: 7675.56, End: 779835.55
+Year 2060: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2060: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2060: Investment Returns processed. curYearIncome: 44819.91, totalAssets: 2340531.09
+--- Year 2061 (Idx 36): Processing Investment Returns ---
+Year 2061: Investment 'japan bond' - Start: 11414.05, Income: 114.14, Value Change: 530.72, Expenses: 234.73, End: 11824.18
+Year 2061: Investment 'euro bond' - Start: 16716.60, Income: 167.17, Value Change: 610.25, Expenses: 342.11, End: 17151.91
+Year 2061: Investment 'gamestop' - Start: 16653.02, Income: 0.00, Value Change: 860.80, Expenses: 512.50, End: 17001.32  
+Year 2061: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2061: Investment 'family trust' - Start: 107330.61, Income: 1073.31, Value Change: 5558.70, Expenses: 1106.47, End: 112856.15
+Year 2061: Investment 'microsoft employer contributions' - Start: 779835.55, Income: 7798.36, Value Change: 35105.44, Expenses: 8012.87, End: 814726.47
+Year 2061: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2061: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2061: Investment Returns processed. curYearIncome: 48332.86, totalAssets: 2430474.15
+--- Year 2062 (Idx 37): Processing Investment Returns ---
+Year 2062: Investment 'japan bond' - Start: 11824.18, Income: 118.24, Value Change: 525.42, Expenses: 242.92, End: 12224.93
+Year 2062: Investment 'euro bond' - Start: 17151.91, Income: 171.52, Value Change: 562.52, Expenses: 350.38, End: 17535.58
+Year 2062: Investment 'gamestop' - Start: 17001.32, Income: 0.00, Value Change: 884.36, Expenses: 523.30, End: 17362.37  
+Year 2062: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2062: Investment 'family trust' - Start: 112856.15, Income: 1128.56, Value Change: 4432.85, Expenses: 1156.37, End: 117261.19
+Year 2062: Investment 'microsoft employer contributions' - Start: 814726.47, Income: 8147.26, Value Change: 31044.59, Expenses: 8343.22, End: 845575.10
+Year 2062: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2062: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2062: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2466873.28
+--- Year 2063 (Idx 38): Processing Investment Returns ---
+Year 2063: Investment 'japan bond' - Start: 12224.93, Income: 122.25, Value Change: 694.80, Expenses: 252.67, End: 12789.31
+Year 2063: Investment 'euro bond' - Start: 17535.58, Income: 175.36, Value Change: 679.92, Expenses: 359.26, End: 18031.59
+Year 2063: Investment 'gamestop' - Start: 17362.37, Income: 0.00, Value Change: 764.58, Expenses: 532.34, End: 17594.61  
+Year 2063: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2063: Investment 'family trust' - Start: 117261.19, Income: 1172.61, Value Change: 3988.44, Expenses: 1198.42, End: 121223.83
+Year 2063: Investment 'microsoft employer contributions' - Start: 845575.10, Income: 8455.75, Value Change: 49617.54, Expenses: 8746.12, End: 894902.27
+Year 2063: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2063: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2063: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2521455.72
+--- Year 2064 (Idx 39): Processing Investment Returns ---
+Year 2064: Investment 'japan bond' - Start: 12789.31, Income: 127.89, Value Change: 315.72, Expenses: 260.22, End: 12972.70
+Year 2064: Investment 'euro bond' - Start: 18031.59, Income: 180.32, Value Change: 778.88, Expenses: 370.22, End: 18620.56
+Year 2064: Investment 'gamestop' - Start: 17594.61, Income: 0.00, Value Change: 476.92, Expenses: 534.99, End: 17536.54  
+Year 2064: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2064: Investment 'family trust' - Start: 121223.83, Income: 1212.24, Value Change: 4373.91, Expenses: 1240.17, End: 125569.81
+Year 2064: Investment 'microsoft employer contributions' - Start: 894902.27, Income: 8949.02, Value Change: 38614.49, Expenses: 9186.84, End: 933278.95
+Year 2064: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2064: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2064: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2564892.67
+--- Year 2065 (Idx 40): Processing Investment Returns ---
+Year 2065: Investment 'japan bond' - Start: 12972.70, Income: 129.73, Value Change: 340.13, Expenses: 264.15, End: 13178.40
+Year 2065: Investment 'euro bond' - Start: 18620.56, Income: 186.21, Value Change: 783.66, Expenses: 382.11, End: 19208.32
+Year 2065: Investment 'gamestop' - Start: 17536.54, Income: 0.00, Value Change: 527.29, Expenses: 534.01, End: 17529.82  
+Year 2065: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2065: Investment 'family trust' - Start: 125569.81, Income: 1255.70, Value Change: 7250.68, Expenses: 1298.23, End: 132777.96
+Year 2065: Investment 'microsoft employer contributions' - Start: 933278.95, Income: 9332.79, Value Change: 41106.34, Expenses: 9584.99, End: 974133.10
+Year 2065: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2065: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2065: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2613741.71
+--- Year 2066 (Idx 41): Processing Investment Returns ---
+Year 2066: Investment 'japan bond' - Start: 13178.40, Income: 131.78, Value Change: 500.38, Expenses: 269.89, End: 13540.68
+Year 2066: Investment 'euro bond' - Start: 19208.32, Income: 192.08, Value Change: 840.06, Expenses: 394.49, End: 19845.97
+Year 2066: Investment 'gamestop' - Start: 17529.82, Income: 0.00, Value Change: 370.28, Expenses: 531.45, End: 17368.65  
+Year 2066: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2066: Investment 'family trust' - Start: 132777.96, Income: 1327.78, Value Change: 2908.51, Expenses: 1348.96, End: 135665.28
+Year 2066: Investment 'microsoft employer contributions' - Start: 974133.10, Income: 9741.33, Value Change: 57267.54, Expenses: 10076.38, End: 1031065.59
+Year 2066: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2066: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2066: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2674400.29
+--- Year 2067 (Idx 42): Processing Investment Returns ---
+Year 2067: Investment 'japan bond' - Start: 13540.68, Income: 135.41, Value Change: 448.53, Expenses: 276.65, End: 13847.97
+Year 2067: Investment 'euro bond' - Start: 19845.97, Income: 198.46, Value Change: 593.35, Expenses: 404.84, End: 20232.94
+Year 2067: Investment 'gamestop' - Start: 17368.65, Income: 0.00, Value Change: 545.92, Expenses: 529.25, End: 17385.32  
+Year 2067: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2067: Investment 'family trust' - Start: 135665.28, Income: 1356.65, Value Change: 4768.35, Expenses: 1387.28, End: 140403.01
+Year 2067: Investment 'microsoft employer contributions' - Start: 1031065.59, Income: 10310.66, Value Change: 42729.92, Expenses: 10575.86, End: 1073530.31
+Year 2067: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2067: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2067: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2722313.67
+--- Year 2068 (Idx 43): Processing Investment Returns ---
+Year 2068: Investment 'japan bond' - Start: 13847.97, Income: 138.48, Value Change: 675.34, Expenses: 285.10, End: 14376.69
+Year 2068: Investment 'euro bond' - Start: 20232.94, Income: 202.33, Value Change: 896.11, Expenses: 415.64, End: 20915.73
+Year 2068: Investment 'gamestop' - Start: 17385.32, Income: 0.00, Value Change: 780.42, Expenses: 533.27, End: 17632.48  
+Year 2068: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2068: Investment 'family trust' - Start: 140403.01, Income: 1404.03, Value Change: 3184.76, Expenses: 1426.97, End: 143564.83
+Year 2068: Investment 'microsoft employer contributions' - Start: 1073530.31, Income: 10735.30, Value Change: 41792.64, Expenses: 10997.94, End: 1115060.31
+Year 2068: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2068: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2068: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2768464.16
+--- Year 2069 (Idx 44): Processing Investment Returns ---
+Year 2069: Investment 'japan bond' - Start: 14376.69, Income: 143.77, Value Change: 813.68, Expenses: 297.11, End: 15037.04
+Year 2069: Investment 'euro bond' - Start: 20915.73, Income: 209.16, Value Change: 413.23, Expenses: 424.54, End: 21113.59
+Year 2069: Investment 'gamestop' - Start: 17632.48, Income: 0.00, Value Change: 859.83, Expenses: 541.87, End: 17950.44  
+Year 2069: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2069: Investment 'family trust' - Start: 143564.83, Income: 1435.65, Value Change: 3299.40, Expenses: 1459.32, End: 146840.55
+Year 2069: Investment 'microsoft employer contributions' - Start: 1115060.31, Income: 11150.60, Value Change: 47286.94, Expenses: 11442.79, End: 1162055.06
+Year 2069: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2069: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2069: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2819910.78
+--- Year 2070 (Idx 45): Processing Investment Returns ---
+Year 2070: Investment 'japan bond' - Start: 15037.04, Income: 150.37, Value Change: 837.07, Expenses: 310.62, End: 15713.86
+Year 2070: Investment 'euro bond' - Start: 21113.59, Income: 211.14, Value Change: 541.57, Expenses: 429.80, End: 21436.50
+Year 2070: Investment 'gamestop' - Start: 17950.44, Income: 0.00, Value Change: 1125.97, Expenses: 555.40, End: 18521.00 
+Year 2070: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2070: Investment 'family trust' - Start: 146840.55, Income: 1468.41, Value Change: 5108.88, Expenses: 1501.29, End: 151916.54
+Year 2070: Investment 'microsoft employer contributions' - Start: 1162055.06, Income: 11620.55, Value Change: 71364.95, Expenses: 12035.48, End: 1233005.08
+Year 2070: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2070: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2070: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2897507.09
+--- Year 2071 (Idx 46): Processing Investment Returns ---
+Year 2071: Investment 'japan bond' - Start: 15713.86, Income: 157.14, Value Change: 817.58, Expenses: 324.02, End: 16364.56
+Year 2071: Investment 'euro bond' - Start: 21436.50, Income: 214.36, Value Change: 869.43, Expenses: 439.57, End: 22080.73
+Year 2071: Investment 'gamestop' - Start: 18521.00, Income: 0.00, Value Change: 1004.23, Expenses: 570.69, End: 18954.55 
+Year 2071: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2071: Investment 'family trust' - Start: 151916.54, Income: 1519.17, Value Change: 5393.14, Expenses: 1553.73, End: 157275.12
+Year 2071: Investment 'microsoft employer contributions' - Start: 1233005.08, Income: 12330.05, Value Change: 71144.67, Expenses: 12747.42, End: 1303732.37
+Year 2071: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2071: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2071: Investment Returns processed. curYearIncome: 0.00, totalAssets: 2975321.43
+--- Year 2072 (Idx 47): Processing Investment Returns ---
+Year 2072: Investment 'japan bond' - Start: 16364.56, Income: 163.65, Value Change: 675.20, Expenses: 335.68, End: 16867.72
+Year 2072: Investment 'euro bond' - Start: 22080.73, Income: 220.81, Value Change: 1137.28, Expenses: 455.20, End: 22983.62
+Year 2072: Investment 'gamestop' - Start: 18954.55, Income: 0.00, Value Change: 1156.90, Expenses: 585.99, End: 19525.45 
+Year 2072: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2072: Investment 'family trust' - Start: 157275.12, Income: 1572.75, Value Change: 9031.71, Expenses: 1625.77, End: 166253.80
+Year 2072: Investment 'microsoft employer contributions' - Start: 1303732.37, Income: 13037.32, Value Change: 61284.06, Expenses: 13408.93, End: 1364644.82
+Year 2072: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2072: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2072: Investment Returns processed. curYearIncome: 0.00, totalAssets: 3047189.54
+--- Year 2073 (Idx 48): Processing Investment Returns ---
+Year 2073: Investment 'japan bond' - Start: 16867.72, Income: 168.68, Value Change: 781.33, Expenses: 346.85, End: 17470.88
+Year 2073: Investment 'euro bond' - Start: 22983.62, Income: 229.84, Value Change: 1121.30, Expenses: 473.18, End: 23861.57
+Year 2073: Investment 'gamestop' - Start: 19525.45, Income: 0.00, Value Change: 739.04, Expenses: 596.85, End: 19667.64  
+Year 2073: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2073: Investment 'family trust' - Start: 166253.80, Income: 1662.54, Value Change: 5293.71, Expenses: 1697.32, End: 171512.73
+Year 2073: Investment 'microsoft employer contributions' - Start: 1364644.82, Income: 13646.45, Value Change: 53874.02, Expenses: 13984.05, End: 1418181.25
+Year 2073: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2073: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2073: Investment Returns processed. curYearIncome: 0.00, totalAssets: 3107608.18
+--- Year 2074 (Idx 49): Processing Investment Returns ---
+Year 2074: Investment 'japan bond' - Start: 17470.88, Income: 174.71, Value Change: 592.76, Expenses: 357.09, End: 17881.25
+Year 2074: Investment 'euro bond' - Start: 23861.57, Income: 238.62, Value Change: 932.44, Expenses: 488.94, End: 24543.68
+Year 2074: Investment 'gamestop' - Start: 19667.64, Income: 0.00, Value Change: 682.76, Expenses: 600.27, End: 19750.13  
+Year 2074: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2074: Investment 'family trust' - Start: 171512.73, Income: 1715.13, Value Change: 9732.22, Expenses: 1772.36, End: 181187.71
+Year 2074: Investment 'microsoft employer contributions' - Start: 1418181.25, Income: 14181.81, Value Change: 42546.54, Expenses: 14465.45, End: 1460444.15
+Year 2074: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2074: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2074: Investment Returns processed. curYearIncome: 0.00, totalAssets: 3160721.04
+--- Year 2075 (Idx 50): Processing Investment Returns ---
+Year 2075: Investment 'japan bond' - Start: 17881.25, Income: 178.81, Value Change: 711.46, Expenses: 366.53, End: 18405.00
+Year 2075: Investment 'euro bond' - Start: 24543.68, Income: 245.44, Value Change: 965.85, Expenses: 502.99, End: 25251.98
+Year 2075: Investment 'gamestop' - Start: 19750.13, Income: 0.00, Value Change: 922.82, Expenses: 606.35, End: 20066.60  
+Year 2075: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2075: Investment 'family trust' - Start: 116809.99, Income: 1168.10, Value Change: 6564.56, Expenses: 1206.76, End: 123335.89
+Year 2075: Investment 'microsoft employer contributions' - Start: 1460444.15, Income: 14604.44, Value Change: 63046.41, Expenses: 14992.70, End: 1523102.30
+Year 2075: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2075: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2075: Investment 'fund or trust (non-retirement)' - Start: 64377.72, Income: 643.78, Value Change: 2142.02, Expenses: 657.71, End: 66505.81
+Year 2075: Investment Returns processed. curYearIncome: 65021.50, totalAssets: 3233581.69
+--- Year 2076 (Idx 51): Processing Investment Returns ---
+Year 2076: Investment 'japan bond' - Start: 18405.00, Income: 184.05, Value Change: 786.46, Expenses: 377.81, End: 18997.70
+Year 2076: Investment 'euro bond' - Start: 25251.98, Income: 252.52, Value Change: 1272.81, Expenses: 520.29, End: 26257.02
+Year 2076: Investment 'gamestop' - Start: 20066.60, Income: 0.00, Value Change: 987.83, Expenses: 616.82, End: 20437.62  
+Year 2076: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2076: Investment 'family trust' - Start: 56407.51, Income: 564.08, Value Change: 2149.72, Expenses: 577.64, End: 58543.66
+Year 2076: Investment 'microsoft employer contributions' - Start: 1523102.30, Income: 15231.02, Value Change: 58135.52, Expenses: 15597.86, End: 1580870.99
+Year 2076: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2076: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2076: Investment 'fund or trust (non-retirement)' - Start: 133434.19, Income: 1334.34, Value Change: 5097.01, Expenses: 1366.50, End: 138499.04
+Year 2076: Investment Returns processed. curYearIncome: 68262.72, totalAssets: 3300520.14
+--- Year 2077 (Idx 52): Processing Investment Returns ---
+Year 2077: Investment 'japan bond' - Start: 18997.70, Income: 189.98, Value Change: 993.74, Expenses: 391.79, End: 19789.63
+Year 2077: Investment 'euro bond' - Start: 26257.02, Income: 262.57, Value Change: 550.74, Expenses: 533.27, End: 26537.06
+Year 2077: Investment 'gamestop' - Start: 20437.62, Income: 0.00, Value Change: 835.40, Expenses: 625.66, End: 20647.36  
+Year 2077: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2077: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2077: Investment 'microsoft employer contributions' - Start: 1570241.04, Income: 15702.41, Value Change: 78594.12, Expenses: 16173.89, End: 1648363.67
+Year 2077: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2077: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2077: Investment 'fund or trust (non-retirement)' - Start: 207672.66, Income: 2076.73, Value Change: 8040.68, Expenses: 2127.31, End: 215662.75
+Year 2077: Investment Returns processed. curYearIncome: 71250.34, totalAssets: 3387914.57
+--- Year 2078 (Idx 53): Processing Investment Returns ---
+Year 2078: Investment 'japan bond' - Start: 19789.63, Income: 197.90, Value Change: 611.37, Expenses: 403.89, End: 20195.01
+Year 2078: Investment 'euro bond' - Start: 26537.06, Income: 265.37, Value Change: 1077.47, Expenses: 544.17, End: 27335.72
+Year 2078: Investment 'gamestop' - Start: 20647.36, Income: 0.00, Value Change: 1146.25, Expenses: 636.61, End: 21156.99 
+Year 2078: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2078: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2078: Investment 'microsoft employer contributions' - Start: 1576382.73, Income: 15763.83, Value Change: 52080.32, Expenses: 16103.05, End: 1628123.83
+Year 2078: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2078: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2078: Investment 'fund or trust (non-retirement)' - Start: 287643.70, Income: 2876.44, Value Change: 9630.15, Expenses: 2938.97, End: 297211.32
+Year 2078: Investment Returns processed. curYearIncome: 74857.38, totalAssets: 3450936.97
+--- Year 2079 (Idx 54): Processing Investment Returns ---
+Year 2079: Investment 'japan bond' - Start: 20195.01, Income: 201.95, Value Change: 811.89, Expenses: 414.04, End: 20794.81
+Year 2079: Investment 'euro bond' - Start: 27335.72, Income: 273.36, Value Change: 1181.97, Expenses: 561.27, End: 28229.78
+Year 2079: Investment 'gamestop' - Start: 21156.99, Income: 0.00, Value Change: 630.01, Expenses: 644.16, End: 21142.84  
+Year 2079: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2079: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2079: Investment 'microsoft employer contributions' - Start: 1554118.20, Income: 15541.18, Value Change: 90031.31, Expenses: 16069.04, End: 1643621.65
+Year 2079: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2079: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2079: Investment 'fund or trust (non-retirement)' - Start: 371216.94, Income: 3712.17, Value Change: 21063.05, Expenses: 3836.05, End: 392156.12
+Year 2079: Investment Returns processed. curYearIncome: 77717.80, totalAssets: 3562859.30
+--- Year 2080 (Idx 55): Processing Investment Returns ---
+Year 2080: Investment 'japan bond' - Start: 20794.81, Income: 207.95, Value Change: 604.40, Expenses: 424.02, End: 21183.14
+Year 2080: Investment 'euro bond' - Start: 28229.78, Income: 282.30, Value Change: 1059.03, Expenses: 578.01, End: 28993.10
+Year 2080: Investment 'gamestop' - Start: 21142.84, Income: 0.00, Value Change: 935.73, Expenses: 648.32, End: 21430.25  
+Year 2080: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2080: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2080: Investment 'microsoft employer contributions' - Start: 1565724.89, Income: 15657.25, Value Change: 62361.16, Expenses: 16047.34, End: 1627695.95
+Year 2080: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2080: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2080: Investment 'fund or trust (non-retirement)' - Start: 470052.88, Income: 4700.53, Value Change: 17413.58, Expenses: 4811.10, End: 487355.89
+Year 2080: Investment Returns processed. curYearIncome: 82597.29, totalAssets: 3643572.44
+--- Year 2081 (Idx 56): Processing Investment Returns ---
+Year 2081: Investment 'japan bond' - Start: 21183.14, Income: 211.83, Value Change: 408.49, Expenses: 429.87, End: 21373.60
+Year 2081: Investment 'euro bond' - Start: 28993.10, Income: 289.93, Value Change: 1471.50, Expenses: 597.48, End: 30157.05
+Year 2081: Investment 'gamestop' - Start: 21430.25, Income: 0.00, Value Change: 632.66, Expenses: 652.40, End: 21410.51  
+Year 2081: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2081: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2081: Investment 'microsoft employer contributions' - Start: 1547116.94, Income: 15471.17, Value Change: 61313.67, Expenses: 15855.09, End: 1608046.69
+Year 2081: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2081: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2081: Investment 'fund or trust (non-retirement)' - Start: 567934.89, Income: 5679.35, Value Change: 24181.65, Expenses: 5828.65, End: 591967.23
+Year 2081: Investment Returns processed. curYearIncome: 86258.36, totalAssets: 3729869.19
+--- Year 2082 (Idx 57): Processing Investment Returns ---
+Year 2082: Investment 'japan bond' - Start: 21373.60, Income: 213.74, Value Change: 711.40, Expenses: 436.72, End: 21862.01
+Year 2082: Investment 'euro bond' - Start: 30157.05, Income: 301.57, Value Change: 932.05, Expenses: 615.48, End: 30775.20
+Year 2082: Investment 'gamestop' - Start: 21410.51, Income: 0.00, Value Change: 413.60, Expenses: 648.52, End: 21175.59  
+Year 2082: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2082: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2082: Investment 'microsoft employer contributions' - Start: 1525157.68, Income: 15251.58, Value Change: 65157.88, Expenses: 15653.62, End: 1589913.52
+Year 2082: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2082: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2082: Investment 'fund or trust (non-retirement)' - Start: 674856.24, Income: 6748.56, Value Change: 23439.02, Expenses: 6899.50, End: 698144.32
+Year 2082: Investment Returns processed. curYearIncome: 89637.57, totalAssets: 3818784.75
+--- Year 2083 (Idx 58): Processing Investment Returns ---
+Year 2083: Investment 'japan bond' - Start: 21862.01, Income: 218.62, Value Change: 1488.62, Expenses: 454.31, End: 23114.94
+Year 2083: Investment 'euro bond' - Start: 30775.20, Income: 307.75, Value Change: 1532.46, Expenses: 633.91, End: 31981.50
+Year 2083: Investment 'gamestop' - Start: 21175.59, Income: 0.00, Value Change: 966.75, Expenses: 649.77, End: 21492.58  
+Year 2083: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2083: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2083: Investment 'microsoft employer contributions' - Start: 1503972.24, Income: 15039.72, Value Change: 69310.82, Expenses: 15461.48, End: 1572861.31
+Year 2083: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2083: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2083: Investment 'fund or trust (non-retirement)' - Start: 784085.59, Income: 7840.86, Value Change: 32225.69, Expenses: 8041.19, End: 816110.95
+Year 2083: Investment Returns processed. curYearIncome: 93782.13, totalAssets: 3922475.39
+--- Year 2084 (Idx 59): Processing Investment Returns ---
+Year 2084: Investment 'japan bond' - Start: 23114.94, Income: 231.15, Value Change: 1018.60, Expenses: 474.80, End: 23889.89
+Year 2084: Investment 'euro bond' - Start: 31981.50, Income: 319.82, Value Change: 1135.19, Expenses: 654.18, End: 32782.33
+Year 2084: Investment 'gamestop' - Start: 21492.58, Income: 0.00, Value Change: 1058.09, Expenses: 660.65, End: 21890.02 
+Year 2084: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2084: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2084: Investment 'microsoft employer contributions' - Start: 1483999.09, Income: 14839.99, Value Change: 66044.98, Expenses: 15244.42, End: 1549639.64
+Year 2084: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2084: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2084: Investment 'fund or trust (non-retirement)' - Start: 904973.17, Income: 9049.73, Value Change: 25723.83, Expenses: 9223.60, End: 930523.13
+Year 2084: Investment Returns processed. curYearIncome: 97911.95, totalAssets: 4015639.12
+--- Year 2085 (Idx 60): Processing Investment Returns ---
+Year 2085: Investment 'japan bond' - Start: 23889.89, Income: 238.90, Value Change: 851.48, Expenses: 488.70, End: 24491.57
+Year 2085: Investment 'euro bond' - Start: 32782.33, Income: 327.82, Value Change: 784.38, Expenses: 666.77, End: 33227.76
+Year 2085: Investment 'gamestop' - Start: 21890.02, Income: 0.00, Value Change: 838.36, Expenses: 669.28, End: 22059.10  
+Year 2085: Investment 'bitcoin etf' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2085: Investment 'family trust' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00
+Year 2085: Investment 'microsoft employer contributions' - Start: 1457399.18, Income: 14573.99, Value Change: 49330.72, Expenses: 14893.52, End: 1506410.38
+Year 2085: Investment 'nys investor fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00     
+Year 2085: Investment 'liberty mutual fund' - Start: 0.00, Income: 0.00, Value Change: 0.00, Expenses: 0.00, End: 0.00   
+Year 2085: Investment 'fund or trust (non-retirement)' - Start: 1022763.58, Income: 10227.64, Value Change: 27801.93, Expenses: 10417.78, End: 1050375.37
+Year 2085: Investment Returns processed. curYearIncome: 102468.09, totalAssets: 4093478.29
+Total simulations run: 1
+
+
+=================================================================================================================================
+
+Roth rothConversionStrategies
+
+Starting 1 simulations...
+Sim 1: Marital status changes to single in year 2077 (index 52) due to spouse LE.
+Running simulation #1 for calculated 61 years.
+Roth Conv Year 2040: curYearFedTaxableIncome=25794.92
+Roth Conv Year 2040: Current Tax Bracket Rate=10% (Range: 0.00 - 49702.12)
+Roth Conv Year 2040: Calculated initial Roth conversion amount (rc) = 23907.21 (Room in bracket: 23907.21)
+Roth Conv Year 2040: Converted 23907.21 from 'family trust' to Roth. Remaining rc: 0.00
+--- Year 2040 (Idx 15): Roth Conversion Occurred ---
+    Before: curYearIncome=25794.92, curYearSS=0.00, adjStdDed=62556.12
+    After:  conversionAmount=23907.21, newCurYearIncome=49702.12
+Roth Conv Year 2041: curYearFedTaxableIncome=28132.80
+Roth Conv Year 2041: Current Tax Bracket Rate=10% (Range: 0.00 - 54170.78)
+Roth Conv Year 2041: Calculated initial Roth conversion amount (rc) = 26037.98 (Room in bracket: 26037.98)
+Roth Conv Year 2041: Converted 19356.15 from 'family trust' to Roth. Remaining rc: 6681.83
+Roth Conv Year 2041: Converted 6681.83 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2041 (Idx 16): Roth Conversion Occurred ---
+    Before: curYearIncome=28132.80, curYearSS=0.00, adjStdDed=68180.46
+    After:  conversionAmount=26037.98, newCurYearIncome=54170.78
+Roth Conv Year 2042: curYearFedTaxableIncome=31670.04
+Roth Conv Year 2042: Current Tax Bracket Rate=10% (Range: 0.00 - 60961.07)
+Roth Conv Year 2042: Calculated initial Roth conversion amount (rc) = 29291.03 (Room in bracket: 29291.03)
+Roth Conv Year 2042: Converted 29291.03 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2042 (Idx 17): Roth Conversion Occurred ---
+    Before: curYearIncome=31670.04, curYearSS=0.00, adjStdDed=76726.87
+    After:  conversionAmount=29291.03, newCurYearIncome=60961.07
+Roth Conv Year 2043: curYearFedTaxableIncome=31602.65
+Roth Conv Year 2043: Current Tax Bracket Rate=10% (Range: 0.00 - 60810.01)
+Roth Conv Year 2043: Calculated initial Roth conversion amount (rc) = 29207.36 (Room in bracket: 29207.36)
+Roth Conv Year 2043: Converted 29207.36 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2043 (Idx 18): Roth Conversion Occurred ---
+    Before: curYearIncome=31602.65, curYearSS=0.00, adjStdDed=76536.74
+    After:  conversionAmount=29207.36, newCurYearIncome=60810.01
+Roth Conv Year 2044: curYearFedTaxableIncome=32818.27
+Roth Conv Year 2044: Current Tax Bracket Rate=10% (Range: 0.00 - 63138.52)
+Roth Conv Year 2044: Calculated initial Roth conversion amount (rc) = 30320.25 (Room in bracket: 30320.25)
+Roth Conv Year 2044: Converted 30320.25 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2044 (Idx 19): Roth Conversion Occurred ---
+    Before: curYearIncome=32818.27, curYearSS=0.00, adjStdDed=79467.45
+    After:  conversionAmount=30320.25, newCurYearIncome=63138.52
+Roth Conv Year 2045: curYearFedTaxableIncome=32731.65
+Roth Conv Year 2045: Current Tax Bracket Rate=10% (Range: 0.00 - 62936.54)
+Roth Conv Year 2045: Calculated initial Roth conversion amount (rc) = 30204.89 (Room in bracket: 30204.89)
+Roth Conv Year 2045: Converted 30204.89 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2045 (Idx 20): Roth Conversion Occurred ---
+    Before: curYearIncome=32731.65, curYearSS=0.00, adjStdDed=79213.23
+    After:  conversionAmount=30204.89, newCurYearIncome=62936.54
+Roth Conv Year 2046: curYearFedTaxableIncome=35057.87
+Roth Conv Year 2046: Current Tax Bracket Rate=10% (Range: 0.00 - 67398.86)
+Roth Conv Year 2046: Calculated initial Roth conversion amount (rc) = 32340.99 (Room in bracket: 32340.99)
+Roth Conv Year 2046: Converted 32340.99 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2046 (Idx 21): Roth Conversion Occurred ---
+    Before: curYearIncome=35057.87, curYearSS=0.00, adjStdDed=84829.61
+    After:  conversionAmount=32340.99, newCurYearIncome=67398.86
+Roth Conv Year 2047: curYearFedTaxableIncome=36304.56
+Roth Conv Year 2047: Current Tax Bracket Rate=10% (Range: 0.00 - 69768.69)
+Roth Conv Year 2047: Calculated initial Roth conversion amount (rc) = 33464.13 (Room in bracket: 33464.13)
+Roth Conv Year 2047: Converted 33464.13 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2047 (Idx 22): Roth Conversion Occurred ---
+    Before: curYearIncome=36304.56, curYearSS=0.00, adjStdDed=87812.32
+    After:  conversionAmount=33464.13, newCurYearIncome=69768.69
+Roth Conv Year 2048: curYearFedTaxableIncome=37592.84
+Roth Conv Year 2048: Current Tax Bracket Rate=10% (Range: 0.00 - 72225.76)
+Roth Conv Year 2048: Calculated initial Roth conversion amount (rc) = 34632.93 (Room in bracket: 34632.93)
+Roth Conv Year 2048: Converted 34632.93 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2048 (Idx 23): Roth Conversion Occurred ---
+    Before: curYearIncome=37592.84, curYearSS=0.00, adjStdDed=90904.84
+    After:  conversionAmount=34632.93, newCurYearIncome=72225.76
+Roth Conv Year 2049: curYearFedTaxableIncome=39146.27
+Roth Conv Year 2049: Current Tax Bracket Rate=10% (Range: 0.00 - 75185.30)
+Roth Conv Year 2049: Calculated initial Roth conversion amount (rc) = 36039.03 (Room in bracket: 36039.03)
+Roth Conv Year 2049: Converted 36039.03 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2049 (Idx 24): Roth Conversion Occurred ---
+    Before: curYearIncome=39146.27, curYearSS=0.00, adjStdDed=94629.78
+    After:  conversionAmount=36039.03, newCurYearIncome=75185.30
+Roth Conv Year 2050: curYearFedTaxableIncome=41830.74
+Roth Conv Year 2050: Current Tax Bracket Rate=10% (Range: 0.00 - 80306.78)
+Roth Conv Year 2050: Calculated initial Roth conversion amount (rc) = 38476.04 (Room in bracket: 38476.04)
+Roth Conv Year 2050: Converted 38476.04 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2050 (Idx 25): Roth Conversion Occurred ---
+    Before: curYearIncome=41830.74, curYearSS=0.00, adjStdDed=101075.78
+    After:  conversionAmount=38476.04, newCurYearIncome=80306.78
+Roth Conv Year 2051: curYearFedTaxableIncome=43507.27
+Roth Conv Year 2051: Current Tax Bracket Rate=10% (Range: 0.00 - 83503.04)
+Roth Conv Year 2051: Calculated initial Roth conversion amount (rc) = 39995.76 (Room in bracket: 39995.76)
+Roth Conv Year 2051: Converted 39995.76 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2051 (Idx 26): Roth Conversion Occurred ---
+    Before: curYearIncome=43507.27, curYearSS=0.00, adjStdDed=105098.65
+    After:  conversionAmount=39995.76, newCurYearIncome=83503.04
+Roth Conv Year 2052: curYearFedTaxableIncome=45067.58
+Roth Conv Year 2052: Current Tax Bracket Rate=10% (Range: 0.00 - 86449.02)
+Roth Conv Year 2052: Calculated initial Roth conversion amount (rc) = 41381.43 (Room in bracket: 41381.43)
+Roth Conv Year 2052: Converted 41381.43 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2052 (Idx 27): Roth Conversion Occurred ---
+    Before: curYearIncome=45067.58, curYearSS=0.00, adjStdDed=108806.52
+    After:  conversionAmount=41381.43, newCurYearIncome=86449.02
+Roth Conv Year 2053: curYearFedTaxableIncome=48574.76
+Roth Conv Year 2053: Current Tax Bracket Rate=10% (Range: 0.00 - 93172.60)
+Roth Conv Year 2053: Calculated initial Roth conversion amount (rc) = 44597.85 (Room in bracket: 44597.85)
+Roth Conv Year 2053: Converted 44597.85 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2053 (Idx 28): Roth Conversion Occurred ---
+    Before: curYearIncome=48574.76, curYearSS=0.00, adjStdDed=117268.96
+    After:  conversionAmount=44597.85, newCurYearIncome=93172.60
+Roth Conv Year 2054: curYearFedTaxableIncome=51308.75
+Roth Conv Year 2054: Current Tax Bracket Rate=10% (Range: 0.00 - 98385.27)
+Roth Conv Year 2054: Calculated initial Roth conversion amount (rc) = 47076.51 (Room in bracket: 47076.51)
+Roth Conv Year 2054: Converted 47076.51 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2054 (Idx 29): Roth Conversion Occurred ---
+    Before: curYearIncome=51308.75, curYearSS=0.00, adjStdDed=123829.73
+    After:  conversionAmount=47076.51, newCurYearIncome=98385.27
+Roth Conv Year 2055: curYearFedTaxableIncome=53195.15
+Roth Conv Year 2055: Current Tax Bracket Rate=10% (Range: 0.00 - 101993.91)
+Roth Conv Year 2055: Calculated initial Roth conversion amount (rc) = 48798.77 (Room in bracket: 48798.77)
+Roth Conv Year 2055: Converted 48798.77 from 'microsoft employer contributions' to Roth. Remaining rc: 0.00
+--- Year 2055 (Idx 30): Roth Conversion Occurred ---
+    Before: curYearIncome=53195.15, curYearSS=0.00, adjStdDed=128371.65
+    After:  conversionAmount=48798.77, newCurYearIncome=101993.91
+Total simulations run: 1
+
+==========================================================================================================================
+
+
+Paying nondiscretionary expenses:
+
+Running simulation #1 for calculated 61 years.
+Year 2025: First year, no previous taxes to calculate.
+Year 2025: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 75638.78
+Year 2025: Used 0.00 cash. Remaining needed: 0.00
+Year 2025: Paid entirely from cash.
+Year 2026: Calculated Previous Year (2025) Taxes: Fed=4994.14, State=2169.05, CapGains=0.00, EarlyPenalty=0.00, Total=7163.19
+Year 2026: Starting Non-Discretionary Payments. Need: 7163.19, Have Cash: 152103.94
+Year 2026: Used 7163.19 cash. Remaining needed: 0.00
+Year 2026: Paid entirely from cash.
+Year 2027: Calculated Previous Year (2026) Taxes: Fed=5071.23, State=2203.65, CapGains=0.00, EarlyPenalty=0.00, Total=7274.88
+Year 2027: Starting Non-Discretionary Payments. Need: 7274.88, Have Cash: 227984.41
+Year 2027: Used 7274.88 cash. Remaining needed: 0.00
+Year 2027: Paid entirely from cash.
+Year 2028: Calculated Previous Year (2027) Taxes: Fed=5621.47, State=2448.82, CapGains=0.00, EarlyPenalty=0.00, Total=8070.29
+Year 2028: Starting Non-Discretionary Payments. Need: 8070.29, Have Cash: 313483.57
+Year 2028: Used 8070.29 cash. Remaining needed: 0.00
+Year 2028: Paid entirely from cash.
+Year 2029: Calculated Previous Year (2028) Taxes: Fed=6400.39, State=2794.43, CapGains=0.00, EarlyPenalty=0.00, Total=9194.82
+Year 2029: Starting Non-Discretionary Payments. Need: 9194.82, Have Cash: 406806.45
+Year 2029: Used 9194.82 cash. Remaining needed: 0.00
+Year 2029: Paid entirely from cash.
+Year 2030: Calculated Previous Year (2029) Taxes: Fed=7120.67, State=3115.35, CapGains=0.00, EarlyPenalty=0.00, Total=10236.02
+Year 2030: Starting Non-Discretionary Payments. Need: 10236.02, Have Cash: 498360.89
+Year 2030: Used 10236.02 cash. Remaining needed: 0.00
+Year 2030: Paid entirely from cash.
+Year 2031: Calculated Previous Year (2030) Taxes: Fed=6914.09, State=3012.04, CapGains=0.00, EarlyPenalty=0.00, Total=9926.13
+Year 2031: Starting Non-Discretionary Payments. Need: 9926.13, Have Cash: 584428.03
+Year 2031: Used 9926.13 cash. Remaining needed: 0.00
+Year 2031: Paid entirely from cash.
+Year 2032: Calculated Previous Year (2031) Taxes: Fed=6735.61, State=2940.96, CapGains=0.00, EarlyPenalty=0.00, Total=9676.57
+Year 2032: Starting Non-Discretionary Payments. Need: 9676.57, Have Cash: 675055.29
+Year 2032: Used 9676.57 cash. Remaining needed: 0.00
+Year 2032: Paid entirely from cash.
+Year 2033: Calculated Previous Year (2032) Taxes: Fed=7157.10, State=3131.46, CapGains=0.00, EarlyPenalty=0.00, Total=10288.56
+Year 2033: Starting Non-Discretionary Payments. Need: 10288.56, Have Cash: 818556.50
+Year 2033: Used 10288.56 cash. Remaining needed: 0.00
+Year 2033: Paid entirely from cash.
+Year 2034: Calculated Previous Year (2033) Taxes: Fed=13333.27, State=5957.99, CapGains=0.00, EarlyPenalty=0.00, Total=19291.27
+Year 2034: Starting Non-Discretionary Payments. Need: 19291.27, Have Cash: 959872.48
+Year 2034: Used 19291.27 cash. Remaining needed: 0.00
+Year 2034: Paid entirely from cash.
+Year 2035: Calculated Previous Year (2034) Taxes: Fed=13197.17, State=5897.20, CapGains=0.00, EarlyPenalty=0.00, Total=19094.36
+Year 2035: Starting Non-Discretionary Payments. Need: 19094.36, Have Cash: 1096809.67
+Year 2035: Used 19094.36 cash. Remaining needed: 0.00
+Year 2035: Paid entirely from cash.
+Year 2036: Calculated Previous Year (2035) Taxes: Fed=13599.87, State=6077.15, CapGains=0.00, EarlyPenalty=0.00, Total=19677.03
+Year 2036: Starting Non-Discretionary Payments. Need: 19677.03, Have Cash: 1236192.99
+Year 2036: Used 19677.03 cash. Remaining needed: 0.00
+Year 2036: Paid entirely from cash.
+Year 2037: Calculated Previous Year (2036) Taxes: Fed=13795.81, State=6164.71, CapGains=0.00, EarlyPenalty=0.00, Total=19960.52
+Year 2037: Starting Non-Discretionary Payments. Need: 318635.66, Have Cash: 1383741.82
+Year 2037: Used 318635.66 cash. Remaining needed: 0.00
+Year 2037: Paid entirely from cash.
+Year 2038: Calculated Previous Year (2037) Taxes: Fed=14556.82, State=6504.77, CapGains=0.00, EarlyPenalty=0.00, Total=21061.58
+Year 2038: Starting Non-Discretionary Payments. Need: 41061.58, Have Cash: 1236418.32
+Year 2038: Used 41061.58 cash. Remaining needed: 0.00
+Year 2038: Paid entirely from cash.
+Year 2039: Calculated Previous Year (2038) Taxes: Fed=14912.44, State=6663.68, CapGains=0.00, EarlyPenalty=0.00, Total=21576.12
+Year 2039: Starting Non-Discretionary Payments. Need: 41576.12, Have Cash: 1366583.94
+Year 2039: Used 41576.12 cash. Remaining needed: 0.00
+Year 2039: Paid entirely from cash.
+Year 2040: Calculated Previous Year (2039) Taxes: Fed=14905.74, State=6660.70, CapGains=0.00, EarlyPenalty=0.00, Total=21566.44
+Year 2040: Starting Non-Discretionary Payments. Need: 41566.44, Have Cash: 1508007.39
+Year 2040: Used 41566.44 cash. Remaining needed: 0.00
+Year 2040: Paid entirely from cash.
+Year 2041: Calculated Previous Year (2040) Taxes: Fed=42557.06, State=13981.87, CapGains=0.00, EarlyPenalty=0.00, Total=56538.92
+Year 2041: Starting Non-Discretionary Payments. Need: 76538.92, Have Cash: 1663200.75
+Year 2041: Used 76538.92 cash. Remaining needed: 0.00
+Year 2041: Paid entirely from cash.
+Year 2042: Calculated Previous Year (2041) Taxes: Fed=45756.59, State=15033.06, CapGains=0.00, EarlyPenalty=0.00, Total=60789.65
+Year 2042: Starting Non-Discretionary Payments. Need: 80789.65, Have Cash: 1795258.26
+Year 2042: Used 80789.65 cash. Remaining needed: 0.00
+Year 2042: Paid entirely from cash.
+Year 2043: Calculated Previous Year (2042) Taxes: Fed=48507.92, State=15936.99, CapGains=0.00, EarlyPenalty=0.00, Total=64444.91
+Year 2043: Starting Non-Discretionary Payments. Need: 84444.91, Have Cash: 1930770.07
+Year 2043: Used 84444.91 cash. Remaining needed: 0.00
+Year 2043: Paid entirely from cash.
+Year 2044: Calculated Previous Year (2043) Taxes: Fed=25514.48, State=10236.62, CapGains=0.00, EarlyPenalty=0.00, Total=35751.10
+Year 2044: Starting Non-Discretionary Payments. Need: 55751.10, Have Cash: 2066678.87
+Year 2044: Used 55751.10 cash. Remaining needed: 0.00
+Year 2044: Paid entirely from cash.
+Year 2045: Calculated Previous Year (2044) Taxes: Fed=19178.97, State=8570.20, CapGains=0.00, EarlyPenalty=0.00, Total=27749.17
+Year 2045: Starting Non-Discretionary Payments. Need: 47749.17, Have Cash: 2239678.89
+Year 2045: Used 47749.17 cash. Remaining needed: 0.00
+Year 2045: Paid entirely from cash.
+Year 2046: Calculated Previous Year (2045) Taxes: Fed=19909.93, State=8896.85, CapGains=0.00, EarlyPenalty=0.00, Total=28806.78
+Year 2046: Starting Non-Discretionary Payments. Need: 48806.78, Have Cash: 2435377.57
+Year 2046: Used 48806.78 cash. Remaining needed: 0.00
+Year 2046: Paid entirely from cash.
+Year 2047: Calculated Previous Year (2046) Taxes: Fed=21188.94, State=9468.38, CapGains=0.00, EarlyPenalty=0.00, Total=30657.32
+Year 2047: Starting Non-Discretionary Payments. Need: 50657.32, Have Cash: 2626462.28
+Year 2047: Used 50657.32 cash. Remaining needed: 0.00
+Year 2047: Paid entirely from cash.
+Year 2048: Calculated Previous Year (2047) Taxes: Fed=20880.20, State=9330.44, CapGains=0.00, EarlyPenalty=0.00, Total=30210.64
+Year 2048: Starting Non-Discretionary Payments. Need: 50210.64, Have Cash: 2833466.01
+Year 2048: Used 50210.64 cash. Remaining needed: 0.00
+Year 2048: Paid entirely from cash.
+Year 2049: Calculated Previous Year (2048) Taxes: Fed=22426.37, State=10021.36, CapGains=0.00, EarlyPenalty=0.00, Total=32447.74
+Year 2049: Starting Non-Discretionary Payments. Need: 52447.74, Have Cash: 3057501.80
+Year 2049: Used 52447.74 cash. Remaining needed: 0.00
+Year 2049: Paid entirely from cash.
+Year 2050: Calculated Previous Year (2049) Taxes: Fed=23869.30, State=10666.14, CapGains=0.00, EarlyPenalty=0.00, Total=34535.45
+Year 2050: Starting Non-Discretionary Payments. Need: 54535.45, Have Cash: 3286448.54
+Year 2050: Used 54535.45 cash. Remaining needed: 0.00
+Year 2050: Paid entirely from cash.
+Year 2051: Calculated Previous Year (2050) Taxes: Fed=24491.25, State=10944.06, CapGains=0.00, EarlyPenalty=0.00, Total=35435.31
+Year 2051: Starting Non-Discretionary Payments. Need: 55435.31, Have Cash: 3531113.63
+Year 2051: Used 55435.31 cash. Remaining needed: 0.00
+Year 2051: Paid entirely from cash.
+Year 2052: Calculated Previous Year (2051) Taxes: Fed=26040.05, State=11636.15, CapGains=0.00, EarlyPenalty=0.00, Total=37676.20
+Year 2052: Starting Non-Discretionary Payments. Need: 57676.20, Have Cash: 3772299.27
+Year 2052: Used 57676.20 cash. Remaining needed: 0.00
+Year 2052: Paid entirely from cash.
+Year 2053: Calculated Previous Year (2052) Taxes: Fed=25816.48, State=11536.25, CapGains=0.00, EarlyPenalty=0.00, Total=37352.73
+Year 2053: Starting Non-Discretionary Payments. Need: 57352.73, Have Cash: 4022210.90
+Year 2053: Used 57352.73 cash. Remaining needed: 0.00
+Year 2053: Paid entirely from cash.
+Year 2054: Calculated Previous Year (2053) Taxes: Fed=26770.64, State=11962.63, CapGains=0.00, EarlyPenalty=0.00, Total=38733.27
+Year 2054: Starting Non-Discretionary Payments. Need: 58733.27, Have Cash: 4264027.04
+Year 2054: Used 58733.27 cash. Remaining needed: 0.00
+Year 2054: Paid entirely from cash.
+Year 2055: Calculated Previous Year (2054) Taxes: Fed=26039.36, State=11635.89, CapGains=0.00, EarlyPenalty=0.00, Total=37675.25
+Year 2055: Starting Non-Discretionary Payments. Need: 57675.25, Have Cash: 4519434.30
+Year 2055: Used 57675.25 cash. Remaining needed: 0.00
+Year 2055: Paid entirely from cash.
+Year 2056: Calculated Previous Year (2055) Taxes: Fed=27341.85, State=12217.91, CapGains=0.00, EarlyPenalty=0.00, Total=39559.76
+Year 2056: Starting Non-Discretionary Payments. Need: 59559.76, Have Cash: 4789079.29
+Year 2056: Used 59559.76 cash. Remaining needed: 0.00
+Year 2056: Paid entirely from cash.
+Year 2057: Calculated Previous Year (2056) Taxes: Fed=28488.49, State=12730.30, CapGains=0.00, EarlyPenalty=0.00, Total=41218.78
+Year 2057: Starting Non-Discretionary Payments. Need: 61218.78, Have Cash: 5069742.08
+Year 2057: Used 61218.78 cash. Remaining needed: 0.00
+Year 2057: Paid entirely from cash.
+Year 2058: Calculated Previous Year (2057) Taxes: Fed=29611.86, State=13232.30, CapGains=0.00, EarlyPenalty=0.00, Total=42844.17
+Year 2058: Starting Non-Discretionary Payments. Need: 62844.17, Have Cash: 5385450.20
+Year 2058: Used 62844.17 cash. Remaining needed: 0.00
+Year 2058: Paid entirely from cash.
+Year 2059: Calculated Previous Year (2058) Taxes: Fed=32803.94, State=14658.69, CapGains=0.00, EarlyPenalty=0.00, Total=47462.63
+Year 2059: Starting Non-Discretionary Payments. Need: 67462.63, Have Cash: 5718383.79
+Year 2059: Used 67462.63 cash. Remaining needed: 0.00
+Year 2059: Paid entirely from cash.
+Year 2060: Calculated Previous Year (2059) Taxes: Fed=34444.10, State=15391.63, CapGains=0.00, EarlyPenalty=0.00, Total=49835.73
+Year 2060: Starting Non-Discretionary Payments. Need: 69835.73, Have Cash: 6043216.77
+Year 2060: Used 69835.73 cash. Remaining needed: 0.00
+Year 2060: Paid entirely from cash.
+Year 2061: Calculated Previous Year (2060) Taxes: Fed=34142.29, State=15256.78, CapGains=0.00, EarlyPenalty=0.00, Total=49399.06
+Year 2061: Starting Non-Discretionary Payments. Need: 69399.06, Have Cash: 6401824.87
+Year 2061: Used 69399.06 cash. Remaining needed: 0.00
+Year 2061: Paid entirely from cash.
+Year 2062: Calculated Previous Year (2061) Taxes: Fed=37287.08, State=16662.06, CapGains=0.00, EarlyPenalty=0.00, Total=53949.14
+Year 2062: Starting Non-Discretionary Payments. Need: 73949.14, Have Cash: 6747145.32
+Year 2062: Used 73949.14 cash. Remaining needed: 0.00
+Year 2062: Paid entirely from cash.
+Year 2063: Calculated Previous Year (2062) Taxes: Fed=36095.43, State=16129.61, CapGains=0.00, EarlyPenalty=0.00, Total=52225.04
+Year 2063: Starting Non-Discretionary Payments. Need: 72225.04, Have Cash: 7090412.97
+Year 2063: Used 72225.04 cash. Remaining needed: 0.00
+Year 2063: Paid entirely from cash.
+Year 2064: Calculated Previous Year (2063) Taxes: Fed=36313.79, State=16227.21, CapGains=0.00, EarlyPenalty=0.00, Total=52541.01
+Year 2064: Starting Non-Discretionary Payments. Need: 72541.01, Have Cash: 7452318.97
+Year 2064: Used 72541.01 cash. Remaining needed: 0.00
+Year 2064: Paid entirely from cash.
+Year 2065: Calculated Previous Year (2064) Taxes: Fed=37786.09, State=16885.14, CapGains=0.00, EarlyPenalty=0.00, Total=54671.23
+Year 2065: Starting Non-Discretionary Payments. Need: 74671.23, Have Cash: 7809169.46
+Year 2065: Used 74671.23 cash. Remaining needed: 0.00
+Year 2065: Paid entirely from cash.
+Year 2066: Calculated Previous Year (2065) Taxes: Fed=37374.61, State=16701.29, CapGains=0.00, EarlyPenalty=0.00, Total=54075.90
+Year 2066: Starting Non-Discretionary Payments. Need: 74075.90, Have Cash: 8185828.05
+Year 2066: Used 74075.90 cash. Remaining needed: 0.00
+Year 2066: Paid entirely from cash.
+Year 2067: Calculated Previous Year (2066) Taxes: Fed=39283.76, State=17554.43, CapGains=0.00, EarlyPenalty=0.00, Total=56838.19
+Year 2067: Starting Non-Discretionary Payments. Need: 56838.19, Have Cash: 8563856.87
+Year 2067: Used 56838.19 cash. Remaining needed: 0.00
+Year 2067: Paid entirely from cash.
+Year 2068: Calculated Previous Year (2067) Taxes: Fed=39352.81, State=17585.32, CapGains=0.00, EarlyPenalty=0.00, Total=56938.13
+Year 2068: Starting Non-Discretionary Payments. Need: 56938.13, Have Cash: 8507018.68
+Year 2068: Used 56938.13 cash. Remaining needed: 0.00
+Year 2068: Paid entirely from cash.
+Year 2069: Calculated Previous Year (2068) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2069: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2069: Used 0.00 cash. Remaining needed: 0.00
+Year 2069: Paid entirely from cash.
+Year 2070: Calculated Previous Year (2069) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2070: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2070: Used 0.00 cash. Remaining needed: 0.00
+Year 2070: Paid entirely from cash.
+Year 2071: Calculated Previous Year (2070) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2071: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2071: Used 0.00 cash. Remaining needed: 0.00
+Year 2071: Paid entirely from cash.
+Year 2072: Calculated Previous Year (2071) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2072: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2072: Used 0.00 cash. Remaining needed: 0.00
+Year 2072: Paid entirely from cash.
+Year 2073: Calculated Previous Year (2072) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2073: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2073: Used 0.00 cash. Remaining needed: 0.00
+Year 2073: Paid entirely from cash.
+Year 2074: Calculated Previous Year (2073) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2074: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2074: Used 0.00 cash. Remaining needed: 0.00
+Year 2074: Paid entirely from cash.
+Year 2075: Calculated Previous Year (2074) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2075: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2075: Used 0.00 cash. Remaining needed: 0.00
+Year 2075: Paid entirely from cash.
+Year 2076: Calculated Previous Year (2075) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2076: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2076: Used 0.00 cash. Remaining needed: 0.00
+Year 2076: Paid entirely from cash.
+Year 2077: Calculated Previous Year (2076) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2077: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2077: Used 0.00 cash. Remaining needed: 0.00
+Year 2077: Paid entirely from cash.
+Year 2078: Calculated Previous Year (2077) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2078: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2078: Used 0.00 cash. Remaining needed: 0.00
+Year 2078: Paid entirely from cash.
+Year 2079: Calculated Previous Year (2078) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2079: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2079: Used 0.00 cash. Remaining needed: 0.00
+Year 2079: Paid entirely from cash.
+Year 2080: Calculated Previous Year (2079) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2080: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2080: Used 0.00 cash. Remaining needed: 0.00
+Year 2080: Paid entirely from cash.
+Year 2081: Calculated Previous Year (2080) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2081: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2081: Used 0.00 cash. Remaining needed: 0.00
+Year 2081: Paid entirely from cash.
+Year 2082: Calculated Previous Year (2081) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2082: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2082: Used 0.00 cash. Remaining needed: 0.00
+Year 2082: Paid entirely from cash.
+Year 2083: Calculated Previous Year (2082) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2083: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2083: Used 0.00 cash. Remaining needed: 0.00
+Year 2083: Paid entirely from cash.
+Year 2084: Calculated Previous Year (2083) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2084: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2084: Used 0.00 cash. Remaining needed: 0.00
+Year 2084: Paid entirely from cash.
+Year 2085: Calculated Previous Year (2084) Taxes: Fed=0.00, State=0.00, CapGains=0.00, EarlyPenalty=0.00, Total=0.00
+Year 2085: Starting Non-Discretionary Payments. Need: 0.00, Have Cash: 8450080.55
+Year 2085: Used 0.00 cash. Remaining needed: 0.00
+Year 2085: Paid entirely from cash.
+
+==================================================================================================================================================
+
+Discretionary
+
+SCENARIO DATA RETRIEVED
+Starting 1 simulations...
+Running simulation #1 for calculated 61 years.
+Year 2025: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 333252.39
+Year 2026: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 421464.65
+Year 2027: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 511130.01
+Year 2028: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 601679.74
+Year 2029: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 708690.77
+Year 2030: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 863247.50
+Year 2030: Attempting to pay 9094.76 for Discretionary Expense 'yearly vacation'
+Year 2031: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1008843.88
+Year 2031: Attempting to pay 9475.16 for Discretionary Expense 'yearly vacation'
+Year 2032: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1153804.77
+Year 2032: Attempting to pay 9563.25 for Discretionary Expense 'yearly vacation'
+Year 2033: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1307541.80
+Year 2033: Attempting to pay 10074.23 for Discretionary Expense 'yearly vacation'
+Year 2034: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1467578.27
+Year 2034: Attempting to pay 10511.11 for Discretionary Expense 'yearly vacation'
+Year 2035: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1636043.01
+Year 2035: Attempting to pay 11133.46 for Discretionary Expense 'yearly vacation'
+Year 2036: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1797289.72
+Year 2036: Attempting to pay 10663.81 for Discretionary Expense 'yearly vacation'
+Year 2037: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1634336.82
+Year 2037: Attempting to pay 10884.67 for Discretionary Expense 'yearly vacation'
+Year 2038: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1798101.24
+Year 2038: Attempting to pay 11779.31 for Discretionary Expense 'yearly vacation'
+Year 2039: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 1961528.28
+Year 2039: Attempting to pay 12061.11 for Discretionary Expense 'yearly vacation'
+Year 2040: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2131079.95
+Year 2040: Attempting to pay 12476.60 for Discretionary Expense 'yearly vacation'
+Year 2041: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2263042.98
+Year 2041: Attempting to pay 12616.60 for Discretionary Expense 'yearly vacation'
+Year 2042: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2400199.51
+Year 2042: Attempting to pay 12954.84 for Discretionary Expense 'yearly vacation'
+Year 2043: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2547766.25
+Year 2043: Attempting to pay 12963.26 for Discretionary Expense 'yearly vacation'
+Year 2044: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2728625.02
+Year 2044: Attempting to pay 12966.84 for Discretionary Expense 'yearly vacation'
+Year 2045: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 2905881.65
+Year 2045: Attempting to pay 12933.87 for Discretionary Expense 'yearly vacation'
+Year 2046: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 3091601.32
+Year 2046: Attempting to pay 13351.38 for Discretionary Expense 'yearly vacation'
+Year 2047: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 3292098.23
+Year 2047: Attempting to pay 13725.24 for Discretionary Expense 'yearly vacation'
+Year 2048: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 3496051.20
+Year 2048: Attempting to pay 14405.00 for Discretionary Expense 'yearly vacation'
+Year 2049: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 3706531.57
+Year 2049: Attempting to pay 15314.53 for Discretionary Expense 'yearly vacation'
+Year 2050: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 3929977.22
+Year 2050: Attempting to pay 16092.93 for Discretionary Expense 'yearly vacation'
+Year 2051: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 4167014.63
+Year 2051: Attempting to pay 17106.22 for Discretionary Expense 'yearly vacation'
+Year 2052: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 4431104.76
+Year 2052: Attempting to pay 18403.18 for Discretionary Expense 'yearly vacation'
+Year 2053: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 4718289.88
+Year 2053: Attempting to pay 18634.78 for Discretionary Expense 'yearly vacation'
+Year 2054: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 4983589.91
+Year 2054: Attempting to pay 18918.10 for Discretionary Expense 'yearly vacation'
+Year 2055: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 5276461.37
+Year 2055: Attempting to pay 19880.13 for Discretionary Expense 'yearly vacation'
+Year 2056: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 5552095.77
+Year 2056: Attempting to pay 19545.81 for Discretionary Expense 'yearly vacation'
+Year 2057: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 5862456.58
+Year 2057: Attempting to pay 20631.09 for Discretionary Expense 'yearly vacation'
+Year 2058: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6155936.33
+Year 2058: Attempting to pay 20835.65 for Discretionary Expense 'yearly vacation'
+Year 2059: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6110074.58
+Year 2059: Attempting to pay 22235.50 for Discretionary Expense 'yearly vacation'
+Year 2060: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6103442.02
+Year 2060: Attempting to pay 23543.92 for Discretionary Expense 'yearly vacation'
+Year 2061: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6097595.18
+Year 2061: Attempting to pay 25083.62 for Discretionary Expense 'yearly vacation'
+Year 2062: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6096120.73
+Year 2062: Attempting to pay 26166.73 for Discretionary Expense 'yearly vacation'
+Year 2063: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6074055.32
+Year 2063: Attempting to pay 26987.60 for Discretionary Expense 'yearly vacation'
+Year 2064: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6062869.53
+Year 2064: Attempting to pay 28191.35 for Discretionary Expense 'yearly vacation'
+Year 2065: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6049757.52
+Year 2065: Attempting to pay 29827.15 for Discretionary Expense 'yearly vacation'
+Year 2066: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6031943.75
+Year 2066: Attempting to pay 32247.17 for Discretionary Expense 'yearly vacation'
+Year 2067: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6042273.66
+Year 2067: Attempting to pay 33796.91 for Discretionary Expense 'yearly vacation'
+Year 2068: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6059770.63
+Year 2068: Attempting to pay 33960.50 for Discretionary Expense 'yearly vacation'
+Year 2069: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6080724.01
+Year 2069: Attempting to pay 36236.36 for Discretionary Expense 'yearly vacation'
+Year 2070: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6071222.28
+Year 2070: Attempting to pay 38502.90 for Discretionary Expense 'yearly vacation'
+Year 2071: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6090864.46
+Year 2071: Attempting to pay 37752.98 for Discretionary Expense 'yearly vacation'
+Year 2072: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6119946.59
+Year 2072: Attempting to pay 39132.70 for Discretionary Expense 'yearly vacation'
+Year 2073: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6119676.07
+Year 2073: Attempting to pay 39585.75 for Discretionary Expense 'yearly vacation'
+Year 2074: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6123764.26
+Year 2074: Attempting to pay 42168.02 for Discretionary Expense 'yearly vacation'
+Year 2075: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6130320.53
+Year 2075: Attempting to pay 43788.15 for Discretionary Expense 'yearly vacation'
+Year 2076: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6143928.59
+Year 2076: Attempting to pay 46566.08 for Discretionary Expense 'yearly vacation'
+Year 2077: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6185412.24
+Year 2077: Attempting to pay 48472.68 for Discretionary Expense 'yearly vacation'
+Year 2078: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6211380.32
+Year 2078: Attempting to pay 51898.82 for Discretionary Expense 'yearly vacation'
+Year 2079: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6245138.60
+Year 2079: Attempting to pay 52881.08 for Discretionary Expense 'yearly vacation'
+Year 2080: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6259304.30
+Year 2080: Attempting to pay 49023.66 for Discretionary Expense 'yearly vacation'
+Year 2081: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6316529.41
+Year 2081: Attempting to pay 50249.54 for Discretionary Expense 'yearly vacation'
+Year 2082: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6314956.12
+Year 2082: Attempting to pay 53326.51 for Discretionary Expense 'yearly vacation'
+Year 2083: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6379902.25
+Year 2083: Attempting to pay 53456.17 for Discretionary Expense 'yearly vacation'
+Year 2084: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6412610.21
+Year 2084: Attempting to pay 53552.26 for Discretionary Expense 'yearly vacation'
+Year 2085: Starting Discretionary Expense Processing. Goal: 10000.00, Current Assets: 6459027.44
+Year 2085: Attempting to pay 56658.93 for Discretionary Expense 'yearly vacation'
+Total simulations run: 1
+Creating and saving report for scenario: liam plan
+
+===================================================================================================================================
+
+SCENARIO DATA RETRIEVED
+Starting 1 simulations...
+Running simulation #1 for calculated 61 years.
+Year 2025: Processing Invest Event. Excess Cash: 58514.05
+    Invested 5851.40 into 'nys investor fund'. New Value: 5851.40, New Basis: 5851.40
+    Invested 5851.40 into 'liberty mutual fund'. New Value: 5851.40, New Basis: 5851.40
+    Invested 17554.21 into 'gamestop'. New Value: 29733.94, New Basis: 29674.21
+    Invested 17554.21 into 'bitcoin etf'. New Value: 17554.21, New Basis: 17554.21
+    Invested 5851.40 into 'japan bond'. New Value: 9921.97, New Basis: 9891.40
+    Invested 5851.40 into 'euro bond'. New Value: 12009.31, New Basis: 11911.40
+Year 2025: Finished Invest Event. Invested: 58514.05, Final Cash: 20000.00, Final Assets: 334975.12
+Year 2026: Processing Invest Event. Excess Cash: 73979.97
+    Invested 7398.00 into 'nys investor fund'. New Value: 13501.83, New Basis: 13307.92
+    Invested 7398.00 into 'liberty mutual fund'. New Value: 13510.64, New Basis: 13307.92
+    Invested 22193.99 into 'gamestop'. New Value: 52230.03, New Basis: 52165.55
+    Invested 22193.99 into 'bitcoin etf'. New Value: 40082.27, New Basis: 39923.75
+    Invested 7398.00 into 'japan bond'. New Value: 17644.22, New Basis: 17388.62
+    Invested 7398.00 into 'euro bond'. New Value: 19943.13, New Basis: 19429.49
+Year 2026: Finished Invest Event. Invested: 73979.97, Final Cash: 20000.00, Final Assets: 415619.89
+Year 2027: Processing Invest Event. Excess Cash: 76823.10
+    Invested 7682.31 into 'nys investor fund'. New Value: 21800.38, New Basis: 21125.24
+    Invested 7682.31 into 'liberty mutual fund'. New Value: 21741.57, New Basis: 21125.33
+    Invested 23046.93 into 'gamestop'. New Value: 76518.74, New Basis: 75734.78
+    Invested 23046.93 into 'bitcoin etf'. New Value: 63782.11, New Basis: 63371.50
+    Invested 7682.31 into 'japan bond'. New Value: 26142.08, New Basis: 25247.37
+    Invested 7682.31 into 'euro bond'. New Value: 28674.26, New Basis: 27311.24
+Year 2027: Finished Invest Event. Invested: 76823.10, Final Cash: 20000.00, Final Assets: 506798.07
+Year 2028: Processing Invest Event. Excess Cash: 85626.32
+    Invested 8562.63 into 'nys investor fund'. New Value: 31446.98, New Basis: 29905.88
+    Invested 8562.63 into 'liberty mutual fund'. New Value: 31332.50, New Basis: 29905.38
+    Invested 25687.90 into 'gamestop'. New Value: 102613.12, New Basis: 102187.86
+    Invested 25687.90 into 'bitcoin etf'. New Value: 91625.82, New Basis: 89697.22
+    Invested 8562.63 into 'japan bond'. New Value: 35563.63, New Basis: 34071.43
+    Invested 8562.63 into 'euro bond'. New Value: 38239.25, New Basis: 36160.61
+Year 2028: Finished Invest Event. Invested: 85626.32, Final Cash: 20000.00, Final Assets: 611469.20
+Year 2029: Processing Invest Event. Excess Cash: 88619.89
+    Invested 8861.99 into 'nys investor fund'. New Value: 41337.39, New Basis: 39082.34
+    Invested 8861.99 into 'liberty mutual fund'. New Value: 41723.30, New Basis: 39080.69
+    Invested 26585.97 into 'gamestop'. New Value: 130729.79, New Basis: 129799.96
+    Invested 26585.97 into 'bitcoin etf'. New Value: 118538.70, New Basis: 117199.44
+    Invested 8861.99 into 'japan bond'. New Value: 45021.45, New Basis: 43289.05
+    Invested 8861.99 into 'euro bond'. New Value: 48600.89, New Basis: 45404.99
+Year 2029: Finished Invest Event. Invested: 88619.89, Final Cash: 20000.00, Final Assets: 715364.04
+Year 2030: Processing Invest Event. Excess Cash: 88495.40
+    Invested 8849.54 into 'nys investor fund'. New Value: 52236.51, New Basis: 48345.25
+    Invested 8849.54 into 'liberty mutual fund'. New Value: 52441.94, New Basis: 48347.47
+    Invested 26548.62 into 'gamestop'. New Value: 160181.58, New Basis: 157655.88
+    Invested 26548.62 into 'bitcoin etf'. New Value: 147635.03, New Basis: 144933.45
+    Invested 8849.54 into 'japan bond'. New Value: 54737.53, New Basis: 52588.81
+    Invested 8849.54 into 'euro bond'. New Value: 58894.05, New Basis: 54740.54
+Year 2030: Finished Invest Event. Invested: 88495.40, Final Cash: 20000.00, Final Assets: 828824.00
+Year 2031: Processing Invest Event. Excess Cash: 101467.35
+    Invested 10146.73 into 'nys investor fund'. New Value: 64757.70, New Basis: 59014.35
+    Invested 10146.73 into 'liberty mutual fund'. New Value: 65420.29, New Basis: 59018.62
+    Invested 30440.20 into 'gamestop'. New Value: 194812.16, New Basis: 189697.90
+    Invested 30440.20 into 'bitcoin etf'. New Value: 179920.09, New Basis: 176850.01
+    Invested 10146.73 into 'japan bond'. New Value: 66651.25, New Basis: 63282.92
+    Invested 10146.73 into 'euro bond'. New Value: 70073.47, New Basis: 65476.22
+Year 2031: Finished Invest Event. Invested: 101467.35, Final Cash: 20000.00, Final Assets: 952910.60
+Year 2032: No investment strategy active.
+Year 2033: Processing Invest Event. Excess Cash: 277866.44
+Year 2033: After-tax limit exceeded. Initial: 55573.29, Limit: 43444.92
+    Scaled down after-tax by 0.782. Increased non-retirement to absorb 12128.37.
+    Invested 21722.46 into 'nys investor fund'. New Value: 92519.60, New Basis: 82057.33
+    Invested 21722.46 into 'liberty mutual fund'. New Value: 92935.94, New Basis: 82082.47
+    Invested 89424.12 into 'gamestop'. New Value: 292097.84, New Basis: 283067.80
+    Invested 89424.12 into 'bitcoin etf'. New Value: 275131.92, New Basis: 269904.38
+    Invested 27786.64 into 'japan bond'. New Value: 98990.47, New Basis: 92420.27
+    Invested 27786.64 into 'euro bond'. New Value: 102237.01, New Basis: 94683.49
+Year 2033: Finished Invest Event. Invested: 277866.44, Final Cash: 20000.00, Final Assets: 1288483.24
+Year 2034: Processing Invest Event. Excess Cash: 168807.90
+    Invested 17232.47 into 'nys investor fund'. New Value: 114631.91, New Basis: 100215.00
+    Invested 17232.47 into 'liberty mutual fund'. New Value: 113129.44, New Basis: 100244.30
+    Invested 49939.00 into 'gamestop'. New Value: 350741.69, New Basis: 335927.78
+    Invested 49939.00 into 'bitcoin etf'. New Value: 332355.52, New Basis: 322594.70
+    Invested 17088.87 into 'japan bond'. New Value: 119810.18, New Basis: 110499.04
+    Invested 17376.08 into 'euro bond'. New Value: 123731.51, New Basis: 113081.94
+Year 2034: Finished Invest Event. Invested: 168807.90, Final Cash: 20000.00, Final Assets: 1504314.13
+Year 2035: Processing Invest Event. Excess Cash: 178085.34
+    Invested 18550.56 into 'nys investor fund'. New Value: 137610.59, New Basis: 119911.88
+    Invested 18550.56 into 'liberty mutual fund'. New Value: 138078.45, New Basis: 119926.15
+    Invested 51941.56 into 'gamestop'. New Value: 409550.32, New Basis: 391376.76
+    Invested 51941.56 into 'bitcoin etf'. New Value: 390415.70, New Basis: 377859.82
+    Invested 18241.38 into 'japan bond'. New Value: 140477.91, New Basis: 129938.52
+    Invested 18859.73 into 'euro bond'. New Value: 145603.20, New Basis: 133178.98
+Year 2035: Finished Invest Event. Invested: 178085.34, Final Cash: 20000.00, Final Assets: 1724423.66
+Year 2036: Processing Invest Event. Excess Cash: 189702.94
+    Invested 20155.94 into 'nys investor fund'. New Value: 162813.28, New Basis: 141443.92
+    Invested 20155.94 into 'liberty mutual fund'. New Value: 164368.86, New Basis: 141462.87
+    Invested 54539.59 into 'gamestop'. New Value: 476120.43, New Basis: 450011.85
+    Invested 54539.59 into 'bitcoin etf'. New Value: 448129.23, New Basis: 436303.57
+    Invested 19652.04 into 'japan bond'. New Value: 163555.41, New Basis: 150995.34
+    Invested 20659.84 into 'euro bond'. New Value: 170299.41, New Basis: 155294.85
+Year 2036: Finished Invest Event. Invested: 189702.94, Final Cash: 20000.00, Final Assets: 1961132.85
+Year 2037: No excess cash (0.00) above maximum (20000.00) to invest.
+Year 2038: Processing Invest Event. Excess Cash: 155683.05
+    Invested 17190.00 into 'nys investor fund'. New Value: 17190.00, New Basis: 17190.00
+    Invested 17190.00 into 'liberty mutual fund'. New Value: 152836.53, New Basis: 127239.61
+    Invested 43461.52 into 'gamestop'. New Value: 531941.28, New Basis: 503043.65
+    Invested 43461.52 into 'bitcoin etf'. New Value: 513797.56, New Basis: 488856.38
+    Invested 16473.75 into 'japan bond'. New Value: 190288.65, New Basis: 170818.50
+    Invested 17906.25 into 'euro bond'. New Value: 197128.00, New Basis: 176660.54
+Year 2038: Finished Invest Event. Invested: 155683.05, Final Cash: 20000.00, Final Assets: 2005809.20
+Year 2039: Processing Invest Event. Excess Cash: 213639.98
+    Invested 24034.50 into 'nys investor fund'. New Value: 41870.35, New Basis: 41396.40
+    Invested 24034.50 into 'liberty mutual fund'. New Value: 181923.62, New Basis: 152802.47
+    Invested 58751.00 into 'gamestop'. New Value: 601664.37, New Basis: 567114.06
+    Invested 58751.00 into 'bitcoin etf'. New Value: 585496.99, New Basis: 552745.35
+    Invested 22832.77 into 'japan bond'. New Value: 218857.83, New Basis: 195554.16
+    Invested 25236.22 into 'euro bond'. New Value: 229292.88, New Basis: 203868.04
+Year 2039: Finished Invest Event. Invested: 213639.98, Final Cash: 20000.00, Final Assets: 2269878.63
+Year 2040: Processing Invest Event. Excess Cash: 237072.88
+    Invested 27164.60 into 'nys investor fund'. New Value: 71015.41, New Basis: 68979.71
+    Invested 27164.60 into 'liberty mutual fund'. New Value: 214702.82, New Basis: 181786.31
+    Invested 64207.24 into 'gamestop'. New Value: 676584.20, New Basis: 637337.94
+    Invested 64207.24 into 'bitcoin etf'. New Value: 661720.55, New Basis: 622807.56
+    Invested 25580.00 into 'japan bond'. New Value: 255749.47, New Basis: 223322.73
+    Invested 28749.20 into 'euro bond'. New Value: 268481.79, New Basis: 234910.18
+Year 2040: Finished Invest Event. Invested: 237072.88, Final Cash: 20000.00, Final Assets: 2573104.52
+Year 2041: Processing Invest Event. Excess Cash: 200332.19
+    Invested 23372.09 into 'nys investor fund'. New Value: 98523.12, New Basis: 93061.95
+    Invested 23372.09 into 'liberty mutual fund'. New Value: 243601.37, New Basis: 207305.42
+    Invested 53421.92 into 'gamestop'. New Value: 739918.01, New Basis: 697525.70
+    Invested 53421.92 into 'bitcoin etf'. New Value: 720180.40, New Basis: 682846.68
+    Invested 21813.95 into 'japan bond'. New Value: 289033.56, New Basis: 247694.18
+    Invested 24930.23 into 'euro bond'. New Value: 301586.07, New Basis: 262525.22
+Year 2041: Finished Invest Event. Invested: 200332.19, Final Cash: 20000.00, Final Assets: 2836742.77
+Year 2042: Processing Invest Event. Excess Cash: 208860.41
+    Invested 24802.17 into 'nys investor fund'. New Value: 128001.85, New Basis: 118849.35
+    Invested 24802.17 into 'liberty mutual fund'. New Value: 280721.54, New Basis: 234543.61
+    Invested 54825.86 into 'gamestop'. New Value: 808275.60, New Basis: 759750.74
+    Invested 54825.86 into 'bitcoin etf'. New Value: 794285.94, New Basis: 744874.34
+    Invested 22942.01 into 'japan bond'. New Value: 320438.58, New Basis: 273526.52
+    Invested 26662.34 into 'euro bond'. New Value: 338097.96, New Basis: 292203.42
+Year 2042: Finished Invest Event. Invested: 208860.41, Final Cash: 20000.00, Final Assets: 3129755.32
+Year 2043: Processing Invest Event. Excess Cash: 272109.27
+    Invested 32879.87 into 'nys investor fund'. New Value: 165166.99, New Basis: 153009.24
+    Invested 32879.87 into 'liberty mutual fund'. New Value: 323428.35, New Basis: 270230.70
+    Invested 70294.90 into 'gamestop'. New Value: 906038.28, New Basis: 838128.39
+    Invested 70294.90 into 'bitcoin etf'. New Value: 887506.77, New Basis: 823112.10
+    Invested 30139.88 into 'japan bond'. New Value: 367345.53, New Basis: 306870.79
+    Invested 35619.86 into 'euro bond'. New Value: 381079.91, New Basis: 331204.26
+Year 2043: Finished Invest Event. Invested: 272109.27, Final Cash: 20000.00, Final Assets: 3506044.56
+Year 2044: Processing Invest Event. Excess Cash: 291783.07
+    Invested 35865.00 into 'nys investor fund'. New Value: 205781.01, New Basis: 190525.92
+    Invested 35865.00 into 'liberty mutual fund'. New Value: 369613.46, New Basis: 309329.98
+    Invested 74161.53 into 'gamestop'. New Value: 1008358.82, New Basis: 921350.30
+    Invested 74161.53 into 'bitcoin etf'. New Value: 977546.80, New Basis: 906148.70
+    Invested 32577.38 into 'japan bond'. New Value: 406770.50, New Basis: 343121.62
+    Invested 39152.63 into 'euro bond'. New Value: 435049.21, New Basis: 374167.69
+Year 2044: Finished Invest Event. Invested: 291783.07, Final Cash: 20000.00, Final Assets: 3890438.45
+Year 2045: Processing Invest Event. Excess Cash: 293029.85
+    Invested 36628.73 into 'nys investor fund'. New Value: 250790.20, New Basis: 229212.46
+    Invested 36628.73 into 'liberty mutual fund'. New Value: 423102.32, New Basis: 349654.85
+    Invested 73257.46 into 'gamestop'. New Value: 1100170.87, New Basis: 1004691.35
+    Invested 73257.46 into 'bitcoin etf'. New Value: 1063747.21, New Basis: 989181.63
+    Invested 32965.86 into 'japan bond'. New Value: 451974.16, New Basis: 380155.19
+    Invested 40291.60 into 'euro bond'. New Value: 484118.69, New Basis: 418809.78
+Year 2045: Finished Invest Event. Invested: 293029.85, Final Cash: 20000.00, Final Assets: 4278064.41
+Year 2046: Processing Invest Event. Excess Cash: 314002.59
+    Invested 39904.50 into 'nys investor fund'. New Value: 301389.91, New Basis: 271624.85
+    Invested 39904.50 into 'liberty mutual fund'. New Value: 477036.54, New Basis: 393790.37
+    Invested 77192.30 into 'gamestop'. New Value: 1206594.36, New Basis: 1092885.36
+    Invested 77192.30 into 'bitcoin etf'. New Value: 1138650.67, New Basis: 1077011.40
+    Invested 35581.51 into 'japan bond'. New Value: 497819.53, New Basis: 420256.44
+    Invested 44227.48 into 'euro bond'. New Value: 544615.08, New Basis: 467878.45
+Year 2046: Finished Invest Event. Invested: 314002.59, Final Cash: 20000.00, Final Assets: 4693700.99
+Year 2047: Processing Invest Event. Excess Cash: 323732.95
+    Invested 41815.51 into 'nys investor fund'. New Value: 352653.65, New Basis: 316454.26
+    Invested 41815.51 into 'liberty mutual fund'. New Value: 533015.63, New Basis: 440376.24
+    Invested 78235.46 into 'gamestop'. New Value: 1295270.92, New Basis: 1183186.77
+    Invested 78235.46 into 'bitcoin etf'. New Value: 1227669.35, New Basis: 1166633.37
+    Invested 36937.03 into 'japan bond'. New Value: 540123.80, New Basis: 462171.66
+    Invested 46693.98 into 'euro bond'. New Value: 607849.28, New Basis: 520018.58
+Year 2047: Finished Invest Event. Invested: 323732.95, Final Cash: 20000.00, Final Assets: 5102217.26
+Year 2048: Processing Invest Event. Excess Cash: 346730.40
+    Invested 45508.36 into 'nys investor fund'. New Value: 411475.10, New Basis: 365489.16
+    Invested 45508.36 into 'liberty mutual fund'. New Value: 604441.09, New Basis: 491214.76
+    Invested 82348.47 into 'gamestop'. New Value: 1384343.03, New Basis: 1278487.95
+    Invested 82348.47 into 'bitcoin etf'. New Value: 1324750.59, New Basis: 1261258.53
+    Invested 39819.82 into 'japan bond'. New Value: 597096.26, New Basis: 507392.72
+    Invested 51196.91 into 'euro bond'. New Value: 674597.49, New Basis: 577293.99
+Year 2048: Finished Invest Event. Invested: 346730.40, Final Cash: 20000.00, Final Assets: 5560271.01
+Year 2049: Processing Invest Event. Excess Cash: 357998.76
+    Invested 47733.17 into 'nys investor fund'. New Value: 487418.66, New Basis: 417337.08
+    Invested 47733.17 into 'liberty mutual fund'. New Value: 677131.67, New Basis: 544992.34
+    Invested 83533.04 into 'gamestop'. New Value: 1474085.61, New Basis: 1375864.42
+    Invested 83533.04 into 'bitcoin etf'. New Value: 1437102.29, New Basis: 1358039.08
+    Invested 41368.75 into 'japan bond'. New Value: 655532.37, New Basis: 554732.43
+    Invested 54097.59 into 'euro bond'. New Value: 745943.48, New Basis: 638137.55
+Year 2049: Finished Invest Event. Invested: 357998.76, Final Cash: 20000.00, Final Assets: 6061157.60
+Year 2050: Processing Invest Event. Excess Cash: 349458.22
+    Invested 47322.47 into 'nys investor fund'. New Value: 556878.98, New Basis: 469533.73
+    Invested 47322.47 into 'liberty mutual fund'. New Value: 750107.41, New Basis: 599086.12
+    Invested 80084.18 into 'gamestop'. New Value: 1585199.05, New Basis: 1470689.45
+    Invested 80084.18 into 'bitcoin etf'. New Value: 1533412.82, New Basis: 1452494.28
+    Invested 40618.45 into 'japan bond'. New Value: 709079.97, New Basis: 601906.20
+    Invested 54026.48 into 'euro bond'. New Value: 807169.63, New Basis: 699623.47
+Year 2050: Finished Invest Event. Invested: 349458.22, Final Cash: 20000.00, Final Assets: 6559873.21
+Year 2051: Processing Invest Event. Excess Cash: 371574.65
+    Invested 51091.51 into 'nys investor fund'. New Value: 619147.98, New Basis: 526194.04
+    Invested 51091.51 into 'liberty mutual fund'. New Value: 840061.27, New Basis: 657678.71
+    Invested 83604.30 into 'gamestop'. New Value: 1709451.05, New Basis: 1570145.74
+    Invested 83604.30 into 'bitcoin etf'. New Value: 1626391.45, New Basis: 1551432.71
+    Invested 43427.79 into 'japan bond'. New Value: 772607.58, New Basis: 652424.79
+    Invested 58755.24 into 'euro bond'. New Value: 896087.56, New Basis: 766450.41
+Year 2051: Finished Invest Event. Invested: 371574.65, Final Cash: 20000.00, Final Assets: 7094931.83
+Year 2052: Processing Invest Event. Excess Cash: 406894.27
+    Invested 56795.66 into 'nys investor fund'. New Value: 691025.21, New Basis: 589181.18
+    Invested 56795.66 into 'liberty mutual fund'. New Value: 923183.72, New Basis: 722874.98
+    Invested 89855.82 into 'gamestop'. New Value: 1848231.18, New Basis: 1677096.07
+    Invested 89855.82 into 'bitcoin etf'. New Value: 1755366.63, New Basis: 1657552.44
+    Invested 47803.01 into 'japan bond'. New Value: 841227.81, New Basis: 707953.88
+    Invested 65788.31 into 'euro bond'. New Value: 984308.12, New Basis: 841199.59
+Year 2052: Finished Invest Event. Invested: 406894.27, Final Cash: 20000.00, Final Assets: 7697220.96
+Year 2053: Processing Invest Event. Excess Cash: 445244.38
+    Invested 63076.29 into 'nys investor fund'. New Value: 787725.21, New Basis: 659167.72
+    Invested 63076.29 into 'liberty mutual fund'. New Value: 1031235.07, New Basis: 795183.11
+    Invested 96469.62 into 'gamestop'. New Value: 1996458.05, New Basis: 1792048.00
+    Invested 96469.62 into 'bitcoin etf'. New Value: 1895177.88, New Basis: 1771575.72
+    Invested 52563.57 into 'japan bond'. New Value: 915626.16, New Basis: 768929.73
+    Invested 73589.00 into 'euro bond'. New Value: 1081359.39, New Basis: 924631.67
+Year 2053: Finished Invest Event. Invested: 445244.38, Final Cash: 20000.00, Final Assets: 8379701.87
+Year 2054: Processing Invest Event. Excess Cash: 466922.33
+    Invested 67120.08 into 'nys investor fund'. New Value: 882340.09, New Basis: 734165.05
+    Invested 67120.08 into 'liberty mutual fund'. New Value: 1151290.26, New Basis: 872615.54
+    Invested 99221.00 into 'gamestop'. New Value: 2135172.26, New Basis: 1911233.57
+    Invested 99221.00 into 'bitcoin etf'. New Value: 2028015.29, New Basis: 1889748.50
+    Invested 55374.07 into 'japan bond'. New Value: 994193.25, New Basis: 833460.06
+    Invested 78866.10 into 'euro bond'. New Value: 1178946.36, New Basis: 1014311.37
+Year 2054: Finished Invest Event. Invested: 466922.33, Final Cash: 20000.00, Final Assets: 9055572.27
+Year 2055: Processing Invest Event. Excess Cash: 522288.48
+Year 2055: After-tax limit exceeded. Initial: 152334.14, Limit: 149705.70
+    Scaled down after-tax by 0.983. Increased non-retirement to absorb 2628.44.
+    Invested 74852.85 into 'nys investor fund'. New Value: 983374.44, New Basis: 817841.30
+    Invested 74852.85 into 'liberty mutual fund'. New Value: 1272361.20, New Basis: 958981.30
+    Invested 110124.32 into 'gamestop'. New Value: 2279499.18, New Basis: 2042709.62
+    Invested 110124.32 into 'bitcoin etf'. New Value: 2186786.24, New Basis: 2020152.97
+    Invested 62203.11 into 'japan bond'. New Value: 1085267.72, New Basis: 905605.10
+    Invested 90131.03 into 'euro bond'. New Value: 1297657.90, New Basis: 1116231.86
+Year 2055: Finished Invest Event. Invested: 522288.48, Final Cash: 20000.00, Final Assets: 9806703.76
+Year 2056: Processing Invest Event. Excess Cash: 549397.57
+Year 2056: After-tax limit exceeded. Initial: 162530.11, Limit: 158214.67
+    Scaled down after-tax by 0.973. Increased non-retirement to absorb 4315.45.
+    Invested 79107.33 into 'nys investor fund'. New Value: 1105002.96, New Basis: 906782.38
+    Invested 79107.33 into 'liberty mutual fund'. New Value: 1408890.32, New Basis: 1050812.24
+    Invested 114326.39 into 'gamestop'. New Value: 2409399.81, New Basis: 2179831.00
+    Invested 114326.39 into 'bitcoin etf'. New Value: 2340542.09, New Basis: 2156347.23
+    Invested 65689.25 into 'japan bond'. New Value: 1198521.37, New Basis: 982147.03
+    Invested 96840.86 into 'euro bond'. New Value: 1448228.07, New Basis: 1226049.30
+Year 2056: Finished Invest Event. Invested: 549397.57, Final Cash: 20000.00, Final Assets: 10641824.90
+Year 2057: Processing Invest Event. Excess Cash: 576492.24
+Year 2057: After-tax limit exceeded. Initial: 172947.67, Limit: 165988.66
+    Scaled down after-tax by 0.960. Increased non-retirement to absorb 6959.01.
+    Invested 82994.33 into 'nys investor fund'. New Value: 1248347.22, New Basis: 1000826.74
+    Invested 82994.33 into 'liberty mutual fund'. New Value: 1556578.94, New Basis: 1147895.47
+    Invested 118777.96 into 'gamestop'. New Value: 2556310.12, New Basis: 2322702.96
+    Invested 118777.96 into 'bitcoin etf'. New Value: 2510148.05, New Basis: 2298530.60
+    Invested 69179.07 into 'japan bond'. New Value: 1311729.02, New Basis: 1063311.32
+    Invested 103768.60 into 'euro bond'. New Value: 1591507.16, New Basis: 1344300.18
+Year 2057: Finished Invest Event. Invested: 576492.24, Final Cash: 20000.00, Final Assets: 11536849.79
+Year 2058: Processing Invest Event. Excess Cash: 596177.91
+Year 2058: After-tax limit exceeded. Initial: 268280.06, Limit: 171886.84
+    Scaled down after-tax by 0.641. Increased non-retirement to absorb 96393.22.
+    Invested 85943.42 into 'nys investor fund'. New Value: 1370634.43, New Basis: 1099253.63
+    Invested 85943.42 into 'liberty mutual fund'. New Value: 1734810.34, New Basis: 1249404.68
+    Invested 78005.50 into 'gamestop'. New Value: 2667688.29, New Basis: 2426271.56
+    Invested 78005.50 into 'bitcoin etf'. New Value: 2631767.69, New Basis: 2401637.59
+    Invested 67070.01 into 'japan bond'. New Value: 1414460.23, New Basis: 1143498.62
+    Invested 201210.04 into 'euro bond'. New Value: 1838214.95, New Basis: 1561425.30
+Year 2058: Finished Invest Event. Invested: 596177.91, Final Cash: 20000.00, Final Assets: 12455010.52
+Year 2059: Processing Invest Event. Excess Cash: 608477.15
+Year 2059: After-tax limit exceeded. Initial: 273814.72, Limit: 175795.36
+    Scaled down after-tax by 0.642. Increased non-retirement to absorb 98019.36.
+    Invested 87897.68 into 'nys investor fund'. New Value: 1509499.29, New Basis: 1200857.65
+    Invested 87897.68 into 'liberty mutual fund'. New Value: 1892625.91, New Basis: 1354650.46
+    Invested 79433.54 into 'gamestop'. New Value: 2772902.51, New Basis: 2532381.98
+    Invested 79433.54 into 'bitcoin etf'. New Value: 2742637.86, New Basis: 2507388.80
+    Invested 68453.68 into 'japan bond'. New Value: 1534165.09, New Basis: 1226096.90
+    Invested 205361.04 into 'euro bond'. New Value: 2101074.61, New Basis: 1785168.49
+Year 2059: Finished Invest Event. Invested: 608477.15, Final Cash: 20000.00, Final Assets: 13371033.39
+Year 2060: Processing Invest Event. Excess Cash: 640799.29
+Year 2060: After-tax limit exceeded. Initial: 288359.68, Limit: 184174.53
+    Scaled down after-tax by 0.639. Increased non-retirement to absorb 104185.15.
+    Invested 92087.26 into 'nys investor fund'. New Value: 1653172.81, New Basis: 1308039.91
+    Invested 92087.26 into 'liberty mutual fund'. New Value: 2064827.83, New Basis: 1465663.99
+    Invested 84132.54 into 'gamestop'. New Value: 2897979.49, New Basis: 2644243.55
+    Invested 84132.54 into 'bitcoin etf'. New Value: 2824263.98, New Basis: 2618947.72
+    Invested 72089.92 into 'japan bond'. New Value: 1657681.99, New Basis: 1313528.47
+    Invested 216269.76 into 'euro bond'. New Value: 2398749.39, New Basis: 2022448.99
+Year 2060: Finished Invest Event. Invested: 640799.29, Final Cash: 20000.00, Final Assets: 14353408.70
+Year 2061: Processing Invest Event. Excess Cash: 671647.37
+Year 2061: After-tax limit exceeded. Initial: 302241.31, Limit: 192764.42
+    Scaled down after-tax by 0.638. Increased non-retirement to absorb 109476.90.
+    Invested 96382.21 into 'nys investor fund'. New Value: 1827846.47, New Basis: 1420953.85
+    Invested 96382.21 into 'liberty mutual fund'. New Value: 2252762.81, New Basis: 1582694.47
+    Invested 88320.82 into 'gamestop'. New Value: 3069708.29, New Basis: 2761544.16
+    Invested 88320.82 into 'bitcoin etf'. New Value: 2980210.04, New Basis: 2735511.18
+    Invested 75560.33 into 'japan bond'. New Value: 1786353.30, New Basis: 1405665.62
+    Invested 226680.99 into 'euro bond'. New Value: 2661066.14, New Basis: 2273117.47
+Year 2061: Finished Invest Event. Invested: 671647.37, Final Cash: 20000.00, Final Assets: 15466653.61
+Year 2062: Processing Invest Event. Excess Cash: 717596.42
+Year 2062: After-tax limit exceeded. Initial: 322918.39, Limit: 204984.65
+    Scaled down after-tax by 0.635. Increased non-retirement to absorb 117933.74.
+    Invested 102492.33 into 'nys investor fund'. New Value: 2037838.06, New Basis: 1541724.64
+    Invested 102492.33 into 'liberty mutual fund'. New Value: 2464665.96, New Basis: 1707714.43
+    Invested 94846.69 into 'gamestop'. New Value: 3204794.66, New Basis: 2887087.93
+    Invested 94846.69 into 'bitcoin etf'. New Value: 3130730.41, New Basis: 2860159.97
+    Invested 80729.60 into 'japan bond'. New Value: 1922714.10, New Basis: 1504258.75
+    Invested 242188.79 into 'euro bond'. New Value: 3005950.86, New Basis: 2541916.92
+Year 2062: Finished Invest Event. Invested: 717596.42, Final Cash: 20000.00, Final Assets: 16699185.42
+Year 2063: No investment strategy active.
+Year 2064: No investment strategy active.
+Year 2065: No investment strategy active.
+Year 2066: No investment strategy active.
+Year 2067: No investment strategy active.
+Year 2068: No investment strategy active.
+Year 2069: No investment strategy active.
+Year 2070: No investment strategy active.
+Year 2071: No investment strategy active.
+Year 2072: No investment strategy active.
+Year 2073: No investment strategy active.
+Year 2074: No investment strategy active.
+Year 2075: No investment strategy active.
+Year 2076: No investment strategy active.
+Year 2077: No investment strategy active.
+Year 2078: No investment strategy active.
+Year 2079: No investment strategy active.
+Year 2080: No investment strategy active.
+Year 2081: No investment strategy active.
+Year 2082: No investment strategy active.
+Year 2083: No investment strategy active.
+Year 2084: No investment strategy active.
+Year 2085: No investment strategy active.
+
+======================================================================================================================================================
+
+rebalance
+
+Running simulation #1 for calculated 61 years.
+Year 2025: No rebalance strategy active.
+Year 2026: No rebalance strategy active.
+Year 2027: No rebalance strategy active.
+Year 2028: No rebalance strategy active.
+Year 2029: No rebalance strategy active.
+Year 2030: No rebalance strategy active.
+Year 2031: No rebalance strategy active.
+Year 2032: No rebalance strategy active.
+Year 2033: No rebalance strategy active.
+Year 2034: No rebalance strategy active.
+Year 2035: No rebalance strategy active.
+Year 2036: No rebalance strategy active.
+Year 2037: No rebalance strategy active.
+Year 2038: No rebalance strategy active.
+Year 2039: No rebalance strategy active.
+Year 2040: Processing Rebalance Event.
+Year 2040: Rebalance - Processing Sales...
+    Selling 212068.06 from 'gamestop'
+      Gain/Loss: 16929.16, New Basis: 372394.79
+    Selling 171731.23 from 'bitcoin etf'
+      Gain/Loss: 7173.34, New Basis: 387797.00
+    Selling 262791.12 from 'microsoft employer contributions'
+    Selling 55504.73 from 'liberty mutual fund'
+      Gain/Loss: 10138.60, New Basis: 160524.66
+Year 2040: Rebalance - Processing Purchases...
+    Buying 158701.31 for 'japan bond'
+      New Basis: 363171.95
+    Buying 149980.04 for 'euro bond'
+      New Basis: 368093.23
+    Buying 143435.09 for 'nys investor fund'
+      New Basis: 194765.33
+    Buying 148791.48 for 'family trust (Roth)'
+      New Basis: 179205.33
+    Buying 101187.21 for 'microsoft employer contributions (Roth)'
+      New Basis: 343874.88
+Year 2040: Finished Rebalance Event. Final Assets: 2400598.17
+Year 2041: Processing Rebalance Event.
+Year 2041: Rebalance - Processing Sales...
+    Selling 96669.04 from 'gamestop'
+      Gain/Loss: 7896.03, New Basis: 320066.53
+    Selling 97246.41 from 'bitcoin etf'
+      Gain/Loss: 4698.90, New Basis: 331694.23
+Year 2041: Rebalance - Processing Purchases...
+    Buying 53210.95 for 'japan bond'
+      New Basis: 434201.85
+    Buying 46152.97 for 'euro bond'
+      New Basis: 434590.78
+    Buying 17417.56 for 'nys investor fund'
+      New Basis: 229300.66
+    Buying 15918.57 for 'liberty mutual fund'
+      New Basis: 193561.00
+    Buying 30807.95 for 'family trust (Roth)'
+      New Basis: 211977.27
+    Buying 30407.46 for 'microsoft employer contributions (Roth)'
+      New Basis: 376246.33
+Year 2041: Finished Rebalance Event. Final Assets: 2601742.76
+Year 2042: Processing Rebalance Event.
+Year 2042: Rebalance - Processing Sales...
+    Selling 125591.92 from 'gamestop'
+      Gain/Loss: 12374.40, New Basis: 256634.27
+    Selling 119036.56 from 'bitcoin etf'
+      Gain/Loss: 6557.69, New Basis: 269000.63
+Year 2042: Rebalance - Processing Purchases...
+    Buying 66484.30 for 'japan bond'
+      New Basis: 525736.26
+    Buying 66436.91 for 'euro bond'
+      New Basis: 530182.82
+    Buying 19003.14 for 'nys investor fund'
+      New Basis: 273050.58
+    Buying 17232.38 for 'liberty mutual fund'
+      New Basis: 235540.16
+    Buying 38223.56 for 'family trust (Roth)'
+      New Basis: 252556.67
+    Buying 37248.18 for 'microsoft employer contributions (Roth)'
+      New Basis: 415850.35
+Year 2042: Finished Rebalance Event. Final Assets: 2866837.65
+Year 2043: No rebalance strategy active.
+Year 2044: No rebalance strategy active.
+Year 2045: No rebalance strategy active.
+Year 2046: No rebalance strategy active.
+Year 2047: No rebalance strategy active.
+Year 2048: No rebalance strategy active.
+Year 2049: No rebalance strategy active.
+Year 2050: No rebalance strategy active.
+Year 2051: No rebalance strategy active.
+Year 2052: No rebalance strategy active.
+Year 2053: No rebalance strategy active.
+Year 2054: No rebalance strategy active.
+Year 2055: No rebalance strategy active.
+Year 2056: No rebalance strategy active.
+Year 2057: No rebalance strategy active.
+Year 2058: No rebalance strategy active.
+Year 2059: No rebalance strategy active.
+Year 2060: Processing Rebalance Event.
+Year 2060: Rebalance - Processing Sales...
+    Selling 824447.51 from 'gamestop'
+      Gain/Loss: 72492.10, New Basis: 471411.80
+    Selling 925064.64 from 'bitcoin etf'
+      Gain/Loss: 128674.08, New Basis: 444964.53
+    Selling 170966.05 from 'nys investor fund'
+      Gain/Loss: 50215.42, New Basis: 821359.79
+    Selling 237187.78 from 'liberty mutual fund'
+      Gain/Loss: 75084.89, New Basis: 794789.87
+Year 2060: Rebalance - Processing Purchases...
+    Buying 750026.92 for 'japan bond'
+      New Basis: 1938874.51
+    Buying 207329.60 for 'euro bond'
+      New Basis: 1806483.82
+    Buying 558833.98 for 'family trust (Roth)'
+      New Basis: 887563.69
+    Buying 641475.48 for 'microsoft employer contributions (Roth)'
+      New Basis: 1125893.03
+Year 2060: Finished Rebalance Event. Final Assets: 10337163.09
+Year 2061: No rebalance strategy active.
+Year 2062: No rebalance strategy active.
+Year 2063: No rebalance strategy active.
+Year 2064: No rebalance strategy active.
+Year 2065: No rebalance strategy active.
+Year 2066: No rebalance strategy active.
+Year 2067: No rebalance strategy active.
+Year 2068: No rebalance strategy active.
+Year 2069: No rebalance strategy active.
+Year 2070: No rebalance strategy active.
+Year 2071: No rebalance strategy active.
+Year 2072: No rebalance strategy active.
+Year 2073: No rebalance strategy active.
+Year 2074: No rebalance strategy active.
+Year 2075: No rebalance strategy active.
+Year 2076: No rebalance strategy active.
+Year 2077: No rebalance strategy active.
+Year 2078: No rebalance strategy active.
+Year 2079: No rebalance strategy active.
+Year 2080: No rebalance strategy active.
+Year 2081: No rebalance strategy active.
+Year 2082: No rebalance strategy active.
+Year 2083: No rebalance strategy active.
+Year 2084: No rebalance strategy active.
+Year 2085: No rebalance strategy active.
+Total simulations run: 1
