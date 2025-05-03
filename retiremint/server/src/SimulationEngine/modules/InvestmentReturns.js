@@ -16,9 +16,9 @@
 function sampleReturnRate(expectedReturn) {
   if (!expectedReturn) return 0;
   
-  const { returnType } = expectedReturn;
+  const { method } = expectedReturn;
   
-  switch (returnType) {
+  switch (method) {
     case 'fixedValue':
       return expectedReturn.fixedValue / 100;
       
@@ -70,17 +70,21 @@ function updateInvestmentValue(investment/*, yearState*/) {
   let valueChange = 0;
   
   // Calculate income generated (if any)
-  if (investment.investmentType.expectedReturn) {
-    const incomeRate = sampleReturnRate(investment.investmentType.expectedReturn);
+  if (investment.investmentType.expectedAnnualIncome) {
+    const incomeRate = sampleReturnRate(investment.investmentType.expectedAnnualIncome);
     generatedIncome = startValue * incomeRate;
     
     // Add the income to the investment's value (reinvestment)
     investment.value += generatedIncome;
+    // Also add the reinvested income to the cost basis
+    if (investment.costBasis !== undefined && investment.costBasis !== null) {
+        investment.costBasis += generatedIncome;
+    }
   }
   
   // Calculate value change (appreciation/depreciation)
-  if (investment.investmentType.expectedValueChange) {
-    const changeRate = sampleReturnRate(investment.investmentType.expectedValueChange);
+  if (investment.investmentType.expectedAnnualReturn) {
+    const changeRate = sampleReturnRate(investment.investmentType.expectedAnnualReturn);
     valueChange = startValue * changeRate;
     
     // Update investment value
@@ -134,17 +138,25 @@ function processInvestmentReturns(params, yearState) {
       continue;
     }
     
+    const startValue = investment.value || 0; // Store start value
+    
     const { 
       investment: updatedInvestment, 
       generatedIncome, 
-      /*valueChange */
-    } = updateInvestmentValue(investment, updatedYearState);
+      valueChange, 
+      expenses   // Expenses calculated
+    } = updateInvestmentValue(investment /*, updatedYearState - not currently used by helper*/);
     
+    const endValue = updatedInvestment.value || 0; // Store end value
+
+    // Log the details for this investment
+    //console.log(`Year ${updatedYearState.year}: Investment '${investment.name}' - Start: ${startValue.toFixed(2)}, Income: ${generatedIncome.toFixed(2)}, Value Change: ${valueChange.toFixed(2)}, Expenses: ${expenses.toFixed(2)}, End: ${endValue.toFixed(2)}`);
+
     // Update the investment in the state
     updatedYearState.investments[i] = updatedInvestment;
     
     // Update income totals based on tax status and taxability
-    if (investment.taxStatus === 'non-retirement' && 
+    if (investment.accountTaxStatus === 'non-retirement' && 
         investment.investmentType.taxability === 'taxable' && 
         generatedIncome > 0) {
       // Only non-retirement taxable investments generate taxable income right away
@@ -155,6 +167,14 @@ function processInvestmentReturns(params, yearState) {
     // - For pre-tax: Taxed when withdrawn
     // - For after-tax: Not taxed (already taxed)
   }
+  
+  // Update total investment value for the year state
+  let totalInvestmentValue = 0;
+  updatedYearState.investments.forEach(inv => {
+    totalInvestmentValue += inv.value || 0;
+  });
+  updatedYearState.totalInvestmentValue = totalInvestmentValue;
+  updatedYearState.totalAssets = totalInvestmentValue + updatedYearState.cash;
   
   return updatedYearState;
 }

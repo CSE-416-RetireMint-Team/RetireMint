@@ -1,330 +1,178 @@
 /**
- * RebalanceEvents.js - Module for processing portfolio rebalancing events
+ * RebalanceEvents.js - Module for processing yearly rebalancing events.
+ */
+
+/**
+ * Calculates the target value for each investment based on the strategy and total value.
  * 
- * This module handles:
- * 1. Processing rebalance events according to target allocations
- * 2. Selling and buying investments to achieve target allocations
- * 3. Tracking capital gains from rebalancing
+ * @param {Array} investments - Current array of investment objects.
+ * @param {Object} strategy - The target rebalancing strategy object.
+ * @returns {Object} - An object mapping investment name to target value { investmentName: targetValue }.
  */
+function calculateTargetValues(investments, strategy) {
+    const targets = {};
+    if (!strategy || !strategy.taxStatusAllocation) return targets;
 
-/**
- * Group investments by their tax status
- * @param {Array} investments - Array of all investments
- * @returns {Object} - Investments grouped by tax status
- */
-function groupInvestmentsByTaxStatus(investments) {
-  if (!investments || !Array.isArray(investments)) {
-    return {
-      'pre-tax': [],
-      'after-tax': [],
-      'non-retirement': [],
-      'tax-exempt': []
+    const totalValue = investments.reduce((sum, inv) => sum + (inv?.value || 0), 0);
+    if (totalValue <= 0) return targets; // Cannot rebalance if total value is zero
+
+    const { 
+        taxStatusAllocation, 
+        preTaxAllocation, 
+        afterTaxAllocation, 
+        nonRetirementAllocation, 
+        taxExemptAllocation 
+    } = strategy;
+
+    // Helper to distribute value within a category based on sub-allocation
+    const distributeValue = (allocationMap, totalCategoryValue, categoryInvestments) => {
+        if (!allocationMap || Object.keys(allocationMap).length === 0 || categoryInvestments.length === 0) {
+            // If no specific sub-allocation, distribute equally among existing investments in that category?
+            // Or assume only investments listed in allocation map are targeted? For now, assume equal if no map.
+            const perInvestmentValue = totalCategoryValue / categoryInvestments.length;
+            categoryInvestments.forEach(inv => {
+                targets[inv.name] = (targets[inv.name] || 0) + perInvestmentValue;
+            });
+            return;
+        }
+
+        let sumPct = 0;
+        Object.values(allocationMap).forEach(pct => sumPct += pct);
+        if (sumPct === 0) return; // Cannot allocate if percentages sum to zero
+
+        for (const [name, percent] of Object.entries(allocationMap)) {
+            targets[name] = (targets[name] || 0) + totalCategoryValue * (percent / sumPct);
+        }
     };
-  }
-  
-  return investments.reduce((groups, inv) => {
-    // Skip cash investments for rebalancing
-    if (inv.name.toLowerCase().includes('cash')) {
-      return groups;
-    }
     
-    // Determine tax status group (default to non-retirement if not specified)
-    const taxStatus = inv.taxStatus || 'non-retirement';
-    
-    // Add investment to appropriate group
-    if (!groups[taxStatus]) {
-      groups[taxStatus] = [];
-    }
-    
-    groups[taxStatus].push(inv);
-    return groups;
-  }, {});
+    // Distribute based on tax status, then sub-allocate if maps exist
+    const investmentGroups = {
+        'pre-tax': investments.filter(inv => inv.accountTaxStatus === 'pre-tax'),
+        'after-tax': investments.filter(inv => inv.accountTaxStatus === 'after-tax'),
+        'non-retirement': investments.filter(inv => inv.accountTaxStatus === 'non-retirement'),
+        'tax-exempt': investments.filter(inv => inv.accountTaxStatus === 'tax-exempt' || inv.investmentType?.taxability === 'tax-exempt') // Include tax-exempt type
+    };
+
+    distributeValue(preTaxAllocation, totalValue * (taxStatusAllocation['pre-tax'] / 100 || 0), investmentGroups['pre-tax']);
+    distributeValue(afterTaxAllocation, totalValue * (taxStatusAllocation['after-tax'] / 100 || 0), investmentGroups['after-tax']);
+    distributeValue(nonRetirementAllocation, totalValue * (taxStatusAllocation['non-retirement'] / 100 || 0), investmentGroups['non-retirement']);
+    distributeValue(taxExemptAllocation, totalValue * (taxStatusAllocation['tax-exempt'] / 100 || 0), investmentGroups['tax-exempt']);
+
+    return targets;
 }
 
-/**
- * Calculate the current allocation percentages
- * @param {Array} investments - Array of investments in a group
- * @returns {Object} - Current allocation percentages
- */
-function calculateCurrentAllocation(investments) {
-  if (!investments || !Array.isArray(investments) || investments.length === 0) {
-    return {};
-  }
-  
-  // Calculate total value of all investments in the group
-  const totalValue = investments.reduce((sum, inv) => sum + (inv.value || 0), 0);
-  
-  if (totalValue <= 0) {
-    return {};
-  }
-  
-  // Calculate percentage for each investment
-  const allocation = {};
-  investments.forEach(inv => {
-    allocation[inv.name] = (inv.value / totalValue) * 100;
-  });
-  
-  return allocation;
-}
 
 /**
- * Rebalance a group of investments to match target allocation
- * @param {Array} investments - Investments to rebalance
- * @param {Object} targetAllocation - Target allocation percentages
- * @returns {Object} - Updated investments and capital gains
+ * Processes the rebalancing strategy for the current year.
+ * Calculates target values and performs necessary sales and purchases.
+ * MUTATES the yearState object directly.
+ * 
+ * @param {Object|null} rebalanceInfo - The rebalancing strategy object for the current year.
+ * @param {Object} yearState - The current year's state object (will be modified).
+ * @returns {Object} - The updated yearState object.
  */
-function rebalanceInvestmentGroup(investments, targetAllocation) {
-  if (!investments || !Array.isArray(investments) || investments.length === 0 || !targetAllocation) {
-    return { investments, capitalGains: 0 };
-  }
-  
-  // Create a copy of investments to avoid mutating the original
-  const updatedInvestments = [...investments];
-  let capitalGains = 0;
-  
-  // Calculate total value of investments in the group
-  const totalValue = updatedInvestments.reduce((sum, inv) => sum + inv.value, 0);
-  
-  // Calculate target values for each investment
-  const targetValues = {};
-  
-  for (const [investmentName, percentage] of Object.entries(targetAllocation)) {
-    targetValues[investmentName] = totalValue * (percentage / 100);
-  }
-  
-  // Determine which investments to sell (when current value > target value)
-  // and which to buy (when current value < target value)
-  const sellTransactions = [];
-  const buyTransactions = [];
-  
-  for (let i = 0; i < updatedInvestments.length; i++) {
-    const investment = updatedInvestments[i];
-    const targetValue = targetValues[investment.name] || 0;
-    
-    if (investment.value > targetValue) {
-      // Need to sell some of this investment
-      sellTransactions.push({
-        index: i,
-        name: investment.name,
-        amount: investment.value - targetValue
-      });
-    } else if (investment.value < targetValue) {
-      // Need to buy more of this investment
-      buyTransactions.push({
-        index: i,
-        name: investment.name,
-        amount: targetValue - investment.value
-      });
+function processRebalanceEvents(rebalanceInfo, yearState) {
+    if (!rebalanceInfo || !rebalanceInfo.strategy) {
+        console.log(`Year ${yearState.year}: No rebalance strategy active.`);
+        return yearState;
     }
-  }
-  
-  // Process all sell transactions first
-  for (const transaction of sellTransactions) {
-    const investment = updatedInvestments[transaction.index];
-    
-    // Calculate capital gain based on cost basis (proportional to amount sold)
-    if (investment.purchasePrice && investment.taxStatus !== 'pre-tax') {
-      const saleRatio = transaction.amount / investment.value;
-      const costBasis = investment.purchasePrice * saleRatio;
-      const gain = transaction.amount - costBasis;
-      
-      // Add to capital gains (only for taxable investments)
-      if (investment.investmentType.taxability === 'taxable') {
-        capitalGains += gain;
-      }
-      
-      // Update purchase price for remaining investment
-      investment.purchasePrice -= costBasis;
-    }
-    
-    // Reduce investment value
-    investment.value -= transaction.amount;
-  }
-  
-  // Then process all buy transactions
-  for (const transaction of buyTransactions) {
-    const investment = updatedInvestments[transaction.index];
-    
-    // Increase investment value
-    investment.value += transaction.amount;
-    
-    // Update purchase price for capital gains tracking
-    if (!investment.purchasePrice) {
-      investment.purchasePrice = 0;
-    }
-    investment.purchasePrice += transaction.amount;
-  }
-  
-  return { investments: updatedInvestments, capitalGains };
-}
 
-/**
- * Process rebalance events for the current year
- * @param {Object} params - Simulation parameters
- * @param {Object} yearState - Current state of the simulation year
- * @returns {Object} - Updated year state
- */
-function processRebalanceEvents(params, yearState) {
-  const { events } = params;
-  
-  // Create a deep copy of the year state to avoid mutating the original
-  const updatedYearState = { ...yearState };
-  updatedYearState.investments = [...yearState.investments];
-  
-  // Filter to include only rebalance events that are active this year
-  const activeRebalanceEvents = events.filter(event => 
-    event.type === 'rebalance' && 
-    event.startYear <= updatedYearState.year &&
-    (event.startYear + event.duration > updatedYearState.year)
-  );
-  
-  // No processing needed if no rebalance events
-  if (activeRebalanceEvents.length === 0) {
-    return updatedYearState;
-  }
-  
-  // Initialize capital gains tracking if not already present
-  updatedYearState.curYearGains = updatedYearState.curYearGains || 0;
-  
-  // Process each rebalance event
-  for (const event of activeRebalanceEvents) {
-    if (!event.rebalance) continue;
+    console.log(`Year ${yearState.year}: Processing Rebalance Event.`);
     
-    const { returnType } = event.rebalance;
-    
-    // Skip if no valid rebalance type
-    if (!returnType) continue;
-    
-    let targetAllocation = {};
-    
-    if (returnType === 'fixedAllocation') {
-      // Use the fixed allocation specified in the event
-      targetAllocation = event.rebalance.fixedAllocation;
-    } else if (returnType === 'glidePath') {
-      // Determine allocation based on glide path (age-based)
-      // This would be more complex in a real implementation
-      targetAllocation = getGlidePathAllocation(event.rebalance.glidePath, updatedYearState.userAge);
+    const strategy = rebalanceInfo.strategy; // Assuming glide path already resolved into strategy
+    const targetValues = calculateTargetValues(yearState.investments, strategy);
+
+    if (Object.keys(targetValues).length === 0) {
+        console.log(`    No target values calculated, skipping rebalance.`);
+        return yearState;
     }
-    
-    // Group investments by tax status for rebalancing within each group
-    const groupedInvestments = groupInvestmentsByTaxStatus(updatedYearState.investments);
-    
-    // Define rebalancing domains (which tax status groups to rebalance)
-    const rebalanceDomains = event.rebalance.rebalanceDomains || ['all'];
-    
-    // Rebalance each domain
-    if (rebalanceDomains.includes('all') || rebalanceDomains.includes('pre-tax')) {
-      const preTaxInvestments = groupedInvestments['pre-tax'] || [];
-      if (preTaxInvestments.length > 0) {
-        const { investments, capitalGains } = rebalanceInvestmentGroup(
-          preTaxInvestments, 
-          targetAllocation.preTax || targetAllocation
-        );
+
+    let sales = []; // { index, amount, investment }
+    let purchases = []; // { index, amount, investment }
+    let totalSellAmount = 0;
+    let totalBuyAmount = 0;
+
+    // Determine required sales and purchases
+    yearState.investments.forEach((investment, index) => {
+        const targetValue = targetValues[investment.name] || 0; // Default to 0 if not in target map
+        const currentValue = investment.value || 0;
+        const difference = targetValue - currentValue;
+
+        if (difference < -0.01) { // Sell (allow for small floating point differences)
+            const amountToSell = -difference;
+            sales.push({ index, amount: amountToSell, investment });
+            totalSellAmount += amountToSell;
+        } else if (difference > 0.01) { // Buy
+            const amountToBuy = difference;
+            purchases.push({ index, amount: amountToBuy, investment });
+            totalBuyAmount += amountToBuy;
+        }
+    });
+
+    // Optional: Check for cash neutrality (should be close)
+    if (Math.abs(totalSellAmount - totalBuyAmount) > 1.00) { // Allow $1 difference for rounding
+        console.warn(`Year ${yearState.year}: Rebalance Warning: Total sells (${totalSellAmount.toFixed(2)}) differ significantly from total buys (${totalBuyAmount.toFixed(2)}).`);
+    }
+
+    // --- Process Sales --- 
+    console.log(`Year ${yearState.year}: Rebalance - Processing Sales...`);
+    sales.forEach(sale => {
+        const { index, amount, investment } = sale;
+        const currentValue = investment.value; // Value *before* sale
+        const amountSold = Math.min(amount, currentValue); // Cannot sell more than exists
         
-        // Update investments and capital gains
-        updateInvestmentsInYearState(updatedYearState, investments);
-        updatedYearState.curYearGains += capitalGains;
-      }
-    }
-    
-    if (rebalanceDomains.includes('all') || rebalanceDomains.includes('after-tax')) {
-      const afterTaxInvestments = groupedInvestments['after-tax'] || [];
-      if (afterTaxInvestments.length > 0) {
-        const { investments, capitalGains } = rebalanceInvestmentGroup(
-          afterTaxInvestments, 
-          targetAllocation.afterTax || targetAllocation
-        );
+        if (amountSold <= 0) return; // Skip if negligible or zero
         
-        // Update investments and capital gains
-        updateInvestmentsInYearState(updatedYearState, investments);
-        updatedYearState.curYearGains += capitalGains;
-      }
-    }
-    
-    if (rebalanceDomains.includes('all') || rebalanceDomains.includes('non-retirement')) {
-      const nonRetirementInvestments = groupedInvestments['non-retirement'] || [];
-      if (nonRetirementInvestments.length > 0) {
-        const { investments, capitalGains } = rebalanceInvestmentGroup(
-          nonRetirementInvestments, 
-          targetAllocation.nonRetirement || targetAllocation
-        );
-        
-        // Update investments and capital gains
-        updateInvestmentsInYearState(updatedYearState, investments);
-        updatedYearState.curYearGains += capitalGains;
-      }
-    }
-    
-    if (rebalanceDomains.includes('all') || rebalanceDomains.includes('tax-exempt')) {
-      const taxExemptInvestments = groupedInvestments['tax-exempt'] || [];
-      if (taxExemptInvestments.length > 0) {
-        const { investments, capitalGains } = rebalanceInvestmentGroup(
-          taxExemptInvestments, 
-          targetAllocation.taxExempt || targetAllocation
-        );
-        
-        // Update investments and capital gains
-        updateInvestmentsInYearState(updatedYearState, investments);
-        updatedYearState.curYearGains += capitalGains;
-      }
-    }
-  }
-  
-  return updatedYearState;
-}
+        const fractionSold = currentValue > 0 ? amountSold / currentValue : 1;
 
-/**
- * Update investments in the year state after rebalancing
- * @param {Object} yearState - Current year state
- * @param {Array} rebalancedInvestments - Rebalanced investments
- */
-function updateInvestmentsInYearState(yearState, rebalancedInvestments) {
-  // Update each rebalanced investment in the year state
-  for (const rebalancedInv of rebalancedInvestments) {
-    const index = yearState.investments.findIndex(inv => inv.name === rebalancedInv.name);
-    if (index >= 0) {
-      yearState.investments[index] = rebalancedInv;
-    }
-  }
-}
+        console.log(`    Selling ${amountSold.toFixed(2)} from '${investment.name}'`);
 
-/**
- * Get the appropriate allocation based on a glide path and the user's age
- * @param {Object} glidePath - The glide path configuration
- * @param {Number} userAge - The user's current age
- * @returns {Object} - Allocation percentages for each investment
- */
-function getGlidePathAllocation(glidePath, userAge) {
-  if (!glidePath || !userAge) {
-    return {};
-  }
-  
-  // A real implementation would have a more sophisticated glide path calculation
-  // For simplicity, we'll use a basic approach here
-  
-  // Assume the glide path is defined as bands with age ranges and allocations
-  const ageRanges = Object.keys(glidePath).map(Number).sort((a, b) => a - b);
-  
-  // Find the appropriate age band
-  let allocations = {};
-  
-  for (let i = 0; i < ageRanges.length; i++) {
-    const currentAge = ageRanges[i];
-    const nextAge = i < ageRanges.length - 1 ? ageRanges[i + 1] : Infinity;
+        // Update value
+        yearState.investments[index].value -= amountSold;
+
+        // Calculate and track gains/losses (except for pre-tax)
+        if (investment.accountTaxStatus !== 'pre-tax') {
+            if (investment.costBasis !== undefined && investment.costBasis !== null) {
+                const gain = amountSold - (fractionSold * investment.costBasis);
+                yearState.curYearGains += gain;
+                // Update cost basis
+                yearState.investments[index].costBasis *= (1 - fractionSold);
+                 console.log(`      Gain/Loss: ${gain.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+            } else {
+                 console.warn(`Year ${yearState.year} Rebalance Warn: Missing cost basis for sold investment '${investment.name}'. Cannot calculate gains/update basis.`);
+            }
+        }
+    });
+
+    // --- Process Purchases --- 
+    console.log(`Year ${yearState.year}: Rebalance - Processing Purchases...`);
+    purchases.forEach(purchase => {
+        const { index, amount, investment } = purchase;
+        
+        if (amount <= 0) return; // Skip negligible buys
+        
+        console.log(`    Buying ${amount.toFixed(2)} for '${investment.name}'`);
+
+        // Update value
+        yearState.investments[index].value += amount;
+        
+        // Update cost basis (add purchase amount)
+         if (yearState.investments[index].costBasis === undefined || yearState.investments[index].costBasis === null) {
+             yearState.investments[index].costBasis = 0; // Initialize if missing
+        }
+        yearState.investments[index].costBasis += amount;
+         console.log(`      New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+    });
+
+    // Recalculate totals (value changed directly)
+    yearState.totalInvestmentValue = (yearState.investments || []).reduce((sum, inv) => sum + (inv?.value || 0), 0);
+    yearState.totalAssets = yearState.totalInvestmentValue + yearState.cash; // Cash unchanged by rebalance
     
-    if (userAge >= currentAge && userAge < nextAge) {
-      allocations = glidePath[currentAge];
-      break;
-    }
-  }
-  
-  return allocations;
+    console.log(`Year ${yearState.year}: Finished Rebalance Event. Final Assets: ${yearState.totalAssets.toFixed(2)}`);
+
+    return yearState;
 }
 
 module.exports = {
-  processRebalanceEvents,
-  rebalanceInvestmentGroup,
-  groupInvestmentsByTaxStatus,
-  calculateCurrentAllocation,
-  getGlidePathAllocation
-}; 
+    processRebalanceEvents
+};
