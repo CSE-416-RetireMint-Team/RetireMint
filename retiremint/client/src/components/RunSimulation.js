@@ -93,25 +93,29 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           setLoading(false);
         }
         else {
-            for (let i = lowerBound; i < upperBound; i += stepSize) {
-              // Create a temporary scenario that has the scenario parameter changed. 
-              const tempScenarioResponse = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
-                scenarioId: scenarioId,
-                scenarioParameter: scenarioParameter,
-                parameterEventId: parameterEvent,
-                changedValue: i,
-              });
+          const exploreResults = [];
+          for (let i = lowerBound; i < upperBound; i += stepSize) {
+            // Create a temporary scenario that has the scenario parameter changed. 
+            const tempScenarioResponse = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
+              scenarioId: scenarioId,
+              scenarioParameter: scenarioParameter,
+              parameterEventId: parameterEvent,
+              changedValue: i,
+            });
 
-              // Run Simulations on Temporary Adjusted Scenario:
-              const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
-                scenarioId,
-                numSimulations,
-                userId,
-                reportName
-              });
-              //console.log("Temporary Scenario: ", response.data.scenarioId);
-              // Delete temporary scenario, saving the results.
-            }
+            // Run Simulations on Temporary Adjusted Scenario:
+            const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
+              scenarioId,
+              numSimulations,
+              userId,
+              reportName
+            });
+
+            exploreResults.push(simulationResponse.data.results);
+            //console.log("Temporary Scenario: ", response.data.scenarioId);
+            // Delete temporary scenario, saving the results.
+          }
+          console.log(exploreResults);
         }
         
         /*

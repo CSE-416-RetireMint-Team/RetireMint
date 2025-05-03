@@ -429,7 +429,8 @@ router.post('/run', async (req, res) => {
             }))
           : [], // Default to empty array if undefined or not an array
         createdAt: report.createdAt
-      }
+      },
+      results: result.aggregatedResults
     });
   } catch (error) {
     console.error('Error running simulation:', error);
