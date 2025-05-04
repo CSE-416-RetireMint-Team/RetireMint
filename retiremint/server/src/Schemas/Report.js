@@ -50,6 +50,10 @@ const VisualizationConfigSchema = new Schema({
 // Main Report schema
 const ReportSchema = new Schema({
   name: { type: String, required: false },
+  resultForGraph: {
+    type: Object,
+    default: {}
+  },  
   createdAt: { type: Date, default: Date.now },
   userId: { type: String, required: true }, // Google ID of user who created the report
   scenarioId: { type: mongoose.Schema.Types.ObjectId, ref: 'Scenario' },
