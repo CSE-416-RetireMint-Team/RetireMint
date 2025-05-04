@@ -3,6 +3,21 @@
  */
 const { performWithdrawal } = require('../Utils/WithdrawalUtils'); // Import the utility
 
+// --- Helper functions for random sampling --- 
+// (Consider moving to a shared utility file if used elsewhere)
+function sampleNormal(mean, stdDev) {
+  let u1 = 0, u2 = 0;
+  while(u1 === 0) u1 = Math.random(); 
+  while(u2 === 0) u2 = Math.random();
+  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+  return z0 * stdDev + mean;
+}
+
+function sampleUniform(min, max) {
+  return Math.random() * (max - min) + min;
+}
+// --- End Helper functions ---
+
 /**
  * Calculates and pays discretionary expenses based on spending strategy and financial goal.
  * Updates yearState by potentially calling performWithdrawal.
@@ -63,12 +78,67 @@ function processDiscretionaryExpenses(
 
             // Calculate the potential amount for this expense this year
             let currentBaseAmount = prevState.currentAmount ?? expenseConfig.initialAmount;
-            if (prevState.currentAmount !== undefined) { // Apply annual change if not first year
-                // TODO: Add other annual change methods (normalValue etc.)
-                if (expenseConfig.expectedAnnualChange?.method === 'fixedValue') {
-                    currentBaseAmount += expenseConfig.expectedAnnualChange.fixedValue || 0;
+            
+            // Apply annual change if not first year and change method exists
+            if (prevState.currentAmount !== undefined && expenseConfig.expectedAnnualChange?.method) { 
+                const changeConfig = expenseConfig.expectedAnnualChange;
+                let changeAmount = 0;
+
+                switch (changeConfig.method) {
+                    case 'fixedValue':
+                        changeAmount = changeConfig.fixedValue || 0;
+                        break;
+                    case 'fixedPercentage':
+                        changeAmount = currentBaseAmount * ((changeConfig.fixedPercentage || 0) / 100);
+                        break;
+                    case 'normalValue':
+                        if (changeConfig.normalValue) {
+                            const mean = changeConfig.normalValue.mean || 0;
+                            const sd = changeConfig.normalValue.sd || 0;
+                            changeAmount = sampleNormal(mean, sd);
+                        }
+                        break;
+                    case 'normalPercentage':
+                         if (changeConfig.normalPercentage) {
+                            const mean = changeConfig.normalPercentage.mean || 0;
+                            const sd = changeConfig.normalPercentage.sd || 0;
+                            const percentChange = sampleNormal(mean, sd);
+                            changeAmount = currentBaseAmount * (percentChange / 100);
+                        }
+                        break;
+                    case 'uniformValue':
+                        if (changeConfig.uniformValue) {
+                             const min = changeConfig.uniformValue.lowerBound || 0;
+                             const max = changeConfig.uniformValue.upperBound || 0;
+                             if (min <= max) {
+                                 changeAmount = sampleUniform(min, max);
+                             } else {
+                                 console.warn(`Year ${yearState.year}: Uniform value bounds invalid for ${expenseName}. Min: ${min}, Max: ${max}`);
+                             }
+                         }
+                        break;
+                    case 'uniformPercentage':
+                         if (changeConfig.uniformPercentage) {
+                             const min = changeConfig.uniformPercentage.lowerBound || 0;
+                             const max = changeConfig.uniformPercentage.upperBound || 0;
+                              if (min <= max) {
+                                 const percentChange = sampleUniform(min, max);
+                                 changeAmount = currentBaseAmount * (percentChange / 100);
+                              } else {
+                                  console.warn(`Year ${yearState.year}: Uniform percentage bounds invalid for ${expenseName}. Min: ${min}, Max: ${max}`);
+                              }
+                         }
+                        break;
+                    default:
+                        console.warn(`Year ${yearState.year}: Unknown expectedAnnualChange method '${changeConfig.method}' for expense '${expenseName}'.`);
+                        break;
                 }
+                currentBaseAmount += changeAmount;
             }
+            
+            // Ensure base amount doesn't go negative (optional, depends on desired behavior for expenses)
+            currentBaseAmount = Math.max(0, currentBaseAmount);
+
             let potentialAmountThisYear = currentBaseAmount;
             if (expenseConfig.inflationAdjustment) {
                 potentialAmountThisYear *= currentInflationFactor;
