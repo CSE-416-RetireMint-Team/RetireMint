@@ -31,23 +31,72 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
 
         if (event && event.type === 'expense' && event.expense && !event.expense.isDiscretionary) {
             const expenseConfig = event.expense;
-            const eventStateKey = eventName;
+            const eventStateKey = event._id || eventName; // Use ID if available
             const prevState = previousEventStates[eventStateKey] || {};
 
             // Determine initial amount for this year (either fixed or from previous state)
             let currentAmount = prevState.currentAmount ?? expenseConfig.initialAmount;
 
-            // Apply annual change *before* inflation for the current year
-            // (Assuming change applies at the start of the year)
-            if (prevState.currentAmount !== undefined) { // Don't apply change in the very first active year
-                // TODO: Implement logic for different change methods (fixedValue, normalValue, etc.)
-                // For now, assume fixedValue as an example, needs expanding based on actual schema
-                if (expenseConfig.expectedAnnualChange?.method === 'fixedValue') {
-                    currentAmount += expenseConfig.expectedAnnualChange.fixedValue || 0;
+            // Apply annual change if not first year and change method exists
+            if (prevState.currentAmount !== undefined && expenseConfig.expectedAnnualChange?.method) { 
+                const changeConfig = expenseConfig.expectedAnnualChange;
+                let changeAmount = 0;
+
+                switch (changeConfig.method) {
+                    case 'fixedValue':
+                        changeAmount = changeConfig.fixedValue || 0;
+                        break;
+                    case 'fixedPercentage':
+                        changeAmount = currentAmount * ((changeConfig.fixedPercentage || 0) / 100);
+                        break;
+                    case 'normalValue':
+                        if (changeConfig.normalValue) {
+                            const mean = changeConfig.normalValue.mean || 0;
+                            const sd = changeConfig.normalValue.sd || 0;
+                            changeAmount = sampleNormal(mean, sd);
+                        }
+                        break;
+                    case 'normalPercentage':
+                         if (changeConfig.normalPercentage) {
+                            const mean = changeConfig.normalPercentage.mean || 0;
+                            const sd = changeConfig.normalPercentage.sd || 0;
+                            const percentChange = sampleNormal(mean, sd);
+                            changeAmount = currentAmount * (percentChange / 100);
+                        }
+                        break;
+                    case 'uniformValue':
+                         if (changeConfig.uniformValue) {
+                             const min = changeConfig.uniformValue.lowerBound || 0;
+                             const max = changeConfig.uniformValue.upperBound || 0;
+                             if (min <= max) {
+                                 changeAmount = sampleUniform(min, max);
+                             } else {
+                                 console.warn(`Year ${currentYear}: Uniform value bounds invalid for non-disc expense ${eventName}. Min: ${min}, Max: ${max}`);
+                             }
+                         }
+                        break;
+                    case 'uniformPercentage':
+                         if (changeConfig.uniformPercentage) {
+                             const min = changeConfig.uniformPercentage.lowerBound || 0;
+                             const max = changeConfig.uniformPercentage.upperBound || 0;
+                              if (min <= max) {
+                                 const percentChange = sampleUniform(min, max);
+                                 changeAmount = currentAmount * (percentChange / 100);
+                              } else {
+                                  console.warn(`Year ${currentYear}: Uniform percentage bounds invalid for non-disc expense ${eventName}. Min: ${min}, Max: ${max}`);
+                              }
+                         }
+                        break;
+                    default:
+                        console.warn(`Year ${currentYear}: Unknown expectedAnnualChange method '${changeConfig.method}' for non-disc expense '${eventName}'.`);
+                        break;
                 }
-                // Add other change methods here...
+                currentAmount += changeAmount;
             }
             
+            // Ensure base amount doesn't go negative
+            currentAmount = Math.max(0, currentAmount);
+
             // Apply inflation adjustment if required
             let finalAmountThisYear = currentAmount;
             if (expenseConfig.inflationAdjustment) {
@@ -64,7 +113,7 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
 
             totalNonDiscExpenses += amountToAdd;
 
-            // Store state for next year
+            // Store state for next year using the UPDATED currentAmount
             expenseEventStates[eventStateKey] = { currentAmount }; 
             // console.log(`NonDiscExpense Event '${eventName}': Amount=${amountToAdd.toFixed(2)}, NextYearBase=${currentAmount.toFixed(2)}`);
         }
@@ -75,6 +124,21 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
         expenseEventStates // Store this in yearState to pass as previousEventStates next year
     };
 }
+
+// --- Helper functions for random sampling --- 
+// (Consider moving to a shared utility file)
+function sampleNormal(mean, stdDev) {
+  let u1 = 0, u2 = 0;
+  while(u1 === 0) u1 = Math.random(); 
+  while(u2 === 0) u2 = Math.random();
+  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+  return z0 * stdDev + mean;
+}
+
+function sampleUniform(min, max) {
+  return Math.random() * (max - min) + min;
+}
+// --- End Helper functions ---
 
 module.exports = {
     calculateCurrentNonDiscExpenses
