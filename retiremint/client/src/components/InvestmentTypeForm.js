@@ -363,25 +363,31 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                         switch (investmentType.expectedReturn.returnType) {
                             case 'fixedValue':
-                                if (!investmentType.expectedReturn.fixedValue) {
+                                // Allow 0
+                                if (investmentType.expectedReturn.fixedValue == null || String(investmentType.expectedReturn.fixedValue).trim() === '') {
                                     alert(`Investment Type "${investmentType.name}" requires a Fixed Value for Expected Annual Return.`);
                                     return;
                                 }
                                 break;
                             case 'fixedPercentage':
-                                if (!investmentType.expectedReturn.fixedPercentage) {
+                                // Allow 0
+                                if (investmentType.expectedReturn.fixedPercentage == null || String(investmentType.expectedReturn.fixedPercentage).trim() === '') {
                                     alert(`Investment Type "${investmentType.name}" requires a Fixed Percentage for Expected Annual Return.`);
                                     return;
                                 }
                                 break;
                             case 'normalValue':
-                                if (!investmentType.expectedReturn.normalValue.mean || !investmentType.expectedReturn.normalValue.sd) {
+                                // Allow 0 for mean/sd
+                                if ((investmentType.expectedReturn.normalValue.mean == null || String(investmentType.expectedReturn.normalValue.mean).trim() === '') || 
+                                    (investmentType.expectedReturn.normalValue.sd == null || String(investmentType.expectedReturn.normalValue.sd).trim() === '')) {
                                     alert(`Investment Type "${investmentType.name}" requires Mean and Standard Deviation for Normal Value.`);
                                     return;
                                 }
                                 break;
                             case 'normalPercentage':
-                                if (!investmentType.expectedReturn.normalPercentage.mean || !investmentType.expectedReturn.normalPercentage.sd) {
+                                // Allow 0 for mean/sd
+                                if ((investmentType.expectedReturn.normalPercentage.mean == null || String(investmentType.expectedReturn.normalPercentage.mean).trim() === '') || 
+                                    (investmentType.expectedReturn.normalPercentage.sd == null || String(investmentType.expectedReturn.normalPercentage.sd).trim() === '')) {
                                     alert(`Investment Type"${investmentType.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                     return;
                                 }
@@ -399,25 +405,31 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
 
                         switch (investmentType.expectedIncome.returnType) {
                             case 'fixedValue':
-                                if (!investmentType.expectedIncome.fixedValue) {
+                                // Allow 0
+                                if (investmentType.expectedIncome.fixedValue == null || String(investmentType.expectedIncome.fixedValue).trim() === '') {
                                     alert(`Investment Type"${investmentType.name}" requires a Fixed Value for Expected Annual Income.`);
                                     return;
                                 }
                                 break;
                             case 'fixedPercentage':
-                                if (!investmentType.expectedIncome.fixedPercentage) {
+                                // Allow 0
+                                if (investmentType.expectedIncome.fixedPercentage == null || String(investmentType.expectedIncome.fixedPercentage).trim() === '') {
                                     alert(`Investment Type "${investmentType.name}" requires a Fixed Percentage for Expected Annual Income.`);
                                     return;
                                 }
                                 break;
                             case 'normalValue':
-                                if (!investmentType.expectedIncome.normalValue.mean || !investmentType.expectedIncome.normalValue.sd) {
+                                // Allow 0 for mean/sd
+                                if ((investmentType.expectedIncome.normalValue.mean == null || String(investmentType.expectedIncome.normalValue.mean).trim() === '') || 
+                                    (investmentType.expectedIncome.normalValue.sd == null || String(investmentType.expectedIncome.normalValue.sd).trim() === '')) {
                                     alert(`Investment Type "${investmentType.name}" requires Mean and Standard Deviation for Normal Value.`);
                                     return;
                                 }
                                 break;
                             case 'normalPercentage':
-                                if (!investmentType.expectedIncome.normalPercentage.mean || !investmentType.expectedIncome.normalPercentage.sd) {
+                                // Allow 0 for mean/sd
+                                if ((investmentType.expectedIncome.normalPercentage.mean == null || String(investmentType.expectedIncome.normalPercentage.mean).trim() === '') || 
+                                    (investmentType.expectedIncome.normalPercentage.sd == null || String(investmentType.expectedIncome.normalPercentage.sd).trim() === '')) {
                                     alert(`Investment Type "${investmentType.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                     return;
                                 }
@@ -428,7 +440,8 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                         }
 
                         // Validate other required fields
-                        if (!investmentType.expenseRatio) {
+                        // Allow 0 for expense ratio
+                        if (investmentType.expenseRatio == null || String(investmentType.expenseRatio).trim() === '') {
                             alert(`Investment Type "${investmentType.name}" must have an Expense Ratio.`);
                             return;
                         }

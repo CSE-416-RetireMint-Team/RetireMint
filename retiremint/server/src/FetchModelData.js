@@ -194,7 +194,8 @@ async function fetchAndLogModelData(scenarioId) {
     }).sort({ year: -1 });
 
     // Fetch RMD Table data (limit to 5 for logging)
-    const rmdTableData = await RMDTable.find().limit(5);
+    // const rmdTableData = await RMDTable.find().limit(5);
+    const rmdTableData = await RMDTable.find(); // Fetch all RMD rows
 
     // Fetch State Tax data
     const stateTaxData = await StateTax.find();

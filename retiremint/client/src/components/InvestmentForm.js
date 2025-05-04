@@ -255,7 +255,8 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                         }
                         
                         // Validate maximum annual contribution only for after-tax investments
-                        if ((investment.taxStatus === "after-tax") && !investment.maxAnnualContribution) {
+                        // Allow 0
+                        if ((investment.taxStatus === "after-tax") && (investment.maxAnnualContribution == null || String(investment.maxAnnualContribution).trim() === '')) {
                             alert(`Investment "${investment.name}" must have a Maximum Annual Contribution.`);
                             return;
                         }

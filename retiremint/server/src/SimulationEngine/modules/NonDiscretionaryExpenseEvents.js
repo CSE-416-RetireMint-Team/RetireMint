@@ -10,10 +10,11 @@
  * @param {string} maritalStatusThisYear - 'single' or 'married'.
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year.
  * @param {Object} previousEventStates - State of events from the previous year (for tracking amounts).
- * @returns {Object} - { totalNonDiscExpenses: number, expenseEventStates: Object }
+ * @returns {Object} - { nonDiscExpenseDetails: { expenseName: amount, ... }, expenseEventStates: Object }
  */
 function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, maritalStatusThisYear, currentInflationFactor, previousEventStates = {}) {
-    let totalNonDiscExpenses = 0;
+    // let totalNonDiscExpenses = 0; // No longer need to sum here
+    const nonDiscExpenseDetails = {}; // Store details: { name: amount }
     const expenseEventStates = {}; // Store state for next year
     
     // Access scenario data correctly
@@ -22,7 +23,7 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
     // Check for modelData, scenario, and scenario.events
     if (!scenario || !scenario.events) {
         console.error(`NonDiscExpenseEvents Error: Invalid modelData structure. Missing scenario or scenario.events. modelData Keys: ${modelData ? Object.keys(modelData) : 'null'}`);
-        return { totalNonDiscExpenses: 0, expenseEventStates: {} };
+        return { nonDiscExpenseDetails: {}, expenseEventStates: {} };
     }
 
     for (const eventName of eventsActiveThisYear) {
@@ -111,7 +112,10 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
             }
             // No adjustment needed if married, as the base amount is assumed for the couple
 
-            totalNonDiscExpenses += amountToAdd;
+            // Store the calculated amount for this specific expense
+            if (amountToAdd > 0) {
+                nonDiscExpenseDetails[eventName] = amountToAdd;
+            }
 
             // Store state for next year using the UPDATED currentAmount
             expenseEventStates[eventStateKey] = { currentAmount }; 
@@ -120,7 +124,7 @@ function calculateCurrentNonDiscExpenses(modelData, eventsActiveThisYear, marita
     }
 
     return {
-        totalNonDiscExpenses,
+        nonDiscExpenseDetails,
         expenseEventStates // Store this in yearState to pass as previousEventStates next year
     };
 }

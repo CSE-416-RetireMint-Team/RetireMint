@@ -8,6 +8,8 @@
  * 4. Tracking taxable income
  */
 
+const { sampleNormal, sampleUniform } = require('../Utils/CalculationUtils');
+
 /**
  * Sample a return value from a probability distribution
  * @param {Object} expectedReturn - The expected return configuration
@@ -112,71 +114,161 @@ function updateInvestmentValue(investment/*, yearState*/) {
 
 /**
  * Process all investments to update values and track income
- * @param {Object} params - Simulation parameters
- * @param {Object} yearState - Current state of the simulation year
- * @returns {Object} - Updated year state
+ * @param {Object} investmentStrategy - Optional investment strategy object (currently unused in this specific module).
+ * @param {Object} yearState - The current state of the simulation year (will be modified).
+ * @returns {Object} - Object containing the updated year state and a breakdown of investment income.
+ *                     { updatedYearState: Object, investmentIncomeBreakdown: Object }
  */
-function processInvestmentReturns(params, yearState) {
-  if (!yearState.investments || yearState.investments.length === 0) {
-    return yearState;
+function processInvestmentReturns(investmentStrategy, yearState) {
+    
+    let totalTaxableIncomeFromInvestments = 0;
+    let totalNonTaxableIncomeFromInvestments = 0; // E.g., tax-exempt interest
+    let investmentIncomeBreakdown = {}; // Initialize breakdown
+    
+    if (!yearState || !yearState.investments) {
+        console.warn(`Year ${yearState?.year}: Missing yearState or investments for return calculation.`);
+        return { updatedYearState: yearState, investmentIncomeBreakdown };
   }
   
-  // Create a deep copy of the year state to avoid mutating the original
-  const updatedYearState = { ...yearState };
-  updatedYearState.investments = [...yearState.investments];
-  
-  // Initialize income tracking
-  updatedYearState.curYearIncome = updatedYearState.curYearIncome || 0;
-  updatedYearState.curYearGains = updatedYearState.curYearGains || 0;
-  
-  // Process each investment
-  for (let i = 0; i < updatedYearState.investments.length; i++) {
-    const investment = updatedYearState.investments[i];
-    
-    // Skip cash or similar investments that don't generate returns
-    if (investment.name.toLowerCase().includes('cash')) {
-      continue;
-    }
-    
-    const startValue = investment.value || 0; // Store start value
-    
-    const { 
-      investment: updatedInvestment, 
-      generatedIncome, 
-      valueChange, 
-      expenses   // Expenses calculated
-    } = updateInvestmentValue(investment /*, updatedYearState - not currently used by helper*/);
-    
-    const endValue = updatedInvestment.value || 0; // Store end value
+    // Process each investment account
+    yearState.investments.forEach(investment => {
+        if (!investment || typeof investment.value !== 'number' || !investment.investmentType) {
+            console.warn(`Year ${yearState.year}: Skipping investment due to missing data:`, investment);
+            return; // Skip if data is incomplete
+        }
 
-    // Log the details for this investment
-    //console.log(`Year ${updatedYearState.year}: Investment '${investment.name}' - Start: ${startValue.toFixed(2)}, Income: ${generatedIncome.toFixed(2)}, Value Change: ${valueChange.toFixed(2)}, Expenses: ${expenses.toFixed(2)}, End: ${endValue.toFixed(2)}`);
+        const investmentType = investment.investmentType;
+        const currentInvestmentValue = investment.value;
+        let capitalGrowth = 0;
+        let incomeGenerated = 0;
 
-    // Update the investment in the state
-    updatedYearState.investments[i] = updatedInvestment;
+        // --- Calculate Capital Growth (Expected Return) ---
+        const returnConfig = investmentType.expectedAnnualReturn;
+        if (returnConfig && returnConfig.method) {
+            let expectedReturnRate = 0;
+            switch (returnConfig.method) {
+                case 'fixedPercentage':
+                    expectedReturnRate = (returnConfig.fixedPercentage ?? 0) / 100;
+                    break;
+                case 'normalPercentage':
+                    const meanReturn = returnConfig.normalPercentage?.mean ?? 0;
+                    const sdReturn = returnConfig.normalPercentage?.sd ?? 0;
+                    if (sdReturn < 0) {
+                         console.warn(`Year ${yearState.year}: Negative SD for return on ${investment.name}. Using 0.`);
+                         expectedReturnRate = sampleNormal(meanReturn / 100, 0);
+                    } else {
+                        expectedReturnRate = sampleNormal(meanReturn / 100, sdReturn / 100);
+                    }
+                    break;
+                case 'uniformPercentage':
+                    const lowerReturn = returnConfig.uniformPercentage?.lowerBound ?? 0;
+                    const upperReturn = returnConfig.uniformPercentage?.upperBound ?? 0;
+                    if (lowerReturn > upperReturn) {
+                        console.warn(`Year ${yearState.year}: Lower bound > upper bound for return on ${investment.name}. Using lower bound.`);
+                         expectedReturnRate = lowerReturn / 100;
+                    } else {
+                        expectedReturnRate = sampleUniform(lowerReturn / 100, upperReturn / 100);
+                    }
+                    break;
+                default:
+                    console.warn(`Year ${yearState.year}: Unknown return method ${returnConfig.method} for ${investment.name}. Using 0%.`);
+                    expectedReturnRate = 0;
+            }
+            // Calculate growth amount based on the *current* value
+            capitalGrowth = currentInvestmentValue * expectedReturnRate;
+        } else {
+            // console.log(`Year ${yearState.year}: No return config found for ${investment.name}. Assuming 0% capital growth.`);
+        }
+
+        // --- Calculate Income Generated (Expected Income) ---
+        const incomeConfig = investmentType.expectedAnnualIncome;
+        if (incomeConfig && incomeConfig.method) {
+            let expectedIncomeRate = 0;
+            switch (incomeConfig.method) {
+                case 'fixedValue':
+                   // Income is a fixed amount, not a rate based on current value
+                   // We calculate the actual income amount here, not a rate.
+                   incomeGenerated = incomeConfig.fixedValue ?? 0;
+                   expectedIncomeRate = -1; // Use a flag to skip rate-based calculation below
+                   break;
+                case 'fixedPercentage':
+                    expectedIncomeRate = (incomeConfig.fixedPercentage ?? 0) / 100;
+                    break;
+                case 'normalPercentage':
+                    const meanIncome = incomeConfig.normalPercentage?.mean ?? 0;
+                    const sdIncome = incomeConfig.normalPercentage?.sd ?? 0;
+                    if (sdIncome < 0) {
+                         console.warn(`Year ${yearState.year}: Negative SD for income on ${investment.name}. Using 0.`);
+                         expectedIncomeRate = sampleNormal(meanIncome / 100, 0);
+                    } else {
+                         expectedIncomeRate = sampleNormal(meanIncome / 100, sdIncome / 100);
+                    }
+                    break;
+                case 'uniformPercentage':
+                     const lowerIncome = incomeConfig.uniformPercentage?.lowerBound ?? 0;
+                     const upperIncome = incomeConfig.uniformPercentage?.upperBound ?? 0;
+                     if (lowerIncome > upperIncome) {
+                         console.warn(`Year ${yearState.year}: Lower bound > upper bound for income on ${investment.name}. Using lower bound.`);
+                         expectedIncomeRate = lowerIncome / 100;
+                     } else {
+                         expectedIncomeRate = sampleUniform(lowerIncome / 100, upperIncome / 100);
+                     }
+                    break;
+                default:
+                     console.warn(`Year ${yearState.year}: Unknown income method ${incomeConfig.method} for ${investment.name}. Using 0%.`);
+                    expectedIncomeRate = 0;
+            }
+            // Calculate income amount based on the *current* value (before growth this year)
+            // Skip if method was 'fixedValue' as incomeGenerated is already set
+            if (expectedIncomeRate !== -1) { 
+                incomeGenerated = currentInvestmentValue * expectedIncomeRate;
+            }
+        } else {
+            // console.log(`Year ${yearState.year}: No income config found for ${investment.name}. Assuming 0% income generation.`);
+        }
+        
+        // --- Update Investment Value --- 
+        // Apply capital growth first, then add income generated (which goes to cash)
+        investment.value += capitalGrowth;
+        
+        // --- Update Cash and Income Totals ---
+        if (incomeGenerated > 0) {
+            yearState.cash = (yearState.cash || 0) + incomeGenerated;
     
-    // Update income totals based on tax status and taxability
-    if (investment.accountTaxStatus === 'non-retirement' && 
-        investment.investmentType.taxability === 'taxable' && 
-        generatedIncome > 0) {
-      // Only non-retirement taxable investments generate taxable income right away
-      updatedYearState.curYearIncome += generatedIncome;
-    }
+            // Determine if income is taxable based on account type
+            const taxStatus = investment.taxStatus; // Use the field from the investment instance
+            const incomeType = investmentType.incomeType || 'dividend'; // e.g., 'dividend', 'interest', 'tax-exempt-interest'
+            const breakdownKey = `Income - ${incomeType} (${investment.name})`;
+            
+            if (taxStatus === 'non-retirement' || taxStatus === 'pre-tax' || taxStatus === 'after-tax') {
+                // Income from these accounts is generally taxable in the year received
+                // (Pre-tax/After-tax income generation might be complex, often reinvested internally,
+                // but if modeled as payouts, they are taxable. Simplification: assume payout.)
+                // EXCEPT for specifically tax-exempt income types
+                if (incomeType !== 'tax-exempt-interest') { 
+                    totalTaxableIncomeFromInvestments += incomeGenerated;
+                    investmentIncomeBreakdown[breakdownKey] = (investmentIncomeBreakdown[breakdownKey] || 0) + incomeGenerated;
+                } else {
+                    totalNonTaxableIncomeFromInvestments += incomeGenerated;
+                    // Optionally track tax-exempt income in breakdown too
+                    investmentIncomeBreakdown[`Income - ${incomeType} (${investment.name}) (Non-Taxable)`] = (investmentIncomeBreakdown[`Income - ${incomeType} (${investment.name}) (Non-Taxable)`] || 0) + incomeGenerated;
+                }
+            } else if (taxStatus === 'tax-exempt') {
+                // Income generated within tax-exempt accounts (like Roth) is not taxed upon receipt
+                totalNonTaxableIncomeFromInvestments += incomeGenerated;
+                // Optionally track in breakdown
+                investmentIncomeBreakdown[`Income - ${incomeType} (${investment.name}) (Non-Taxable)`] = (investmentIncomeBreakdown[`Income - ${incomeType} (${investment.name}) (Non-Taxable)`] || 0) + incomeGenerated;
+            }
+            
+            // console.log(`Year ${yearState.year}: Investment ${investment.name} - Growth: ${capitalGrowth.toFixed(2)}, Income: ${incomeGenerated.toFixed(2)}, Taxable: ${taxStatus !== 'tax-exempt' && incomeType !== 'tax-exempt-interest'}`);
+        }
+    });
     
-    // Note: For pre-tax and after-tax retirement accounts, income is:
-    // - For pre-tax: Taxed when withdrawn
-    // - For after-tax: Not taxed (already taxed)
-  }
-  
-  // Update total investment value for the year state
-  let totalInvestmentValue = 0;
-  updatedYearState.investments.forEach(inv => {
-    totalInvestmentValue += inv.value || 0;
-  });
-  updatedYearState.totalInvestmentValue = totalInvestmentValue;
-  updatedYearState.totalAssets = totalInvestmentValue + updatedYearState.cash;
-  
-  return updatedYearState;
+    // Add the total taxable income from investments to the year's running total
+    yearState.curYearIncome = (yearState.curYearIncome || 0) + totalTaxableIncomeFromInvestments;
+
+    // Return the updated state and the income breakdown
+    return { updatedYearState: yearState, investmentIncomeBreakdown };
 }
 
 module.exports = {
