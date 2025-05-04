@@ -335,6 +335,7 @@ router.post('/run', async (req, res) => {
     // Create a report document with possibly reduced data to avoid MongoDB document size limits
     const report = new Report({
       name: reportName,
+      resultForGraph: result.aggregatedResults,
       userId: scenario.userId,
       scenarioId: scenarioId,
       sharedUsers: scenario.sharedUsers,

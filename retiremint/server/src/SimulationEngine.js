@@ -146,6 +146,7 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
         investmentValueArrays: [],// Array of investmentsValueArrays
         expensesArrays: [],       // Array of expensesArrays
         earlyWithdrawalArrays: [] // Array of earlyWithdrawalArrays
+        
     };
 
     allSimulationResultsRaw.forEach(singleResult => {
