@@ -67,62 +67,63 @@ function processInvestEvents(investStrategyInfo, yearState, currentInflationFact
          // For simplicity, we proceed, assuming minor diffs are okay.
     }
     
-    // --- Adjust for After-Tax Contribution Limits --- 
+    // --- Adjust for Individual After-Tax Contribution Limits --- 
     let finalPurchases = { ...initialPurchases };
-    let afterTaxTotalInitial = 0;
-    let afterTaxLimitTotal = 0;
-    const afterTaxInvestments = [];
-    const nonRetirementInvestments = [];
-
-    // Find after-tax investments and their limits
+    let totalReductionFromLimits = 0;
+    const initialNonRetirementPurchases = {}; // Track initial non-retirement targets
+    
+    // First pass: Identify non-retirement targets and cap after-tax contributions individually
     for (const name in initialPurchases) {
-        const investment = yearState.investments.find(inv => inv.name === name);
-        if (!investment) continue; // Should exist if in strategy
+        const purchaseAmount = initialPurchases[name];
+        if (purchaseAmount <= 0) continue;
 
+        const investment = yearState.investments.find(inv => inv.name === name);
+        if (!investment) { 
+            // This warning remains valid
+            console.warn(`Year ${yearState.year}: Investment '${name}' targeted by invest event not found in current state (during limit check).`);
+            finalPurchases[name] = 0; // Cannot purchase if not found
+            continue;
+        }
+
+        if (investment.accountTaxStatus === 'non-retirement') {
+            initialNonRetirementPurchases[name] = purchaseAmount;
+        }
+        
         if (investment.accountTaxStatus === 'after-tax') {
-            afterTaxInvestments.push(name);
-            afterTaxTotalInitial += initialPurchases[name];
-            // Find original investment def for limit
             const initialDef = modelData.scenario.investments.find(inv => inv.name === name);
+            let individualLimit = Infinity;
             if (initialDef && initialDef.maxAnnualContribution) {
-                 afterTaxLimitTotal += (initialDef.maxAnnualContribution * currentInflationFactor); 
-            } else {
-                 afterTaxLimitTotal += Infinity; // Assume no limit if not specified
+                 individualLimit = initialDef.maxAnnualContribution * currentInflationFactor; 
+            }
+
+            if (purchaseAmount > individualLimit) {
+                const reduction = purchaseAmount - individualLimit;
+                // console.log(`Year ${yearState.year}: Capping contribution for '${name}'. Initial: ${purchaseAmount.toFixed(2)}, Limit: ${individualLimit.toFixed(2)}, Reduction: ${reduction.toFixed(2)}`);
+                finalPurchases[name] = individualLimit; // Cap the purchase
+                totalReductionFromLimits += reduction;
             }
         }
-        if (investment.accountTaxStatus === 'non-retirement') {
-            nonRetirementInvestments.push(name);
-        }
     }
-    
-    // Check if limit exceeded
-    if (afterTaxTotalInitial > afterTaxLimitTotal && afterTaxLimitTotal < Infinity) {
-        // console.log(`Year ${yearState.year}: After-tax limit exceeded. Initial: ${afterTaxTotalInitial.toFixed(2)}, Limit: ${afterTaxLimitTotal.toFixed(2)}`);
-        const scaleDownFactor = afterTaxLimitTotal / afterTaxTotalInitial;
-        const reductionAmount = afterTaxTotalInitial - afterTaxLimitTotal;
-        let appliedReduction = 0;
 
-        // Scale down after-tax purchases
-        afterTaxInvestments.forEach(name => {
-            finalPurchases[name] *= scaleDownFactor;
-        });
+    // Second pass: Redistribute the total reduction to non-retirement accounts if possible
+    if (totalReductionFromLimits > 0.01) { // Only redistribute if reduction is significant
+        const initialNonRetirementTotal = Object.values(initialNonRetirementPurchases).reduce((sum, val) => sum + val, 0);
 
-        // Scale up non-retirement purchases proportionally
-        const initialNonRetirementTotal = nonRetirementInvestments.reduce((sum, name) => sum + (initialPurchases[name] || 0), 0);
-        
         if (initialNonRetirementTotal > 0) {
-            nonRetirementInvestments.forEach(name => {
-                const proportion = initialPurchases[name] / initialNonRetirementTotal;
-                const increase = reductionAmount * proportion;
-                finalPurchases[name] += increase;
-                appliedReduction += increase;
-            });
-             // console.log(`    Scaled down after-tax by ${scaleDownFactor.toFixed(3)}. Increased non-retirement to absorb ${appliedReduction.toFixed(2)}.`);
-        } else if (reductionAmount > 0.01) {
-             // If no non-retirement accounts to scale up, the excess cash isn't invested
-             console.warn(`Year ${yearState.year}: After-tax limit exceeded, but no non-retirement accounts in strategy to absorb reduction of ${reductionAmount.toFixed(2)}. This amount will remain as cash.`);
-             // Update excessCash to reflect the uninvested amount
-             excessCash -= reductionAmount; 
+            let appliedIncrease = 0;
+            // console.log(`Year ${yearState.year}: Redistributing ${totalReductionFromLimits.toFixed(2)} from capped after-tax to non-retirement.`);
+            for (const name in initialNonRetirementPurchases) {
+                const proportion = initialNonRetirementPurchases[name] / initialNonRetirementTotal;
+                const increase = totalReductionFromLimits * proportion;
+                finalPurchases[name] = (finalPurchases[name] || 0) + increase; // Increase the final purchase amount
+                appliedIncrease += increase;
+                // console.log(`    Increasing '${name}' purchase by ${increase.toFixed(2)}.`);
+            }
+             // Sanity check log
+             // console.log(`    Total Increase Applied: ${appliedIncrease.toFixed(2)} (Should approx equal ${totalReductionFromLimits.toFixed(2)})`);
+        } else {
+             // Keep this warning
+             console.warn(`Year ${yearState.year}: After-tax contributions capped by ${totalReductionFromLimits.toFixed(2)}, but no non-retirement accounts in strategy to absorb reduction. This amount remains as cash.`);
         }
     }
 
@@ -130,12 +131,12 @@ function processInvestEvents(investStrategyInfo, yearState, currentInflationFact
     let totalActuallyInvested = 0;
     for (const name in finalPurchases) {
         const purchaseAmount = finalPurchases[name];
-        if (purchaseAmount <= 0) continue;
+        if (purchaseAmount <= 0.01) continue; // Ignore negligible amounts
 
         const index = yearState.investments.findIndex(inv => inv.name === name);
         if (index === -1) {
-            // Keep this warning
-            console.warn(`Year ${yearState.year}: Investment '${name}' targeted by invest event not found in current state.`);
+            // Should have been caught earlier, but double-check
+            console.warn(`Year ${yearState.year}: Investment '${name}' not found when applying final purchase.`);
             continue;
         }
 
@@ -150,7 +151,7 @@ function processInvestEvents(investStrategyInfo, yearState, currentInflationFact
         // console.log(`    Invested ${purchaseAmount.toFixed(2)} into '${name}'. New Value: ${yearState.investments[index].value.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
     }
 
-    // Update cash
+    // Update cash based on what was ACTUALLY invested
     yearState.cash -= totalActuallyInvested;
     
     // Recalculate totals

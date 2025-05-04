@@ -105,7 +105,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
             : []),
     incomeEventStates: previousYearState?.incomeEventStates || {},
     curYearIncome: 0, // Initialize yearly totals
-    curYearExpenses: 0,
+    curYearExpenses: 0, // This will track the SUM of expenses paid
     curYearTaxes: 0,
     curYearSS: 0,
     curYearGains: 0,
@@ -113,6 +113,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
     totalInvestmentValue: 0, // Placeholder
     nonDiscExpenseEventStates: previousYearState?.nonDiscExpenseEventStates || {}, // Initialize expense states
     discExpenseEventStates: previousYearState?.discExpenseEventStates || {}, // Initialize disc expense states
+    expenseBreakdown: {}, // NEW: Initialize breakdown object
+    incomeBreakdown: {} // NEW: Initialize income breakdown object
   };
 
   // Initial asset calculation if first year
@@ -127,9 +129,10 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
        // Cash, investments (including costBasis), and expense states are carried over
    }
 
-  // --- Core Simulation Logic --- 
+  // --- Pre-computation for Expenses/Taxes --- 
   let previousYearTaxes = 0;
-  let currentNonDiscExpenses = 0;
+  let nonDiscExpenseDetails = {}; // Store details from calculation
+  let currentNonDiscExpensesTotal = 0; // Store the sum
 
   // Calculate Previous Year's Taxes (if not the first year)
   if (currentYearIndex > 0 && previousYearState) {
@@ -171,6 +174,13 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       const prevEarlyWithdrawalPenalty = 0.10 * prevData.curYearEarlyWithdrawals;
       
       previousYearTaxes = prevFedIncomeTax + prevStateIncomeTax + prevCapGainsTax + prevEarlyWithdrawalPenalty;
+
+      // Add individual taxes to the breakdown for THIS year's state
+      if (prevFedIncomeTax > 0) yearState.expenseBreakdown['Federal Income Tax (Previous Year)'] = prevFedIncomeTax;
+      if (prevStateIncomeTax > 0) yearState.expenseBreakdown['State Income Tax (Previous Year)'] = prevStateIncomeTax;
+      if (prevCapGainsTax > 0) yearState.expenseBreakdown['Capital Gains Tax (Previous Year)'] = prevCapGainsTax;
+      if (prevEarlyWithdrawalPenalty > 0) yearState.expenseBreakdown['Early Withdrawal Penalty (Previous Year)'] = prevEarlyWithdrawalPenalty;
+      
       // console.log(`Year ${currentYear}: Calculated Previous Year (${prevYear}) Taxes: Fed=${prevFedIncomeTax.toFixed(2)}, State=${prevStateIncomeTax.toFixed(2)}, CapGains=${prevCapGainsTax.toFixed(2)}, EarlyPenalty=${prevEarlyWithdrawalPenalty.toFixed(2)}, Total=${previousYearTaxes.toFixed(2)}`);
   } else if (currentYearIndex === 0) {
       //  console.log(`Year ${currentYear}: First year, no previous taxes to calculate.`);
@@ -186,23 +196,28 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           eventsActiveThisYear,
           maritalStatusThisYear,
           currentInflationFactor,
-          previousYearState?.nonDiscExpenseEventStates // Pass previous state for expense events
+          previousYearState?.nonDiscExpenseEventStates
       );
-      currentNonDiscExpenses = expenseResult.totalNonDiscExpenses;
-      yearState.nonDiscExpenseEventStates = expenseResult.expenseEventStates; // Store new state
-      // console.log(`Year ${currentYear}: Calculated Current Non-Discretionary Expenses: ${currentNonDiscExpenses.toFixed(2)}`);
+      nonDiscExpenseDetails = expenseResult.nonDiscExpenseDetails;
+      yearState.nonDiscExpenseEventStates = expenseResult.expenseEventStates;
+      // Add these calculated amounts to the breakdown
+      yearState.expenseBreakdown = { ...yearState.expenseBreakdown, ...nonDiscExpenseDetails };
+      // Calculate the total for payment step
+      currentNonDiscExpensesTotal = Object.values(nonDiscExpenseDetails).reduce((sum, val) => sum + val, 0);
+      // console.log(`Year ${currentYear}: Calculated Current Non-Discretionary Expenses: ${currentNonDiscExpensesTotal.toFixed(2)}`);
   } catch (error) {
       console.error(`Year ${currentYear}: Error calculating current non-discretionary expenses:`, error);
-      currentNonDiscExpenses = 0; // Proceed with zero expenses if calculation fails
+      currentNonDiscExpensesTotal = 0; 
   }
 
-  // Total Payment Amount Needed for Step 6
-  const totalPaymentNeededForStep6 = previousYearTaxes + currentNonDiscExpenses;
+  // Total Payment Amount Needed for Step 6 (Non-Discretionary + Taxes)
+  const totalPaymentNeededForStep6 = previousYearTaxes + currentNonDiscExpensesTotal;
 
   // 2) Run Income Events
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Income Events ---`);
   try {
       const initialCashForYear = yearState.cash; // Cash before income is added
+      // Expect incomeResult to include an incomeBreakdown object
       const incomeResult = runIncomeEvents(
           modelData,                // Pass full model data (contains events)
           eventsActiveThisYear,     // Pass active event names
@@ -218,6 +233,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       yearState.curYearSS = incomeResult.curYearSS;
       // Store the calculated states for the *next* year's previous state
       yearState.incomeEventStates = incomeResult.incomeEventStates;
+      // Merge income breakdown from events
+      yearState.incomeBreakdown = { ...yearState.incomeBreakdown, ...(incomeResult.incomeBreakdown || {}) }; 
 
       // Log the returned values
       // console.log(`Year ${currentYear}: Income Processed. Returned -> Cash: ${incomeResult.cash}, Taxable Income: ${incomeResult.curYearIncome}, SS Income: ${incomeResult.curYearSS}`);
@@ -237,13 +254,23 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing RMDs ---`);
   try {
       // Pass necessary data: strategies, tables, age, current state, previous state
-      yearState = processRequiredMinimumDistributions(
+      // Expect the function to return the updated state and the RMD amount added to income
+      const rmdResult = processRequiredMinimumDistributions(
           rmdStrategies, 
           taxData.rmdTables, // Pass the raw RMD tables 
           userAge, 
           yearState, 
           previousYearState
       );
+      
+      // Update the main yearState object
+      yearState = rmdResult.updatedYearState;
+      
+      // Add RMD income to the breakdown if any occurred
+      if (rmdResult.rmdIncome > 0) {
+          yearState.incomeBreakdown['Required Minimum Distribution'] = (yearState.incomeBreakdown['Required Minimum Distribution'] || 0) + rmdResult.rmdIncome;
+      }
+      
       // console.log(`Year ${currentYear}: RMDs processed. curYearIncome: ${yearState.curYearIncome}`);
   } catch (error) {
        console.error(`Year ${currentYear}: Error processing RMDs:`, error);
@@ -253,8 +280,14 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // 4) Process Investment Returns
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Investment Returns ---`);
   try {
-      // Pass the current yearState. The function will modify investments and income totals within it.
-      yearState = processInvestmentReturns(null, yearState);
+      // Expect the function to return the updated state and a breakdown of investment income
+      const investmentResult = processInvestmentReturns(null, yearState);
+      
+      // Update the main yearState object
+      yearState = investmentResult.updatedYearState;
+      
+      // Merge investment income breakdown
+      yearState.incomeBreakdown = { ...yearState.incomeBreakdown, ...(investmentResult.investmentIncomeBreakdown || {}) };
       
       // After investment returns, update total investment value and total assets
       yearState.totalInvestmentValue = calculateTotalAssets(yearState.investments);
@@ -291,10 +324,11 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           // Update year state with conversion results
           yearState.investments = rothResult.investments;
           yearState.curYearIncome = rothResult.curYearIncome;
-          yearState.rothConversionAmount = rothResult.conversionAmount;
+          // yearState.rothConversionAmount = rothResult.conversionAmount; // Store if needed elsewhere, otherwise just use for breakdown
           
-          // Only log if a conversion actually happened
+          // Add Roth conversion amount to income breakdown
           if (rothResult.conversionAmount > 0) {
+              yearState.incomeBreakdown['Roth Conversion'] = (yearState.incomeBreakdown['Roth Conversion'] || 0) + rothResult.conversionAmount;
               // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Roth Conversion Occurred ---`);
               // console.log(`    Before: curYearIncome=${incomeBeforeConversion.toFixed(2)}, curYearSS=${yearState.curYearSS.toFixed(2)}, adjStdDed=${adjustedStandardDeduction.toFixed(2)}`);
               // console.log(`    After:  conversionAmount=${rothResult.conversionAmount.toFixed(2)}, newCurYearIncome=${yearState.curYearIncome.toFixed(2)}`);
@@ -316,26 +350,31 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           expenseWithdrawalStrategies, 
           userAge
       );
-      yearState.curYearTaxes = previousYearTaxes; 
+      yearState.curYearTaxes = previousYearTaxes; // Still store total tax paid
   } catch (error) {
        console.error(`Year ${currentYear}: Error processing non-discretionary expenses/withdrawals:`, error);
   }
 
   // 7) Pay Discretionary Expenses 
   try {
-      yearState = processDiscretionaryExpenses(
+      const discResult = processDiscretionaryExpenses(
           modelData, 
           eventsActiveThisYear,
-          spendingStrategy, // Pass the correctly named variable
+          spendingStrategy, 
           expenseWithdrawalStrategies, 
           financialGoal,
           userAge,
           maritalStatusThisYear,
           currentInflationFactor,
-          yearState, 
+          yearState, // Pass current state 
           previousYearState?.discExpenseEventStates 
       );
-      // Note: curYearExpenses is updated inside processDiscretionaryExpenses
+      yearState = discResult.updatedYearState; // Get mutated state back
+      // Add the details of *actually paid* discretionary expenses to the breakdown
+      yearState.expenseBreakdown = { ...yearState.expenseBreakdown, ...discResult.paidDiscExpenses }; 
+      // Store the expense states calculated by the module for the *next* year
+      yearState.discExpenseEventStates = discResult.expenseEventStates; 
+      // Note: curYearExpenses sum was updated inside processDiscretionaryExpenses/performWithdrawal
   } catch (error) {
       console.error(`Year ${currentYear}: Error processing discretionary expenses:`, error);
   }

@@ -9,7 +9,7 @@
 
 /**
  * Process Roth conversions for the current year
- * @param {Array} rothConversionStrategies - List of investment names to consider for conversion
+ * @param {Array} rothConversionSourceAccounts - List of investment names to consider for conversion
  * @param {Object} adjustedIncomeTaxBrackets - Inflation-adjusted federal income tax brackets
  * @param {Number} adjustedStandardDeduction - Inflation-adjusted standard deduction
  * @param {Number} curYearIncome - Current year's income
@@ -19,143 +19,174 @@
  * @param {Boolean} rothOptimizerEnable - Whether Roth optimization is enabled
  * @param {Number} rothOptimizerStartYear - Year to start optimizing Roth conversions
  * @param {Number} rothOptimizerEndYear - Year to end optimizing Roth conversions
- * @returns {Object} - Result object with updated investments and income
+ * @returns {Object} - An object containing the updated investments array, the updated taxable income, and the amount converted.
+ *                     { investments: Array, curYearIncome: Number, conversionAmount: Number }
  */
 function processRothConversion(
-  rothConversionStrategies,
+  rothConversionSourceAccounts,
   adjustedIncomeTaxBrackets,
   adjustedStandardDeduction,
   curYearIncome,
   curYearSS,
   investments,
   currentYear,
-  rothOptimizerEnable,
-  rothOptimizerStartYear,
-  rothOptimizerEndYear
+  rothOptimizerEnable = false,
+  rothOptimizerStartYear = null,
+  rothOptimizerEndYear = null
 ) {
-  // Check if Roth conversion should be performed this year
-  if (!rothConversionStrategies || rothConversionStrategies.length === 0) {
-    return { investments, curYearIncome, conversionAmount: 0 };
-  }
+  let totalAmountConverted = 0;
+  let updatedInvestments = JSON.parse(JSON.stringify(investments)); // Deep clone
+  let updatedTaxableIncome = curYearIncome;
 
-  // Skip if Roth optimizer is enabled but outside the specified year range
-  if (rothOptimizerEnable && 
-      (currentYear < rothOptimizerStartYear || currentYear > rothOptimizerEndYear)) {
-    return { investments, curYearIncome, conversionAmount: 0 };
+  if (!rothConversionSourceAccounts || rothConversionSourceAccounts.length === 0) {
+    return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
   }
-
-  // a. Calculate federal taxable income (with partial SS taxation)
-  const curYearFedTaxableIncome = curYearIncome - 0.15 * curYearSS;
-  //console.log(`Roth Conv Year ${currentYear}: curYearFedTaxableIncome=${curYearFedTaxableIncome.toFixed(2)}`);
   
-  // Find the user's current tax bracket
-  let currentBracket = null;
+  // --- Check if optimizer is active AND if current year is outside its window ---
+  if (rothOptimizerEnable) {
+    const isOptimizerActiveYear = 
+      (!rothOptimizerStartYear || currentYear >= rothOptimizerStartYear) && 
+      (!rothOptimizerEndYear || currentYear <= rothOptimizerEndYear);
+      
+    if (!isOptimizerActiveYear) {
+      // Optimizer is enabled, but we are outside the active years, so do nothing.
+      // console.log(`Year ${currentYear}: Skipping Roth conversion (Optimizer enabled but outside active window [${rothOptimizerStartYear}-${rothOptimizerEndYear}])`);
+      return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
+    }
+    // If we are here, optimizer is enabled AND it's an active year.
+  } else {
+    // Optimizer is not enabled, skip conversion
+    // console.log(`Year ${currentYear}: Skipping Roth conversion (Optimizer not enabled).`);
+    return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
+  }
+  // --- If optimizer is enabled and within the active year window, proceed ---
+  
+  // --- Calculate Target Conversion Amount (rc) based on filling current tax bracket --- 
+  
+  // a. Calculate federal taxable income before conversion (considering SS taxation and standard deduction)
+  const curYearFedTaxableIncomeBeforeConv = curYearIncome - 0.15 * curYearSS; 
+  const netTaxableIncomeBeforeConv = Math.max(0, curYearFedTaxableIncomeBeforeConv - adjustedStandardDeduction);
+  
+  // Find the user's current tax bracket upper limit (u)
   let upperLimit = 0;
-
-  // Ensure brackets are provided and sorted by minimum income
   if (!adjustedIncomeTaxBrackets || adjustedIncomeTaxBrackets.length === 0) {
     console.error(`Roth Conversion Error Year ${currentYear}: No adjusted income tax brackets provided.`);
-    return { investments, curYearIncome, conversionAmount: 0 };
+    return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
   }
   const sortedBrackets = [...adjustedIncomeTaxBrackets].sort((a, b) => a.adjustedMinIncome - b.adjustedMinIncome);
   
-  // Find the bracket the user is in
+  let foundBracket = false;
   for (let i = 0; i < sortedBrackets.length; i++) {
     const bracket = sortedBrackets[i];
-    // Check if income is within the current bracket's range
-    if (curYearFedTaxableIncome >= bracket.adjustedMinIncome && curYearFedTaxableIncome < bracket.adjustedMaxIncome) {
-      currentBracket = bracket;
-      upperLimit = bracket.adjustedMaxIncome; // The upper limit of the *current* bracket
-      break; // Found the bracket
+    if (netTaxableIncomeBeforeConv >= bracket.adjustedMinIncome && netTaxableIncomeBeforeConv < bracket.adjustedMaxIncome) {
+      upperLimit = bracket.adjustedMaxIncome; 
+      foundBracket = true;
+      break; 
     }
-    // Handle the case where income is in the highest bracket (>= min of last bracket)
-    if (i === sortedBrackets.length - 1 && curYearFedTaxableIncome >= bracket.adjustedMinIncome) {
-        currentBracket = bracket;
-        upperLimit = bracket.adjustedMaxIncome; // This will be Infinity for the top bracket
-        break;
+    if (i === sortedBrackets.length - 1 && netTaxableIncomeBeforeConv >= bracket.adjustedMinIncome) {
+      upperLimit = bracket.adjustedMaxIncome; // Infinity for the top bracket
+      foundBracket = true;
+      break;
     }
   }
-
-  // If no bracket found (should not happen if income >= 0 and brackets cover all ranges)
-  if (!currentBracket) {
-    console.error(`Roth Conversion Error Year ${currentYear}: Unable to determine tax bracket for income ${curYearFedTaxableIncome.toFixed(2)} using provided brackets:`, sortedBrackets);
-    return { investments, curYearIncome, conversionAmount: 0 };
+  
+  if (!foundBracket) {
+    console.error(`Roth Conversion Error Year ${currentYear}: Unable to determine tax bracket for net income ${netTaxableIncomeBeforeConv.toFixed(2)}`);
+    return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
   }
 
-  //console.log(`Roth Conv Year ${currentYear}: Current Tax Bracket Rate=${currentBracket.rate} (Range: ${currentBracket.adjustedMinIncome.toFixed(2)} - ${upperLimit < Infinity ? upperLimit.toFixed(2) : 'Infinity'})`);
-
-  // b. Calculate amount of Roth conversion to fill the current bracket
-  const conversionRoomInBracket = upperLimit - curYearFedTaxableIncome;
-  const rc = Math.max(0, conversionRoomInBracket);
-  //console.log(`Roth Conv Year ${currentYear}: Calculated initial Roth conversion amount (rc) = ${rc.toFixed(2)} (Room in bracket: ${conversionRoomInBracket.toFixed(2)})`);
+  // b. Calculate amount of Roth conversion (rc) needed to fill the bracket
+  // rc = u - netTaxableIncomeBeforeConv
+  let targetConversionAmount = 0;
+  if (upperLimit === Infinity) { 
+    // If in the highest bracket, maybe convert a fixed amount or based on another rule?
+    // For now, assume no conversion if already in the highest bracket.
+    // console.log(`Year ${currentYear}: Skipping Roth conversion (already in highest bracket).`);
+    targetConversionAmount = 0;
+  } else {
+    targetConversionAmount = Math.max(0, upperLimit - netTaxableIncomeBeforeConv);
+  }
   
-  if (rc <= 0) {
-    console.log(`Roth Conv Year ${currentYear}: Skipping conversion as calculated amount is zero or less.`);
-    return { investments, curYearIncome, conversionAmount: 0 };
+  // console.log(`Year ${currentYear}: Roth Optimizer - Net Income Before: ${netTaxableIncomeBeforeConv.toFixed(2)}, Bracket Upper Limit: ${upperLimit === Infinity ? 'Inf' : upperLimit.toFixed(2)}, Target Conversion (rc): ${targetConversionAmount.toFixed(2)}`);
+  
+  if (targetConversionAmount <= 0.01) { // Use threshold for floating point
+    // console.log(`Year ${currentYear}: Skipping Roth conversion (target amount is zero or negligible).`);
+    return { investments: updatedInvestments, curYearIncome: updatedTaxableIncome, conversionAmount: 0 };
   }
 
-  // c. Iterate over investments in the Roth conversion strategy
-  let remainingConversion = rc;
-  const updatedInvestments = [...investments];
-  
-  // Find investments to convert
-  for (const investmentName of rothConversionStrategies) {
-    if (remainingConversion <= 0) break;
-    
-    // Find the investment in the array
-    const index = updatedInvestments.findIndex(
-      inv => inv.name === investmentName && inv.accountTaxStatus === 'pre-tax'
+  // --- c. Iterate over source accounts and perform conversion --- 
+  let amountRemainingToConvert = targetConversionAmount;
+
+  for (const sourceAccountName of rothConversionSourceAccounts) {
+    if (amountRemainingToConvert <= 0.01) break; // Target met
+
+    // Find the source pre-tax investment account
+    const sourceAccountIndex = updatedInvestments.findIndex(inv => 
+      inv.name === sourceAccountName && 
+      inv.taxStatus === 'pre-tax'
     );
+
+    if (sourceAccountIndex === -1) {
+      // console.log(`Year ${currentYear}: Roth source account '${sourceAccountName}' not found or not pre-tax.`);
+      continue; // Try next source account
+    }
     
-    if (index === -1) continue; // Investment not found or not pre-tax
-    
-    const investment = updatedInvestments[index];
-    
-    // Calculate amount to convert from this investment
-    const conversionFromThis = Math.min(remainingConversion, investment.value);
-    
-    if (conversionFromThis <= 0) continue;
-    
-    // Reduce value of pre-tax investment
-    updatedInvestments[index].value -= conversionFromThis;
-    
-    // Find or create corresponding after-tax investment
-    let afterTaxIndex = updatedInvestments.findIndex(
-      inv => inv.name === investmentName + ' (Roth)' && 
-             inv.accountTaxStatus === 'after-tax' &&
-             inv.investmentType._id === investment.investmentType._id
+    const sourceAccount = updatedInvestments[sourceAccountIndex];
+    if (sourceAccount.value <= 0) {
+      // console.log(`Year ${currentYear}: Roth source account '${sourceAccountName}' has zero value.`);
+      continue; // Try next source account
+    }
+
+    // Determine amount to convert from this specific source
+    const amountToConvertFromThisSource = Math.min(amountRemainingToConvert, sourceAccount.value);
+
+    // Determine target account name and find/create it
+    const targetAccountName = `${sourceAccount.name} (Roth)`;
+    let targetAccountIndex = updatedInvestments.findIndex(inv => 
+      inv.name === targetAccountName && 
+      inv.taxStatus === 'tax-exempt' // Using 'tax-exempt' for Roth based on InvestmentReturns logic
     );
-    
-    if (afterTaxIndex === -1) {
-      // Create new after-tax investment with same properties
+
+    if (targetAccountIndex === -1) {
+      // Create the target Roth account if it doesn't exist
+      // console.log(`Year ${currentYear}: Creating target Roth account '${targetAccountName}' for conversion.`);
       const newRothInvestment = {
-        ...JSON.parse(JSON.stringify(investment)),
-        name: investmentName + ' (Roth)',
-        accountTaxStatus: 'after-tax',
-        value: 0
+        ...JSON.parse(JSON.stringify(sourceAccount)), // Base structure on source
+        name: targetAccountName,
+        taxStatus: 'tax-exempt', 
+        value: 0, // Start with zero value
+        costBasis: 0, // Initial cost basis is 0
+        _id: `temp-roth-${sourceAccountName}-${Date.now()}` // Generate a unique-ish temp ID
       };
+       // Remove fields that shouldn't be copied or are set above
+      delete newRothInvestment.maxAnnualContribution; // Roth limits handled differently
+      // Add other fields specific to Roth if needed by schemas
       
       updatedInvestments.push(newRothInvestment);
-      afterTaxIndex = updatedInvestments.length - 1;
+      targetAccountIndex = updatedInvestments.length - 1; 
     }
     
-    // Add value to after-tax investment
-    updatedInvestments[afterTaxIndex].value += conversionFromThis;
-    
-    // Update remaining conversion amount
-    remainingConversion -= conversionFromThis;
-    
-    //console.log(`Roth Conv Year ${currentYear}: Converted ${conversionFromThis.toFixed(2)} from '${investmentName}' to Roth. Remaining rc: ${remainingConversion.toFixed(2)}`);
-  }
+    const targetAccount = updatedInvestments[targetAccountIndex];
 
-  // d. Update income to reflect the conversion
-  const actualConversion = rc - remainingConversion;
-  const updatedIncome = curYearIncome + actualConversion;
+    // Perform the transfer
+    sourceAccount.value -= amountToConvertFromThisSource;
+    targetAccount.value += amountToConvertFromThisSource;
+    targetAccount.costBasis = (targetAccount.costBasis || 0) + amountToConvertFromThisSource;
+
+    // Update tracking variables
+    totalAmountConverted += amountToConvertFromThisSource;
+    amountRemainingToConvert -= amountToConvertFromThisSource;
+    
+    // console.log(`Year ${currentYear}: Converted ${amountToConvertFromThisSource.toFixed(2)} from '${sourceAccountName}' to '${targetAccountName}'. Total converted: ${totalAmountConverted.toFixed(2)}. Remaining target: ${amountRemainingToConvert.toFixed(2)}`);
+  }
   
-  return {
-    investments: updatedInvestments,
-    curYearIncome: updatedIncome,
-    conversionAmount: actualConversion
+  // --- d. Update overall taxable income --- 
+  updatedTaxableIncome += totalAmountConverted;
+
+  return { 
+    investments: updatedInvestments, 
+    curYearIncome: updatedTaxableIncome, 
+    conversionAmount: totalAmountConverted 
   };
 }
 

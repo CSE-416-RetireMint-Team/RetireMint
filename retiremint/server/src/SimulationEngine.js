@@ -114,14 +114,13 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
 
     // Only log data once per session for debugging
     if (!hasLoggedDataThisSession) {
-      //console.log('\n--- Result from fetchAndLogModelData ---');
-      //console.log(JSON.stringify(modelData, null, 2)); // Log the actual fetched data
-      //console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
-      // Log only the scenario part, excluding taxData
-      //console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
-      //console.log('-------------------------------------\n');
-      //console.log('Database model data logged to console (first run this session)');
-      hasLoggedDataThisSession = true;
+      // console.log('\n--- Result from fetchAndLogModelData ---');
+      // console.log(JSON.stringify(modelData, null, 2)); // Log the actual fetched data
+      // console.log('\n--- Result from fetchAndLogModelData (Scenario Only) ---');
+      // console.log(JSON.stringify({ scenario: modelData.scenario }, null, 2)); 
+      // console.log('-------------------------------------\n');
+      // console.log('Database model data logged to console (first run this session)');
+      // hasLoggedDataThisSession = true;
     }
     
     console.log(`Starting ${numSimulations} simulations...`);
@@ -141,12 +140,13 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
 
     // --- Aggregate Detailed Results --- 
     const aggregatedResults = {
-        yearlyResults: [],        // Array of yearlyResults arrays
-        cashArrays: [],           // Array of cashArrays
-        investmentValueArrays: [],// Array of investmentsValueArrays
-        expensesArrays: [],       // Array of expensesArrays
-        earlyWithdrawalArrays: [] // Array of earlyWithdrawalArrays
-        
+        yearlyResults: [],        
+        cashArrays: [],           
+        investmentValueArrays: [], // Now an array of breakdown objects
+        expensesArrays: [],       // Already an array of breakdown objects
+        earlyWithdrawalArrays: [], 
+        incomeArrays: [],          // NEW: Initialize array for income breakdowns
+        discretionaryRatioArrays: [] // NEW: Initialize array for ratios
     };
 
     allSimulationResultsRaw.forEach(singleResult => {
@@ -156,23 +156,23 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
         aggregatedResults.investmentValueArrays.push(singleResult.investmentsValueArray);
         aggregatedResults.expensesArrays.push(singleResult.expensesArray);
         aggregatedResults.earlyWithdrawalArrays.push(singleResult.earlyWithdrawalArray);
+        aggregatedResults.incomeArrays.push(singleResult.incomeArrays); // NEW: Aggregate income arrays
+        aggregatedResults.discretionaryRatioArrays.push(singleResult.discretionaryRatioArray); // NEW: Aggregate ratio arrays
     });
 
     // --- Log Final Results --- 
-    //console.log('--- Aggregated Simulation Results ---');
-    // Log a summary for clarity, full log might be too large
     console.log(`Total simulations run: ${aggregatedResults.yearlyResults.length}`);
-    // Example: Log details from the first simulation's arrays
-    const numSimsToLog = Math.min(4, aggregatedResults.yearlyResults.length); // Log up to 4 simulations
+    const numSimsToLog = Math.min(4, aggregatedResults.yearlyResults.length); 
     if (numSimsToLog > 0) {
         for (let i = 0; i < numSimsToLog; i++) {
             console.log(`\n--- Details from Simulation #${i + 1} ---`);
             console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
-            console.log(`  Cash Array:`, aggregatedResults.cashArrays[i]); // Log the full array
-            // Keep others sliced for brevity, or remove if not needed
-             console.log(`  Investment Value Array:`, aggregatedResults.investmentValueArrays[i]?.slice(0, 5)); 
-             console.log(`  Expenses Array:`, aggregatedResults.expensesArrays[i]?.slice(0, 5));
-             console.log(`  Early Withdrawal Array:`, aggregatedResults.earlyWithdrawalArrays[i]?.slice(0, 5));
+            console.log(`  Cash Array (First 5):`, aggregatedResults.cashArrays[i]/*?.slice(0, 5)8*/); // Slice for brevity
+            console.log(`  Investment Value Array (First 5 Years):`, aggregatedResults.investmentValueArrays[i]/*?.slice(0, 5)*/); 
+            console.log(`  Expenses Array (First 5 Years):`, aggregatedResults.expensesArrays[i]/*?.slice(0, 5)*/); // Log breakdown object
+            console.log(`  Early Withdrawal Array (First 5):`, aggregatedResults.earlyWithdrawalArrays[i]/*?.slice(0, 5)*/);
+            console.log(`  Income Array (First 5 Years):`, aggregatedResults.incomeArrays[i]?.slice(0, 5));
+            console.log(`  Discretionary Ratio Array (First 5):`, aggregatedResults.discretionaryRatioArrays[i]/*?.slice(0, 5)*/); // NEW: Log ratios
         }
     }
     //console.log('\n-------------------------------------\n');

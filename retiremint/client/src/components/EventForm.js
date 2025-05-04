@@ -1982,7 +1982,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
                         switch (event.startYear.returnType) {
                             case 'fixedValue':
-                                if (!event.startYear.fixedValue) {
+                                // Allow 0? (Unlikely for year, but check if null/empty)
+                                if (event.startYear.fixedValue == null || String(event.startYear.fixedValue).trim() === '') {
                                     console.log(`Event missing fixedValue for startYear: ${event.name}`);
                                     alert(`Event "${event.name}" requires a Fixed Value for Start Year.`);
                                     validationPassed = false;
@@ -1991,7 +1992,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 break;
 
                             case 'normalValue':
-                                if (!event.startYear.normalValue.mean || !event.startYear.normalValue.sd) {
+                                // Allow 0 for mean/sd
+                                if ((event.startYear.normalValue.mean == null || String(event.startYear.normalValue.mean).trim() === '') || 
+                                    (event.startYear.normalValue.sd == null || String(event.startYear.normalValue.sd).trim() === '')) {
                                     alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Start Year.`);
                                     validationPassed = false; // Set flag
                                     break; // Break switch
@@ -1999,7 +2002,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 break;
 
                             case 'uniformValue':
-                                if (!event.startYear.uniformValue.lowerBound || !event.startYear.uniformValue.upperBound) {
+                                // Allow 0 for bounds
+                                if ((event.startYear.uniformValue.lowerBound == null || String(event.startYear.uniformValue.lowerBound).trim() === '') || 
+                                    (event.startYear.uniformValue.upperBound == null || String(event.startYear.uniformValue.upperBound).trim() === '')) {
                                     alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Start Year.`);
                                     validationPassed = false; // Set flag
                                     break; // Break switch
@@ -2043,7 +2048,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 const isIncome = event.eventType === 'income';
                                 const eventData = isIncome ? event.income : event.expense;
                         
-                                if (!eventData.initialAmount) {
+                                // Allow 0 for initial amount
+                                if (eventData.initialAmount == null || String(eventData.initialAmount).trim() === '') {
                                     console.log(`Event missing initialAmount: ${event.name}`);
                                     alert(`Event "${event.name}" requires an Initial Amount.`);
                                     validationPassed = false;
@@ -2060,46 +2066,46 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 switch (eventData.expectedAnnualChange.returnType) {
                                     case 'fixedValue':
                                         // Allow 0 as a valid value
-                                        if (!eventData.expectedAnnualChange.fixedValue && eventData.expectedAnnualChange.fixedValue !== 0) {
+                                        if (eventData.expectedAnnualChange.fixedValue == null || String(eventData.expectedAnnualChange.fixedValue).trim() === '') {
                                             alert(`Event "${event.name}" requires a Fixed Value for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalValue':
                                         // Allow 0 for mean/sd
-                                        if ((!eventData.expectedAnnualChange.normalValue.mean && eventData.expectedAnnualChange.normalValue.mean !== 0) || 
-                                            (!eventData.expectedAnnualChange.normalValue.sd && eventData.expectedAnnualChange.normalValue.sd !== 0)) {
+                                        if ((eventData.expectedAnnualChange.normalValue.mean == null || String(eventData.expectedAnnualChange.normalValue.mean).trim() === '') || 
+                                            (eventData.expectedAnnualChange.normalValue.sd == null || String(eventData.expectedAnnualChange.normalValue.sd).trim() === '')) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformValue':
                                         // Allow 0 for bounds
-                                        if ((!eventData.expectedAnnualChange.uniformValue.lowerBound && eventData.expectedAnnualChange.uniformValue.lowerBound !== 0) || 
-                                            (!eventData.expectedAnnualChange.uniformValue.upperBound && eventData.expectedAnnualChange.uniformValue.upperBound !== 0)) {
+                                        if ((eventData.expectedAnnualChange.uniformValue.lowerBound == null || String(eventData.expectedAnnualChange.uniformValue.lowerBound).trim() === '') || 
+                                            (eventData.expectedAnnualChange.uniformValue.upperBound == null || String(eventData.expectedAnnualChange.uniformValue.upperBound).trim() === '')) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'fixedPercentage':
                                         // Allow 0 as a valid value
-                                        if (!eventData.expectedAnnualChange.fixedPercentage && eventData.expectedAnnualChange.fixedPercentage !== 0) {
+                                        if (eventData.expectedAnnualChange.fixedPercentage == null || String(eventData.expectedAnnualChange.fixedPercentage).trim() === '') {
                                             alert(`Event "${event.name}" requires a Fixed Percentage for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalPercentage':
                                         // Allow 0 for mean/sd
-                                        if ((!eventData.expectedAnnualChange.normalPercentage.mean && eventData.expectedAnnualChange.normalPercentage.mean !== 0) || 
-                                            (!eventData.expectedAnnualChange.normalPercentage.sd && eventData.expectedAnnualChange.normalPercentage.sd !== 0)) {
+                                        if ((eventData.expectedAnnualChange.normalPercentage.mean == null || String(eventData.expectedAnnualChange.normalPercentage.mean).trim() === '') || 
+                                            (eventData.expectedAnnualChange.normalPercentage.sd == null || String(eventData.expectedAnnualChange.normalPercentage.sd).trim() === '')) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformPercentage':
                                         // Allow 0 for bounds
-                                        if ((!eventData.expectedAnnualChange.uniformPercentage.lowerBound && eventData.expectedAnnualChange.uniformPercentage.lowerBound !== 0) || 
-                                            (!eventData.expectedAnnualChange.uniformPercentage.upperBound && eventData.expectedAnnualChange.uniformPercentage.upperBound !== 0)) {
+                                        if ((eventData.expectedAnnualChange.uniformPercentage.lowerBound == null || String(eventData.expectedAnnualChange.uniformPercentage.lowerBound).trim() === '') || 
+                                            (eventData.expectedAnnualChange.uniformPercentage.upperBound == null || String(eventData.expectedAnnualChange.uniformPercentage.upperBound).trim() === '')) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Percentage.`);
                                             validationPassed = false; break;
                                         }
@@ -2111,7 +2117,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 if (!validationPassed) break;
                         
                                 // Allow 0 for married percentage
-                                if (scenarioType === 'married' && (!eventData.marriedPercentage && eventData.marriedPercentage !== 0)) {
+                                if (scenarioType === 'married' && (eventData.marriedPercentage == null || String(eventData.marriedPercentage).trim() === '')) {
                                     alert(`Event "${event.name}" requires a Married Percentage because the scenario is Married.`);
                                     validationPassed = false;
                                 }
@@ -2125,7 +2131,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 
                                 if (isInvest) {
                                     // Validate Maximum Cash for invest events
-                                    if (!eventData.newMaximumCash && eventData.newMaximumCash !== 0) { // Allow 0
+                                    if (eventData.newMaximumCash == null || String(eventData.newMaximumCash).trim() === '') { // Allow 0
                                         console.log(`Invest event missing newMaximumCash: ${event.name}`);
                                         alert(`Event "${event.name}" requires a Maximum Cash value.`);
                                     validationPassed = false;
