@@ -4,6 +4,8 @@
  * Calculates and processes Required Minimum Distributions (RMDs) for a given year.
  */
 
+const { performWithdrawal } = require('../Utils/WithdrawalUtils'); // Import withdrawal utility
+
 /**
  * Finds or creates a target investment account for RMD withdrawals.
  * 
@@ -45,118 +47,140 @@ function findOrCreateTargetAccount(investments, sourceInvestment, targetTaxStatu
  * @param {Array} rmdTables - RMD lookup tables from taxData.
  * @param {number} userAge - The user's age in the current simulation year.
  * @param {Object} yearState - The current state of the simulation year (will be modified).
- * @param {Object} previousYearState - The state from the previous year (for end-of-year balances).
- * @returns {Object} The updated yearState object.
+ * @param {Object} previousYearState - State object from the previous year's simulation (optional, for initial RMD)
+ * @returns {Object} - Object containing the updated year state and the total RMD income generated.
+ *                     { updatedYearState: Object, rmdIncome: Number }
  */
-function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, yearState, previousYearState) {
-    // 3a: RMDs start in the year the user turns 74 (based on prior year balance when turning 73)
-    if (!userAge || userAge < 74 || !previousYearState) {
-        // console.log(`Year ${yearState.year}: Skipping RMD (Age: ${userAge}, No Prev State: ${!previousYearState})`);
-        return yearState; // No RMD applicable
-    }
-
-    // Ensure we have previous year's investments to calculate RMD base
-    const prevInvestments = previousYearState.investments;
-    if (!prevInvestments || prevInvestments.length === 0) {
-        // console.log(`Year ${yearState.year}: Skipping RMD (No previous investments)`);
-        return yearState; // Cannot calculate RMD base
-    }
-
-    // 3c: Calculate 's', the sum of values of pre-tax investments at the END of the PREVIOUS year.
-    const s = prevInvestments.reduce((sum, inv) => {
-        if (inv.accountTaxStatus === 'pre-tax') {
-            return sum + (inv.value || 0);
-        }
-        return sum;
-    }, 0);
-
-    if (s <= 0) {
-        // console.log(`Year ${yearState.year}: Skipping RMD (Previous pre-tax balance is zero or negative)`);
-        return yearState; // No RMD required if pre-tax balance was zero
-    }
-
-    // 3b: Find the distribution period 'd'. Assume only one relevant table (Uniform Lifetime) for now.
-    // Use the most recent RMD table available (in case taxData has multiple years)
-    const sortedRmdTables = rmdTables ? [...rmdTables].sort((a, b) => b.year - a.year) : [];
-    const rmdTableToUse = sortedRmdTables[0]; // Use the latest
-
-    if (!rmdTableToUse || !rmdTableToUse.rows) {
-        console.error(`Year ${yearState.year}: RMD Table or its rows not found. Cannot calculate RMD.`);
-        return yearState;
-    }
-
-    // Find the row for the user's CURRENT age in the RMD table.
-    // Note: RMD for Year X is based on balance Dec 31 Year (X-1) and Age in Year X.
-    const rmdRow = rmdTableToUse.rows.find(row => row.age === userAge);
-    if (!rmdRow || !rmdRow.distributionPeriod || rmdRow.distributionPeriod <= 0) {
-        console.error(`Year ${yearState.year}: RMD distribution period not found or invalid for age ${userAge}. Cannot calculate RMD.`);
-        return yearState;
-    }
-    const d = rmdRow.distributionPeriod;
-
-    // 3d: Calculate RMD amount
-    const rmd = s / d;
-    if (rmd <= 0) {
-        // console.log(`Year ${yearState.year}: Calculated RMD is zero or negative.`);
-        return yearState; // No withdrawal needed
+function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, yearState, previousYearState = null) {
+    
+    let totalRmdIncomeThisYear = 0;
+    
+    // --- Basic Validation ---
+    if (!rmdStrategies || rmdStrategies.length === 0 || !rmdTables || rmdTables.length === 0) {
+        // No RMD strategies or data, return state unchanged
+        return { updatedYearState: yearState, rmdIncome: 0 };
     }
     
-    // Calculate RMD percentage
-    const rmdPercentage = s > 0 ? (rmd / s) * 100 : 0;
-    const rmdTableYear = rmdTableToUse?.year || 'Unknown'; // Get year from the table used
-    
-    // console.log(`Year ${yearState.year}: RMD Calculation - Prev PreTax Bal (s): ${s.toFixed(2)}, Age: ${userAge}, Period (d): ${d} (from ${rmdTableYear} table), RMD Amount: ${rmd.toFixed(2)} (${rmdPercentage.toFixed(2)}% of balance)`);
-
-    // 3e: Update taxable income for the current year
-    yearState.curYearIncome = (yearState.curYearIncome || 0) + rmd;
-
-    // 3f & 3g: Process withdrawals according to the strategy
-    let rmdAmountWithdrawn = 0;
-    let rmdAmountRemaining = rmd;
-
-    if (!rmdStrategies || rmdStrategies.length === 0) {
-        console.warn(`Year ${yearState.year}: RMD required (${rmd.toFixed(2)}) but no RMD withdrawal strategy defined.`);
-        // Withdraw from cash? Or just log? For now, log and don't modify investments further.
-        // The income is already added. This could lead to negative cash if not handled by expense logic.
-        return yearState;
+    // RMDs typically start at age 73 (check latest IRS rules if needed)
+    if (!userAge || userAge < 73) {
+        return { updatedYearState: yearState, rmdIncome: 0 };
     }
 
-    for (const sourceInvestmentName of rmdStrategies) {
-        if (rmdAmountRemaining <= 0) break; // RMD met
+    // --- Select the Correct RMD Table (Assuming Uniform Lifetime for now) ---
+    const uniformLifetimeTable = rmdTables.find(table => table.tableType && table.tableType.includes('Uniform Lifetime'));
+    
+    if (!uniformLifetimeTable || !uniformLifetimeTable.rows || uniformLifetimeTable.rows.length === 0) {
+        console.warn(`Year ${yearState.year}: Uniform Lifetime RMD table not found or has no rows in provided taxData. Skipping RMD.`);
+        return { updatedYearState: yearState, rmdIncome: 0 };
+    }
+    
+    // --- Find the RMD factor (distribution period) for the user's age within the selected table's rows ---
+    const rmdRow = uniformLifetimeTable.rows.find(row => row.age === userAge);
+    
+    if (!rmdRow || typeof rmdRow.distributionPeriod !== 'number' || rmdRow.distributionPeriod <= 0) {
+        console.warn(`Year ${yearState.year}: Could not find valid RMD distribution period for age ${userAge} in the Uniform Lifetime table. Skipping RMD.`);
+        return { updatedYearState: yearState, rmdIncome: 0 };
+    }
+    const rmdDistributionPeriod = rmdRow.distributionPeriod;
 
-        // Find the source pre-tax investment in the CURRENT state
-        const sourceInvestment = yearState.investments.find(inv => 
-            inv.name === sourceInvestmentName && 
-            inv.accountTaxStatus === 'pre-tax'
-        );
+    // --- Determine Previous Year's Relevant Account Balances ---
+    // RMD is based on the PREVIOUS year's Dec 31 balance of pre-tax retirement accounts.
+    let previousYearPreTaxBalance = 0;
+    if (previousYearState && previousYearState.investments) {
+        previousYearState.investments.forEach(inv => {
+            if (inv.taxStatus === 'pre-tax') {
+                previousYearPreTaxBalance += (inv.value || 0);
+            }
+        });
+    } else if (yearState.year === new Date().getFullYear()) { // Very first year handling
+         // Use initial balances if it's the absolute first year of the overall simulation
+         (yearState.investments || []).forEach(inv => {
+             if (inv.taxStatus === 'pre-tax') {
+                 previousYearPreTaxBalance += (inv.value || 0); // Use initial value as proxy
+             }
+         });
+    }
+    
+    if (previousYearPreTaxBalance <= 0) {
+        // No pre-tax balance from previous year, no RMD needed.
+        return { updatedYearState: yearState, rmdIncome: 0 };
+    }
 
-        if (!sourceInvestment || sourceInvestment.value <= 0) {
-            // console.log(`Year ${yearState.year}: RMD source ${sourceInvestmentName} not found or has zero value.`);
-            continue; // Skip to next investment in strategy
-        }
+    // --- Calculate Total RMD Amount ---
+    const totalRmdAmount = previousYearPreTaxBalance / rmdDistributionPeriod; // Use the correct period
+    // console.log(`Year ${yearState.year} (Age ${userAge}): Prev PreTax Balance: ${previousYearPreTaxBalance.toFixed(2)}, RMD Period: ${rmdDistributionPeriod}, Calculated RMD: ${totalRmdAmount.toFixed(2)}`);
 
-        const amountToWithdrawFromThisSource = Math.min(rmdAmountRemaining, sourceInvestment.value);
+    if (totalRmdAmount <= 0) {
+        return { updatedYearState: yearState, rmdIncome: 0 };
+    }
 
-        // Find or create the target non-retirement account
-        const targetAccount = findOrCreateTargetAccount(yearState.investments, sourceInvestment, 'non-retirement');
+    // --- Process RMD Withdrawal and Reinvestment ---
+    // Use the first defined RMD strategy for simplicity.
+    // A more complex system could allow multiple/conditional strategies.
+    const strategy = rmdStrategies[0]; 
+    
+    // 1. Withdraw RMD Amount from Pre-Tax Accounts
+    // We need to withdraw `totalRmdAmount` using the withdrawal order defined in the strategy.
+    // This uses a simplified withdrawal logic similar to expenses.
+    
+    let amountToWithdraw = totalRmdAmount;
+    let withdrawnFunds = 0;
+    let earlyWithdrawalAmount = 0; // RMDs are generally not penalized if taken after 59.5, but track for consistency if needed.
+    
+    // Use the utility function for withdrawal
+    const withdrawalResult = performWithdrawal(amountToWithdraw, yearState, strategy.withdrawalOrder || ['pre-tax'], userAge);
+    
+    // Update state based on withdrawal result
+    yearState = withdrawalResult.updatedYearState;
+    withdrawnFunds = withdrawalResult.amountWithdrawn;
+    totalRmdIncomeThisYear = withdrawnFunds; // RMD withdrawal IS income
+    // Note: performWithdrawal handles the reduction in investment values and increase in cash.
+    // RMDs themselves don't typically incur *early* withdrawal penalties if taken at the correct age (>= 73). 
+    // The performWithdrawal function handles penalties based on age < 59.5, which shouldn't apply here.
+    // We will still track potential gains if taxable accounts were unexpectedly needed.
+    yearState.curYearGains += withdrawalResult.capitalGainsRealized;
+    // Add the withdrawn amount (which is income) to curYearIncome
+    yearState.curYearIncome += withdrawnFunds;
 
-        // Perform the transfer
-        sourceInvestment.value -= amountToWithdrawFromThisSource;
-        targetAccount.value += amountToWithdrawFromThisSource;
-        rmdAmountWithdrawn += amountToWithdrawFromThisSource;
-        rmdAmountRemaining -= amountToWithdrawFromThisSource;
+    // Check if the full RMD could be withdrawn
+    if (withdrawnFunds < totalRmdAmount) {
+        console.warn(`Year ${yearState.year}: Could only withdraw ${withdrawnFunds.toFixed(2)} out of required ${totalRmdAmount.toFixed(2)} RMD.`);
+        // Potential penalty implications in real life, but we just log here.
+    }
+
+    // 2. Reinvest the Withdrawn Amount (if specified)
+    // RMD funds land in cash first due to performWithdrawal. Now check reinvestment.
+    const reinvestmentTarget = strategy.reinvestmentTarget;
+    if (reinvestmentTarget && withdrawnFunds > 0) {
+        let amountToReinvest = withdrawnFunds; 
+        let reinvestedSuccessfully = false;
+
+        // Find the target investment account
+        const targetInvestment = yearState.investments.find(inv => inv.name === reinvestmentTarget);
         
-        // console.log(`Year ${yearState.year}: RMD Transfer - Withdrew ${amountToWithdrawFromThisSource.toFixed(2)} from ${sourceInvestment.name}, Remaining RMD: ${rmdAmountRemaining.toFixed(2)}`);
-    }
+        if (targetInvestment && yearState.cash >= amountToReinvest) {
+            // Decrease cash
+            yearState.cash -= amountToReinvest;
+            
+            // Increase value of target investment
+            targetInvestment.value += amountToReinvest;
+            
+            // Update cost basis: Reinvestments are generally treated as new contributions/purchases
+            // For simplicity, add to existing cost basis. More accurate would track lots.
+            targetInvestment.costBasis = (targetInvestment.costBasis || 0) + amountToReinvest;
+            
+            reinvestedSuccessfully = true;
+            // console.log(`Year ${yearState.year}: Reinvested RMD amount ${amountToReinvest.toFixed(2)} into ${reinvestmentTarget}.`);
+        } else if (!targetInvestment) {
+            console.warn(`Year ${yearState.year}: RMD reinvestment target account '${reinvestmentTarget}' not found.`);
+        } else { // Not enough cash (shouldn't happen if withdrawal worked, but check)
+            console.warn(`Year ${yearState.year}: Not enough cash (${yearState.cash.toFixed(2)}) to reinvest RMD amount ${amountToReinvest.toFixed(2)}.`);
+        }
+    } 
+    // If no reinvestment target or reinvestment failed, the money stays in cash.
 
-    if (rmdAmountRemaining > 0.01) { // Use a small threshold for floating point issues
-        // console.warn(`Year ${yearState.year}: RMD of ${rmd.toFixed(2)} could not be fully met from strategy accounts. Withdrawn: ${rmdAmountWithdrawn.toFixed(2)}, Shortfall: ${rmdAmountRemaining.toFixed(2)}`);
-        // The income portion is already added. Need to decide how to handle shortfall.
-        // Withdraw from cash? This might happen in expense processing.
-        // For now, just log the warning.
-    }
-
-    return yearState;
+    // Return the updated state and the RMD income amount
+    return { updatedYearState: yearState, rmdIncome: totalRmdIncomeThisYear };
 }
 
 module.exports = {

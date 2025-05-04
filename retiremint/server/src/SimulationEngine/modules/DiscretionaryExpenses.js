@@ -2,6 +2,18 @@
  * DiscretionaryExpenses.js - Module for processing discretionary expense payments.
  */
 const { performWithdrawal } = require('../Utils/WithdrawalUtils'); // Import the utility
+// Import shared calculation functions - Re-add for state tracking
+const { calculateCurrentBaseAmount, sampleNormal, sampleUniform } = require('../Utils/CalculationUtils'); 
+
+// --- Helper functions for random sampling --- 
+// Removed - Moved to CalculationUtils.js
+// function sampleNormal(mean, stdDev) {
+//   ...
+// }
+// function sampleUniform(min, max) {
+//   ...
+// }
+// --- End Helper functions ---
 
 /**
  * Calculates and pays discretionary expenses based on spending strategy and financial goal.
@@ -17,7 +29,7 @@ const { performWithdrawal } = require('../Utils/WithdrawalUtils'); // Import the
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year.
  * @param {Object} yearState - The current year's state object (will be modified).
  * @param {Object} previousEventStates - State of discretionary expense events from the previous year.
- * @returns {Object} - The updated yearState object (including updated discExpenseEventStates).
+ * @returns {Object} - { updatedYearState: Object, paidDiscExpenses: Object, expenseEventStates: Object }
  */
 function processDiscretionaryExpenses(
     modelData,
@@ -32,99 +44,108 @@ function processDiscretionaryExpenses(
     previousEventStates = {}
 ) {
     const scenario = modelData.scenario;
-    const currentDiscExpenseEventStates = {}; // Track state for this year's events
+    const paidDiscExpenses = {}; // Track expenses actually paid
+    const updatedDiscExpenseEventStates = {}; // Track state for next year's events
 
     if (!spendingStrategy || spendingStrategy.length === 0) {
         // console.log(`Year ${yearState.year}: No discretionary spending strategy defined.`);
-        yearState.discExpenseEventStates = {}; // Ensure state exists
-        return yearState;
+        // yearState.discExpenseEventStates = {}; // State will be updated below if expenses run
+        return { updatedYearState: yearState, paidDiscExpenses, expenseEventStates: updatedDiscExpenseEventStates };
     }
     if (!scenario || !scenario.events) {
-        // Keep this error log as it indicates a fundamental data problem
         console.error(`DiscretionaryExpenses Error: Invalid modelData structure. Missing scenario or scenario.events.`);
-        yearState.discExpenseEventStates = {};
-        return yearState;
+        // yearState.discExpenseEventStates = {};
+        return { updatedYearState: yearState, paidDiscExpenses, expenseEventStates: updatedDiscExpenseEventStates };
     }
 
     // console.log(`Year ${yearState.year}: Starting Discretionary Expense Processing. Goal: ${financialGoal.toFixed(2)}, Current Assets: ${yearState.totalAssets.toFixed(2)}`);
 
-    for (const expenseName of spendingStrategy) {
-        // Is this expense active this year?
-        if (!eventsActiveThisYear.includes(expenseName)) continue;
+    // --- Calculate Potential Discretionary Spending and Prepare Next Year's State --- 
+    const allEvents = modelData.scenario.events;
+    const potentialSpendingMap = new Map(); // Store potential amount per expense name
+    
+    eventsActiveThisYear.forEach(eventName => {
+        const event = allEvents.find(e => e.name === eventName);
+        if (event && event.type === 'expense' && event.expense?.isDiscretionary) {
+            const expenseDetails = event.expense;
+            const previousState = previousEventStates[eventName] || null;
+            // Use a consistent property name like 'baseAmount' or 'currentAmount'
+            // Let's assume 'baseAmount' was intended for the UNINFLATED base carried forward
+            const previousBaseAmount = previousState ? previousState.baseAmount : expenseDetails.initialAmount; 
+            
+            // Calculate the uninflated base amount for the current year using the imported function
+            // ** This section needs the calculateCurrentBaseAmount function again **
+            // ** We need to either re-import it OR copy the logic here if it's simple enough **
+            // Let's copy the logic for now to avoid potential circular dependencies
+            // Re-importing it now that it's in Utils
+            let currentBaseAmount = calculateCurrentBaseAmount(expenseDetails.expectedAnnualChange, previousBaseAmount);
 
-        // Find the event details
-        const event = scenario.events.find(e => e.name === expenseName);
-
-        // Check if it's a valid discretionary expense event
-        if (event && event.type === 'expense' && event.expense && event.expense.isDiscretionary) {
-            const expenseConfig = event.expense;
-            const eventStateKey = event._id || eventName;
-            const prevState = previousEventStates[eventStateKey] || {};
-
-            // Calculate the potential amount for this expense this year
-            let currentBaseAmount = prevState.currentAmount ?? expenseConfig.initialAmount;
-            if (prevState.currentAmount !== undefined) { // Apply annual change if not first year
-                // TODO: Add other annual change methods (normalValue etc.)
-                if (expenseConfig.expectedAnnualChange?.method === 'fixedValue') {
-                    currentBaseAmount += expenseConfig.expectedAnnualChange.fixedValue || 0;
-                }
-            }
+            // Inflate if necessary
             let potentialAmountThisYear = currentBaseAmount;
-            if (expenseConfig.inflationAdjustment) {
+            if (expenseDetails.inflationAdjustment) {
                 potentialAmountThisYear *= currentInflationFactor;
             }
-            if (maritalStatusThisYear === 'single' && expenseConfig.marriedPercentage !== undefined && expenseConfig.marriedPercentage !== null) {
-                potentialAmountThisYear *= (1 - (expenseConfig.marriedPercentage / 100));
-            }
             
-            // Store the state for next year BEFORE adjusting for affordability
-            currentDiscExpenseEventStates[eventStateKey] = { currentAmount: currentBaseAmount };
+            // Adjust for marital status if applicable
+            if (maritalStatusThisYear === 'married' && expenseDetails.marriedPercentage != null) {
+                 potentialAmountThisYear *= (expenseDetails.marriedPercentage / 100);
+            } // If single, use 100%
             
-            // Check affordability against financial goal
-            const maxAffordable = Math.max(0, yearState.totalAssets - financialGoal);
-            const amountToPay = Math.min(potentialAmountThisYear, maxAffordable);
-
-            // console.log(`Year ${yearState.year}: Evaluating Disc Expense '${expenseName}'. Potential: ${potentialAmountThisYear.toFixed(2)}, Max Affordable: ${maxAffordable.toFixed(2)}, To Pay: ${amountToPay.toFixed(2)}`);
-
-            if (amountToPay <= 0) {
-                // console.log(`    Cannot afford any amount of '${expenseName}' without dropping below goal. Stopping discretionary spending.`);
-                break; // Stop processing further discretionary expenses
-            }
-
-            // Perform payment/withdrawal
-            // console.log(`Year ${yearState.year}: Attempting to pay ${amountToPay.toFixed(2)} for Discretionary Expense '${expenseName}'`);
-            const { totalPaid } = performWithdrawal(amountToPay, yearState, withdrawalStrategy, userAge);
-
-            // Update total expenses for the year
-            yearState.curYearExpenses += totalPaid; 
-
-            // If withdrawal failed to cover the intended amount, log it but continue (it's discretionary)
-            if (totalPaid < amountToPay) {
-                 // Keep this warning
-                 console.warn(`Year ${yearState.year}: Could only pay ${totalPaid.toFixed(2)} / ${amountToPay.toFixed(2)} for '${expenseName}' due to insufficient funds after withdrawal attempt.`);
-                 // Since we could only pay totalPaid, we should break if we couldn't even afford this partial amount
-                 // Check if remaining assets are still above the goal
-                 if (yearState.totalAssets < financialGoal) { 
-                    // Keep this warning
-                    console.warn(`    Assets dropped below goal after partial payment of ${expenseName}. Stopping discretionary spending.`);
-                    break;
-                 }
-            }
+            potentialSpendingMap.set(eventName, potentialAmountThisYear); // Store the calculated potential amount
             
-            // If the full affordable amount was paid, and it was less than the potential amount, stop (can't afford more)
-             if (totalPaid < potentialAmountThisYear && totalPaid >= amountToPay) {
-                 // console.log(`    Paid partial amount for ${expenseName}. Cannot afford more discretionary expenses.`);
-                 break;
-             }
-
+            // Update state for next year (store uninflated base)
+            if (!updatedDiscExpenseEventStates[eventName]) {
+                updatedDiscExpenseEventStates[eventName] = {};
+            }
+            updatedDiscExpenseEventStates[eventName].baseAmount = currentBaseAmount; // Store the uninflated base
         }
+    });
+
+    // --- Determine Spending Limit based on Strategy and Pay Expenses --- 
+    for (const expenseName of spendingStrategy) {
+        if (!potentialSpendingMap.has(expenseName)) continue;
+
+        // Retrieve the pre-calculated potential amount
+        const potentialAmountThisYear = potentialSpendingMap.get(expenseName);
+        
+        // Check affordability against financial goal
+        const maxAffordable = Math.max(0, yearState.totalAssets - financialGoal);
+        const amountToPay = Math.min(potentialAmountThisYear, maxAffordable);
+
+        if (amountToPay <= 0.01) {
+            break; 
+        }
+
+        const { totalPaid } = performWithdrawal(amountToPay, yearState, withdrawalStrategy, userAge); 
+
+        yearState.curYearExpenses += totalPaid;
+
+        if (totalPaid > 0) {
+            paidDiscExpenses[expenseName] = totalPaid;
+        }
+
+        if (totalPaid < amountToPay) {
+             console.warn(`Year ${yearState.year}: Could only pay ${totalPaid.toFixed(2)} / ${amountToPay.toFixed(2)} for '${expenseName}' due to insufficient funds after withdrawal attempt.`);
+             if (yearState.totalAssets < financialGoal) { 
+                console.warn(`    Assets dropped below goal after partial payment of ${expenseName}. Stopping discretionary spending.`);
+                break;
+             }
+        }
+        
+         if (totalPaid < potentialAmountThisYear && totalPaid >= amountToPay) {
+             break;
+         }
     }
     
-    // Store the calculated states for next year
-    yearState.discExpenseEventStates = currentDiscExpenseEventStates;
-    // console.log(`Year ${yearState.year}: Finished Discretionary Expense Processing. Final Assets: ${yearState.totalAssets.toFixed(2)}`);
+    // Note: yearState.discExpenseEventStates is NOT updated here anymore.
+    // It will be updated in SimulateYear.js using the returned updatedDiscExpenseEventStates.
 
-    return yearState;
+    // --- Return Updated State, Paid Expenses, and State for Next Year --- 
+    return {
+        updatedYearState: yearState,
+        paidDiscExpenses,
+        expenseEventStates: updatedDiscExpenseEventStates // Return the calculated state for next year
+    };
 }
 
 module.exports = {
