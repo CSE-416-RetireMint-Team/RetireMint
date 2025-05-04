@@ -296,11 +296,30 @@ function Dashboard() {
         alert(`Exporting scenario ${scenarioId} (TODO: hook up backend)`);
       };     
       
-    const handleScenarioImport = (file) => {
-        if (!file) return;
-        alert(`Importing: ${file.name}`);
-        setShowImportOptions(false);  // hide options after file is selected
-    };
+      const handleScenarioImport = async (file) => {
+        const formData = new FormData();
+        formData.append("scenario", file); // ✅ this matches multer field
+        formData.append("userId", localStorage.getItem("userId")); // ✅ send userId explicitly
+    
+        try {
+            const response = await axios.post("http://localhost:8000/import/import-scenario", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+    
+            alert("Scenario imported successfully!");
+            console.log(response.data);
+            fetchUserData(); 
+        } catch (err) {
+            console.error("Error importing scenario:", err);
+            alert("Failed to import scenario. Check the YAML file and try again.");
+        } finally {
+            // ✅ Always hide the import box whether success or failure
+            setShowImportOptions(false);
+        }
+    };    
+       
       
     return (
         <>
