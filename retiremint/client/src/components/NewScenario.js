@@ -7,6 +7,7 @@ import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import '../Stylesheets/NewScenario.css';
+import '../Stylesheets/Header.css';
 
 function NewScenario() {
     const navigate = useNavigate();
@@ -505,8 +506,9 @@ function NewScenario() {
         return <div className="loading">Loading simulation form...</div>;
     }
     return (
+        <>
+        <Header />
         <div className='new-scenario-form'>
-            <Header />
             
             {error && <div className="error-message">{error}</div>}
             <div className='new-scenario-form-content'>
@@ -1121,6 +1123,7 @@ function NewScenario() {
                 </div>
             </div>
         </div>
+        </>
     );
 }
 // Converts InvestmentType taken from Inventory in the Databaseto the format that the form uses to edit a scenario.
@@ -1145,19 +1148,19 @@ function convertInvestmentTypeFormat(dbInvestmentTypes) {
                     }
                 },
                 expectedIncome: {
-                    returnType: dbInvestmentTypes[i].expectedAnnualReturn?.method ?? '',
-                    fixedValue: dbInvestmentTypes[i].expectedAnnualReturn?.fixedValue ?? '', 
-                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualReturn?.fixedPercentage ?? '', 
+                    returnType: dbInvestmentTypes[i].expectedAnnualIncome?.method ?? '',
+                    fixedValue: dbInvestmentTypes[i].expectedAnnualIncome?.fixedValue ?? '', 
+                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualIncome?.fixedPercentage ?? '', 
                     normalValue: {
-                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.mean ?? '',
-                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.sd ?? ''
+                    mean: dbInvestmentTypes[i].expectedAnnualIncome?.normalValue?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualIncome?.normalValue?.sd ?? ''
                     },
                     normalPercentage: {
-                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.mean ?? '',
-                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.sd ?? ''
+                    mean: dbInvestmentTypes[i].expectedAnnualIncome?.normalPercentage?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualIncome?.normalPercentage?.sd ?? ''
                     }
                 },
-                expenseRatio: dbInvestmentTypes[i].expenseRatio ?? '',
+                expenseRatio: dbInvestmentTypes[i].expenseRatio ?? 0,
                 taxability: dbInvestmentTypes[i].taxability ?? '',
         });
         i++;

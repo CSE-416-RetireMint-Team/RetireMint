@@ -88,39 +88,65 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .draggable-list {
-    max-width: 100%;
+  .new-scenario-form-content {
+    width: 90%;
+    padding: 25px;
+  }
+  .new-scenario-form button {
+    width: 100%;
+    margin-top: 12px;
   }
 } 
 
 .new-scenario-form {
-  font-family: Inter;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
+  background-color: #f5f8fa;
+  min-height: 100vh;
+  margin-top: 0;
+  padding-top: 20px;
 }
 
 .new-scenario-form-content {
-  margin-left: 15%;
-  margin-right: 15%;
+  background: white;
+  margin: auto;
+  padding: 30px 50px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 800px;
+  margin-top: 0;
 }
 
-h2 {
+.new-scenario-form h1 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.new-scenario-form h2,
+.new-scenario-form h3,
+.new-scenario-form h4{
+  font-size: 1.1rem;
+  margin-top: 25px;
+  margin-bottom: 10px;
   font-weight: 500;
+  color: #333;
 }
 
 input[type=radio] {
   appearance: none;
-  display: inline-flexbox;
-  vertical-align:bottom;
-  margin: 1px;
-  margin-right: 5px;
-  height: 20px;
-  width: 20px;
-  border-radius: 100%;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
   background-color: white;
-  border-color: #a7a7a760;
-  border-width: 2px;
-  border-style: solid;
+  border: 2px solid #aaa;
   cursor: pointer;
+  position: relative;
 }
 
 input[type=radio]:hover {
@@ -128,20 +154,29 @@ input[type=radio]:hover {
 }
 
 input[type=radio]:checked {
-  background-color: #35ac35c1;
-  border-color: #0029004e;
-  filter: drop-shadow(0 0 0.1rem #35ac35c1);
+  background-color: #4caf50;
+  border-color: #388e3c;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
 }
 
 input[type=text], input[type=number] {
-  appearance: none;
-  border-radius: 5px;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #a7a7a760;
-  font-size: 1em;
-  font-weight: 400;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
 }
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
 
 .investment-container , .investment-type-container, .event-container {
   padding-left: 10px;
@@ -166,4 +201,66 @@ input[type=text], input[type=number] {
 
 .investment-heading, .investment-type-heading {
   font-weight: 600;
+}
+
+.new-scenario-form label {
+  font-weight: 400;
+  margin-right: 20px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.new-scenario-form button {
+  margin-top: 15px;
+  margin-right: 10px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.new-scenario-form button:hover {
+  background-color: #388e3c;
+}
+
+.new-scenario-form .error-message {
+  color: #b00020;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border-left: 4px solid #b00020;
+  padding-left: 10px;
+}
+
+.new-scenario-form select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg fill='gray' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.new-scenario-form select:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+.new-scenario-form select option {
+  padding: 10px;
 }
