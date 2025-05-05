@@ -86,7 +86,8 @@ async function fetchAndLogModelData(scenarioId) {
               populate: { path: 'allocations' }
             }
         ]
-      });
+      })
+      .lean();
       
     if (!scenario) {
       console.error('❌ ERROR: Scenario not found in database');
@@ -159,13 +160,13 @@ async function fetchAndLogModelData(scenarioId) {
     // Fetch income tax data for 'single' and 'married' filing statuses
     const incomeTaxData = await IncomeTax.find({
       filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 });
+    }).sort({ year: -1 }).lean();
     
     // Map 'jointly' to 'married' for consistency
     const mappedIncomeTaxData = incomeTaxData.map(tax => {
       if (tax.filingStatus === 'jointly') {
         return {
-          ...tax.toObject(),
+          ...tax,
           filingStatus: 'married'
         };
       }
@@ -175,7 +176,7 @@ async function fetchAndLogModelData(scenarioId) {
     // Fetch standard deduction data for 'single' and 'married' filing statuses
     const standardDeductionData = await StandardDeduction.find({
       filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 });
+    }).sort({ year: -1 }).lean();
     
     // Map 'jointly' to 'married' for consistency
     // const mappedStandardDeductionData = standardDeductionData.map(deduction => {
@@ -191,13 +192,14 @@ async function fetchAndLogModelData(scenarioId) {
     // Fetch capital gains data for 'single' and 'married' filing statuses
     const capitalGainsData = await CapitalGain.find({
       filingStatus: { $in: ['single', 'married', 'jointly'] }
-    }).sort({ year: -1 });
+    }).sort({ year: -1 }).lean();
 
     // Fetch RMD Table data (limit to 5 for logging)
-    const rmdTableData = await RMDTable.find().limit(5);
+    // const rmdTableData = await RMDTable.find().limit(5);
+    const rmdTableData = await RMDTable.find().lean();
 
     // Fetch State Tax data
-    const stateTaxData = await StateTax.find();
+    const stateTaxData = await StateTax.find().lean();
     
     // Log the tax data information
     //console.log('Tax data information loaded');

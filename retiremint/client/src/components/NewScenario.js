@@ -7,6 +7,7 @@ import InvestmentTypeForm from './InvestmentTypeForm';
 import InvestmentForm from './InvestmentForm';
 import EventForm from './EventForm';
 import '../Stylesheets/NewScenario.css';
+import '../Stylesheets/Header.css';
 
 function NewScenario() {
     const navigate = useNavigate();
@@ -505,8 +506,9 @@ function NewScenario() {
         return <div className="loading">Loading simulation form...</div>;
     }
     return (
+        <>
+        <Header />
         <div className='new-scenario-form'>
-            <Header />
             
             {error && <div className="error-message">{error}</div>}
             <div className='new-scenario-form-content'>
@@ -888,43 +890,7 @@ function NewScenario() {
                                         </DragDropContext>
                                     </div>
                                     
-                                    <div className="strategy-list">
-                                        <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
-                                        <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
-                                        <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
-                                            <Droppable droppableId="rothConversionStrategiesList">
-                                                {(provided) => (
-                                                    <ul 
-                                                        className="draggable-list"
-                                                        {...provided.droppableProps}
-                                                        ref={provided.innerRef}
-                                                    >
-                                                        {rothConversionStrategies.length > 0 ? (
-                                                            rothConversionStrategies.map((investment, index) => (
-                                                                <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
-                                                                    {(provided) => (
-                                                                        <li
-                                                                            ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}
-                                                                            className="draggable-item"
-                                                                        >
-                                                                            {investment}
-                                                                        </li>
-                                                                    )}
-                                                                </Draggable>
-                                                            ))
-                                                        ) : (
-                                                            <div className="draggable-list-empty">
-                                                                No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
-                                                            </div>
-                                                        )}
-                                                        {provided.placeholder}
-                                                    </ul>
-                                                )}
-                                            </Droppable>
-                                        </DragDropContext>
-                                    </div>
+                                    
 
                                     {/* Roth Optimizer section */}
                                     <div className="roth-optimizer">
@@ -939,20 +905,59 @@ function NewScenario() {
                         </label>
 
                     {RothOptimizerEnable && (
-                        <div>
-                            <input 
-                                type="number" 
-                                placeholder="Enter Start Year" 
-                                value={rothRptimizerStartYear} 
-                                onChange={(e) => setRothRptimizerStartYear(e.target.value)} 
-                            />
-                            <input 
-                                type="number" 
-                                placeholder="Enter End Year" 
-                                value={rothOptimizerEndYear} 
-                                onChange={(e) => setRothOptimizerEndYear(e.target.value)} 
-                            />
-                        </div>
+                        <>
+                            <div className="strategy-list">
+                                <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
+                                <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
+                                <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
+                                    <Droppable droppableId="rothConversionStrategiesList">
+                                        {(provided) => (
+                                            <ul 
+                                                className="draggable-list"
+                                                {...provided.droppableProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                {rothConversionStrategies.length > 0 ? (
+                                                    rothConversionStrategies.map((investment, index) => (
+                                                        <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
+                                                            {(provided) => (
+                                                                <li
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
+                                                                    className="draggable-item"
+                                                                >
+                                                                    {investment}
+                                                                </li>
+                                                            )}
+                                                        </Draggable>
+                                                    ))
+                                                ) : (
+                                                    <div className="draggable-list-empty">
+                                                        No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
+                                                    </div>
+                                                )}
+                                                {provided.placeholder}
+                                            </ul>
+                                        )}
+                                    </Droppable>
+                                </DragDropContext>
+                            </div>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter Start Year" 
+                                    value={rothRptimizerStartYear} 
+                                    onChange={(e) => setRothRptimizerStartYear(e.target.value)} 
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter End Year" 
+                                    value={rothOptimizerEndYear} 
+                                    onChange={(e) => setRothOptimizerEndYear(e.target.value)} 
+                                />
+                            </div>
+                        </>
                     )}
                                 </div>
                             </>
@@ -1121,6 +1126,7 @@ function NewScenario() {
                 </div>
             </div>
         </div>
+        </>
     );
 }
 // Converts InvestmentType taken from Inventory in the Databaseto the format that the form uses to edit a scenario.
@@ -1145,19 +1151,19 @@ function convertInvestmentTypeFormat(dbInvestmentTypes) {
                     }
                 },
                 expectedIncome: {
-                    returnType: dbInvestmentTypes[i].expectedAnnualReturn?.method ?? '',
-                    fixedValue: dbInvestmentTypes[i].expectedAnnualReturn?.fixedValue ?? '', 
-                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualReturn?.fixedPercentage ?? '', 
+                    returnType: dbInvestmentTypes[i].expectedAnnualIncome?.method ?? '',
+                    fixedValue: dbInvestmentTypes[i].expectedAnnualIncome?.fixedValue ?? '', 
+                    fixedPercentage: dbInvestmentTypes[i].expectedAnnualIncome?.fixedPercentage ?? '', 
                     normalValue: {
-                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.mean ?? '',
-                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalValue?.sd ?? ''
+                    mean: dbInvestmentTypes[i].expectedAnnualIncome?.normalValue?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualIncome?.normalValue?.sd ?? ''
                     },
                     normalPercentage: {
-                    mean: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.mean ?? '',
-                    sd: dbInvestmentTypes[i].expectedAnnualReturn?.normalPercentage?.sd ?? ''
+                    mean: dbInvestmentTypes[i].expectedAnnualIncome?.normalPercentage?.mean ?? '',
+                    sd: dbInvestmentTypes[i].expectedAnnualIncome?.normalPercentage?.sd ?? ''
                     }
                 },
-                expenseRatio: dbInvestmentTypes[i].expenseRatio ?? '',
+                expenseRatio: dbInvestmentTypes[i].expenseRatio ?? 0,
                 taxability: dbInvestmentTypes[i].taxability ?? '',
         });
         i++;

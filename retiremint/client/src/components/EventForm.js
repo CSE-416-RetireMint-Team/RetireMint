@@ -1115,20 +1115,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                             <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                                 <h3>{event.invest.executionType === 'glidePath' ? 'Initial Allocation Strategy' : 'Allocation Strategy'}</h3>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {/* ADDED: Modify Tax Status Allocation Checkbox */}
-                                    {availableTaxStatuses.length > 0 && (
-                                        <label>
-                                            <input 
-                                                type="checkbox" 
-                                                checked={event.invest.modifyTaxStatusAllocation || false} 
-                                                onChange={(e) => updateEvent(index, ['invest', 'modifyTaxStatusAllocation'], e.target.checked)} 
-                                            />
-                                            Tax Status Allocation (How to distribute new funds)
-                                        </label>
-                                    )}
-                                    
-                                    {/* ADDED: Tax Status Allocation Inputs (Conditional) */}
-                                    {event.invest.modifyTaxStatusAllocation && availableTaxStatuses.length > 0 && (
+                                    {/* ALWAYS Render Tax Status Allocation Inputs if relevant statuses exist */} 
+                                    {availableTaxStatuses.length > 0 && ( 
                                         <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                             <h4>Tax Status Allocation</h4>
                                             <p>Specify what percentage of future income should be allocated to each tax status:</p>
@@ -1161,9 +1149,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                 Total: {Object.values(event.invest.investmentStrategy.taxStatusAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
                                             </div>
                                         </div>
-                                    )}
+                                    )} 
 
-                                    {afterTaxInvestments.length > 0 && (
+                                    {/* {afterTaxInvestments.length > 0 && (
                                         <label>
                                             <input 
                                                 type="checkbox" 
@@ -1172,13 +1160,15 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             />
                                             After-Tax Allocation
                                         </label>
-                                    )}
+                                    )} */}
                                     
-                                    {event.invest.modifyAfterTaxAllocation && afterTaxInvestments.length > 0 && (
+                                    {/* ALWAYS Render After-Tax Allocation Inputs if relevant investments exist */} 
+                                    {afterTaxInvestments.length > 0 && ( 
                                         <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                             <h4>After-Tax Investment Allocation</h4>
                                             <p>Specify what percentage of after-tax investments should be allocated to each investment:</p>
-                                                                                        {event.invest.modifyAfterTaxAllocation && afterTaxInvestments.length > 0 && (
+                                            {/* Keep conditional rendering based on length > 0 */} 
+                                            {afterTaxInvestments.length > 0 && ( 
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                                     {afterTaxInvestments.map(inv => (
                                                         <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
@@ -1209,24 +1199,26 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                 Total: {Object.values(event.invest.investmentStrategy.afterTaxAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
                                             </div>
                                         </div>
-                                    )}
+                                    )} 
                                     
-                                    {nonRetirementInvestments.length > 0 && (
+                                    {/* {nonRetirementInvestments.length > 0 && (
                                         <label>
                                             <input 
                                                 type="checkbox" 
                                                 checked={event.invest.modifyNonRetirementAllocation || false} 
                                                 onChange={(e) => updateEvent(index, ['invest', 'modifyNonRetirementAllocation'], e.target.checked)} 
                                             />
-                                            Non-Retirement Allocation
+                                            Non-Retirement (Taxable) Allocation
                                         </label>
-                                    )}
+                                    )} */}
                                     
-                                    {event.invest.modifyNonRetirementAllocation && nonRetirementInvestments.length > 0 && (
+                                    {/* ALWAYS Render Non-Retirement Allocation Inputs if relevant investments exist */} 
+                                    {nonRetirementInvestments.length > 0 && ( 
                                         <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
-                                            <h4>Non-Retirement Investment Allocation</h4>
-                                            <p>Specify what percentage of non-retirement investments should be allocated to each investment:</p>
-                                                                                        {event.invest.modifyNonRetirementAllocation && nonRetirementInvestments.length > 0 && (
+                                            <h4>Non-Retirement (Taxable) Investment Allocation</h4>
+                                            <p>Specify what percentage of non-retirement (taxable) investments should be allocated to each investment:</p>
+                                            {/* Keep conditional rendering based on length > 0 */} 
+                                            {nonRetirementInvestments.length > 0 && ( 
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                                     {nonRetirementInvestments.map(inv => (
                                                         <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
@@ -1257,9 +1249,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                 Total: {Object.values(event.invest.investmentStrategy.nonRetirementAllocation || {}).filter(val => !isNaN(val) && val !== '').reduce((a, b) => a + b, 0)}% (must equal 100%)
                                             </div>
                                         </div>
-                                    )}
+                                    )} 
                                     
-                                    {taxExemptInvestments.length > 0 && (
+                                    {/* {taxExemptInvestments.length > 0 && (
                                         <label>
                                             <input 
                                                 type="checkbox" 
@@ -1268,9 +1260,10 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             />
                                             Tax-Exempt Allocation
                                         </label>
-                                    )}
+                                    )} */}
                                     
-                                    {event.invest.modifyTaxExemptAllocation && taxExemptInvestments.length > 0 && (
+                                    {/* ALWAYS Render Tax-Exempt Allocation Inputs if relevant investments exist */} 
+                                    {taxExemptInvestments.length > 0 && ( 
                                         <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                             <h4>Tax-Exempt Investment Allocation</h4>
                                             <p>Specify what percentage of tax-exempt investments should be allocated to each investment:</p>
@@ -1307,7 +1300,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 </div>
                             </div>
 
-                            {/* Final Allocation Strategy Section (only for Glide Path) */}
+                            {/* Final Allocation Strategy Section (only for Glide Path) */} 
                             {event.invest.executionType === 'glidePath' && (
                                 <div style={{ marginTop: '20px', marginBottom: '20px', borderTop: '2px dashed #ccc', paddingTop: '20px' }}>
                                     <h3>Final Allocation Strategy</h3>
@@ -1315,8 +1308,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                         Specify the target allocation at the end of the glide path
                                     </p>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                        {/* Final Tax Status Allocation */}
-                                        {availableTaxStatuses.length > 0 && event.invest.modifyTaxStatusAllocation && (
+                                        {/* Final Tax Status Allocation */} 
+                                        {/* ALWAYS Render if availableTaxStatuses exist */}
+                                        {availableTaxStatuses.length > 0 && ( 
                                             <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                                 <h4>Final Tax Status Allocation</h4>
                                                 <p>Specify what percentage of future income should be allocated to each tax status at the end of the glide path:</p>
@@ -1351,8 +1345,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             </div>
                                         )}
 
-                                        {/* Final After-Tax Allocation */}
-                                        {afterTaxInvestments.length > 0 && event.invest.modifyAfterTaxAllocation && (
+                                        {/* Final After-Tax Allocation */} 
+                                        {/* ALWAYS Render if afterTaxInvestments exist */} 
+                                        {afterTaxInvestments.length > 0 && ( 
                                             <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                                 <h4>Final After-Tax Investment Allocation</h4>
                                                 <p>Specify what percentage of after-tax investments should be allocated to each investment at the end of the glide path:</p>
@@ -1386,11 +1381,12 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             </div>
                                         )}
                                         
-                                        {/* Final Non-Retirement Allocation */}
-                                        {nonRetirementInvestments.length > 0 && event.invest.modifyNonRetirementAllocation && (
+                                        {/* Final Non-Retirement Allocation */} 
+                                        {/* ALWAYS Render if nonRetirementInvestments exist */} 
+                                        {nonRetirementInvestments.length > 0 && ( 
                                             <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                                 <h4>Final Non-Retirement Investment Allocation</h4>
-                                                <p>Specify what percentage of non-retirement investments should be allocated to each investment at the end of the glide path:</p>
+                                                <p>Specify what percentage of non-retirement (taxable) investments should be allocated to each investment at the end of the glide path:</p>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                                     {nonRetirementInvestments.map(inv => (
                                                         <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
@@ -1421,8 +1417,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                             </div>
                                         )}
                                         
-                                        {/* Final Tax-Exempt Allocation */}
-                                        {taxExemptInvestments.length > 0 && event.invest.modifyTaxExemptAllocation && (
+                                        {/* Final Tax-Exempt Allocation */} 
+                                        {/* ALWAYS Render if taxExemptInvestments exist */} 
+                                        {taxExemptInvestments.length > 0 && ( 
                                             <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
                                                 <h4>Final Tax-Exempt Investment Allocation</h4>
                                                 <p>Specify what percentage of tax-exempt investments should be allocated to each investment at the end of the glide path:</p>
@@ -1612,14 +1609,14 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                 checked={event.rebalance.modifyNonRetirementAllocation || false} 
                                                 onChange={(e) => updateEvent(index, ['rebalance', 'modifyNonRetirementAllocation'], e.target.checked)} 
                                             />
-                                            Rebalance Non-Retirement Assets
+                                            Rebalance Non-Retirement (Taxable) Assets
                                         </label>
                                     )}
                                     
                                     {event.rebalance.modifyNonRetirementAllocation && nonRetirementInvestments.length > 0 && (
                                         <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
-                                            <h4>Non-Retirement Investment Rebalance</h4>
-                                            <p>Specify how non-retirement investments should be rebalanced:</p>
+                                            <h4>Non-Retirement (Taxable) Investment Rebalance</h4>
+                                            <p>Specify how non-retirement (taxable) investments should be rebalanced:</p>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                                 {nonRetirementInvestments.map(inv => (
                                                     <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
@@ -1826,8 +1823,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                         {/* Final Non-Retirement Allocation */}
                                         {nonRetirementInvestments.length > 0 && event.rebalance.modifyNonRetirementAllocation && (
                                             <div style={{ marginLeft: '20px', padding: '10px', border: '1px solid #eee', borderRadius: '5px' }}>
-                                                <h4>Final Non-Retirement Investment Rebalance</h4>
-                                                <p>Specify how non-retirement investments should be rebalanced at the end of the glide path:</p>
+                                                <h4>Final Non-Retirement (Taxable) Investment Rebalance</h4>
+                                                <p>Specify how non-retirement (Taxable) investments should be rebalanced at the end of the glide path:</p>
                                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                                                     {nonRetirementInvestments.map(inv => (
                                                         <div key={inv.name} style={{ marginBottom: '10px', minWidth: '200px' }}>
@@ -1982,7 +1979,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
                         switch (event.startYear.returnType) {
                             case 'fixedValue':
-                                if (!event.startYear.fixedValue) {
+                                // Allow 0? (Unlikely for year, but check if null/empty)
+                                if (event.startYear.fixedValue == null || String(event.startYear.fixedValue).trim() === '') {
                                     console.log(`Event missing fixedValue for startYear: ${event.name}`);
                                     alert(`Event "${event.name}" requires a Fixed Value for Start Year.`);
                                     validationPassed = false;
@@ -1991,7 +1989,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 break;
 
                             case 'normalValue':
-                                if (!event.startYear.normalValue.mean || !event.startYear.normalValue.sd) {
+                                // Allow 0 for mean/sd
+                                if ((event.startYear.normalValue.mean == null || String(event.startYear.normalValue.mean).trim() === '') || 
+                                    (event.startYear.normalValue.sd == null || String(event.startYear.normalValue.sd).trim() === '')) {
                                     alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Start Year.`);
                                     validationPassed = false; // Set flag
                                     break; // Break switch
@@ -1999,7 +1999,9 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 break;
 
                             case 'uniformValue':
-                                if (!event.startYear.uniformValue.lowerBound || !event.startYear.uniformValue.upperBound) {
+                                // Allow 0 for bounds
+                                if ((event.startYear.uniformValue.lowerBound == null || String(event.startYear.uniformValue.lowerBound).trim() === '') || 
+                                    (event.startYear.uniformValue.upperBound == null || String(event.startYear.uniformValue.upperBound).trim() === '')) {
                                     alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Start Year.`);
                                     validationPassed = false; // Set flag
                                     break; // Break switch
@@ -2029,6 +2031,44 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
 
                         if (!validationPassed) break; // Break outer loop if validation failed
 
+                        // --- NEW: Validate Duration --- 
+                        if (!event.duration.returnType) {
+                            alert(`Event "${event.name}" must have a Duration Type.`);
+                            validationPassed = false; break;
+                        }
+                        switch (event.duration.returnType) {
+                            case 'fixedValue':
+                                const fixedDur = parseInt(event.duration.fixedValue, 10);
+                                if (isNaN(fixedDur) || fixedDur < 1) {
+                                    alert(`Event "${event.name}" Fixed Duration must be 1 or greater.`);
+                                    validationPassed = false; break;
+                                }
+                                break;
+                            case 'normalValue':
+                                // Can't strictly validate >= 1, but ensure values are present
+                                if ((event.duration.normalValue.mean == null || String(event.duration.normalValue.mean).trim() === '') ||
+                                    (event.duration.normalValue.sd == null || String(event.duration.normalValue.sd).trim() === '')) {
+                                        alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Duration.`);
+                                        validationPassed = false; break;
+                                }
+                                break;
+                            case 'uniformValue':
+                                const lowerBound = parseInt(event.duration.uniformValue.lowerBound, 10);
+                                const upperBound = parseInt(event.duration.uniformValue.upperBound, 10);
+                                if (isNaN(lowerBound) || lowerBound < 1) {
+                                     alert(`Event "${event.name}" Uniform Duration Lower Bound must be 1 or greater.`);
+                                     validationPassed = false; break;
+                                }
+                                if (isNaN(upperBound) || upperBound < lowerBound) { // Also check upper bound is valid
+                                     alert(`Event "${event.name}" Uniform Duration Upper Bound must be greater than or equal to the Lower Bound.`);
+                                     validationPassed = false; break;
+                                }
+                                break;
+                            default: break;
+                        }
+                        if (!validationPassed) break;
+                        // --- END Duration Validation --- 
+
                         // Ensure the event has an event type
                         if (!event.eventType) {
                             console.log(`Event missing eventType: ${event.name}`);
@@ -2043,7 +2083,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 const isIncome = event.eventType === 'income';
                                 const eventData = isIncome ? event.income : event.expense;
                         
-                                if (!eventData.initialAmount) {
+                                // Allow 0 for initial amount
+                                if (eventData.initialAmount == null || String(eventData.initialAmount).trim() === '') {
                                     console.log(`Event missing initialAmount: ${event.name}`);
                                     alert(`Event "${event.name}" requires an Initial Amount.`);
                                     validationPassed = false;
@@ -2060,46 +2101,46 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 switch (eventData.expectedAnnualChange.returnType) {
                                     case 'fixedValue':
                                         // Allow 0 as a valid value
-                                        if (!eventData.expectedAnnualChange.fixedValue && eventData.expectedAnnualChange.fixedValue !== 0) {
+                                        if (eventData.expectedAnnualChange.fixedValue == null || String(eventData.expectedAnnualChange.fixedValue).trim() === '') {
                                             alert(`Event "${event.name}" requires a Fixed Value for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalValue':
                                         // Allow 0 for mean/sd
-                                        if ((!eventData.expectedAnnualChange.normalValue.mean && eventData.expectedAnnualChange.normalValue.mean !== 0) || 
-                                            (!eventData.expectedAnnualChange.normalValue.sd && eventData.expectedAnnualChange.normalValue.sd !== 0)) {
+                                        if ((eventData.expectedAnnualChange.normalValue.mean == null || String(eventData.expectedAnnualChange.normalValue.mean).trim() === '') || 
+                                            (eventData.expectedAnnualChange.normalValue.sd == null || String(eventData.expectedAnnualChange.normalValue.sd).trim() === '')) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformValue':
                                         // Allow 0 for bounds
-                                        if ((!eventData.expectedAnnualChange.uniformValue.lowerBound && eventData.expectedAnnualChange.uniformValue.lowerBound !== 0) || 
-                                            (!eventData.expectedAnnualChange.uniformValue.upperBound && eventData.expectedAnnualChange.uniformValue.upperBound !== 0)) {
+                                        if ((eventData.expectedAnnualChange.uniformValue.lowerBound == null || String(eventData.expectedAnnualChange.uniformValue.lowerBound).trim() === '') || 
+                                            (eventData.expectedAnnualChange.uniformValue.upperBound == null || String(eventData.expectedAnnualChange.uniformValue.upperBound).trim() === '')) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Value.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'fixedPercentage':
                                         // Allow 0 as a valid value
-                                        if (!eventData.expectedAnnualChange.fixedPercentage && eventData.expectedAnnualChange.fixedPercentage !== 0) {
+                                        if (eventData.expectedAnnualChange.fixedPercentage == null || String(eventData.expectedAnnualChange.fixedPercentage).trim() === '') {
                                             alert(`Event "${event.name}" requires a Fixed Percentage for Expected Annual Change.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'normalPercentage':
                                         // Allow 0 for mean/sd
-                                        if ((!eventData.expectedAnnualChange.normalPercentage.mean && eventData.expectedAnnualChange.normalPercentage.mean !== 0) || 
-                                            (!eventData.expectedAnnualChange.normalPercentage.sd && eventData.expectedAnnualChange.normalPercentage.sd !== 0)) {
+                                        if ((eventData.expectedAnnualChange.normalPercentage.mean == null || String(eventData.expectedAnnualChange.normalPercentage.mean).trim() === '') || 
+                                            (eventData.expectedAnnualChange.normalPercentage.sd == null || String(eventData.expectedAnnualChange.normalPercentage.sd).trim() === '')) {
                                             alert(`Event "${event.name}" requires Mean and Standard Deviation for Normal Percentage.`);
                                             validationPassed = false; break;
                                         }
                                         break;
                                     case 'uniformPercentage':
                                         // Allow 0 for bounds
-                                        if ((!eventData.expectedAnnualChange.uniformPercentage.lowerBound && eventData.expectedAnnualChange.uniformPercentage.lowerBound !== 0) || 
-                                            (!eventData.expectedAnnualChange.uniformPercentage.upperBound && eventData.expectedAnnualChange.uniformPercentage.upperBound !== 0)) {
+                                        if ((eventData.expectedAnnualChange.uniformPercentage.lowerBound == null || String(eventData.expectedAnnualChange.uniformPercentage.lowerBound).trim() === '') || 
+                                            (eventData.expectedAnnualChange.uniformPercentage.upperBound == null || String(eventData.expectedAnnualChange.uniformPercentage.upperBound).trim() === '')) {
                                             alert(`Event "${event.name}" requires Lower and Upper Bound for Uniform Percentage.`);
                                             validationPassed = false; break;
                                         }
@@ -2111,7 +2152,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 if (!validationPassed) break;
                         
                                 // Allow 0 for married percentage
-                                if (scenarioType === 'married' && (!eventData.marriedPercentage && eventData.marriedPercentage !== 0)) {
+                                if (scenarioType === 'married' && (eventData.marriedPercentage == null || String(eventData.marriedPercentage).trim() === '')) {
                                     alert(`Event "${event.name}" requires a Married Percentage because the scenario is Married.`);
                                     validationPassed = false;
                                 }
@@ -2125,7 +2166,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                 
                                 if (isInvest) {
                                     // Validate Maximum Cash for invest events
-                                    if (!eventData.newMaximumCash && eventData.newMaximumCash !== 0) { // Allow 0
+                                    if (eventData.newMaximumCash == null || String(eventData.newMaximumCash).trim() === '') { // Allow 0
                                         console.log(`Invest event missing newMaximumCash: ${event.name}`);
                                         alert(`Event "${event.name}" requires a Maximum Cash value.`);
                                     validationPassed = false;
@@ -2139,47 +2180,58 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                     }
 
                                     // Validate allocation modifications for invest events
-                                    if (eventData.modifyTaxStatusAllocation) {
-                                        const sum = Object.values(strategyData?.taxStatusAllocation || {}).reduce((a, b) => a + b, 0);
-                                        if (sum !== 100) {
-                                            console.log(`Tax status allocations don't sum to 100%: ${event.name}`);
-                                            alert(`Event "${event.name}" tax status allocations must sum to 100%.`);
-                                            validationPassed = false;
-                                            break;
-                                        }
+                                    // Keep the sum validation, but don't need to check the modify flags anymore
+                                    const taxStatusSum = Object.values(strategyData?.taxStatusAllocation || {}).reduce((a, b) => a + b, 0);
+                                    if (availableTaxStatuses.length > 0 && taxStatusSum !== 100) { // Only validate if section was shown
+                                        console.log(`Tax status allocations don't sum to 100%: ${event.name}`);
+                                        alert(`Event "${event.name}" tax status allocations must sum to 100%.`);
+                                        validationPassed = false;
+                                        break;
                                     }
-                                    // Add validation for other allocation types if modified
-                                    if (eventData.modifyAfterTaxAllocation) {
-                                        const sum = Object.values(strategyData?.afterTaxAllocation || {}).reduce((a, b) => a + b, 0);
-                                        if (sum !== 100) {
-                                            alert(`Event "${event.name}" after-tax allocations must sum to 100%.`);
+                                    
+                                    const afterTaxSum = Object.values(strategyData?.afterTaxAllocation || {}).reduce((a, b) => a + b, 0);
+                                    if (afterTaxInvestments.length > 0 && afterTaxSum !== 100) { // Only validate if section was shown
+                                        alert(`Event "${event.name}" after-tax allocations must sum to 100%.`);
+                                        validationPassed = false; break;
+                                    }
+                                    
+                                    const nonRetirementSum = Object.values(strategyData?.nonRetirementAllocation || {}).reduce((a, b) => a + b, 0);
+                                    if (nonRetirementInvestments.length > 0 && nonRetirementSum !== 100) { // Only validate if section was shown
+                                        alert(`Event "${event.name}" non-retirement allocations must sum to 100%.`);
+                                        validationPassed = false; break;
+                                    }
+                                    
+                                    const taxExemptSum = Object.values(strategyData?.taxExemptAllocation || {}).reduce((a, b) => a + b, 0);
+                                    if (taxExemptInvestments.length > 0 && taxExemptSum !== 100) { // Only validate if section was shown
+                                        alert(`Event "${event.name}" tax-exempt allocations must sum to 100%.`);
+                                        validationPassed = false; break;
+                                    }
+                                    
+                                    // Validate Final Strategy for Glide Path
+                                    if (eventData.executionType === 'glidePath') {
+                                        const finalStrategyData = eventData.finalInvestmentStrategy;
+                                        const finalTaxStatusSum = Object.values(finalStrategyData?.taxStatusAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (availableTaxStatuses.length > 0 && finalTaxStatusSum !== 100) {
+                                            alert(`Event "${event.name}" FINAL tax status allocations must sum to 100%.`);
                                             validationPassed = false; break;
                                         }
-                                    }
-                                    if (eventData.modifyNonRetirementAllocation) {
-                                        const sum = Object.values(strategyData?.nonRetirementAllocation || {}).reduce((a, b) => a + b, 0);
-                                        if (sum !== 100) {
-                                            alert(`Event "${event.name}" non-retirement allocations must sum to 100%.`);
+                                        const finalAfterTaxSum = Object.values(finalStrategyData?.afterTaxAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (afterTaxInvestments.length > 0 && finalAfterTaxSum !== 100) {
+                                            alert(`Event "${event.name}" FINAL after-tax allocations must sum to 100%.`);
                                             validationPassed = false; break;
                                         }
-                                    }
-                                    if (eventData.modifyTaxExemptAllocation) {
-                                        const sum = Object.values(strategyData?.taxExemptAllocation || {}).reduce((a, b) => a + b, 0);
-                                        if (sum !== 100) {
-                                            alert(`Event "${event.name}" tax-exempt allocations must sum to 100%.`);
+                                        const finalNonRetirementSum = Object.values(finalStrategyData?.nonRetirementAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (nonRetirementInvestments.length > 0 && finalNonRetirementSum !== 100) {
+                                            alert(`Event "${event.name}" FINAL non-retirement allocations must sum to 100%.`);
+                                            validationPassed = false; break;
+                                        }
+                                        const finalTaxExemptSum = Object.values(finalStrategyData?.taxExemptAllocation || {}).reduce((a, b) => a + b, 0);
+                                        if (taxExemptInvestments.length > 0 && finalTaxExemptSum !== 100) {
+                                            alert(`Event "${event.name}" FINAL tax-exempt allocations must sum to 100%.`);
                                             validationPassed = false; break;
                                         }
                                     }
                                     
-                                    // Remove validation checking if *at least one* is selected
-                                    /*
-                                    if (!eventData.modifyTaxStatusAllocation && 
-                                        !eventData.modifyAfterTaxAllocation && 
-                                        !eventData.modifyNonRetirementAllocation && 
-                                        !eventData.modifyTaxExemptAllocation) {
-                                        // ... alert ...
-                                    }
-                                    */
                                 } else { // Rebalance
                                     // Validate rebalance event allocation selections
                                     if (eventData.modifyTaxStatusAllocation) {
@@ -2205,8 +2257,8 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                     if (eventData.modifyNonRetirementAllocation) {
                                         const sum = Object.values(strategyData?.nonRetirementAllocation || {}).reduce((a, b) => a + b, 0);
                                         if (sum !== 100) {
-                                            console.log(`Non-retirement allocations for rebalance don't sum to 100%: ${event.name}`);
-                                            alert(`Event "${event.name}" non-retirement allocations for rebalance must sum to 100%.`);
+                                            console.log(`Non-retirement (taxable) allocations for rebalance don't sum to 100%: ${event.name}`);
+                                            alert(`Event "${event.name}" non-retirement (taxable) allocations for rebalance must sum to 100%.`);
                                             validationPassed = false;
                                             break;
                                         }
@@ -2253,6 +2305,15 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                         
                         if (!validationPassed) break;
                     }
+
+                    // --- NEW: Check for Duplicate Event Names --- 
+                    const eventNames = events.map(e => e.name.trim()).filter(name => name); // Get trimmed, non-empty names
+                    const uniqueEventNames = new Set(eventNames);
+                    if (eventNames.length !== uniqueEventNames.size) {
+                        alert("Event names must be unique. Please check for duplicates.");
+                        validationPassed = false;
+                    }
+                    // --- END Duplicate Check --- 
 
                     if (validationPassed) {
                         console.log('All validations passed, proceeding to next page');

@@ -70,7 +70,9 @@ function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, c
     if (taxData.stateTaxes && taxData.stateTaxes.length > 0) {
         userStateTaxDataRaw = taxData.stateTaxes.find(state => state.stateCode === userState);
         if (!userStateTaxDataRaw) {
-             console.warn(`Preliminaries Warn: State tax data not found for stateCode '${userState}'. State taxes will not be calculated.`);
+             //
+             // 
+             // console.warn(`Preliminaries Warn: State tax data not found for stateCode '${userState}'. State taxes will not be calculated.`);
         }
     } else {
         console.error(`Preliminaries Error: taxData.stateTaxes is missing or empty.`);

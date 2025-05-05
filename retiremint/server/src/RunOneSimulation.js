@@ -10,21 +10,7 @@
  */
 
 const { simulateYear } = require('./SimulationEngine/SimulateYear'); // Import the external function
-
-// Helper function to sample from a normal distribution using Box-Muller transform
-function sampleNormal(mean, stdDev) {
-  let u1 = 0, u2 = 0;
-  // Convert [0,1) to (0,1)
-  while(u1 === 0) u1 = Math.random();
-  while(u2 === 0) u2 = Math.random();
-  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-  return z0 * stdDev + mean; // Allow negative values
-}
-
-// Helper function to sample from a uniform distribution
-function sampleUniform(min, max) {
-  return Math.random() * (max - min) + min;
-}
+const { sampleNormal, sampleUniform } = require('./SimulationEngine/Utils/CalculationUtils'); // Import sampling utilities
 
 // --- Event Timing Calculation Helper ---
 function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsCache, processing = new Set()) {
@@ -555,9 +541,12 @@ function runOneSimulation(modelData, simulationIndex) {
                      continue;
                 }
 
-                const allocationMethod = investEventObject.invest.allocations.method;
-                const targetStrategy = investEventObject.invest.investmentStrategy; // Initial/Target strategy
-                const finalGlideTarget = investEventObject.invest.finalInvestmentStrategy; // Glide end target
+                const investData = investEventObject.invest; // Easier access
+                const allocationMethod = investData.allocations.method;
+                const targetStrategy = investData.investmentStrategy; 
+                const finalGlideTarget = investData.finalInvestmentStrategy; 
+                const shouldModifyCash = investData.modifyMaximumCash;
+                const newCashAmount = investData.newMaximumCash;
 
                 const timing = eventTimingsCache.get(investEventName); // Get timing again (safe)
                  if (!timing) { 
@@ -569,59 +558,68 @@ function runOneSimulation(modelData, simulationIndex) {
                  const totalDuration = timing.duration;
                  const yearsElapsed = yearIndex - eventStartIndex; // 0 for the first year of the event
 
+                let strategyForYear = null;
+
                 if (allocationMethod === 'fixedAllocation') {
                      if (!targetStrategy) {
                          console.error(`Sim ${simulationIndex + 1}: Fixed invest event '${investEventName}' missing investmentStrategy. Carrying forward previous state for year ${currentYear + yearIndex}.`);
                          investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
                          continue;
                      }
-                     investArray[yearIndex] = {
-                         method: 'fixedAllocation',
-                         strategy: cleanStrategyObject(targetStrategy)
-                     };
+                     strategyForYear = cleanStrategyObject(targetStrategy);
 
                 } else if (allocationMethod === 'glidePath') {
                      if (!targetStrategy || !finalGlideTarget) {
                          console.warn(`Sim ${simulationIndex + 1}: Warn - Glide path invest event "${investEventName}" missing initial (investmentStrategy) or final (finalInvestmentStrategy). Treating as fixed allocation with initial strategy for year ${currentYear + yearIndex}.`);
-                         investArray[yearIndex] = {
-                              method: 'fixedAllocation', // Fallback for this year
-                              strategy: cleanStrategyObject(targetStrategy)
-                         };
-                         continue; // Continue to next year
+                         strategyForYear = cleanStrategyObject(targetStrategy);
+                     } else {
+                         // Define the fixed start and end points for interpolation
+                         const fixedStartStrategy = cleanStrategyObject(targetStrategy);
+                         const fixedEndStrategy = cleanStrategyObject(finalGlideTarget);
+                         
+                         if (!fixedStartStrategy || !fixedEndStrategy) { // Check if cleaning/cloning failed
+                             console.error(`Sim ${simulationIndex + 1}: Error cleaning start or end strategy for glide path '${investEventName}'. Skipping year ${currentYear + yearIndex}.`);
+                             investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
+                             continue;
+                         }
+                         
+                         const eventStartIndex = timing.startYear - currentYear;
+                         const yearsElapsed = yearIndex - eventStartIndex; // 0 for the first year, 1 for second, etc.
+                         const totalDuration = timing.duration;
+                         
+                         // Calculate glide fraction (progress from start (0) to end (1))
+                         const glideSpan = totalDuration - 1; // Number of steps (e.g., 3yr duration -> 2 steps)
+                         let glideFraction = 0;
+                         if (glideSpan > 0) {
+                             glideFraction = Math.min(1, yearsElapsed / glideSpan); // Ensure fraction doesn't exceed 1
+                         } else { // Handle duration of 1 year
+                             glideFraction = 0; // Or 1? If duration is 1, use the start strategy.
+                         }
+
+                         // Interpolate between the FIXED start and FIXED end strategies
+                         const currentStrategy = interpolateNestedStrategy(fixedStartStrategy, fixedEndStrategy, glideFraction);
+
+                         strategyForYear = currentStrategy; 
                      }
-
-                    // Define the fixed start and end points for interpolation
-                    const fixedStartStrategy = cleanStrategyObject(targetStrategy);
-                    const fixedEndStrategy = cleanStrategyObject(finalGlideTarget);
-                    
-                    if (!fixedStartStrategy || !fixedEndStrategy) { // Check if cleaning/cloning failed
-                        console.error(`Sim ${simulationIndex + 1}: Error cleaning start or end strategy for glide path '${investEventName}'. Skipping year ${currentYear + yearIndex}.`);
-                        investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
-                        continue;
-                    }
-                    
-                    const eventStartIndex = timing.startYear - currentYear;
-                    const yearsElapsed = yearIndex - eventStartIndex; // 0 for the first year, 1 for second, etc.
-                    const totalDuration = timing.duration;
-                    
-                    // Calculate glide fraction (progress from start (0) to end (1))
-                    const glideSpan = totalDuration - 1; // Number of steps (e.g., 3yr duration -> 2 steps)
-                    let glideFraction = 0;
-                    if (glideSpan > 0) {
-                        glideFraction = Math.min(1, yearsElapsed / glideSpan); // Ensure fraction doesn't exceed 1
-                    } else { // Handle duration of 1 year
-                        glideFraction = 0; // Or 1? If duration is 1, use the start strategy.
-                    }
-
-                    // Interpolate between the FIXED start and FIXED end strategies
-                    const currentStrategy = interpolateNestedStrategy(fixedStartStrategy, fixedEndStrategy, glideFraction);
-
-                    investArray[yearIndex] = {
-                        method: 'glidePath',
-                        strategy: currentStrategy // Store the calculated object for the current year
-                    };
                 }
-                 // Add handling for other potential methods if necessary
+                // Add handling for other potential methods if necessary
+
+                // --- Construct the object for investArray --- 
+                if (strategyForYear) {
+                    const infoForArray = {
+                        method: allocationMethod,
+                        strategy: strategyForYear
+                    };
+                    // Add cash override if specified in the event
+                    if (shouldModifyCash && newCashAmount !== undefined && newCashAmount !== null) {
+                        infoForArray.newMaximumCash = newCashAmount;
+                    }
+                    investArray[yearIndex] = infoForArray;
+                } else {
+                    // If strategy calculation failed, store null
+                    investArray[yearIndex] = (yearIndex > 0) ? investArray[yearIndex - 1] : null;
+                }
+
             } else {
                  // No *active* invest event this year. Set to null.
                  investArray[yearIndex] = null;
@@ -652,16 +650,17 @@ function runOneSimulation(modelData, simulationIndex) {
     
     // --- Yearly Simulation Loop --- 
     const yearlyResults = []; 
-    const cashArray = Array(numYears).fill(0); // Initialize yearly cash array
-    const investmentsValueArray = Array(numYears).fill(0); // Initialize yearly total investment value array
-    const expensesArray = Array(numYears).fill(0); // Initialize yearly total expenses array
-    const earlyWithdrawalArray = Array(numYears).fill(0); // Initialize yearly early withdrawal array
+    const cashArray = Array(numYears).fill(0); 
+    const investmentsValueArray = Array(numYears).fill({}); // Initialize with empty objects
+    const expensesArray = Array(numYears).fill({}); 
+    const earlyWithdrawalArray = Array(numYears).fill(0); 
+    const incomeArrays = Array(numYears).fill({}); // NEW: Initialize array for income breakdowns
+    const discretionaryRatioArray = Array(numYears).fill(0); // NEW: Initialize array for ratios
     
-    let previousYearState = null; // Initialize state before the loop
+    let previousYearState = null; 
 
     for (let i = 0; i < numYears; i++) {
         try {
-            // Call the *imported* simulateYear function
             const currentState = simulateYear( 
                 modelData,          // Pass the full model data
                 investArray,        // Pass the pre-calculated array
@@ -683,28 +682,85 @@ function runOneSimulation(modelData, simulationIndex) {
             
             // Store the detailed results in their respective arrays
             cashArray[i] = currentState.cash ?? 0;
-            investmentsValueArray[i] = currentState.totalInvestmentValue ?? 0;
-            expensesArray[i] = currentState.curYearExpenses ?? 0;
+            
+            // Create and store the investment value breakdown for the year
+            const investmentValuesForYear = {};
+            (currentState.investments || []).forEach(inv => {
+                investmentValuesForYear[inv.name] = inv.value || 0;
+            });
+            investmentsValueArray[i] = investmentValuesForYear; 
+            
+            expensesArray[i] = currentState.expenseBreakdown ?? {}; 
             earlyWithdrawalArray[i] = currentState.curYearEarlyWithdrawals ?? 0;
+            incomeArrays[i] = currentState.incomeBreakdown ?? {}; // NEW: Store income breakdown
 
-            // Update previous state for the next iteration
             previousYearState = currentState;
+
+            // --- Check if financial goal was met. If not, stop this simulation run --- 
+            if (!currentState.financialGoalMet) {
+                console.log(`Simulation ${simulationIndex + 1}: Financial goal not met in year ${currentState.year} (Index ${i}). Stopping simulation.`);
+                break; // Exit the loop for this simulation
+            }
 
         } catch (yearError) {
             console.error(`Simulation ${simulationIndex + 1}: Error calling simulateYear for year index ${i} (${currentYear + i}):`, yearError);
-        yearlyResults.push({ 
+            yearlyResults.push({ 
                  netWorth: previousYearState?.totalAssets ?? 0, 
                  meetingFinancialGoal: false 
              });
-             // Keep detailed arrays at 0 or previous value upon error? For now, default to 0.
-             cashArray[i] = previousYearState?.cash ?? 0; // Carry forward cash on error? Or 0?
-             investmentsValueArray[i] = previousYearState?.totalInvestmentValue ?? 0; 
-             expensesArray[i] = 0; // Error means likely no expenses calculated
-             earlyWithdrawalArray[i] = 0;
-             // previousYearState remains the same as the last successful year
+             
+             cashArray[i] = previousYearState?.cash ?? 0; 
+             // Store error indication or empty object for investment values
+             investmentsValueArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
+             expensesArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
+             earlyWithdrawalArray[i] = previousYearState?.curYearEarlyWithdrawals ?? 0; 
         }
     }
     // --- End Yearly Simulation Loop ---
+    
+    // --- Calculate Discretionary Ratio Array Post-Simulation --- 
+    const allScenarioEvents = modelData.scenario.events; // Cache for efficiency
+    // Iterate only up to the number of years actually simulated
+    const actualYearsSimulated = yearlyResults.length; 
+    for (let i = 0; i < actualYearsSimulated; i++) { 
+        const expenseBreakdownForYear = expensesArray[i];
+        if (!expenseBreakdownForYear || typeof expenseBreakdownForYear !== 'object') {
+            discretionaryRatioArray[i] = 0; // No expenses this year
+            continue;
+        }
+        
+        let totalActualDiscretionary = 0;
+        let totalActualNonDiscretionary = 0;
+        
+        for (const expenseName in expenseBreakdownForYear) {
+            const expenseValue = expenseBreakdownForYear[expenseName] || 0;
+            
+            // Find the corresponding event details in the main scenario data
+            const eventDetails = allScenarioEvents.find(event => event.name === expenseName);
+            
+            if (eventDetails && eventDetails.type === 'expense' && eventDetails.expense) {
+                if (eventDetails.expense.isDiscretionary) {
+                    totalActualDiscretionary += expenseValue;
+                } else {
+                    totalActualNonDiscretionary += expenseValue;
+                }
+            } else {
+                // Assumption: If not found or not an expense event, treat as non-discretionary?
+                // Or log a warning? Let's assume non-discretionary for now (e.g., taxes).
+                totalActualNonDiscretionary += expenseValue;
+                // If taxes/penalties are in breakdown, they won't be found in events
+                // console.warn(`Could not find event details for expense '${expenseName}' in year index ${i}. Treating as non-discretionary.`);
+            }
+        }
+        
+        const totalExpenses = totalActualDiscretionary + totalActualNonDiscretionary;
+        if (totalExpenses > 0) {
+            discretionaryRatioArray[i] = totalActualDiscretionary / totalExpenses;
+        } else {
+            discretionaryRatioArray[i] = 0; // No expenses, ratio is 0
+        }
+    }
+    // --- End Discretionary Ratio Calculation ---
     
     // Return an object containing all the calculated arrays for this simulation run
     return {
@@ -712,7 +768,9 @@ function runOneSimulation(modelData, simulationIndex) {
         cashArray,
         investmentsValueArray,
         expensesArray,
-        earlyWithdrawalArray
+        earlyWithdrawalArray,
+        incomeArrays, // NEW: Return the collected income breakdowns
+        discretionaryRatioArray // NEW: Return the ratio array
     };
 }
 
