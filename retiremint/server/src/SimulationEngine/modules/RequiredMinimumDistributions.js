@@ -48,10 +48,11 @@ function findOrCreateTargetAccount(investments, sourceInvestment, targetTaxStatu
  * @param {number} userAge - The user's age in the current simulation year.
  * @param {Object} yearState - The current state of the simulation year (will be modified).
  * @param {Object} previousYearState - State object from the previous year's simulation (optional, for initial RMD)
+ * @param {Array} currentYearEventsLog - Array to push log entries into.
  * @returns {Object} - Object containing the updated year state and the total RMD income generated.
  *                     { updatedYearState: Object, rmdIncome: Number }
  */
-function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, yearState, previousYearState = null) {
+function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, yearState, previousYearState = null, currentYearEventsLog = []) {
     
     // --- Basic Validation & Age Check (Moved to the beginning) ---
     if (!userAge || userAge < 73) {
@@ -172,7 +173,7 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
             withdrawalsBySource[sourceInvestmentName] = (withdrawalsBySource[sourceInvestmentName] || 0) + amountToWithdrawFromSource;
 
             // Check if the source is pre-tax to determine income impact
-            if (sourceInv.taxStatus === 'pre-tax') {
+            if (sourceInv.accountTaxStatus === 'pre-tax') {
                 totalRmdIncomeThisYear += amountToWithdrawFromSource; // Add to taxable income
             }
             actualWithdrawnTotal += amountToWithdrawFromSource;
@@ -205,12 +206,22 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
             };
             yearState.investments.push(rmdInv); // Add to the investments array
             // console.log(`---> [RMD Deposit] Created new investment: ${rmdInvName} for year ${yearState.year}`); // ADDED LOG
+            currentYearEventsLog.push({ 
+              year: yearState.year, 
+              type: 'rmd', 
+              details: `Created RMD account '${rmdInvName}'.`
+            });
         }
 
         // Increase RMD investment value and cost basis
         rmdInv.value += withdrawnAmount;
         rmdInv.costBasis += withdrawnAmount; // Cost basis is the amount moved
         // console.log(`---> [RMD Deposit] Deposited ${withdrawnAmount.toFixed(2)} into ${rmdInv.name} (New Value: ${rmdInv.value.toFixed(2)}) for year ${yearState.year}`); // ADDED LOG
+        currentYearEventsLog.push({ 
+          year: yearState.year, 
+          type: 'rmd', 
+          details: `Deposited ${withdrawnAmount.toFixed(2)} from source '${sourceName}' to '${rmdInv.name}'.`
+        });
     }
 
     // --- Handle Shortfall (Optional) ---
