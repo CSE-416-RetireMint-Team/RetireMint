@@ -1139,7 +1139,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [status]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }}
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1188,7 +1188,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1238,7 +1238,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1286,7 +1286,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [inv.name]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }} // Increased width
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1333,7 +1333,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [status]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }}
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1369,7 +1369,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1405,7 +1405,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1441,7 +1441,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1541,7 +1541,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                             [status]: value
                                                                         });
                                                                     }}
-                                                                    style={{ width: '60px' }}
+                                                                    style={{ width: '70px' }}
                                                                 />
                                                                 <span>%</span>
                                                             </div>
@@ -1589,7 +1589,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [inv.name]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }} // Increased width
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1635,7 +1635,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [inv.name]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }} // Increased width
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1681,7 +1681,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [inv.name]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }} // Increased width
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1727,7 +1727,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                     [inv.name]: value
                                                                 });
                                                             }}
-                                                            style={{ width: '60px' }}
+                                                            style={{ width: '70px' }} // Increased width
                                                         />
                                                         <span>%</span>
                                                     </div>
@@ -1773,7 +1773,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [status]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }}
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1808,7 +1808,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1843,7 +1843,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1878,7 +1878,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
@@ -1913,7 +1913,7 @@ function EventForm({events, setEvents, scenarioType, setPage, investments}) {
                                                                         [inv.name]: value
                                                                     });
                                                                 }}
-                                                                style={{ width: '60px' }}
+                                                                style={{ width: '70px' }} // Increased width
                                                             />
                                                             <span>%</span>
                                                         </div>
