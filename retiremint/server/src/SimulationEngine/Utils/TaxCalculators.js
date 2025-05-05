@@ -66,7 +66,7 @@ function calculateIncomeTax(taxableIncome, brackets) {
 function calculateCapitalGainsTax(netGains, taxableIncome, capGainsBrackets) {
     if (netGains <= 0) return 0; // No tax on losses or zero gains
     if (!capGainsBrackets || capGainsBrackets.length === 0) {
-        console.warn("Tax Calculation Warning: No capital gains brackets provided.");
+        //console.warn("Tax Calculation Warning: No capital gains brackets provided.");
         return 0;
     }
 
