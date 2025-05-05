@@ -233,8 +233,8 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
             for (let i = 0; i < numSimsToLog; i++) {
                 console.log(`\n--- Details from Simulation #${i + 1} ---`);
                 // console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
-                // console.log(`  Cash Array (First 5):`, aggregatedResults.cashArrays[i]/*?.slice(0, 5)8*/); 
-                // console.log(`  Investment Value Array (First 5 Years):`, aggregatedResults.investmentValueArrays[i]/*?.slice(0, 5)*/); 
+                //console.log(`  Cash Array (First 5):`, aggregatedResults.cashArrays[i]/*?.slice(0, 5)*/); 
+                console.log(`  Investment Value Array (Full Year ${i+1}):`, JSON.stringify(aggregatedResults.investmentValueArrays[i], null, 2));
                 // console.log(`  Expenses Array (First 5 Years):`, aggregatedResults.expensesArrays[i]/*?.slice(0, 5)*/); 
                 // console.log(`  Early Withdrawal Array (First 5):`, aggregatedResults.earlyWithdrawalArrays[i]/*?.slice(0, 5)*/);
                 // console.log(`  Income Array (First 5 Years):`, aggregatedResults.incomeArrays[i]?.slice(0, 5));

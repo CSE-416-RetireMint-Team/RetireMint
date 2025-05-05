@@ -34,6 +34,7 @@ function processRothConversion(
   rothOptimizerStartYear = null,
   rothOptimizerEndYear = null
 ) {
+  console.log(`---> [Roth] Entering for Year ${currentYear}`);
   let totalAmountConverted = 0;
   let updatedInvestments = JSON.parse(JSON.stringify(investments)); // Deep clone
   let updatedTaxableIncome = curYearIncome;
@@ -67,6 +68,8 @@ function processRothConversion(
   const curYearFedTaxableIncomeBeforeConv = curYearIncome - 0.15 * curYearSS; 
   const netTaxableIncomeBeforeConv = Math.max(0, curYearFedTaxableIncomeBeforeConv - adjustedStandardDeduction);
   
+  console.log(`---> [Roth Calc] Year ${currentYear}: curYearIncome=${curYearIncome.toFixed(2)}, curYearSS=${curYearSS.toFixed(2)}, adjStdDed=${adjustedStandardDeduction.toFixed(2)}, netTaxableIncomeBeforeConv=${netTaxableIncomeBeforeConv.toFixed(2)}`);
+  
   // Find the user's current tax bracket upper limit (u)
   let upperLimit = 0;
   if (!adjustedIncomeTaxBrackets || adjustedIncomeTaxBrackets.length === 0) {
@@ -99,6 +102,7 @@ function processRothConversion(
   // rc = u - netTaxableIncomeBeforeConv
   let targetConversionAmount = 0;
   if (upperLimit === Infinity) { 
+    console.log(`---> [Roth Calc] Year ${currentYear}: In highest bracket.`);
     // If in the highest bracket, maybe convert a fixed amount or based on another rule?
     // For now, assume no conversion if already in the highest bracket.
     // console.log(`Year ${currentYear}: Skipping Roth conversion (already in highest bracket).`);
@@ -107,7 +111,7 @@ function processRothConversion(
     targetConversionAmount = Math.max(0, upperLimit - netTaxableIncomeBeforeConv);
   }
   
-  // console.log(`Year ${currentYear}: Roth Optimizer - Net Income Before: ${netTaxableIncomeBeforeConv.toFixed(2)}, Bracket Upper Limit: ${upperLimit === Infinity ? 'Inf' : upperLimit.toFixed(2)}, Target Conversion (rc): ${targetConversionAmount.toFixed(2)}`);
+  console.log(`---> [Roth Calc] Year ${currentYear}: Found upperLimit=${upperLimit === Infinity ? 'Infinity' : upperLimit.toFixed(2)}, Calculated targetConversionAmount=${targetConversionAmount.toFixed(2)}`);
   
   if (targetConversionAmount <= 0.01) { // Use threshold for floating point
     // console.log(`Year ${currentYear}: Skipping Roth conversion (target amount is zero or negligible).`);
@@ -116,73 +120,88 @@ function processRothConversion(
 
   // --- c. Iterate over source accounts and perform conversion --- 
   let amountRemainingToConvert = targetConversionAmount;
+  let totalConvertedThisYear = 0; // Define totalConvertedThisYear here
 
   for (const sourceAccountName of rothConversionSourceAccounts) {
     if (amountRemainingToConvert <= 0.01) break; // Target met
 
     // Find the source pre-tax investment account
-    const sourceAccountIndex = updatedInvestments.findIndex(inv => 
+    const sourceInv = updatedInvestments.find(inv => 
       inv.name === sourceAccountName && 
-      inv.taxStatus === 'pre-tax'
+      inv.accountTaxStatus === 'pre-tax'
     );
 
-    if (sourceAccountIndex === -1) {
+    // Log source account search results
+    if (sourceInv) {
+        console.log(`---> [Roth Src] Year ${currentYear}: Found source '${sourceAccountName}'. Status: ${sourceInv.accountTaxStatus}, Value: ${sourceInv.value.toFixed(2)}`);
+    } else {
+        console.log(`---> [Roth Src] Year ${currentYear}: Did NOT find pre-tax source '${sourceAccountName}'.`);
+    }
+
+    if (!sourceInv) {
       // console.log(`Year ${currentYear}: Roth source account '${sourceAccountName}' not found or not pre-tax.`);
       continue; // Try next source account
     }
     
-    const sourceAccount = updatedInvestments[sourceAccountIndex];
-    if (sourceAccount.value <= 0) {
+    if (sourceInv.value <= 0) {
       // console.log(`Year ${currentYear}: Roth source account '${sourceAccountName}' has zero value.`);
       continue; // Try next source account
     }
 
     // Determine amount to convert from this specific source
-    const amountToConvertFromThisSource = Math.min(amountRemainingToConvert, sourceAccount.value);
+    const amountToConvertFromThisSource = Math.min(amountRemainingToConvert, sourceInv.value);
 
-    // Determine target account name and find/create it
-    const targetAccountName = `${sourceAccount.name} (Roth)`;
-    let targetAccountIndex = updatedInvestments.findIndex(inv => 
-      inv.name === targetAccountName && 
-      inv.taxStatus === 'tax-exempt' // Using 'tax-exempt' for Roth based on InvestmentReturns logic
-    );
+    // --- Perform Conversion ---
+    if (amountToConvertFromThisSource > 0 && sourceInv && sourceInv.value >= amountToConvertFromThisSource) { // Check added for clarity
+        // Find or create the corresponding Roth investment
+        const rothInvName = `${sourceInv.name} (Roth)`;
+        let rothInv = updatedInvestments.find(inv => inv.name === rothInvName);
 
-    if (targetAccountIndex === -1) {
-      // Create the target Roth account if it doesn't exist
-      // console.log(`Year ${currentYear}: Creating target Roth account '${targetAccountName}' for conversion.`);
-      const newRothInvestment = {
-        ...JSON.parse(JSON.stringify(sourceAccount)), // Base structure on source
-        name: targetAccountName,
-        taxStatus: 'tax-exempt', 
-        value: 0, // Start with zero value
-        costBasis: 0, // Initial cost basis is 0
-        _id: `temp-roth-${sourceAccountName}-${Date.now()}` // Generate a unique-ish temp ID
-      };
-       // Remove fields that shouldn't be copied or are set above
-      delete newRothInvestment.maxAnnualContribution; // Roth limits handled differently
-      // Add other fields specific to Roth if needed by schemas
-      
-      updatedInvestments.push(newRothInvestment);
-      targetAccountIndex = updatedInvestments.length - 1; 
-    }
-    
-    const targetAccount = updatedInvestments[targetAccountIndex];
+        if (!rothInv) {
+            // Create the new Roth investment if it doesn't exist
+            rothInv = {
+                name: rothInvName,
+                investmentType: sourceInv.investmentType, // Copy reference/data
+                accountTaxStatus: 'after-tax',
+                value: 0,
+                costBasis: 0,
+                 _id: `temp-roth-${sourceInv.name}-${Date.now()}` // Generate a unique-ish temp ID
+            };
+            updatedInvestments.push(rothInv); // Add to the investments array
+            // console.log(`RothConversion: Created new investment: ${rothInvName}`);
+        }
 
-    // Perform the transfer
-    sourceAccount.value -= amountToConvertFromThisSource;
-    targetAccount.value += amountToConvertFromThisSource;
-    targetAccount.costBasis = (targetAccount.costBasis || 0) + amountToConvertFromThisSource;
+        // Decrease source investment value (adjust cost basis proportionally)
+        const originalSourceValue = sourceInv.value;
+        const originalSourceCostBasis = sourceInv.costBasis || 0; // Get original cost basis, default to 0
+        sourceInv.value -= amountToConvertFromThisSource;
+        if (originalSourceValue > 0) {
+          // Calculate the new cost basis proportionally
+          sourceInv.costBasis = originalSourceCostBasis * (sourceInv.value / originalSourceValue); 
+        } else {
+          sourceInv.costBasis = 0; // Avoid division by zero if source was already 0
+        }
+        sourceInv.costBasis = Math.max(0, sourceInv.costBasis); // Ensure cost basis doesn't go negative
 
-    // Update tracking variables
-    totalAmountConverted += amountToConvertFromThisSource;
-    amountRemainingToConvert -= amountToConvertFromThisSource;
-    
-    // console.log(`Year ${currentYear}: Converted ${amountToConvertFromThisSource.toFixed(2)} from '${sourceAccountName}' to '${targetAccountName}'. Total converted: ${totalAmountConverted.toFixed(2)}. Remaining target: ${amountRemainingToConvert.toFixed(2)}`);
-  }
+
+        // Increase Roth investment value and cost basis
+        rothInv.value = (rothInv.value || 0) + amountToConvertFromThisSource; // Ensure value exists before adding
+        rothInv.costBasis = (rothInv.costBasis || 0) + amountToConvertFromThisSource; // Cost basis of converted amount is the amount itself, ensure exists before adding
+
+        // Update tracking variables - MOVED inside the successful conversion block
+        totalAmountConverted += amountToConvertFromThisSource;
+        amountRemainingToConvert -= amountToConvertFromThisSource;
+        
+        // console.log(`Year ${currentYear}: Converted ${amountToConvertFromThisSource.toFixed(2)} from '${sourceAccountName}' to '${rothInv.name}'. Total converted: ${totalAmountConverted.toFixed(2)}. Remaining target: ${amountRemainingToConvert.toFixed(2)}`);
+
+    } // End of conversion logic block
+
+  } // End of loop through source accounts
   
   // --- d. Update overall taxable income --- 
   updatedTaxableIncome += totalAmountConverted;
 
+  console.log(`---> [Roth] Returning for Year ${currentYear}. Converted: ${totalAmountConverted}. Investments:`, JSON.stringify(updatedInvestments.map(inv => ({name: inv.name, status: inv.accountTaxStatus}))));
   return { 
     investments: updatedInvestments, 
     curYearIncome: updatedTaxableIncome, 
