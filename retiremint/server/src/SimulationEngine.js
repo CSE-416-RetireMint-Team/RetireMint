@@ -20,6 +20,7 @@ const LifeExpectancy = require('./Schemas/LifeExpectancy'); // Import LifeExpect
 // const { runOneSimulation } = require('./RunOneSimulation'); 
 const { Worker } = require('worker_threads');
 const path = require('path'); // Needed for resolving worker script path
+const fs = require('fs'); // <-- Require fs module for file writing
 
 // Track if we've already logged data for debugging
 let hasLoggedDataThisSession = false;
@@ -155,6 +156,12 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
                     } else {
                         workerResults[message.simulationIndex] = message.result;
                         resolve({ error: false, index: message.simulationIndex });
+
+                        // --- Log results for the FIRST simulation --- 
+                        if (message.simulationIndex === 0 && message.result) {
+                            writeSimulationLogs(userData, message.result);
+                        }
+                        // -----------------------------------------
                     }
                     completedCount++;
                 });
@@ -234,7 +241,7 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
                 console.log(`\n--- Details from Simulation #${i + 1} ---`);
                 // console.log(`  Yearly Results (Net Worth/Goal Met - First 5):`, aggregatedResults.yearlyResults[i]?.slice(0, 5)); 
                 //console.log(`  Cash Array (First 5):`, aggregatedResults.cashArrays[i]/*?.slice(0, 5)*/); 
-                console.log(`  Investment Value Array (Full Year ${i+1}):`, JSON.stringify(aggregatedResults.investmentValueArrays[i], null, 2));
+                //console.log(`  Investment Value Array (First 5 Years):`, aggregatedResults.investmentValueArrays[i]/*?.slice(0, 5)*/); 
                 // console.log(`  Expenses Array (First 5 Years):`, aggregatedResults.expensesArrays[i]/*?.slice(0, 5)*/); 
                 // console.log(`  Early Withdrawal Array (First 5):`, aggregatedResults.earlyWithdrawalArrays[i]/*?.slice(0, 5)*/);
                 // console.log(`  Income Array (First 5 Years):`, aggregatedResults.incomeArrays[i]?.slice(0, 5));
@@ -259,6 +266,85 @@ async function runSimulations(scenario, userData, taxData, numSimulations = 100)
           message: error.message,
           stack: error.stack
         };
+    }
+}
+
+// --- Helper function to write simulation logs --- 
+function writeSimulationLogs(userData, firstSimResult) {
+    try {
+        const userName = userData?.name?.replace(/\s+/g, '_') || 'UnknownUser'; // <-- Use userName again, sanitize spaces
+        const now = new Date();
+        // Format date/time to EST, filename-safe
+        const estTimeString = now.toLocaleString('en-US', { 
+            timeZone: 'America/New_York', 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: false // Use 24-hour format
+        });
+        // Replace characters unsuitable for filenames
+        const datetime = estTimeString.replace(/[/\?%*:|"<>]/g, '-').replace(/, /g, 'T').replace(/ /g, '_'); 
+        
+        const logDir = path.join(__dirname, 'logs');
+
+        // Ensure log directory exists
+        if (!fs.existsSync(logDir)) {
+            fs.mkdirSync(logDir, { recursive: true });
+        }
+
+        const csvFilename = path.join(logDir, `${userName}_${datetime}.csv`); // <-- Use userName in filename
+        const logFilename = path.join(logDir, `${userName}_${datetime}.log`); // <-- Use userName in filename
+
+        // --- Write CSV File --- 
+        const investmentData = firstSimResult.investmentsValueArray || [];
+        if (investmentData.length > 0) {
+            // Determine headers
+            const allKeys = new Set();
+            investmentData.forEach(yearData => {
+                Object.keys(yearData || {}).forEach(key => allKeys.add(key));
+            });
+             // Ensure 'Cash' is included and sort headers (optional, put Cash last?)
+            allKeys.add('Cash');
+            const headers = ['Year', ...Array.from(allKeys).sort((a, b) => a === 'Cash' ? 1 : b === 'Cash' ? -1 : a.localeCompare(b))];
+            
+            // Prepare CSV content
+            let csvContent = headers.join(',') + '\n';
+            const startYear = new Date().getFullYear(); 
+            investmentData.forEach((yearData, index) => {
+                const year = startYear + index;
+                const row = [year];
+                headers.slice(1).forEach(header => {
+                    row.push(yearData[header]?.toFixed(2) ?? '0.00');
+                });
+                csvContent += row.join(',') + '\n';
+            });
+
+            fs.writeFileSync(csvFilename, csvContent);
+            console.log(`Simulation CSV log written to: ${csvFilename}`);
+        } else {
+            console.warn("No investment data found for first simulation, skipping CSV log.");
+        }
+
+        // --- Write LOG File --- 
+        const eventLogData = firstSimResult.financialEventsLog || [];
+        if (eventLogData.length > 0) {
+            let logContent = '';
+            eventLogData.forEach(entry => {
+                logContent += `Year: ${entry.year}, Type: ${entry.type}, Details: ${entry.details}\n`;
+            });
+            // Log before write, include sample data
+            console.log(`[SimEngine Write] Preparing to write ${eventLogData.length} entries to ${logFilename}. Sample:`, JSON.stringify(eventLogData.slice(0, 3))); 
+            fs.writeFileSync(logFilename, logContent);
+            console.log(`Simulation event log written to: ${logFilename}`);
+        } else {
+             console.warn("No financial event data found for first simulation, skipping LOG file.");
+        }
+
+    } catch (err) {
+        console.error("Error writing simulation logs:", err);
     }
 }
 

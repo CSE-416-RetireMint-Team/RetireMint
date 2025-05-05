@@ -150,11 +150,15 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
 // --- End Event Timing Helper ---
 
 function runOneSimulation(modelData, simulationIndex) {
+    console.log(`---> [Sim #${simulationIndex + 1}] Starting. Initial Cash: ${modelData?.scenario?.initialCash ?? 'N/A'}`); // <-- ADD Log for initialCash
     const currentYear = new Date().getFullYear();
     let numYears = 30; // Default
     let initialMaritalStatus = 'single';
     let userTargetAge = 0; 
     let spouseTargetAge = Infinity; // Default to infinite if single or missing data
+
+    let previousYearState = null; 
+    const financialEventsLog = []; // <-- Initialize aggregated log array
 
     try {
         const scenario = modelData.scenario;
@@ -163,6 +167,15 @@ function runOneSimulation(modelData, simulationIndex) {
         }
         if (!scenario.simulationSettings || !scenario.simulationSettings.inflationAssumption) {
             throw new Error("inflationAssumption missing");
+        }
+
+        // Log if Roth Optimizer is disabled - MOVED TO HERE
+        if (!scenario.simulationSettings.rothOptimizerEnable) {
+            financialEventsLog.push({
+                year: currentYear, // Use the starting year
+                type: 'setting', 
+                details: 'Roth Optimizer is DISABLED in scenario settings.'
+            });
         }
 
         initialMaritalStatus = scenario.scenarioType === 'married' ? 'married' : 'single';
@@ -657,10 +670,8 @@ function runOneSimulation(modelData, simulationIndex) {
     const incomeArrays = Array(numYears).fill({}); // NEW: Initialize array for income breakdowns
     const discretionaryRatioArray = Array(numYears).fill(0); // NEW: Initialize array for ratios
     
-    let previousYearState = null; 
-
-    for (let i = 0; i < numYears; i++) {
-        try {
+    try {
+        for (let i = 0; i < numYears; i++) {
             const currentState = simulateYear( 
                 modelData,          // Pass the full model data
                 investArray,        // Pass the pre-calculated array
@@ -688,6 +699,7 @@ function runOneSimulation(modelData, simulationIndex) {
             (currentState.investments || []).forEach(inv => {
                 investmentValuesForYear[inv.name] = inv.value || 0;
             });
+            investmentValuesForYear['Cash'] = currentState.cash ?? 0; // Add Cash entry
             investmentsValueArray[i] = investmentValuesForYear; 
             
             expensesArray[i] = currentState.expenseBreakdown ?? {}; 
@@ -696,25 +708,31 @@ function runOneSimulation(modelData, simulationIndex) {
 
             previousYearState = currentState;
 
+            // Append the year's events to the main log
+            if (currentState.currentYearEventsLog && currentState.currentYearEventsLog.length > 0) {
+                financialEventsLog.push(...currentState.currentYearEventsLog);
+                // REMOVED: console.log(`[RunOneSim Log] Year ${currentState.year}: Added ${currentState.currentYearEventsLog.length} events. Total Log Length: ${financialEventsLog.length}`); // Log aggregation
+            }
+
             // --- Check if financial goal was met. If not, stop this simulation run --- 
             if (!currentState.financialGoalMet) {
                 console.log(`Simulation ${simulationIndex + 1}: Financial goal not met in year ${currentState.year} (Index ${i}). Stopping simulation.`);
                 break; // Exit the loop for this simulation
             }
 
-        } catch (yearError) {
-            console.error(`Simulation ${simulationIndex + 1}: Error calling simulateYear for year index ${i} (${currentYear + i}):`, yearError);
-            yearlyResults.push({ 
-                 netWorth: previousYearState?.totalAssets ?? 0, 
-                 meetingFinancialGoal: false 
-             });
-             
-             cashArray[i] = previousYearState?.cash ?? 0; 
-             // Store error indication or empty object for investment values
-             investmentsValueArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
-             expensesArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
-             earlyWithdrawalArray[i] = previousYearState?.curYearEarlyWithdrawals ?? 0; 
         }
+    } catch (yearError) {
+        console.error(`Simulation ${simulationIndex + 1}: Error calling simulateYear for year index ${i} (${currentYear + i}):`, yearError);
+        yearlyResults.push({ 
+             netWorth: previousYearState?.totalAssets ?? 0, 
+             meetingFinancialGoal: false 
+         });
+         
+         cashArray[i] = previousYearState?.cash ?? 0; 
+         // Store error indication or empty object for investment values
+         investmentsValueArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
+         expensesArray[i] = { error: `Simulation failed in year ${currentYear + i}` }; 
+         earlyWithdrawalArray[i] = previousYearState?.curYearEarlyWithdrawals ?? 0; 
     }
     // --- End Yearly Simulation Loop ---
     
@@ -770,7 +788,8 @@ function runOneSimulation(modelData, simulationIndex) {
         expensesArray,
         earlyWithdrawalArray,
         incomeArrays, // NEW: Return the collected income breakdowns
-        discretionaryRatioArray // NEW: Return the ratio array
+        discretionaryRatioArray, // NEW: Return the ratio array
+        financialEventsLog // <-- Return the aggregated financial log
     };
 }
 

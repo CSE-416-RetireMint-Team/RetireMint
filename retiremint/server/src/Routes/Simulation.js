@@ -5,6 +5,7 @@ const Scenario = require('../Schemas/Scenario');
 const Report = require('../Schemas/Report');
 const fs = require('fs');
 const path = require('path');
+const User = require('../Schemas/Users');
 
 // Get a simulation report by ID
 router.get('/report/:id', async (req, res) => {
@@ -140,7 +141,19 @@ router.post('/run', async (req, res) => {
   try {
     const { scenarioId, numSimulations, userId, reportName, exploreMode} = req.body;
     
-    console.log(`Starting simulation for scenario: ${scenarioId}, user: ${userId}`);
+    // --- Fetch User Data --- 
+    let user = null;
+    if (userId) {
+        user = await User.findById(userId).lean(); // Use lean() for plain JS object
+    }
+    if (!user) {
+        console.warn(`User not found with ID: ${userId}. Using default for logs.`);
+        // Create a default user object if lookup fails
+        user = { _id: userId || 'UnknownUserId', name: 'UnknownUser' }; 
+    }
+    // ----------------------
+
+    console.log(`Starting simulation for scenario: ${scenarioId}, user: ${user.name} (${user._id})`);
     console.log(`Simulation parameters: ${numSimulations} simulations`);
     
     // Fetch the scenario from the database with deeper population
@@ -202,13 +215,7 @@ router.post('/run', async (req, res) => {
     // Verify data before running simulation
     const result = await runSimulations(
       scenario, 
-      { 
-        _id: scenario.userId,
-        age: new Date().getFullYear() - scenario.birthYear,
-        hasSpouse: scenario.scenarioType === 'married',
-        spouseAge: scenario.spouseBirthYear ? 
-          new Date().getFullYear() - scenario.spouseBirthYear : null
-      }, 
+      user,
       taxData, 
       numSimulations
     );
