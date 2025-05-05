@@ -300,6 +300,16 @@ function Dashboard() {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="dashboard-container loading">
+                <Header />
+                <div className="loading-spinner"></div>
+                <p>Loading your financial data...</p>
+            </div>
+        );
+    }
+
     const handleScenarioExport = (scenarioId) => {
         alert(`Exporting scenario ${scenarioId} (TODO: hook up backend)`);
       };     
