@@ -34,7 +34,7 @@ function processRothConversion(
   rothOptimizerStartYear = null,
   rothOptimizerEndYear = null
 ) {
-  console.log(`---> [Roth] Entering for Year ${currentYear}`);
+  // console.log(`---> [Roth] Entering for Year ${currentYear}`);
   let totalAmountConverted = 0;
   let updatedInvestments = JSON.parse(JSON.stringify(investments)); // Deep clone
   let updatedTaxableIncome = curYearIncome;
@@ -68,7 +68,7 @@ function processRothConversion(
   const curYearFedTaxableIncomeBeforeConv = curYearIncome - 0.15 * curYearSS; 
   const netTaxableIncomeBeforeConv = Math.max(0, curYearFedTaxableIncomeBeforeConv - adjustedStandardDeduction);
   
-  console.log(`---> [Roth Calc] Year ${currentYear}: curYearIncome=${curYearIncome.toFixed(2)}, curYearSS=${curYearSS.toFixed(2)}, adjStdDed=${adjustedStandardDeduction.toFixed(2)}, netTaxableIncomeBeforeConv=${netTaxableIncomeBeforeConv.toFixed(2)}`);
+  // console.log(`---> [Roth Calc] Year ${currentYear}: curYearIncome=${curYearIncome.toFixed(2)}, curYearSS=${curYearSS.toFixed(2)}, adjStdDed=${adjustedStandardDeduction.toFixed(2)}, netTaxableIncomeBeforeConv=${netTaxableIncomeBeforeConv.toFixed(2)}`);
   
   // Find the user's current tax bracket upper limit (u)
   let upperLimit = 0;
@@ -102,7 +102,7 @@ function processRothConversion(
   // rc = u - netTaxableIncomeBeforeConv
   let targetConversionAmount = 0;
   if (upperLimit === Infinity) { 
-    console.log(`---> [Roth Calc] Year ${currentYear}: In highest bracket.`);
+      // console.log(`---> [Roth Calc] Year ${currentYear}: In highest bracket.`);
     // If in the highest bracket, maybe convert a fixed amount or based on another rule?
     // For now, assume no conversion if already in the highest bracket.
     // console.log(`Year ${currentYear}: Skipping Roth conversion (already in highest bracket).`);
@@ -111,7 +111,9 @@ function processRothConversion(
     targetConversionAmount = Math.max(0, upperLimit - netTaxableIncomeBeforeConv);
   }
   
-  console.log(`---> [Roth Calc] Year ${currentYear}: Found upperLimit=${upperLimit === Infinity ? 'Infinity' : upperLimit.toFixed(2)}, Calculated targetConversionAmount=${targetConversionAmount.toFixed(2)}`);
+  // console.log(`---> [Roth Calc] Year ${currentYear}: Found upperLimit=${upperLimit === Infinity ? 'Infinity' : upperLimit.toFixed(2)}, Calculated targetConversionAmount=${targetConversionAmount.toFixed(2)}`);
+  
+  // console.log(`Year ${currentYear}: Roth Optimizer - Net Income Before: ${netTaxableIncomeBeforeConv.toFixed(2)}, Bracket Upper Limit: ${upperLimit === Infinity ? 'Inf' : upperLimit.toFixed(2)}, Target Conversion (rc): ${targetConversionAmount.toFixed(2)}`);
   
   if (targetConversionAmount <= 0.01) { // Use threshold for floating point
     // console.log(`Year ${currentYear}: Skipping Roth conversion (target amount is zero or negligible).`);
@@ -133,9 +135,9 @@ function processRothConversion(
 
     // Log source account search results
     if (sourceInv) {
-        console.log(`---> [Roth Src] Year ${currentYear}: Found source '${sourceAccountName}'. Status: ${sourceInv.accountTaxStatus}, Value: ${sourceInv.value.toFixed(2)}`);
+        // console.log(`---> [Roth Src] Year ${currentYear}: Found source '${sourceAccountName}'. Status: ${sourceInv.accountTaxStatus}, Value: ${sourceInv.value.toFixed(2)}`);
     } else {
-        console.log(`---> [Roth Src] Year ${currentYear}: Did NOT find pre-tax source '${sourceAccountName}'.`);
+        // console.log(`---> [Roth Src] Year ${currentYear}: Did NOT find pre-tax source '${sourceAccountName}'.`);
     }
 
     if (!sourceInv) {
@@ -201,7 +203,7 @@ function processRothConversion(
   // --- d. Update overall taxable income --- 
   updatedTaxableIncome += totalAmountConverted;
 
-  console.log(`---> [Roth] Returning for Year ${currentYear}. Converted: ${totalAmountConverted}. Investments:`, JSON.stringify(updatedInvestments.map(inv => ({name: inv.name, status: inv.accountTaxStatus}))));
+  // console.log(`---> [Roth] Returning for Year ${currentYear}. Converted: ${totalAmountConverted}. Investments:`, JSON.stringify(updatedInvestments.map(inv => ({name: inv.name, status: inv.accountTaxStatus}))));
   return { 
     investments: updatedInvestments, 
     curYearIncome: updatedTaxableIncome, 

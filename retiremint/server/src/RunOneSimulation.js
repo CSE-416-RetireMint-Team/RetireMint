@@ -150,6 +150,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
 // --- End Event Timing Helper ---
 
 function runOneSimulation(modelData, simulationIndex) {
+    console.log(`---> [Sim #${simulationIndex + 1}] Starting. Initial Cash: ${modelData?.scenario?.initialCash ?? 'N/A'}`); // <-- ADD Log for initialCash
     const currentYear = new Date().getFullYear();
     let numYears = 30; // Default
     let initialMaritalStatus = 'single';

@@ -60,28 +60,31 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
     
-    console.log(`---> [RMD] Entering for Year ${yearState.year}, Age ${userAge}`); // Log only if age check passes
+    // console.log(`---> [RMD] Entering for Year ${yearState.year}, Age ${userAge}`); // Log only if age check passes
     
     let totalRmdIncomeThisYear = 0;
     
+    // --- CHECK 1: Missing Strategies or RMD Tables ---
     if (!rmdStrategies || rmdStrategies.length === 0 || !rmdTables || rmdTables.length === 0) {
-        console.warn(`---> [RMD] Skipping for Year ${yearState.year}, Age ${userAge} (Missing RMD strategies or tables)`);
+        // console.warn(`---> [RMD Skip] Year ${yearState.year}, Age ${userAge}: Missing RMD strategies or tables.`); // UPDATED LOG
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
     
     // --- Select the Correct RMD Table (Assuming Uniform Lifetime for now) ---
     const uniformLifetimeTable = rmdTables.find(table => table.tableType && table.tableType.includes('Uniform Lifetime'));
     
+    // --- CHECK 2: Uniform Lifetime Table Not Found ---
     if (!uniformLifetimeTable || !uniformLifetimeTable.rows || uniformLifetimeTable.rows.length === 0) {
-        console.warn(`Year ${yearState.year}: Uniform Lifetime RMD table not found or has no rows in provided taxData. Skipping RMD.`);
+        // console.warn(`---> [RMD Skip] Year ${yearState.year}, Age ${userAge}: Uniform Lifetime RMD table not found or empty.`); // UPDATED LOG
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
     
     // --- Find the RMD factor (distribution period) for the user's age within the selected table's rows ---
     const rmdRow = uniformLifetimeTable.rows.find(row => row.age === userAge);
     
+    // --- CHECK 3: RMD Row/Factor Not Found for Age ---
     if (!rmdRow || typeof rmdRow.distributionPeriod !== 'number' || rmdRow.distributionPeriod <= 0) {
-        console.warn(`Year ${yearState.year}: Could not find valid RMD distribution period for age ${userAge} in the Uniform Lifetime table. Skipping RMD.`);
+        // console.warn(`---> [RMD Skip] Year ${yearState.year}, Age ${userAge}: Could not find valid RMD distribution period for age.`); // UPDATED LOG
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
     const rmdDistributionPeriod = rmdRow.distributionPeriod;
@@ -91,21 +94,23 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
     let previousYearPreTaxBalance = 0;
     if (previousYearState && previousYearState.investments) {
         previousYearState.investments.forEach(inv => {
-            if (inv.taxStatus === 'pre-tax') {
+            if (inv.accountTaxStatus === 'pre-tax') {
                 previousYearPreTaxBalance += (inv.value || 0);
             }
         });
     } else if (yearState.year === new Date().getFullYear()) { // Very first year handling
          // Use initial balances if it's the absolute first year of the overall simulation
          (yearState.investments || []).forEach(inv => {
-             if (inv.taxStatus === 'pre-tax') {
+             if (inv.accountTaxStatus === 'pre-tax') {
                  previousYearPreTaxBalance += (inv.value || 0); // Use initial value as proxy
              }
          });
     }
     
+    // --- CHECK 4: Zero Pre-Tax Balance ---
     if (previousYearPreTaxBalance <= 0) {
         // No pre-tax balance from previous year, no RMD needed.
+        // console.warn(`---> [RMD Skip] Year ${yearState.year}, Age ${userAge}: No previous year pre-tax balance (${previousYearPreTaxBalance.toFixed(2)}).`); // ADDED LOG
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
 
@@ -113,7 +118,9 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
     const totalRmdAmount = previousYearPreTaxBalance / rmdDistributionPeriod; // Use the correct period
     // console.log(`Year ${yearState.year} (Age ${userAge}): Prev PreTax Balance: ${previousYearPreTaxBalance.toFixed(2)}, RMD Period: ${rmdDistributionPeriod}, Calculated RMD: ${totalRmdAmount.toFixed(2)}`);
 
+    // --- CHECK 5: Zero Calculated RMD Amount ---
     if (totalRmdAmount <= 0) {
+        // console.warn(`---> [RMD Skip] Year ${yearState.year}, Age ${userAge}: Calculated RMD amount is zero or less (${totalRmdAmount.toFixed(2)}).`); // ADDED LOG
         return { updatedYearState: yearState, rmdIncome: 0 };
     }
 
@@ -121,11 +128,28 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
     let actualWithdrawnTotal = 0;
     const withdrawalsBySource = {}; // Track withdrawals per source for adding to (RMD) accounts
 
+    // console.log(`---> [RMD Withdraw] Year ${yearState.year}: Trying to withdraw ${totalRmdAmount.toFixed(2)}. Strategy: ${JSON.stringify(rmdStrategies)}`);
+
     for (const sourceInvestmentName of rmdStrategies) {
         if (totalRmdAmount <= actualWithdrawnTotal) break; // Stop if RMD is met
 
         const sourceInv = yearState.investments.find(inv => inv.name === sourceInvestmentName);
-        if (!sourceInv || sourceInv.value <= 0) continue; // Skip if not found or empty
+        
+        // Log source search result
+        if (!sourceInv) {
+            // console.log(`---> [RMD Withdraw Src] Year ${yearState.year}: Source '${sourceInvestmentName}' not found.`);
+            continue;
+        } 
+        if (sourceInv.value <= 0) {
+             // console.log(`---> [RMD Withdraw Src] Year ${yearState.year}: Source '${sourceInvestmentName}' found but has zero value.`);
+             continue;
+        }
+        if (sourceInv.accountTaxStatus !== 'pre-tax') { // Also check if it's actually pre-tax
+             // console.log(`---> [RMD Withdraw Src] Year ${yearState.year}: Source '${sourceInvestmentName}' found but is not pre-tax (Status: ${sourceInv.accountTaxStatus}). Skipping.`);
+             continue;
+        }
+
+        // console.log(`---> [RMD Withdraw Src] Year ${yearState.year}: Found pre-tax source '${sourceInvestmentName}' with value ${sourceInv.value.toFixed(2)}.`);
 
         const amountToWithdrawFromSource = Math.min(
             sourceInv.value, // Max available
@@ -175,18 +199,18 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
             rmdInv = {
                 name: rmdInvName,
                 investmentType: sourceInv.investmentType, // Copy reference/data
-                taxStatus: 'non-retirement', // Explicitly set non-retirement status
+                accountTaxStatus: 'non-retirement', // CORRECTED PROPERTY NAME
                 value: 0,
                 costBasis: 0
             };
             yearState.investments.push(rmdInv); // Add to the investments array
-            // console.log(`RMD: Created new investment: ${rmdInvName}`);
+            // console.log(`---> [RMD Deposit] Created new investment: ${rmdInvName} for year ${yearState.year}`); // ADDED LOG
         }
 
         // Increase RMD investment value and cost basis
         rmdInv.value += withdrawnAmount;
         rmdInv.costBasis += withdrawnAmount; // Cost basis is the amount moved
-        // console.log(`RMD: Deposited ${withdrawnAmount.toFixed(2)} into ${rmdInv.name}`);
+        // console.log(`---> [RMD Deposit] Deposited ${withdrawnAmount.toFixed(2)} into ${rmdInv.name} (New Value: ${rmdInv.value.toFixed(2)}) for year ${yearState.year}`); // ADDED LOG
     }
 
     // --- Handle Shortfall (Optional) ---
@@ -208,7 +232,7 @@ function processRequiredMinimumDistributions(rmdStrategies, rmdTables, userAge, 
     yearState.curYearIncome += totalRmdIncomeThisYear; // Add any income generated from pre-tax withdrawals
     // console.log(`RMD End: Year ${yearState.year}, Total RMD Income Added: ${totalRmdIncomeThisYear.toFixed(2)}, Final Income: ${yearState.curYearIncome.toFixed(2)}`);
 
-    console.log(`---> [RMD] Returning for Year ${yearState.year}. RMD Income: ${totalRmdIncomeThisYear}. Investments:`, JSON.stringify(yearState.investments.map(inv => inv.name)));
+    // console.log(`---> [RMD] Returning for Year ${yearState.year}. RMD Income: ${totalRmdIncomeThisYear}. Investments:`, JSON.stringify(yearState.investments.map(inv => inv.name))); // ADDED RETURN LOG
     return { updatedYearState: yearState, rmdIncome: totalRmdIncomeThisYear };
 }
 

@@ -19,6 +19,7 @@ function NewScenario() {
 
     //pages there will be 4 pages to break down the scenario form 
     const [page,setPage]=useState(1);
+    const [initialCash, setInitialCash] = useState(0);
 
     const [scenarioAuthorId, setScenarioAuthorId] = useState('');
     const [scenarioName, setScenarioName] = useState('');
@@ -276,6 +277,8 @@ function NewScenario() {
                     setStateOfResidence(response.data.stateOfResidence);
                     setSharedUsers(response.data.sharedUsers);
 
+                    setInitialCash(response.data.initialCash ?? 0);
+
                     setLoading(false);
                 }
                 else {
@@ -347,6 +350,7 @@ function NewScenario() {
                 stateOfResidence,
                 sharedUsers,
                 userId: userId, // Include the userId in the scenario data
+                initialCash: initialCash,
                 spendingStrategy: spendingStrategy // ADD spendingStrategy here
             });
             
@@ -733,6 +737,8 @@ function NewScenario() {
                             investmentTypes={investmentTypes}
                             setInvestmentTypes={setInvestmentTypes}
                             setPage={setPage}
+                            initialCash={initialCash}
+                            setInitialCash={setInitialCash}
                         />
                     
                     </>

@@ -229,6 +229,7 @@ app.post('/scenario', async (req, res) => {
         stateOfResidence,
         sharedUsers,
         userId,  // Add userId to the extracted parameters
+        initialCash, // <-- ADD initialCash here
         spendingStrategy // Add spendingStrategy
     } = req.body; // extracting data from frontend
 
@@ -735,6 +736,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsers
             });
@@ -760,6 +762,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsers
             }, {new: true});
@@ -882,7 +885,7 @@ app.post('/simulation/scenario/investments', async (req, res) => {
                 investmentTypes.push(investmentType);
             }
         }
-        console.log("InvestmentTypes: ", investmentTypes);
+        // console.log("InvestmentTypes: ", investmentTypes); // Commented out this log
         res.json({
             success: true,
             message: 'Investment objects successfully found',
