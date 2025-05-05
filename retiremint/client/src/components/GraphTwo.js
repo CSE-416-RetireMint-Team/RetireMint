@@ -26,11 +26,20 @@ ChartJS.register(
 
 const DATA_TYPES = {
   INVESTMENT: 'investment',
+  INCOME: 'income',
   EXPENSE: 'expense',
-  TAX: 'earlyWithdrawalTax'
+  TAX: 'earlyWithdrawalTax',
+  DISCRETIONARY: 'discretionary'
 };
 
-function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwoEarlyWithdrawalTax }) {
+function GraphTwo({ 
+  graphTwoInvestment, 
+  financialGoal, 
+  graphTwoExpense, 
+  graphTwoEarlyWithdrawalTax,
+  graphTwoIncome,
+  graphTwoDiscretionary 
+}) {
   const [dataType, setDataType] = useState(DATA_TYPES.INVESTMENT);
   const startYear = 2025;
 
@@ -43,8 +52,10 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
   // Get the active dataset based on selected type
   const getActiveDataset = () => {
     switch(dataType) {
+      case DATA_TYPES.INCOME: return graphTwoIncome;
       case DATA_TYPES.EXPENSE: return graphTwoExpense;
       case DATA_TYPES.TAX: return graphTwoEarlyWithdrawalTax;
+      case DATA_TYPES.DISCRETIONARY: return graphTwoDiscretionary;
       default: return graphTwoInvestment;
     }
   };
@@ -156,8 +167,10 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
 
   const getYAxisTitle = () => {
     switch(dataType) {
+      case DATA_TYPES.INCOME: return 'Income Value';
       case DATA_TYPES.EXPENSE: return 'Expense Value';
       case DATA_TYPES.TAX: return 'Early Withdrawal Tax Value';
+      case DATA_TYPES.DISCRETIONARY: return 'Discretionary Expenses (%)';
       default: return 'Investment Value';
     }
   };
@@ -169,9 +182,14 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
         mode: 'index',
         intersect: false,
         callbacks: {
-          label: function (context) {
-            return `${context.dataset.label || ''}: ${context.parsed.y.toFixed(2)}`;
-          },
+            label: function (context) {
+                const rawValue = context.parsed.y;
+                const formattedValue = dataType === DATA_TYPES.DISCRETIONARY
+                  ? `${rawValue.toFixed(2)}%`
+                  : `$${rawValue.toFixed(2)}`;
+                return `${context.dataset.label || ''}: ${formattedValue}`;
+              }
+              
         },
       },
       legend: {
@@ -190,13 +208,27 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
           display: true,
           text: getYAxisTitle(),
         },
+        ...(dataType === DATA_TYPES.DISCRETIONARY ? {
+          ticks: {
+            callback: function(value) {
+              return `${value}%`;
+            }
+          }
+        } : {}),
       },
     },
   };
 
   return (
-    <div style={{ width: '100%', height: 'auto' }}>
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
+    <div style={{ marginTop: '10vh' }}>
+      <h3>Shaded line chart of probability ranges for a selected quantity over time</h3>
+
+      <div style={{ 
+        marginBottom: '1rem', 
+        display: 'flex', 
+        gap: '0.5rem',
+        flexWrap: 'wrap'
+      }}>
         <button
           onClick={() => setDataType(DATA_TYPES.INVESTMENT)}
           style={{
@@ -205,9 +237,23 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            color: dataType === DATA_TYPES.INVESTMENT ? 'white' : 'black',
           }}
         >
           Investment
+        </button>
+        <button
+          onClick={() => setDataType(DATA_TYPES.INCOME)}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: dataType === DATA_TYPES.INCOME ? '#8884d8' : '#eee',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            color: dataType === DATA_TYPES.INCOME ? 'white' : 'black',
+          }}
+        >
+          Income
         </button>
         <button
           onClick={() => setDataType(DATA_TYPES.EXPENSE)}
@@ -217,6 +263,7 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            color: dataType === DATA_TYPES.EXPENSE ? 'white' : 'black',
           }}
         >
           Expense
@@ -229,9 +276,23 @@ function GraphTwo({ graphTwoInvestment, financialGoal, graphTwoExpense, graphTwo
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
+            color: dataType === DATA_TYPES.TAX ? 'white' : 'black',
           }}
         >
           Early Withdrawal Tax
+        </button>
+        <button
+          onClick={() => setDataType(DATA_TYPES.DISCRETIONARY)}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: dataType === DATA_TYPES.DISCRETIONARY ? '#8884d8' : '#eee',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            color: dataType === DATA_TYPES.DISCRETIONARY ? 'white' : 'black',
+          }}
+        >
+          Discretionary Expenses
         </button>
       </div>
       

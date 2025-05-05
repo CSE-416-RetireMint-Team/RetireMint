@@ -5,6 +5,7 @@ import '../Stylesheets/SimulationResults.css';
 import Header from './HeaderComp';
 import Graph from './Graph';
 import GraphTwo from './GraphTwo';
+import GraphThree from './GraphThree';
 
 const SimulationResults = () => {
   const { reportId } = useParams();
@@ -13,8 +14,14 @@ const SimulationResults = () => {
   const [graphOne, setGraphOne] = useState(null);
   const [financialGoal, setFinancialGoal] = useState(null);
   const [graphTwoInvestment, setGraphTwoInvestment] = useState(null);
-  const [graphTwoExpense, setGraphTwoExpense] = useState(null); // NEW
-  const [graphTwoEarlyWithdrawalTax, setGraphTwoEarlyWithdrawalTax] = useState(null); // NEW
+  const [graphTwoExpense, setGraphTwoExpense] = useState(null); 
+  const [graphTwoEarlyWithdrawalTax, setGraphTwoEarlyWithdrawalTax] = useState(null); 
+  const [graphTwoIncome, setGraphTwoIncome] = useState(null); 
+  const [graphTwoDiscretionary, setGraphTwoDiscretionary] = useState(null); 
+  const [graphThreeInvestment, setGraphThreeInvestment]= useState(null);
+  const [graphThreeIncome, setGraphThreeIncome]= useState(null);
+  const [graphThreeExpense, setGraphThreeExpense]= useState(null);
+  
 
   useEffect(() => {
     axios.get(`http://localhost:8000/simulation/report/${reportId}`)
@@ -60,8 +67,8 @@ const SimulationResults = () => {
 
       setGraphOne(probabilities);
 
-      // Helper function to compute percentiles from a 2D array
-      const computePercentiles = (valueArrays) => {
+      // Helper function to compute percentiles from a 1D array
+      const computePercentilesOne = (valueArrays) => {
         const percentilesData = [];
         const maxLength = Math.max(...valueArrays.map(arr => arr.length));
 
@@ -81,13 +88,52 @@ const SimulationResults = () => {
         return percentilesData;
       };
 
+      // Helper function to compute percentiles from a 2D array
+      const computePercentilesTwo = (valueArrays) => {
+        const percentilesData = [];
+        const maxLength = Math.max(...valueArrays.map(arr => arr.length));
+      
+        for (let yearIndex = 0; yearIndex < maxLength; yearIndex++) {
+          const yearSums = valueArrays
+            .map(sim => sim[yearIndex])
+            .filter(obj => obj !== null && obj !== undefined)
+            .map(obj => Object.values(obj).reduce((sum, val) => sum + val, 0)); // sum each year's object
+      
+          const sorted = yearSums.sort((a, b) => a - b);
+      
+          const yearPercentiles = [];
+          for (let i = 1; i <= 9; i++) {
+            const index = Math.floor((i / 10) * sorted.length);
+            yearPercentiles.push({ percentile: i * 10, value: sorted[index] });
+          }
+      
+          percentilesData.push(yearPercentiles);
+        }
+      
+        return percentilesData;
+      };
+      
       const investmentValueArrays = reportData.resultForGraph?.investmentValueArrays || [];
       const expensesArrays = reportData.resultForGraph?.expensesArrays || [];
       const earlyWithdrawalArrays = reportData.resultForGraph?.earlyWithdrawalArrays || []; 
+      const incomeArrays = reportData.resultForGraph?.incomeArrays || [];
+      const discretionaryArrays = reportData.resultForGraph?.discretionaryRatioArrays || [];
 
-      setGraphTwoInvestment(computePercentiles(investmentValueArrays));
-      setGraphTwoExpense(computePercentiles(expensesArrays)); 
-      setGraphTwoEarlyWithdrawalTax(computePercentiles(earlyWithdrawalArrays)); 
+      setGraphTwoInvestment(computePercentilesTwo(investmentValueArrays));
+      setGraphTwoExpense(computePercentilesTwo(expensesArrays)); 
+      setGraphTwoIncome(computePercentilesTwo(incomeArrays));
+      setGraphTwoEarlyWithdrawalTax(computePercentilesOne(earlyWithdrawalArrays)); 
+      setGraphTwoDiscretionary(
+        computePercentilesOne(discretionaryArrays).map(year =>
+          year.map(p => ({ ...p, value: p.value * 100 }))
+        )
+      );
+
+      setGraphThreeInvestment(investmentValueArrays);
+      setGraphThreeIncome(incomeArrays)
+      setGraphThreeExpense(expensesArrays)
+      
+      
     }
   }, [loading, reportData]);
 
@@ -97,7 +143,18 @@ const SimulationResults = () => {
       <div className="simulation-results-container">
         {!loading && reportData && <h1>{reportData.name}</h1>}
         <Graph graphOne={graphOne} />
-        <GraphTwo graphTwoInvestment={graphTwoInvestment} financialGoal={financialGoal} graphTwoExpense={graphTwoExpense} graphTwoEarlyWithdrawalTax={graphTwoEarlyWithdrawalTax}/>
+        <GraphTwo 
+        graphTwoInvestment={graphTwoInvestment} 
+        financialGoal={financialGoal} 
+        graphTwoExpense={graphTwoExpense} 
+        graphTwoEarlyWithdrawalTax={graphTwoEarlyWithdrawalTax}
+        graphTwoIncome = {graphTwoIncome}
+        graphTwoDiscretionary = {graphTwoDiscretionary}
+
+
+        />
+
+        <GraphThree graphThreeInvestment={graphThreeInvestment} graphThreeIncome={graphThreeIncome} graphThreeExpense={graphThreeExpense} />
       </div>
     </>
   );
