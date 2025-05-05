@@ -829,7 +829,7 @@ app.post('/simulation/scenario/investments', async (req, res) => {
         const investmentIds = scenario.investments;
         const investments = [];
         // Use a set to Store Investment Types to not contain duplicates upon fetching InvestmentTypes later.
-        const investmentTypesSet = new Set();
+        const investmentTypes = [];
 
         // Fetch all investments and store all investmentType Ids
         for (let i = 0; i < investmentIds.length; i++) {
@@ -877,9 +877,12 @@ app.post('/simulation/scenario/investments', async (req, res) => {
             }
             
             investments.push(investment);
-            investmentTypesSet.add(investmentType);
+            // Check if InvestmentType for this investment already exists in the list.
+            if (investmentTypes.findIndex((type) => type.name === investmentType.name) === -1) {
+                investmentTypes.push(investmentType);
+            }
         }
-        const investmentTypes = [...investmentTypesSet];
+        console.log("InvestmentTypes: ", investmentTypes);
         res.json({
             success: true,
             message: 'Investment objects successfully found',
