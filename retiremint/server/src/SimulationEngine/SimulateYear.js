@@ -304,7 +304,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Roth Conversions ---`); // Optional: Keep for debugging which step it is
   try {
       // ADDED LOG: Inspect state before Roth conversion
-      console.log(`---> [SimYear Roth Check] Year ${currentYear}: Checking Roth. Sources=${JSON.stringify(rothConversionStrategies)}. Current Investments (Name/Status):`, JSON.stringify(yearState.investments.map(inv => ({ name: inv.name, status: inv.accountTaxStatus }))));
+      // console.log(`---> [SimYear Roth Check] Year ${currentYear}: Checking Roth. Sources=${JSON.stringify(rothConversionStrategies)}. Current Investments (Name/Status):`, JSON.stringify(yearState.investments.map(inv => ({ name: inv.name, status: inv.accountTaxStatus })))); // CORRECTED PROPERTY NAME
 
       // Skip if no Roth conversion strategies defined
       if (rothConversionStrategies && rothConversionStrategies.length > 0) {

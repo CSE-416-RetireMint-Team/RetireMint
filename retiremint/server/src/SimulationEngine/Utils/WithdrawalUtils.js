@@ -86,10 +86,11 @@ function performWithdrawal(amountNeeded, yearState, withdrawalStrategy, userAge)
     }
     
     const totalPaid = paidFromCash + withdrawnFromInvestments;
+    const epsilon = 0.01; // Tolerance for floating point comparison (e.g., 1 cent)
     
-    // Check if enough funds were obtained
-    if (totalPaid < amountNeeded) {
-         // Log error if we couldn't meet the full amountNeeded
+    // Check if enough funds were obtained (using tolerance)
+    if (amountNeeded - totalPaid > epsilon) {
+         // Log error if we couldn't meet the full amountNeeded (within tolerance)
          console.error(`Year ${yearState.year} Withdrawal Error: Insufficient funds. Needed ${amountNeeded.toFixed(2)}, but only obtained ${totalPaid.toFixed(2)} (Cash: ${paidFromCash.toFixed(2)}, Investments: ${withdrawnFromInvestments.toFixed(2)}).`);
     }
 
