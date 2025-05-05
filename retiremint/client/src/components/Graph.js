@@ -15,6 +15,7 @@ function Graph({ graphOne }) {
 
   return (
     <div style={{ width: '100%', height: 400 }}>
+      <h3>Line chart of probability of success over time</h3>
       <ResponsiveContainer>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
