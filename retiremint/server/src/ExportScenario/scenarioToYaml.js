@@ -1,42 +1,32 @@
 const formatLifeExpectancy = require('./helpers/formatLifeExpectancy');
 const formatInvestmentTypes = require('./helpers/formatInvestmentTypes');
+const formatInvestments = require('./helpers/formatInvestments');
+const mapSimulationSettings = require('./helpers/mapSimulationSettings');
 
 function scenarioToYaml(scenario) {
-    const result = {
-      name: scenario.name,
-      maritalStatus: scenario.scenarioType === 'married' ? 'couple' : 'individual',
-      birthYears: scenario.scenarioType === 'married'
-        ? [scenario.birthYear, scenario.spouseBirthYear]
-        : [scenario.birthYear],
-      lifeExpectancy: scenario.scenarioType === 'married'
-        ? [
-            formatLifeExpectancy(scenario.lifeExpectancy),
-            formatLifeExpectancy(scenario.spouseLifeExpectancy)
-          ]
-        : [formatLifeExpectancy(scenario.lifeExpectancy)],
-      investmentTypes: formatInvestmentTypes(scenario.investments),
-      investments: scenario.investments.map(inv => ({
-        investmentType: inv.investmentTypeName || inv.investmentType.name, // fallback
-        value: inv.value,
-        taxStatus: inv.taxStatus
-      })),
-      eventSeries: scenario.events.map(e => mapEvent(e)),
-      inflation: scenario.simulationSettings?.inflation
-        ? mapInflation(scenario.simulationSettings.inflation)
-        : null,
-      initialRothContributionLimit: scenario.simulationSettings?.initialRothContributionLimit,
-      spendingStrategy: scenario.simulationSettings?.spendingStrategy || [],
-      withdrawalStrategy: scenario.simulationSettings?.withdrawalStrategy || [],
-      rmdStrategy: scenario.simulationSettings?.rmdStrategy || [],
-      rothConversionStrategy: scenario.simulationSettings?.rothConversionStrategy || [],
-      rothConversionOptimizer: scenario.simulationSettings?.rothConversionOptimizer || {},
-      financialGoal: scenario.financialGoal,
-      stateOfResidence: scenario.stateOfResidence
-    };
-  
-    return result;
-  }
-  
+  const result = {
+    name: scenario.name,
+    maritalStatus: scenario.scenarioType === 'married' ? 'couple' : 'individual',
+    birthYears: scenario.scenarioType === 'married'
+      ? [scenario.birthYear, scenario.spouseBirthYear]
+      : [scenario.birthYear],
+    lifeExpectancy: scenario.scenarioType === 'married'
+      ? [
+          formatLifeExpectancy(scenario.lifeExpectancy),
+          formatLifeExpectancy(scenario.spouseLifeExpectancy)
+        ]
+      : [formatLifeExpectancy(scenario.lifeExpectancy)],
+    investmentTypes: formatInvestmentTypes(scenario.investments),
+    investments: formatInvestments(scenario.investments),
+    eventSeries: scenario.events.map(e => mapEvent(e)),
+    ...mapSimulationSettings(scenario.simulationSettings, scenario.investments),
+
+    financialGoal: scenario.financialGoal,
+    residenceState: scenario.stateOfResidence
+  };
+
+  return result;
+}
   
   // Helper: Format distributions (fixed or normal)
   function formatDistribution(dist) {
@@ -109,22 +99,6 @@ function scenarioToYaml(scenario) {
       };
     }
   }
-  
-  // Helper: Format inflation assumption
-  function mapInflation(i) {
-    if (i.type === 'normal') {
-      return {
-        type: 'normal',
-        mean: i.mean,
-        stddev: i.stddev
-      };
-    } else {
-      return {
-        type: 'fixed',
-        value: i.value
-      };
-    }
-  }
-  
+
   module.exports = scenarioToYaml;
   
