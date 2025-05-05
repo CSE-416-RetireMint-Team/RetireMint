@@ -60,7 +60,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           scenarioId,
           numSimulations,
           userId,
-          reportName
+          reportName,
+          exploreMode
         });
         
         // Store the reportId in localStorage for easy access
@@ -110,7 +111,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
               scenarioId: tempScenarioResponse.data.scenarioId,
               numSimulations,
               userId,
-              reportName
+              reportName,
+              exploreMode
             });
 
             simResults.push({parameterValue: i ,resultForGraph: simulationResponse.data.results});
@@ -119,6 +121,7 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           }
           const exploreResults = {parameterName: scenarioParameter, parameterValues: parameterValues, results: simResults}
           console.log(exploreResults);
+          navigate(`/one-dimensional-simulation-results`, { state: { exploreResults: exploreResults }})
         }
         
         /*

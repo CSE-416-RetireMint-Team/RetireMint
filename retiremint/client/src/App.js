@@ -8,6 +8,7 @@ import ProfileView from './components/ProfileView';
 import SimulationResults from './components/SimulationResults';
 import { useState, useEffect } from 'react';
 import React from 'react';
+import OneDimensionalSimulationResults from './components/OneDimensionalSimulationResults';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -49,6 +50,7 @@ function App() {
         <Route path="/profile" element={<ProfileView />} />
         <Route path="/simulation-results" element={<SimulationResults />} />
         <Route path="/simulation-results/:reportId" element={<SimulationResults />} />
+        <Route path="/one-dimensional-simulation-results" element={<OneDimensionalSimulationResults />} />
       </Routes>
     </Router>
   );
