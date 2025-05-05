@@ -11,52 +11,141 @@
  */
 function calculateTargetValues(investments, strategy) {
     const targets = {};
-    if (!strategy || !strategy.taxStatusAllocation) return targets;
+    if (!strategy) return targets; // Strategy must exist
 
-    const totalValue = investments.reduce((sum, inv) => sum + (inv?.value || 0), 0);
-    if (totalValue <= 0) return targets; // Cannot rebalance if total value is zero
-
-    const { 
-        taxStatusAllocation, 
-        preTaxAllocation, 
-        afterTaxAllocation, 
-        nonRetirementAllocation, 
-        taxExemptAllocation 
-    } = strategy;
-
-    // Helper to distribute value within a category based on sub-allocation
-    const distributeValue = (allocationMap, totalCategoryValue, categoryInvestments) => {
-        if (!allocationMap || Object.keys(allocationMap).length === 0 || categoryInvestments.length === 0) {
-            // If no specific sub-allocation, distribute equally among existing investments in that category?
-            // Or assume only investments listed in allocation map are targeted? For now, assume equal if no map.
-            const perInvestmentValue = totalCategoryValue / categoryInvestments.length;
-            categoryInvestments.forEach(inv => {
-                targets[inv.name] = (targets[inv.name] || 0) + perInvestmentValue;
-            });
-            return;
-        }
-
-        let sumPct = 0;
-        Object.values(allocationMap).forEach(pct => sumPct += pct);
-        if (sumPct === 0) return; // Cannot allocate if percentages sum to zero
-
-        for (const [name, percent] of Object.entries(allocationMap)) {
-            targets[name] = (targets[name] || 0) + totalCategoryValue * (percent / sumPct);
-        }
-    };
+    // Identify RMD/Roth/Pre-tax accounts
+    const excludedInvestments = investments.filter(inv => 
+        inv.name.includes('(RMD)') || 
+        inv.name.includes('(Roth)') ||
+        inv.accountTaxStatus === 'pre-tax'
+    );
+    const rebalancableInvestments = investments.filter(inv => 
+        !inv.name.includes('(RMD)') && 
+        !inv.name.includes('(Roth)') &&
+        inv.accountTaxStatus !== 'pre-tax'
+    );
     
-    // Distribute based on tax status, then sub-allocate if maps exist
-    const investmentGroups = {
-        'pre-tax': investments.filter(inv => inv.accountTaxStatus === 'pre-tax'),
-        'after-tax': investments.filter(inv => inv.accountTaxStatus === 'after-tax'),
-        'non-retirement': investments.filter(inv => inv.accountTaxStatus === 'non-retirement'),
-        'tax-exempt': investments.filter(inv => inv.accountTaxStatus === 'tax-exempt' || inv.investmentType?.taxability === 'tax-exempt') // Include tax-exempt type
-    };
+    // Set targets for excluded investments to their current value initially
+    // This prevents them from being bought or sold unless overridden by a specific sub-allocation (like preTaxAllocation)
+    excludedInvestments.forEach(inv => {
+        targets[inv.name] = inv.value || 0;
+    });
 
-    distributeValue(preTaxAllocation, totalValue * (taxStatusAllocation['pre-tax'] / 100 || 0), investmentGroups['pre-tax']);
-    distributeValue(afterTaxAllocation, totalValue * (taxStatusAllocation['after-tax'] / 100 || 0), investmentGroups['after-tax']);
-    distributeValue(nonRetirementAllocation, totalValue * (taxStatusAllocation['non-retirement'] / 100 || 0), investmentGroups['non-retirement']);
-    distributeValue(taxExemptAllocation, totalValue * (taxStatusAllocation['tax-exempt'] / 100 || 0), investmentGroups['tax-exempt']);
+    // --- Handle Overall Rebalancing by Tax Status (excluding pre-tax) --- 
+    if (strategy.taxStatusAllocation) {
+        const totalValueToRebalance = rebalancableInvestments.reduce((sum, inv) => sum + (inv?.value || 0), 0);
+
+        if (totalValueToRebalance > 0) {
+            const { 
+                taxStatusAllocation, 
+                // preTaxAllocation, // Handled separately below
+                afterTaxAllocation, 
+                nonRetirementAllocation, 
+                taxExemptAllocation 
+            } = strategy;
+
+            // Helper to distribute value within a category based on sub-allocation
+            // This helper now only operates on the rebalancable investments
+            const distributeValue = (allocationMap, totalCategoryValue, categoryInvestments) => {
+                 // No need to filter RMD/Roth/PreTax here as categoryInvestments comes from rebalancableInvestments
+                 if (categoryInvestments.length === 0 || totalCategoryValue <= 0) return; // Skip if no investments in category or no value to distribute
+                
+                 if (!allocationMap || Object.keys(allocationMap).length === 0) {
+                    // Distribute equally among eligible investments in this category if no specific map
+                    const perInvestmentValue = totalCategoryValue / categoryInvestments.length;
+                    categoryInvestments.forEach(inv => {
+                        // Add to target, don't overwrite potential preTaxAllocation target set later
+                        targets[inv.name] = (targets[inv.name] || 0) + perInvestmentValue; 
+                    });
+                    return;
+                 }
+
+                 // Calculate sumPct based only on investments present in the category investments
+                 let relevantSumPct = 0;
+                 const relevantEntries = Object.entries(allocationMap).filter(([name, percent]) => 
+                     categoryInvestments.some(inv => inv.name === name)
+                 );
+                 relevantEntries.forEach(([name, percent]) => relevantSumPct += (percent || 0));
+                 
+                 if (relevantSumPct <= 0) { // Use <= 0 to handle potential negative percentages safely
+                     // If relevant percentages sum to zero or less, distribute equally among the relevant investments
+                     if (relevantEntries.length > 0) {
+                         const perInvestmentValue = totalCategoryValue / relevantEntries.length;
+                         relevantEntries.forEach(([name, percent]) => {
+                              // Add to target, don't overwrite potential preTaxAllocation target set later
+                             targets[name] = (targets[name] || 0) + perInvestmentValue; 
+                         });
+                     }
+                     return; 
+                 }
+
+                 for (const [name, percent] of relevantEntries) {
+                     // Add to target, don't overwrite potential preTaxAllocation target set later
+                     targets[name] = (targets[name] || 0) + totalCategoryValue * ((percent || 0) / relevantSumPct);
+                 }
+             };
+            
+            // Create investment groups from rebalancable investments ONLY
+            const investmentGroups = {
+                // 'pre-tax': [], // Excluded from this calculation
+                'after-tax': rebalancableInvestments.filter(inv => inv.accountTaxStatus === 'after-tax'),
+                'non-retirement': rebalancableInvestments.filter(inv => inv.accountTaxStatus === 'non-retirement'),
+                'tax-exempt': rebalancableInvestments.filter(inv => inv.accountTaxStatus === 'tax-exempt' || inv.investmentType?.taxability === 'tax-exempt')
+            };
+            
+            // Calculate allocation percentages only for included categories
+            const includedCategories = ['after-tax', 'non-retirement', 'tax-exempt'];
+            let totalIncludedPercent = 0;
+            includedCategories.forEach(cat => totalIncludedPercent += (taxStatusAllocation[cat] || 0));
+            
+            // Distribute value based on renormalized percentages for included categories
+            if (totalIncludedPercent > 0) {
+                 distributeValue(afterTaxAllocation, totalValueToRebalance * (taxStatusAllocation['after-tax'] || 0) / totalIncludedPercent, investmentGroups['after-tax']);
+                 distributeValue(nonRetirementAllocation, totalValueToRebalance * (taxStatusAllocation['non-retirement'] || 0) / totalIncludedPercent, investmentGroups['non-retirement']);
+                 distributeValue(taxExemptAllocation, totalValueToRebalance * (taxStatusAllocation['tax-exempt'] || 0) / totalIncludedPercent, investmentGroups['tax-exempt']);
+            } else {
+                // If only pre-tax had allocation percent, distribute equally among all rebalancable groups?
+                // Or do nothing? Let's do nothing for now, as RMD/Roth/PreTax targets are already set.
+            }
+        }
+    }
+
+    // --- Handle Specific Rebalancing WITHIN Pre-Tax Accounts (if preTaxAllocation map exists) --- 
+    if (strategy.preTaxAllocation && Object.keys(strategy.preTaxAllocation).length > 0) {
+        const preTaxInvestments = investments.filter(inv => inv.accountTaxStatus === 'pre-tax');
+        const totalPreTaxValue = preTaxInvestments.reduce((sum, inv) => sum + (inv?.value || 0), 0);
+        
+        if (totalPreTaxValue > 0 && preTaxInvestments.length > 0) {
+            const preTaxTargets = {}; // Temporary targets for this group
+            let preTaxSumPct = 0;
+            const preTaxEntries = Object.entries(strategy.preTaxAllocation).filter(([name, percent]) =>
+                preTaxInvestments.some(inv => inv.name === name)
+            );
+            preTaxEntries.forEach(([name, percent]) => preTaxSumPct += (percent || 0));
+
+            if (preTaxSumPct > 0) {
+                 preTaxEntries.forEach(([name, percent]) => {
+                     preTaxTargets[name] = totalPreTaxValue * ((percent || 0) / preTaxSumPct);
+                 });
+            } else if (preTaxEntries.length > 0) {
+                // If percentages sum to 0, distribute equally among targeted pre-tax accounts
+                 const perInvestmentValue = totalPreTaxValue / preTaxEntries.length;
+                 preTaxEntries.forEach(([name, percent]) => {
+                    preTaxTargets[name] = perInvestmentValue;
+                 });
+            }
+            
+            // Ensure any pre-tax accounts NOT targeted by the map retain their value
+            preTaxInvestments.forEach(inv => {
+                if (!(inv.name in preTaxTargets)) {
+                    preTaxTargets[inv.name] = inv.value || 0;
+                }
+            });
+            
+            // Overwrite the main targets ONLY for the pre-tax investments
+            Object.assign(targets, preTaxTargets);
+        }
+    }
 
     return targets;
 }
@@ -67,20 +156,28 @@ function calculateTargetValues(investments, strategy) {
  * Calculates target values and performs necessary sales and purchases.
  * MUTATES the yearState object directly.
  * 
- * @param {Object|null} rebalanceInfo - The rebalancing strategy object for the current year.
+ * @param {Object | null} currentRebalanceInfo - Rebalance info for the current year, or null.
  * @param {Object} yearState - The current year's state object (will be modified).
- * @returns {Object} - The updated yearState object.
+ * @param {Array} currentYearEventsLog - Array to push log entries into.
+ * @returns {Object} - The potentially modified yearState object.
  */
-function processRebalanceEvents(rebalanceInfo, yearState) {
-    if (!rebalanceInfo || !rebalanceInfo.strategy) {
+function processRebalanceEvents(currentYearEventsLog, currentRebalanceInfo, yearState) {
+    if (!currentRebalanceInfo || !currentRebalanceInfo.strategy) {
         // console.log(`Year ${yearState.year}: No rebalance strategy active.`);
         return yearState;
     }
 
     // console.log(`Year ${yearState.year}: Processing Rebalance Event.`);
     
-    const strategy = rebalanceInfo.strategy; // Assuming glide path already resolved into strategy
+    const strategy = currentRebalanceInfo.strategy; // Assuming glide path already resolved into strategy
     const targetValues = calculateTargetValues(yearState.investments, strategy);
+
+    // Add a summary log entry when a rebalance strategy is active
+    currentYearEventsLog.push({
+        year: yearState.year,
+        type: 'rebalance',
+        details: `Applied rebalance strategy with method: ${currentRebalanceInfo.method || 'default'}`
+    });
 
     if (Object.keys(targetValues).length === 0) {
         // console.log(`    No target values calculated, skipping rebalance.`);
@@ -137,7 +234,12 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
                 yearState.curYearGains += gain;
                 // Update cost basis
                 yearState.investments[index].costBasis *= (1 - fractionSold);
-                 // console.log(`      Gain/Loss: ${gain.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+                // Log sale action
+                currentYearEventsLog.push({
+                    year: yearState.year,
+                    type: 'rebalance',
+                    details: `Sold ${amountSold.toFixed(2)} from '${investment.name}'. Gain/Loss: ${gain.toFixed(2)}, New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`
+                });
             } else {
                  // Keep this warning
                  console.warn(`Year ${yearState.year} Rebalance Warn: Missing cost basis for sold investment '${investment.name}'. Cannot calculate gains/update basis.`);
@@ -162,7 +264,13 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
              yearState.investments[index].costBasis = 0; // Initialize if missing
         }
         yearState.investments[index].costBasis += amount;
-         // console.log(`      New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`);
+        
+        // Log purchase action
+        currentYearEventsLog.push({
+            year: yearState.year,
+            type: 'rebalance',
+            details: `Purchased ${amount.toFixed(2)} for '${investment.name}'. New Basis: ${yearState.investments[index].costBasis.toFixed(2)}`
+        });
     });
 
     // Recalculate totals (value changed directly)
@@ -170,6 +278,15 @@ function processRebalanceEvents(rebalanceInfo, yearState) {
     yearState.totalAssets = yearState.totalInvestmentValue + yearState.cash; // Cash unchanged by rebalance
     
     // console.log(`Year ${yearState.year}: Finished Rebalance Event. Final Assets: ${yearState.totalAssets.toFixed(2)}`);
+
+    // Always log that rebalancing was attempted if info was present
+    /* // REMOVED Overall strategy log - replaced by individual logs
+    currentYearEventsLog.push({
+        year: yearState.year,
+        type: 'rebalance',
+        details: `Applied Rebalance Strategy. Method: ${currentRebalanceInfo.method}. Target Strategy: ${JSON.stringify(currentRebalanceInfo.strategy)}`
+    });
+    */
 
     return yearState;
 }

@@ -19,6 +19,7 @@
  * @param {Boolean} rothOptimizerEnable - Whether Roth optimization is enabled
  * @param {Number} rothOptimizerStartYear - Year to start optimizing Roth conversions
  * @param {Number} rothOptimizerEndYear - Year to end optimizing Roth conversions
+ * @param {Array} currentYearEventsLog - Array to push log entries into.
  * @returns {Object} - An object containing the updated investments array, the updated taxable income, and the amount converted.
  *                     { investments: Array, curYearIncome: Number, conversionAmount: Number }
  */
@@ -32,7 +33,8 @@ function processRothConversion(
   currentYear,
   rothOptimizerEnable = false,
   rothOptimizerStartYear = null,
-  rothOptimizerEndYear = null
+  rothOptimizerEndYear = null,
+  currentYearEventsLog = []
 ) {
   // console.log(`---> [Roth] Entering for Year ${currentYear}`);
   let totalAmountConverted = 0;
@@ -171,6 +173,11 @@ function processRothConversion(
             };
             updatedInvestments.push(rothInv); // Add to the investments array
             // console.log(`RothConversion: Created new investment: ${rothInvName}`);
+            currentYearEventsLog.push({ 
+              year: currentYear, 
+              type: 'roth', 
+              details: `Created Roth account '${rothInvName}'.`
+            });
         }
 
         // Decrease source investment value (adjust cost basis proportionally)
@@ -193,6 +200,12 @@ function processRothConversion(
         // Update tracking variables - MOVED inside the successful conversion block
         totalAmountConverted += amountToConvertFromThisSource;
         amountRemainingToConvert -= amountToConvertFromThisSource;
+        
+        currentYearEventsLog.push({ 
+          year: currentYear, 
+          type: 'roth', 
+          details: `Converted ${amountToConvertFromThisSource.toFixed(2)} from source '${sourceAccountName}' to '${rothInv.name}'.`
+        });
         
         // console.log(`Year ${currentYear}: Converted ${amountToConvertFromThisSource.toFixed(2)} from '${sourceAccountName}' to '${rothInv.name}'. Total converted: ${totalAmountConverted.toFixed(2)}. Remaining target: ${amountRemainingToConvert.toFixed(2)}`);
 

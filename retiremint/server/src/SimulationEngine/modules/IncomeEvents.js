@@ -18,9 +18,11 @@ const { sampleNormal, sampleUniform, calculateCurrentBaseAmount } = require('../
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year (1.0 = base year).
  * @param {Object} previousIncomeEventStates - Map of event states from the previous year { eventName: { baseAmount: number } }.
  * @param {number} initialCash - Cash balance at the start of the year before income.
+ * @param {Array} currentYearEventsLog - Array to push log entries into.
+ * @param {number} currentYear - The current simulation year.
  * @returns {Object} - { cash: updatedCash, curYearIncome: totalTaxableIncome, curYearSS: totalSSIncome, incomeEventStates: stateForNextYear, incomeBreakdown: breakdownOfIncome }
  */
-function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear, currentInflationFactor, previousIncomeEventStates = {}, initialCash = 0) {
+function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear, currentInflationFactor, previousIncomeEventStates = {}, initialCash = 0, currentYearEventsLog = [], currentYear) {
 
     let currentCash = initialCash;
     let curYearIncome = 0;
@@ -69,6 +71,12 @@ function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear,
         incomeBreakdown[`Income - ${event.name}`] = (incomeBreakdown[`Income - ${event.name}`] || 0) + inflatedCurrentAmount;
 
         previousIncomeEventStates[eventName] = { baseAmount: currentBaseAmount };
+
+        currentYearEventsLog.push({ 
+            year: currentYear, 
+            type: 'income', 
+            details: `Received from '${event.name}': ${inflatedCurrentAmount.toFixed(2)}` 
+        });
     }
 
     return {
