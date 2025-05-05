@@ -6,6 +6,7 @@ const mapToScenarioModel = require('./mapToScenarioModel');
 const convertLE = require('./convertYamlToLifeExpectancyDocs');
 const mapToSimulationSettingsModel = require('./mapToSimulationSettingsModel');
 const handleInvestments = require('./handleInvestments'); 
+const handleEvents = require('./handleEvents');
 
 exports.importScenario = async (req, res) => {
   try {
@@ -55,6 +56,10 @@ exports.importScenario = async (req, res) => {
     // Step 4: Handle investments
     const investmentIds = await handleInvestments(parsedData, userId);
     scenarioData.investments = investmentIds;
+
+    // Step 5: Handle events
+    const eventIds = await handleEvents(parsedData); // internally uses mapStart, mapIncomeEvent, etc.
+    scenarioData.events = eventIds;       
 
     // Step 5: Save scenario
     const newScenario = new Scenario(scenarioData);
