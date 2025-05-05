@@ -22,8 +22,12 @@ router.get('/:scenarioId', async (req, res) => {
         }
       })
       .populate('events')
-      .populate('simulationSettings');
-
+      .populate({
+        path: 'simulationSettings',
+        populate: {
+          path: 'inflationAssumption'
+        }
+      });
     if (!scenario) {
       return res.status(404).json({ error: 'Scenario not found or access denied' });
     }
@@ -32,7 +36,14 @@ router.get('/:scenarioId', async (req, res) => {
     try {
       const scenarioObject = scenario.toObject();
       const yamlObject = scenarioToYaml(scenarioObject);
-      const yamlString = yaml.dump(yamlObject, { lineWidth: -1 });
+      const yamlString = yaml.dump(yamlObject, {
+        lineWidth: -1,
+        styles: {
+          '!!seq': 'flow', // Use inline lists like [a, b, c]
+          '!!map': 'block'
+        }
+      });
+      
 
       patchedYaml = yamlString
         .replace(/birthYears:\n((?: {2}- \d+\n)+)/, (match, items) => {
@@ -56,6 +67,25 @@ router.get('/:scenarioId', async (req, res) => {
         })
         .replace(/investmentTypes:\n((?: {2}- .*\n(?: {4}.*\n?)*)+)/, (match, block) => {
           return `investmentTypes:\n${block}`;
+        })
+        .replace(/inflationAssumption:\n {2}type: (.+)\n {2}value: ([\d.]+)/, (match, type, value) => {
+          return `inflationAssumption: {type: ${type}, value: ${value}}`;
+        })
+        .replace(/spendingStrategy:\n((?: {2}- .*\n)+)/, (match, items) => {
+          const entries = items.match(/- (.+)/g).map(line => line.replace('- ', ''));
+          return `spendingStrategy: [${entries.join(', ')}]  # list of discretionary expenses, identified by name\n`;
+        })
+        .replace(/expenseWithdrawalStrategy:\n((?: {2}- .*\n)+)/, (match, items) => {
+          const entries = items.match(/- (.+)/g).map(line => line.replace('- ', ''));
+          return `expenseWithdrawalStrategy: [${entries.join(', ')}] # list of investments, identified by id\n`;
+        })
+        .replace(/RMDStrategy:\n((?: {2}- .*\n)+)/, (match, items) => {
+          const entries = items.match(/- (.+)/g).map(line => line.replace('- ', ''));
+          return `RMDStrategy: [${entries.join(', ')}] # list of pre-tax investments, identified by id\n`;
+        })
+        .replace(/RothConversionStrategy:\n((?: {2}- .*\n)+)/, (match, items) => {
+          const entries = items.match(/- (.+)/g).map(line => line.replace('- ', ''));
+          return `RothConversionStrategy: [${entries.join(', ')}]  # list of pre-tax investments, identified by id\n`;
         });
     } catch (conversionError) {
       console.error('🔥 scenarioToYaml failed:', conversionError.stack);
