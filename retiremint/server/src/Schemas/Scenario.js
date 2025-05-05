@@ -90,11 +90,18 @@ const ScenarioSchema = new Schema({
       ref: 'Permissions'
     }
   }],
+  stateTaxes: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'UserStateTax',
+    default: [] 
+   }],
 
   report: { 
     type: Schema.Types.ObjectId, 
     ref: 'Report'
   } 
+
+  
 });
 
 // an index on the userId to speed up queries for a user's scenarios.

@@ -77,6 +77,14 @@ function Dashboard() {
                 if (!allowedStates.includes(userData.state)) {
                     setStateWarning('Your state tax file is not available. You have to fill it out. Without it, all simulations will be done without state tax.');
                 }
+
+                // Simply log state taxes without storing in state
+                try {
+                    const stateTaxesResponse = await axios.get(`http://localhost:8000/user/${userId}/stateTaxes`);
+                    console.log('User state taxes:', stateTaxesResponse.data);
+                } catch (taxError) {
+                    console.error('Error fetching state taxes:', taxError);
+                }
             }
         } catch (error) {
             console.error('Error fetching user data:', error);
@@ -264,8 +272,16 @@ function Dashboard() {
 
     const handleFileUpload = async () => {
         if (file) {
+            const userId = localStorage.getItem('userId'); // Get user ID from storage
+            if (!userId) {
+                alert('User not authenticated');
+                return;
+            }
+    
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('userId', userId); // Add userId to form data
+    
             try {
                 await axios.post('http://localhost:8000/upload-state-tax-yaml', formData, {
                     headers: {
@@ -273,24 +289,16 @@ function Dashboard() {
                     },
                 });
                 alert('File uploaded successfully');
+                // Optionally refresh user data after upload
+                fetchUserData();
             } catch (error) {
                 console.error('Error uploading the file:', error);
-                alert('Failed to upload the file. Please try again.');
+                alert(error.response?.data?.message || 'Failed to upload the file. Please try again.');
             }
         } else {
             alert('Please select a file to upload.');
         }
     };
-
-    if (loading) {
-        return (
-            <div className="dashboard-container loading">
-                <Header />
-                <div className="loading-spinner"></div>
-                <p>Loading your financial data...</p>
-            </div>
-        );
-    }
 
     const handleScenarioExport = (scenarioId) => {
         alert(`Exporting scenario ${scenarioId} (TODO: hook up backend)`);
