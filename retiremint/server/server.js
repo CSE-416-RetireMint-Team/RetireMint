@@ -76,11 +76,12 @@ const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 const scrapeAndSaveRMDTable = require('./src/Utils/scrapeRMDTable');
 const ExpectedReturnOrIncome = require('./src/Schemas/ExpectedReturnOrIncome');
 const importRoutes = require('./src/Routes/Import');
-
+const exportRoute = require('./src/Routes/Export');
 
 app.use('/user', userRoutes);
 app.use('/simulation', simulationRoutes); // Add simulation routes
 app.use('/import', importRoutes);
+app.use('/export', exportRoute);
 
 // Route to fetch and print all database collections
 app.get('/api/db-data', async (req, res) => {
@@ -231,6 +232,7 @@ app.post('/scenario', async (req, res) => {
         stateOfResidence,
         sharedUsers,
         userId,  // Add userId to the extracted parameters
+        initialCash, // <-- ADD initialCash here
         spendingStrategy // Add spendingStrategy
     } = req.body; // extracting data from frontend
 
@@ -737,6 +739,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsers,
                 stateTaxes: [] 
@@ -772,6 +775,7 @@ app.post('/scenario', async (req, res) => {
                 events: eventIds,
                 simulationSettings: simulationSettings._id,
                 financialGoal: financialGoal,
+                initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
                 sharedUsers: sharedUsers,
                 stateTaxes: user?.stateTaxes?.length > 0 ? [...user.stateTaxes] : []
@@ -843,7 +847,7 @@ app.post('/simulation/scenario/investments', async (req, res) => {
         const investmentIds = scenario.investments;
         const investments = [];
         // Use a set to Store Investment Types to not contain duplicates upon fetching InvestmentTypes later.
-        const investmentTypesSet = new Set();
+        const investmentTypes = [];
 
         // Fetch all investments and store all investmentType Ids
         for (let i = 0; i < investmentIds.length; i++) {
@@ -891,9 +895,12 @@ app.post('/simulation/scenario/investments', async (req, res) => {
             }
             
             investments.push(investment);
-            investmentTypesSet.add(investmentType);
+            // Check if InvestmentType for this investment already exists in the list.
+            if (investmentTypes.findIndex((type) => type.name === investmentType.name) === -1) {
+                investmentTypes.push(investmentType);
+            }
         }
-        const investmentTypes = [...investmentTypesSet];
+        // console.log("InvestmentTypes: ", investmentTypes); // Commented out this log
         res.json({
             success: true,
             message: 'Investment objects successfully found',

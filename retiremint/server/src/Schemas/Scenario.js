@@ -62,6 +62,11 @@ const ScenarioSchema = new Schema({
     type: Number, 
     required: true 
   },
+  initialCash: {
+    type: Number,
+    required: false,
+    default: 0
+  },
   stateOfResidence: { 
     type: String, 
     enum: [

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function InvestmentForm({ investments, setInvestments, investmentTypes, setInvestmentTypes, setPage}) {
+function InvestmentForm({ investments, setInvestments, investmentTypes, setInvestmentTypes, setPage, initialCash, setInitialCash }) {
 
     const handleInvestmentCountChange = (e) => {
         const count = parseInt(e.target.value, 10) || 0;
@@ -77,6 +77,16 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
 
     return (
         <div>
+            <div className='initial-cash-container'>
+                <h2>Initial Cash On Hand *</h2>
+                <input 
+                    type="number" 
+                    placeholder="Enter initial cash amount" 
+                    value={initialCash} 
+                    onChange={(e) => setInitialCash(parseFloat(e.target.value) || 0)} 
+                />
+            </div>
+
             <h2>Number of Investments:</h2>
             <p className="helper-text">
                 Please list every investment you currently have or plan to include in your portfolio.
@@ -180,7 +190,7 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                                     checked={investment.taxStatus === "non-retirement"}
                                     onChange={(e) => updateInvestment(index, ["taxStatus"], e.target.value)}
                                 />
-                                Non-Retirement
+                                Non-Retirement (Taxable)
                             </label>
                         </div>
                         <div>
@@ -230,6 +240,11 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
             <div>
                 <button onClick={() => setPage(2)}>Previous</button>
                 <button onClick={() => {
+                    if (initialCash === null || initialCash === '' || isNaN(initialCash) || initialCash < 0) {
+                        alert("Initial Cash must be a non-negative number.");
+                        return;
+                    }
+
                     if (investments.length === 0) {
                         alert("At least one investment is required.");
                         return;
@@ -267,6 +282,15 @@ function InvestmentForm({ investments, setInvestments, investmentTypes, setInves
                             return;
                         }
                     }
+
+                    // --- NEW: Check for Duplicate Investment Names --- 
+                    const investmentNames = investments.map(inv => inv.name.trim()).filter(name => name); // Get trimmed, non-empty names
+                    const uniqueInvestmentNames = new Set(investmentNames);
+                    if (investmentNames.length !== uniqueInvestmentNames.size) {
+                        alert("Investment names must be unique. Please check for duplicates.");
+                        return; // Stop validation
+                    }
+                    // --- END Duplicate Check --- 
 
                     // If all investments are valid, proceed to the next page
                     setPage(4);

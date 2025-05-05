@@ -41,6 +41,8 @@ const { performWithdrawal } = require('./Utils/WithdrawalUtils'); // Import with
  */
 function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, inflationArray, maritalStatusArray, currentYearIndex, previousYearState = null) {
   
+  const currentYearEventsLog = []; // <-- Initialize log array for this year
+
   // --- Extract Core Data from modelData --- 
   const scenario = modelData.scenario;
   const taxData = modelData.taxData;
@@ -170,8 +172,14 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       // b. Previous Capital Gains Tax
       const prevCapGainsTax = calculateCapitalGainsTax(prevData.curYearGains, prevFedTaxableIncomeNet, prevAdjCapGainsBrackets);
       
+      // Log individual previous year taxes paid (if > 0)
+      if (prevFedIncomeTax > 0) currentYearEventsLog.push({ year: currentYear, type: 'tax', details: `Paid previous year Federal Income Tax: ${prevFedIncomeTax.toFixed(2)}` });
+      if (prevStateIncomeTax > 0) currentYearEventsLog.push({ year: currentYear, type: 'tax', details: `Paid previous year State Income Tax: ${prevStateIncomeTax.toFixed(2)}` });
+      if (prevCapGainsTax > 0) currentYearEventsLog.push({ year: currentYear, type: 'tax', details: `Paid previous year Capital Gains Tax: ${prevCapGainsTax.toFixed(2)}` });
+      
       // c. Previous Early Withdrawal Tax (10% penalty)
       const prevEarlyWithdrawalPenalty = 0.10 * prevData.curYearEarlyWithdrawals;
+      if (prevEarlyWithdrawalPenalty > 0) currentYearEventsLog.push({ year: currentYear, type: 'tax', details: `Paid previous year Early Withdrawal Penalty: ${prevEarlyWithdrawalPenalty.toFixed(2)}` });
       
       previousYearTaxes = prevFedIncomeTax + prevStateIncomeTax + prevCapGainsTax + prevEarlyWithdrawalPenalty;
 
@@ -210,6 +218,17 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       currentNonDiscExpensesTotal = 0; 
   }
 
+  // Log individual non-discretionary expenses *before* payment step
+  for (const [expenseName, amount] of Object.entries(nonDiscExpenseDetails || {})) {
+      if (amount > 0) {
+          currentYearEventsLog.push({ 
+              year: currentYear, 
+              type: 'expense', // Log as type 'expense'
+              details: `Calculated non-discretionary expense '${expenseName}': ${amount.toFixed(2)} (Scheduled for payment)` 
+          });
+      }
+  }
+
   // Total Payment Amount Needed for Step 6 (Non-Discretionary + Taxes)
   const totalPaymentNeededForStep6 = previousYearTaxes + currentNonDiscExpensesTotal;
 
@@ -217,6 +236,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Income Events ---`);
   try {
       const initialCashForYear = yearState.cash; // Cash before income is added
+      // console.log(`[SimYear Log] Year ${currentYear}: Calling runIncomeEvents. Current Log Length: ${currentYearEventsLog.length}`);
       // Expect incomeResult to include an incomeBreakdown object
       const incomeResult = runIncomeEvents(
           modelData,                // Pass full model data (contains events)
@@ -224,7 +244,9 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           maritalStatusThisYear,
           currentInflationFactor,
           previousYearState?.incomeEventStates, // Pass the income states from the *previous* year
-          initialCashForYear        // Pass cash *before* income processing
+          initialCashForYear,       // Pass cash *before* income processing
+          currentYearEventsLog,      // Pass the log array for event logging
+          currentYear               // Pass the current year for logging
       );
 
       // Update yearState with the results from runIncomeEvents
@@ -249,18 +271,21 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
        yearState.cash = previousYearState?.cash ?? (scenario.initialCash || 0); // Revert cash to previous state
        yearState.incomeEventStates = previousYearState?.incomeEventStates || {}; // Revert states
   }
+  // console.log(`[SimYear Log] Year ${currentYear}: After runIncomeEvents. Current Log Length: ${currentYearEventsLog.length}`);
 
   // 3) Required Minimum Distributions
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing RMDs ---`);
   try {
       // Pass necessary data: strategies, tables, age, current state, previous state
       // Expect the function to return the updated state and the RMD amount added to income
+      // console.log(`[SimYear Log] Year ${currentYear}: Calling processRequiredMinimumDistributions. Current Log Length: ${currentYearEventsLog.length}`);
       const rmdResult = processRequiredMinimumDistributions(
           rmdStrategies, 
           taxData.rmdTables, // Pass the raw RMD tables 
           userAge, 
           yearState, 
-          previousYearState
+          previousYearState,
+          currentYearEventsLog // Pass the log array for event logging
       );
       
       // Update the main yearState object
@@ -276,6 +301,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
        console.error(`Year ${currentYear}: Error processing RMDs:`, error);
        // Decide how to handle error
   }
+  // console.log(`[SimYear Log] Year ${currentYear}: After processRequiredMinimumDistributions. Current Log Length: ${currentYearEventsLog.length}`);
 
   // 4) Process Investment Returns
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Investment Returns ---`);
@@ -303,8 +329,12 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // 5) Process Roth Conversions
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Roth Conversions ---`); // Optional: Keep for debugging which step it is
   try {
+      // ADDED LOG: Inspect state before Roth conversion
+      // console.log(`---> [SimYear Roth Check] Year ${currentYear}: Checking Roth. Sources=${JSON.stringify(rothConversionStrategies)}. Current Investments (Name/Status):`, JSON.stringify(yearState.investments.map(inv => ({ name: inv.name, status: inv.accountTaxStatus })))); // CORRECTED PROPERTY NAME
+
       // Skip if no Roth conversion strategies defined
       if (rothConversionStrategies && rothConversionStrategies.length > 0) {
+          // console.log(`[SimYear Log] Year ${currentYear}: Calling processRothConversion. Current Log Length: ${currentYearEventsLog.length}`);
           // Store income before potential conversion for comparison
           const incomeBeforeConversion = yearState.curYearIncome; 
           
@@ -318,7 +348,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
               currentYear,
               rothOptimizerEnable,
               rothOptimizerStartYear,
-              rothOptimizerEndYear
+              rothOptimizerEndYear,
+              currentYearEventsLog // Pass the log array for event logging
           );
           
           // Update year state with conversion results
@@ -329,6 +360,12 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           // Add Roth conversion amount to income breakdown
           if (rothResult.conversionAmount > 0) {
               yearState.incomeBreakdown['Roth Conversion'] = (yearState.incomeBreakdown['Roth Conversion'] || 0) + rothResult.conversionAmount;
+              // Log Roth conversion
+              currentYearEventsLog.push({
+                year: currentYear,
+                type: 'roth',
+                details: `Converted ${rothResult.conversionAmount.toFixed(2)} from pre-tax to Roth accounts.`
+              });
               // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Roth Conversion Occurred ---`);
               // console.log(`    Before: curYearIncome=${incomeBeforeConversion.toFixed(2)}, curYearSS=${yearState.curYearSS.toFixed(2)}, adjStdDed=${adjustedStandardDeduction.toFixed(2)}`);
               // console.log(`    After:  conversionAmount=${rothResult.conversionAmount.toFixed(2)}, newCurYearIncome=${yearState.curYearIncome.toFixed(2)}`);
@@ -341,6 +378,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       console.error(`Year ${currentYear}: Error processing Roth conversions:`, error);
       // Continue with simulation, no Roth conversions applied
   }
+  // console.log(`[SimYear Log] Year ${currentYear}: After processRothConversion block. Current Log Length: ${currentYearEventsLog.length}`);
 
   // 6) Pay Non-Discretionary Expenses and Previous Year's Taxes
   try {
@@ -351,6 +389,26 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           userAge
       );
       yearState.curYearTaxes = previousYearTaxes; // Still store total tax paid
+      // Log Tax Payment
+      /* // REMOVED Aggregated Tax Log
+      if (previousYearTaxes > 0) {
+        currentYearEventsLog.push({ 
+          year: currentYear, 
+          type: 'tax', 
+          details: `Paid previous year's total taxes: ${previousYearTaxes.toFixed(2)}` 
+        });
+      }
+      */
+      // Log Non-Disc Expense Payment (aggregate)
+      /* // REMOVED Aggregated Non-Disc Expense Log
+      if (currentNonDiscExpensesTotal > 0) {
+          currentYearEventsLog.push({ 
+              year: currentYear, 
+              type: 'expense', 
+              details: `Paid current year non-discretionary expenses total: ${currentNonDiscExpensesTotal.toFixed(2)}` 
+          });
+      }
+      */
   } catch (error) {
        console.error(`Year ${currentYear}: Error processing non-discretionary expenses/withdrawals:`, error);
   }
@@ -372,6 +430,16 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
       yearState = discResult.updatedYearState; // Get mutated state back
       // Add the details of *actually paid* discretionary expenses to the breakdown
       yearState.expenseBreakdown = { ...yearState.expenseBreakdown, ...discResult.paidDiscExpenses }; 
+      // Log Discretionary Expenses Paid
+      for (const [expenseName, amountPaid] of Object.entries(discResult.paidDiscExpenses || {})) {
+          if (amountPaid > 0) {
+              currentYearEventsLog.push({ 
+                  year: currentYear, 
+                  type: 'expense', 
+                  details: `Paid discretionary expense '${expenseName}': ${amountPaid.toFixed(2)}` 
+              });
+          }
+      }
       // Store the expense states calculated by the module for the *next* year
       yearState.discExpenseEventStates = discResult.expenseEventStates; 
       // Note: curYearExpenses sum was updated inside processDiscretionaryExpenses/performWithdrawal
@@ -382,8 +450,10 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // 8) Process Invest Events
   try {
     // Get the strategy info for the current year from the pre-calculated array
+    // console.log(`[SimYear Log] Year ${currentYear}: Calling processInvestEvents. Current Log Length: ${currentYearEventsLog.length}`);
     const currentInvestStrategyInfo = investArray[currentYearIndex];
     yearState = processInvestEvents(
+        currentYearEventsLog, // Pass log array
         currentInvestStrategyInfo, 
         yearState, 
         currentInflationFactor,
@@ -392,19 +462,22 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   } catch (error) {
       console.error(`Year ${currentYear}: Error processing invest events:`, error);
   }
+  // console.log(`[SimYear Log] Year ${currentYear}: After processInvestEvents. Current Log Length: ${currentYearEventsLog.length}`);
 
   // 9) Process Rebalance Events
   try {
+    // console.log(`[SimYear Log] Year ${currentYear}: Calling processRebalanceEvents. Current Log Length: ${currentYearEventsLog.length}`);
     const currentRebalanceInfo = rebalanceArray[currentYearIndex];
-    yearState = processRebalanceEvents(currentRebalanceInfo, yearState);
+    yearState = processRebalanceEvents(currentYearEventsLog, currentRebalanceInfo, yearState); // Pass log array
   } catch (error) {
       console.error(`Year ${currentYear}: Error processing rebalance events:`, error);
   }
+  // console.log(`[SimYear Log] Year ${currentYear}: After processRebalanceEvents. Current Log Length: ${currentYearEventsLog.length}`);
 
   // Check if financial goal is met
   yearState.financialGoalMet = yearState.totalAssets >= financialGoal;
 
-  return yearState;
+  return { ...yearState, currentYearEventsLog }; // <-- Return log array with state
 }
 
 function calculateTotalAssets(investments) {

@@ -4,6 +4,7 @@ import axios from 'axios';
 import Header from './HeaderComp';
 import RunSimulation from './RunSimulation';
 import '../Stylesheets/Dashboard.css';
+import fileDownload from 'js-file-download';
 
 function Dashboard() {
     const [scenarios, setScenarios] = useState([]);
@@ -310,14 +311,32 @@ function Dashboard() {
         );
     }
 
-    const handleScenarioExport = (scenarioId) => {
-        alert(`Exporting scenario ${scenarioId} (TODO: hook up backend)`);
-      };     
+        const handleScenarioExport = async (scenarioId, scenarioName) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/export/${scenarioId}`, {
+                responseType: 'blob',
+                withCredentials: true
+              });
+
+            // Clean the name to be safe for filenames (remove spaces, punctuation, etc.)
+            const safeName = scenarioName
+            .toLowerCase()
+            .replace(/[^a-z0-9]/gi, '_')      // Replace non-alphanumerics with _
+            .replace(/_+/g, '_')              // Collapse multiple underscores
+            .replace(/^_+|_+$/g, '');         // Trim leading/trailing underscores
+
+            fileDownload(response.data, `${safeName || 'scenario'}.yaml`);
+        } catch (error) {
+            console.error('Export failed:', error);
+            alert('Failed to export scenario.');
+        }
+        };
+ 
       
       const handleScenarioImport = async (file) => {
         const formData = new FormData();
-        formData.append("scenario", file); // ✅ this matches multer field
-        formData.append("userId", localStorage.getItem("userId")); // ✅ send userId explicitly
+        formData.append("scenario", file); // this matches multer field
+        formData.append("userId", localStorage.getItem("userId")); // send userId explicitly
     
         try {
             const response = await axios.post("http://localhost:8000/import/import-scenario", formData, {
@@ -333,7 +352,7 @@ function Dashboard() {
             console.error("Error importing scenario:", err);
             alert("Failed to import scenario. Check the YAML file and try again.");
         } finally {
-            // ✅ Always hide the import box whether success or failure
+            // Always hide the import box whether success or failure
             setShowImportOptions(false);
         }
     };    
@@ -422,7 +441,7 @@ function Dashboard() {
                                             {openMenuId === scenario._id && (
                                                 <div className="scenario-dropdown">
                                                 <button onClick={() => handleEditScenario(scenario._id)}>Edit</button>
-                                                <button onClick={() => handleScenarioExport(scenario._id)}>Export</button>
+                                                <button onClick={() => handleScenarioExport(scenario._id, scenario.name)}>Export</button>
                                                 <button onClick={() => handleShareScenario(scenario._id)}>Share</button>
                                                 <button onClick={() => handleDeleteScenario(scenario._id)}>Delete</button>
                                                 </div>
