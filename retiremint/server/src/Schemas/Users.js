@@ -8,6 +8,11 @@ const UserSchema = new mongoose.Schema({
   DOB: Date,
   state: String,
   maritalStatus: String,
+  stateTaxes: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'UserStateTax',
+    default: [] 
+  }],
   scenarios: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scenario' }]
 }, {timestamps: true});
 

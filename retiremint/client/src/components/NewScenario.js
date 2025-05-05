@@ -19,7 +19,11 @@ function NewScenario() {
 
     //pages there will be 4 pages to break down the scenario form 
     const [page,setPage]=useState(1);
+
+    const [file, setFile] = useState(null);
+
     const [initialCash, setInitialCash] = useState(0);
+
 
     const [scenarioAuthorId, setScenarioAuthorId] = useState('');
     const [scenarioName, setScenarioName] = useState('');
@@ -78,6 +82,71 @@ function NewScenario() {
 
     // Flag to check if user has pre-tax investments
     const [hasPreTaxInvestments, setHasPreTaxInvestments] = useState(false);
+
+    const handleDownload = async () => {
+        try {
+          // Make a GET request to the backend to download the YAML file
+          const response = await axios.get('http://localhost:8000/download-state-tax-yaml', {
+            responseType: 'blob',  // Ensure the response is handled as a file
+          });
+      
+          // Create a temporary link to trigger the download
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'YAMLFormat.YAML';  // Name of the file to be downloaded
+          document.body.appendChild(a);  
+          a.click();  
+          a.remove();  
+        } catch (error) {
+          console.error('Error downloading the file:', error);
+          alert('There was an error while downloading the file. Please try again.');
+        }
+    };
+
+    const handleFileChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            const fileName = selectedFile.name.toLowerCase();
+            if (fileName.endsWith('.yaml')) {
+                setFile(selectedFile);  // Valid file extension
+            } else {
+                alert('Please select a .YAML file');
+                event.target.value = null;  // Clear the input
+                setFile(null);
+            }
+        }
+    };
+    
+
+    const handleFileUpload = async () => {
+        if (file) {
+            const userId = localStorage.getItem('userId'); // Get user ID from storage
+            if (!userId) {
+                alert('User not authenticated');
+                return;
+            }
+    
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', userId); // Add userId to form data
+    
+            try {
+                await axios.post('http://localhost:8000/upload-state-tax-yaml', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                alert('File uploaded successfully');
+               
+            } catch (error) {
+                console.error('Error uploading the file:', error);
+                alert(error.response?.data?.message || 'Failed to upload the file. Please try again.');
+            }
+        } else {
+            alert('Please select a file to upload.');
+        }
+    };
     
     // Handle drag end for all strategy lists
     const handleDragEnd = (result, strategyType) => {
@@ -1036,6 +1105,20 @@ function NewScenario() {
                                 <option key={state} value={state}>{state}</option>
                             ))}
                         </select>
+
+                        {/* Only show download/upload for non-predefined states */}
+                        {stateOfResidence && !['NY', 'NJ', 'TX', 'CT'].includes(stateOfResidence) && (
+                            <>
+                                <p>Please Upload your state's tax, otherwise all the simulations will be done without considering state level tax</p>
+                                <button onClick={handleDownload}>Download Empty State YAML File</button>
+                                
+                                {/* File upload section */}
+                                <div className="file-upload-section">
+                                    <input type="file" onChange={handleFileChange} />
+                                    <button onClick={handleFileUpload}>Upload File</button>
+                                </div>
+                            </>
+                        )}
 
 
                         {/* Navigation Buttons */}
