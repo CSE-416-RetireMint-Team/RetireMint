@@ -93,8 +93,10 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           setLoading(false);
         }
         else {
-          const exploreResults = [];
+          const simResults = [];
+          const parameterValues = [];
           for (let i = lowerBound; i < upperBound; i += stepSize) {
+            parameterValues.push(i);
             // Create a temporary scenario that has the scenario parameter changed. 
             const tempScenarioResponse = await axios.post('http://localhost:8000/simulation/explore-scenario/create', {
               scenarioId: scenarioId,
@@ -105,16 +107,17 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
 
             // Run Simulations on Temporary Adjusted Scenario:
             const simulationResponse = await axios.post('http://localhost:8000/simulation/run', {
-              scenarioId,
+              scenarioId: tempScenarioResponse.data.scenarioId,
               numSimulations,
               userId,
               reportName
             });
 
-            exploreResults.push(simulationResponse.data.results);
+            simResults.push({parameterValue: i ,resultForGraph: simulationResponse.data.results});
             //console.log("Temporary Scenario: ", response.data.scenarioId);
             // Delete temporary scenario, saving the results.
           }
+          const exploreResults = {parameterName: scenarioParameter, parameterValues: parameterValues, results: simResults}
           console.log(exploreResults);
         }
         
