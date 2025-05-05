@@ -9,6 +9,8 @@ import GraphThree from './GraphThree';
 import Mock from './Mock';
 import MockTwo from './MockTwo'
 import SurfacePlot from './SurfacePlot';
+import ContourPlot from './ContourPlot'
+
 const SimulationResults = () => {
   const { reportId } = useParams();
   const [reportData, setReportData] = useState(null);
@@ -164,6 +166,7 @@ const SimulationResults = () => {
       </div>
       <>
         <SurfacePlot/>
+        <ContourPlot/>
       </>
     </>
   );
