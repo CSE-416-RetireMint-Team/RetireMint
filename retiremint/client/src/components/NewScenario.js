@@ -890,43 +890,7 @@ function NewScenario() {
                                         </DragDropContext>
                                     </div>
                                     
-                                    <div className="strategy-list">
-                                        <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
-                                        <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
-                                        <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
-                                            <Droppable droppableId="rothConversionStrategiesList">
-                                                {(provided) => (
-                                                    <ul 
-                                                        className="draggable-list"
-                                                        {...provided.droppableProps}
-                                                        ref={provided.innerRef}
-                                                    >
-                                                        {rothConversionStrategies.length > 0 ? (
-                                                            rothConversionStrategies.map((investment, index) => (
-                                                                <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
-                                                                    {(provided) => (
-                                                                        <li
-                                                                            ref={provided.innerRef}
-                                                                            {...provided.draggableProps}
-                                                                            {...provided.dragHandleProps}
-                                                                            className="draggable-item"
-                                                                        >
-                                                                            {investment}
-                                                                        </li>
-                                                                    )}
-                                                                </Draggable>
-                                                            ))
-                                                        ) : (
-                                                            <div className="draggable-list-empty">
-                                                                No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
-                                                            </div>
-                                                        )}
-                                                        {provided.placeholder}
-                                                    </ul>
-                                                )}
-                                            </Droppable>
-                                        </DragDropContext>
-                                    </div>
+                                    
 
                                     {/* Roth Optimizer section */}
                                     <div className="roth-optimizer">
@@ -941,20 +905,59 @@ function NewScenario() {
                         </label>
 
                     {RothOptimizerEnable && (
-                        <div>
-                            <input 
-                                type="number" 
-                                placeholder="Enter Start Year" 
-                                value={rothRptimizerStartYear} 
-                                onChange={(e) => setRothRptimizerStartYear(e.target.value)} 
-                            />
-                            <input 
-                                type="number" 
-                                placeholder="Enter End Year" 
-                                value={rothOptimizerEndYear} 
-                                onChange={(e) => setRothOptimizerEndYear(e.target.value)} 
-                            />
-                        </div>
+                        <>
+                            <div className="strategy-list">
+                                <h4>Roth Conversion Strategy (Pre-Tax Investments) - {rothConversionStrategies.length} investments</h4>
+                                <p className="helper-text">Priority order for Roth conversions from pre-tax accounts</p>
+                                <DragDropContext onDragEnd={(result) => handleDragEnd(result, 'roth')}>
+                                    <Droppable droppableId="rothConversionStrategiesList">
+                                        {(provided) => (
+                                            <ul 
+                                                className="draggable-list"
+                                                {...provided.droppableProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                {rothConversionStrategies.length > 0 ? (
+                                                    rothConversionStrategies.map((investment, index) => (
+                                                        <Draggable key={`roth-${investment}-${index}`} draggableId={`roth-${investment}-${index}`} index={index}>
+                                                            {(provided) => (
+                                                                <li
+                                                                    ref={provided.innerRef}
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
+                                                                    className="draggable-item"
+                                                                >
+                                                                    {investment}
+                                                                </li>
+                                                            )}
+                                                        </Draggable>
+                                                    ))
+                                                ) : (
+                                                    <div className="draggable-list-empty">
+                                                        No pre-tax investments added yet. Roth conversion only applies to pre-tax investments.
+                                                    </div>
+                                                )}
+                                                {provided.placeholder}
+                                            </ul>
+                                        )}
+                                    </Droppable>
+                                </DragDropContext>
+                            </div>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter Start Year" 
+                                    value={rothRptimizerStartYear} 
+                                    onChange={(e) => setRothRptimizerStartYear(e.target.value)} 
+                                />
+                                <input 
+                                    type="number" 
+                                    placeholder="Enter End Year" 
+                                    value={rothOptimizerEndYear} 
+                                    onChange={(e) => setRothOptimizerEndYear(e.target.value)} 
+                                />
+                            </div>
+                        </>
                     )}
                                 </div>
                             </>

@@ -452,6 +452,15 @@ function InvestmentTypeForm({ investmentTypes, setInvestmentTypes, setPage}) {
                         }
                     }
 
+                    // --- NEW: Check for Duplicate Investment Type Names --- 
+                    const typeNames = investmentTypes.map(type => type.name.trim()).filter(name => name); // Get trimmed, non-empty names
+                    const uniqueTypeNames = new Set(typeNames);
+                    if (typeNames.length !== uniqueTypeNames.size) {
+                        alert("Investment Type names must be unique. Please check for duplicates.");
+                        return; // Stop validation
+                    }
+                    // --- END Duplicate Check --- 
+
                     // If all investment types are valid, proceed to the next page
                     setPage(3);
                 }}>

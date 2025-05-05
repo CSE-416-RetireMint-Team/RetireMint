@@ -696,6 +696,12 @@ function runOneSimulation(modelData, simulationIndex) {
 
             previousYearState = currentState;
 
+            // --- Check if financial goal was met. If not, stop this simulation run --- 
+            if (!currentState.financialGoalMet) {
+                console.log(`Simulation ${simulationIndex + 1}: Financial goal not met in year ${currentState.year} (Index ${i}). Stopping simulation.`);
+                break; // Exit the loop for this simulation
+            }
+
         } catch (yearError) {
             console.error(`Simulation ${simulationIndex + 1}: Error calling simulateYear for year index ${i} (${currentYear + i}):`, yearError);
             yearlyResults.push({ 
@@ -714,7 +720,9 @@ function runOneSimulation(modelData, simulationIndex) {
     
     // --- Calculate Discretionary Ratio Array Post-Simulation --- 
     const allScenarioEvents = modelData.scenario.events; // Cache for efficiency
-    for (let i = 0; i < numYears; i++) {
+    // Iterate only up to the number of years actually simulated
+    const actualYearsSimulated = yearlyResults.length; 
+    for (let i = 0; i < actualYearsSimulated; i++) { 
         const expenseBreakdownForYear = expensesArray[i];
         if (!expenseBreakdownForYear || typeof expenseBreakdownForYear !== 'object') {
             discretionaryRatioArray[i] = 0; // No expenses this year
