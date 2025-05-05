@@ -6,7 +6,9 @@ import Header from './HeaderComp';
 import Graph from './Graph';
 import GraphTwo from './GraphTwo';
 import GraphThree from './GraphThree';
-
+import Mock from './Mock';
+import MockTwo from './MockTwo'
+import SurfacePlot from './SurfacePlot';
 const SimulationResults = () => {
   const { reportId } = useParams();
   const [reportData, setReportData] = useState(null);
@@ -28,6 +30,7 @@ const SimulationResults = () => {
       .then(res => {
         setReportData(res.data);
         console.log('Full report data:', res.data);
+
         setLoading(false);
       })
       .catch(err => {
@@ -155,7 +158,13 @@ const SimulationResults = () => {
         />
 
         <GraphThree graphThreeInvestment={graphThreeInvestment} graphThreeIncome={graphThreeIncome} graphThreeExpense={graphThreeExpense} />
+        <Mock/>
+        <MockTwo/>
+        
       </div>
+      <>
+        <SurfacePlot/>
+      </>
     </>
   );
 };
