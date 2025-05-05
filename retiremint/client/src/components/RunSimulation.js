@@ -112,33 +112,15 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
               numSimulations,
               userId,
               reportName,
-              exploreMode
             });
 
             simResults.push({parameterValue: i ,resultForGraph: simulationResponse.data.results});
-            //console.log("Temporary Scenario: ", response.data.scenarioId);
-            // Delete temporary scenario, saving the results.
           }
           const exploreResults = {parameterName: scenarioParameter, parameterValues: parameterValues, results: simResults}
           console.log(exploreResults);
           navigate(`/one-dimensional-simulation-results`, { state: { exploreResults: exploreResults }})
         }
         
-        /*
-        
-        const response = await axios.post('http://localhost:8000/simulation/run', {
-          scenarioId,
-          numSimulations,
-          userId,
-          reportName
-        });
-        
-        // Store the reportId in localStorage for easy access
-        localStorage.setItem('latestReportId', response.data.reportId);
-        
-        // Navigate to the results page
-        navigate(`/simulation-results/${response.data.reportId}`);
-        */
       } catch (err) {
         console.error('Error running simulation:', err);
         setError('Error running simulation. Please try again later.');
