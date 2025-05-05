@@ -74,11 +74,12 @@ const loadStateTaxDataOnce = require('./src/Utils/loadStateTaxes');
 const scrapeAndSaveRMDTable = require('./src/Utils/scrapeRMDTable');
 const ExpectedReturnOrIncome = require('./src/Schemas/ExpectedReturnOrIncome');
 const importRoutes = require('./src/Routes/Import');
-
+const exportRoute = require('./src/Routes/Export');
 
 app.use('/user', userRoutes);
 app.use('/simulation', simulationRoutes); // Add simulation routes
 app.use('/import', importRoutes);
+app.use('/export', exportRoute);
 
 // Route to fetch and print all database collections
 app.get('/api/db-data', async (req, res) => {
