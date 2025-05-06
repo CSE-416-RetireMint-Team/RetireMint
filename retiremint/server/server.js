@@ -1197,7 +1197,6 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
 
         /* Check for Second Parameter  */
         if (scenarioParameter2 !== null) {
-            
             if (scenarioParameter2 === 'event-start-year') {
                 console.log("Editting Start Year:");
                 const parameterEvent = await Event.findById(parameterId2);

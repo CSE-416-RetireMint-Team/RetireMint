@@ -203,7 +203,7 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
           }
           const exploreResults = {parameterName: scenarioParameter, parameterValues: parameterValues, parameterValues2: parameterValues2, results: simResults}
           console.log(exploreResults);
-          navigate(`/one-dimensional-simulation-results`, { state: { exploreResults: exploreResults }})
+          navigate(`/two-dimensional-simulation-results`, { state: { exploreResults: exploreResults }})
         }
         
       } catch (err) {
