@@ -2,6 +2,7 @@ const formatLifeExpectancy = require('./helpers/formatLifeExpectancy');
 const formatInvestmentTypes = require('./helpers/formatInvestmentTypes');
 const formatInvestments = require('./helpers/formatInvestments');
 const mapSimulationSettings = require('./helpers/mapSimulationSettings');
+const mapEventSeries = require('./helpers/mapEvent');
 
 function scenarioToYaml(scenario) {
   const result = {
@@ -18,15 +19,17 @@ function scenarioToYaml(scenario) {
       : [formatLifeExpectancy(scenario.lifeExpectancy)],
     investmentTypes: formatInvestmentTypes(scenario.investments),
     investments: formatInvestments(scenario.investments),
-    eventSeries: scenario.events.map(e => mapEvent(e)),
-    ...mapSimulationSettings(scenario.simulationSettings, scenario.investments),
 
+    eventSeries: mapEventSeries(scenario.events),
+
+    ...mapSimulationSettings(scenario.simulationSettings, scenario.investments),
     financialGoal: scenario.financialGoal,
     residenceState: scenario.stateOfResidence
   };
 
   return result;
 }
+
   
   // Helper: Format distributions (fixed or normal)
   function formatDistribution(dist) {
