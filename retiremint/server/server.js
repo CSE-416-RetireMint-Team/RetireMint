@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const yaml = require('js-yaml');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -64,6 +65,7 @@ const Allocation=require('./src/Schemas/Allocation');
 const User = require('./src/Schemas/Users');
 const Report = require('./src/Schemas/Report'); // Add Report schema
 const IncomeTax = require('./src/FederalTaxes/incomeTax');
+const UserStateTax = require('./src/Schemas/UserStateTax');
 
 const StandardDeduction = require('./src/FederalTaxes/standardDeduction');
 const CapitalGain = require('./src/FederalTaxes/capitalGain');
@@ -739,8 +741,16 @@ app.post('/scenario', async (req, res) => {
                 financialGoal: financialGoal,
                 initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsers
+                sharedUsers: sharedUsers,
+                stateTaxes: [] 
             });
+            // Copy ALL tax references from user to scenario
+            const user = await User.findById(userId).select('stateTaxes');
+            if (user && user.stateTaxes.length > 0) {
+                // Directly copy all tax references
+                newScenario.stateTaxes = [...user.stateTaxes]; // Creates a new array copy
+            }
+
             await newScenario.save();
             console.log('Scenario saved successfully with ID:', newScenario._id);    
             // Return the scenario ID to the client
@@ -751,6 +761,8 @@ app.post('/scenario', async (req, res) => {
             });
         }
         else {
+            const user = await User.findById(userId).select('stateTaxes');
+
             await Scenario.findByIdAndUpdate(existingScenario._id, {
                 name: scenarioName,
                 userId: userId, // Add userId to the new scenario
@@ -765,7 +777,9 @@ app.post('/scenario', async (req, res) => {
                 financialGoal: financialGoal,
                 initialCash: initialCash, // <-- ADD initialCash here
                 stateOfResidence: stateOfResidence,
-                sharedUsers: sharedUsers
+                sharedUsers: sharedUsers,
+                stateTaxes: user?.stateTaxes?.length > 0 ? [...user.stateTaxes] : []
+                
             }, {new: true});
             console.log('Scenario updated with ID:', existingScenario._id); 
             
@@ -1237,16 +1251,100 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Upload route
-app.post('/upload-state-tax-yaml', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).send('No file uploaded.');
+
+app.post('/upload-state-tax-yaml', upload.single('file'), async (req, res) => {
+    let filePath;
+    
+    try {
+        // 1. Validate request
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
+        }
+        if (!req.body.userId) {
+            return res.status(400).json({ success: false, message: 'User ID required' });
+        }
+
+        filePath = path.join(storageDir, req.file.originalname);
+
+        // 2. Read and parse YAML
+        const fileContents = fs.readFileSync(filePath, 'utf8');
+        const yamlData = yaml.load(fileContents);
+        
+        // 3. Extract state code and validate structure
+        const stateEntries = Object.entries(yamlData);
+        if (stateEntries.length !== 1) {
+            throw new Error('YAML must contain exactly one state definition');
+        }
+
+        const [stateCode, stateData] = stateEntries[0];
+        if (!stateData.brackets || !stateData.brackets.single || !stateData.brackets.married) {
+            throw new Error('Invalid YAML structure - missing brackets data');
+        }
+
+        // 4. Convert YAML to schema format
+        const taxData = {
+            stateCode: stateCode.toUpperCase(),
+            brackets: {
+                single: convertBrackets(stateData.brackets.single),
+                married: convertBrackets(stateData.brackets.married)
+            }
+        };
+
+        // 5. Validate against schema
+        const taxDoc = new UserStateTax(taxData);
+        await taxDoc.validate(); // Triggers Mongoose validation
+
+        // 6. Check for existing state tax
+        const existingTax = await UserStateTax.findOne({ stateCode: taxData.stateCode });
+        if (existingTax) {
+            await UserStateTax.findByIdAndUpdate(existingTax._id, taxData);
+        } else {
+            await taxDoc.save();
+        }
+
+        // 7. Update user's tax references
+        const updatedUser = await User.findByIdAndUpdate(
+            req.body.userId,
+            { $addToSet: { stateTaxes: existingTax ? existingTax._id : taxDoc._id } },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            throw new Error('User not found');
+        }
+
+        // 8. Cleanup
+        fs.unlinkSync(filePath);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Tax data processed successfully',
+            stateCode: taxData.stateCode,
+            action: existingTax ? 'updated' : 'created'
+        });
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        if (filePath && fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        return res.status(500).json({
+            success: false,
+            message: 'Error processing tax data',
+            error: error.message
+        });
     }
-
-    //const fileExt = path.extname(req.file.originalname).toLowerCase();
-
-    res.status(200).send('File uploaded successfully.');
 });
+
+// Convert YAML brackets to schema format
+function convertBrackets(yamlBrackets) {
+    return yamlBrackets.map(bracket => ({
+        rate: Number(bracket.rate),
+        min: Number(bracket.min),
+        max: bracket.max === null ? null : Number(bracket.max)
+    }));
+}
+
 
 //graphs 
 //we plan to make the graph data as this follwing format from the actual simulation

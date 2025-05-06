@@ -37,9 +37,10 @@ const { performWithdrawal } = require('./Utils/WithdrawalUtils'); // Import with
  * @param {Array} maritalStatusArray - Yearly marital status ('single' or 'married')
  * @param {Number} currentYearIndex - The index (0 to numYears-1) of the year being simulated
  * @param {Object} previousYearState - State object from the previous year's simulation
+ * @param {Function} [prng=Math.random] - Optional seeded random number generator.
  * @returns {Object} - Final state for the current year
  */
-function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, inflationArray, maritalStatusArray, currentYearIndex, previousYearState = null) {
+function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, inflationArray, maritalStatusArray, currentYearIndex, previousYearState = null, prng = Math.random) {
   
   const currentYearEventsLog = []; // <-- Initialize log array for this year
 
@@ -204,7 +205,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           eventsActiveThisYear,
           maritalStatusThisYear,
           currentInflationFactor,
-          previousYearState?.nonDiscExpenseEventStates
+          previousYearState?.nonDiscExpenseEventStates,
+          prng
       );
       nonDiscExpenseDetails = expenseResult.nonDiscExpenseDetails;
       yearState.nonDiscExpenseEventStates = expenseResult.expenseEventStates;
@@ -246,7 +248,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           previousYearState?.incomeEventStates, // Pass the income states from the *previous* year
           initialCashForYear,       // Pass cash *before* income processing
           currentYearEventsLog,      // Pass the log array for event logging
-          currentYear               // Pass the current year for logging
+          currentYear,              // Pass the current year for logging
+          prng                      // Pass prng
       );
 
       // Update yearState with the results from runIncomeEvents
@@ -285,7 +288,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           userAge, 
           yearState, 
           previousYearState,
-          currentYearEventsLog // Pass the log array for event logging
+          currentYearEventsLog, // Pass the log array for event logging
+          prng                      // Pass prng
       );
       
       // Update the main yearState object
@@ -307,7 +311,7 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
   // console.log(`--- Year ${currentYear} (Idx ${currentYearIndex}): Processing Investment Returns ---`);
   try {
       // Expect the function to return the updated state and a breakdown of investment income
-      const investmentResult = processInvestmentReturns(null, yearState);
+      const investmentResult = processInvestmentReturns(prng, yearState);
       
       // Update the main yearState object
       yearState = investmentResult.updatedYearState;
@@ -349,7 +353,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
               rothOptimizerEnable,
               rothOptimizerStartYear,
               rothOptimizerEndYear,
-              currentYearEventsLog // Pass the log array for event logging
+              currentYearEventsLog, // Pass the log array for event logging
+              prng                      // Pass prng
           );
           
           // Update year state with conversion results
@@ -386,7 +391,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           totalPaymentNeededForStep6,
           yearState,
           expenseWithdrawalStrategies, 
-          userAge
+          userAge,
+          prng
       );
       yearState.curYearTaxes = previousYearTaxes; // Still store total tax paid
       // Log Tax Payment
@@ -425,7 +431,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
           maritalStatusThisYear,
           currentInflationFactor,
           yearState, // Pass current state 
-          previousYearState?.discExpenseEventStates 
+          previousYearState?.discExpenseEventStates,
+          prng
       );
       yearState = discResult.updatedYearState; // Get mutated state back
       // Add the details of *actually paid* discretionary expenses to the breakdown
@@ -457,7 +464,8 @@ function simulateYear(modelData, investArray, eventsByYear, rebalanceArray, infl
         currentInvestStrategyInfo, 
         yearState, 
         currentInflationFactor,
-        modelData // Pass full modelData to access initial investment definitions
+        modelData, // Pass full modelData to access initial investment definitions
+        prng
     );
   } catch (error) {
       console.error(`Year ${currentYear}: Error processing invest events:`, error);

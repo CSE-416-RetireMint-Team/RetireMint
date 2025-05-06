@@ -136,5 +136,43 @@ router.get('/googleId/email/:googleId', async (req, res) => {
   }
 });
 
+// Get user's state taxes (most optimized version)
+router.get('/:userId/stateTaxes', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Find user with just the stateTaxes field
+    const user = await User.findById(userId)
+      .select('stateTaxes');
+    
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+
+    // If empty array, return it immediately (no population needed)
+    if (user.stateTaxes.length === 0) {
+      return res.status(200).json(user.stateTaxes); // returns []
+    }
+
+    // Only populate if we have tax references
+    const populatedUser = await User.findById(userId)
+      .populate('stateTaxes')
+      .select('stateTaxes');
+    
+    res.status(200).json(populatedUser.stateTaxes);
+    
+  } catch (error) {
+    console.error('Error fetching user state taxes:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch state taxes',
+      details: error.message
+    });
+  }
+});
+
 
 module.exports = router;

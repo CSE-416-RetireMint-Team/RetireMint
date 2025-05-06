@@ -20,9 +20,10 @@ const { sampleNormal, sampleUniform, calculateCurrentBaseAmount } = require('../
  * @param {number} initialCash - Cash balance at the start of the year before income.
  * @param {Array} currentYearEventsLog - Array to push log entries into.
  * @param {number} currentYear - The current simulation year.
+ * @param {Function} [prng=Math.random] - Optional seeded random number generator.
  * @returns {Object} - { cash: updatedCash, curYearIncome: totalTaxableIncome, curYearSS: totalSSIncome, incomeEventStates: stateForNextYear, incomeBreakdown: breakdownOfIncome }
  */
-function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear, currentInflationFactor, previousIncomeEventStates = {}, initialCash = 0, currentYearEventsLog = [], currentYear) {
+function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear, currentInflationFactor, previousIncomeEventStates = {}, initialCash = 0, currentYearEventsLog = [], currentYear, prng = Math.random) {
 
     let currentCash = initialCash;
     let curYearIncome = 0;
@@ -47,7 +48,7 @@ function runIncomeEvents(modelData, eventsActiveThisYear, maritalStatusThisYear,
         const previousState = previousIncomeEventStates[eventName] || null;
         const previousBaseAmount = previousState ? previousState.baseAmount : incomeDetails.initialAmount;
 
-        const currentBaseAmount = calculateCurrentBaseAmount(incomeDetails.expectedAnnualChange, previousBaseAmount);
+        const currentBaseAmount = calculateCurrentBaseAmount(incomeDetails.expectedAnnualChange, previousBaseAmount, prng);
 
         let inflatedCurrentAmount;
         if (incomeDetails.inflationAdjustment) {

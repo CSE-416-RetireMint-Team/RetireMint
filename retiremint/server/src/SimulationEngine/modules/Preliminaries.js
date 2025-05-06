@@ -18,19 +18,28 @@ function parseCurrencyString(currencyStr) {
  * @param {number} currentYear - The simulation year.
  * @param {number} currentYearIndex - The 0-based index of the simulation year.
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year.
- * @param {string} userState - The user's state code (e.g., 'NY').
+ * @param {Object} modelData - The full model data.
  * @returns {Object} - Contains adjustedStandardDeduction, adjustedIncomeTaxBrackets, 
  *                     adjustedStateTaxBrackets, adjustedCapitalGainsBrackets.
  */
-function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, currentYearIndex, currentInflationFactor, userState) {
+function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, currentYearIndex, currentInflationFactor, modelData) {
     
+    // --- Get Scenario Data --- 
+    const scenario = modelData.scenario; // Get scenario from modelData
+    if (!scenario) {
+        console.error("Preliminaries Error: modelData does not contain scenario.");
+        // Return default/empty values to prevent crashes downstream
+        return { adjustedStandardDeduction: 0, adjustedIncomeTaxBrackets: [], adjustedStateTaxBrackets: [], adjustedCapitalGainsBrackets: [] };
+    }
+    const userState = scenario.stateOfResidence; // Get state from scenario
+
     // --- Find Applicable Raw Tax Data (Ignoring Year, based on Status) ---
     let currentIncomeTaxBracketsRaw = null;
     let currentStandardDeductionRaw = 0;
     let currentCapitalGainsBracketsRaw = null;
-    let userStateTaxDataRaw = null;
+    let userStateTaxDataRaw = null; // Initialize to null
 
-    // Income Tax Brackets
+    // Income Tax Brackets (from taxData)
     if (taxData.incomeTax && taxData.incomeTax.length > 0) {
         const matchingBracketData = taxData.incomeTax.find(data => data.filingStatus === maritalStatusThisYear);
         if (matchingBracketData) {
@@ -42,7 +51,7 @@ function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, c
         console.error(`Preliminaries Error: taxData.incomeTax is missing or empty.`);
     }
 
-    // Standard Deduction
+    // Standard Deduction (from taxData)
     if (taxData.standardDeduction && taxData.standardDeduction.length > 0) {
         const matchingDeductionData = taxData.standardDeduction.find(data => data.filingStatus === maritalStatusThisYear);
         if (matchingDeductionData) {
@@ -54,7 +63,7 @@ function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, c
         console.error(`Preliminaries Error: taxData.standardDeduction is missing or empty.`);
     }
 
-    // Capital Gains Tax Brackets
+    // Capital Gains Tax Brackets (from taxData)
     if (taxData.capitalGains && taxData.capitalGains.length > 0) {
         const matchingCapGainsData = taxData.capitalGains.find(data => data.filingStatus === maritalStatusThisYear);
         if (matchingCapGainsData && matchingCapGainsData.longTermCapitalGains) {
@@ -66,16 +75,29 @@ function calculateAdjustedTaxData(taxData, maritalStatusThisYear, currentYear, c
         console.error(`Preliminaries Error: taxData.capitalGains is missing or empty.`);
     }
 
-    // State Tax Data
+    // --- State Tax Data --- 
+    // Priority 1: Look in the general taxData provided (likely from DB)
     if (taxData.stateTaxes && taxData.stateTaxes.length > 0) {
         userStateTaxDataRaw = taxData.stateTaxes.find(state => state.stateCode === userState);
-        if (!userStateTaxDataRaw) {
-             //
-             // 
-             // console.warn(`Preliminaries Warn: State tax data not found for stateCode '${userState}'. State taxes will not be calculated.`);
+    }
+
+    // Priority 2: If not found in general taxData, check the specific scenario's populated stateTaxes field
+    if (!userStateTaxDataRaw && scenario.stateTaxes) { 
+        // Check if the populated data actually matches the scenario's state of residence
+        if (scenario.stateTaxes.stateCode === userState) {
+             userStateTaxDataRaw = scenario.stateTaxes;
+             // console.log(`Preliminaries Info: Using scenario-specific populated state tax data for state: ${userState}`);
+        } else {
+             console.warn(`Preliminaries Warn: Scenario has populated stateTaxes, but its stateCode (${scenario.stateTaxes.stateCode}) mismatches stateOfResidence (${userState}). State taxes not calculated.`);
+             // Ensure it remains null if there's a mismatch
+             userStateTaxDataRaw = null; 
         }
-    } else {
-        console.error(`Preliminaries Error: taxData.stateTaxes is missing or empty.`);
+    }
+    
+    // If still not found after checking both sources
+    if (!userStateTaxDataRaw) {
+         // console.warn(`Preliminaries Warn: State tax data not found for stateCode '${userState}' in either general taxData or scenario-specific data. State taxes will not be calculated.`);
+         // userStateTaxDataRaw remains null, handled by downstream checks
     }
 
     // --- Adjust Tax Thresholds for Inflation --- 
