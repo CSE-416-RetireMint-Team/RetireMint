@@ -139,7 +139,7 @@ router.get('/reports/:userId', async (req, res) => {
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
   try {
-    const { scenarioId, numSimulations, userId, reportName} = req.body;
+    const { scenarioId, numSimulations, userId, reportName } = req.body;
     
     // --- Fetch User Data --- 
     let user = null;
@@ -335,7 +335,7 @@ router.post('/run', async (req, res) => {
     }
     
     fs.writeFileSync(logFile, logContent);
-    
+
     // Save the report to the database
     console.log(`Creating and saving report for scenario: ${scenario.name}`);
     
@@ -437,7 +437,8 @@ router.post('/run', async (req, res) => {
             }))
           : [], // Default to empty array if undefined or not an array
         createdAt: report.createdAt
-      }
+      },
+      results: result.aggregatedResults
     });
   } catch (error) {
     console.error('Error running simulation:', error);
@@ -486,7 +487,6 @@ router.get('/sharedscenarios/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
     const scenarios = await Scenario.find({ 'sharedUsers.userId' : userId}).sort({ createdAt: -1 });
-    console.log("Found scenarios shared with this user: ", scenarios);
     res.json(scenarios);
   } catch (error) {
     console.error('Error fetching scenarios:', error);

@@ -236,8 +236,6 @@ app.post('/scenario', async (req, res) => {
         spendingStrategy // Add spendingStrategy
     } = req.body; // extracting data from frontend
 
-    console.log('Scenario received!');
-  
     // open existing scenario if an edit is being attempted
     let existingScenario;
     if (scenarioId !== 'new') {
@@ -971,6 +969,29 @@ app.post('/simulation/scenario/events', async (req, res) => {
     }
 }) 
 
+// Returns the Simulation Settings for a given scenarioId
+app.post('/simulation/scenario/settings', async (req, res) => {
+    try {
+        const scenarioId = req.body.scenarioId;
+        const scenario = await Scenario.findById(scenarioId);
+        const settingsId = scenario.simulationSettings;
+        const settings = await SimulationSettings.findById(settingsId);
+
+        res.json({
+            success: true,
+            message: 'Simulation Setting object successfully found',
+            settings: settings
+        });
+    } catch (error) {
+        console.error('Error finding simulation settings:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to find simulation settings',
+            details: error.message
+        });
+    }
+})
+
 app.post('/simulation/scenario/lifeexpectancy', async (req, res) => {
     try {
         const scenarioId = req.body.scenarioId;
@@ -1002,7 +1023,7 @@ app.post('/scenario/shareToUser', async (req, res) => {
         console.log(`Received shareToUser input: ${scenarioId}, ${userId}, ${email}, ${permissions}.`);
 
         const scenario = await Scenario.findById(scenarioId);
-        console.log(`Found Scenario: ${scenario}`);
+        console.log(`Found Scenario: ${scenarioId}`);
 
         // Check if the user is already added to the Scenario.        
         const index = scenario.sharedUsers.findIndex((user) => user.email === email);
@@ -1080,7 +1101,7 @@ app.post('/scenario/removeSharedUser', async (req, res) => {
             scenario.sharedUsers.splice(index, 1); // Remove Shared User
         }
         else {
-            console.log(`Removed User!!! ${email}`);
+            console.log(`Removed User: ${email}`);
         }
         scenario.save();
         console.log(`Successfully removed Shared User from Scenario: ${scenario.sharedUsers}`);
@@ -1132,6 +1153,104 @@ app.post('/report/removeSharedUser', async (req, res) => {
         });
     }
 });
+
+// Create a temporary Scenario that is to be editted for 1D exploration.
+app.post('/simulation/explore-scenario/create', async (req, res) => {
+    try {
+        const originalScenarioId = req.body.scenarioId;
+        const scenarioParameter = req.body.scenarioParameter;
+        const scenarioParameter2 = req.body.scenarioParameter2;
+        const parameterId = req.body.parameterId;
+        const parameterId2 = req.body.parameterId2;
+        const changedValue = req.body.changedValue;
+        const changedValue2 = req.body.changedValue2;
+
+
+        const scenario = await Scenario.findById(originalScenarioId);
+        scenario._id = new mongoose.Types.ObjectId();
+
+        if (scenarioParameter === 'event-start-year') {
+            console.log("Editting Start Year:");
+            const parameterEvent = await Event.findById(parameterId);
+            const startYear = await new StartYear({method: 'fixedValue', fixedValue: changedValue}).save();
+            parameterEvent._id = new mongoose.Types.ObjectId();
+            parameterEvent.startYear = startYear;
+            parameterEvent.isNew = true;
+            parameterEvent.save();
+            // Replace original event in events list with new event with adjusted Start Year.
+            scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+            scenario.name = (scenario.name + " - StartYear=" +  changedValue);
+
+        }
+        else if (scenarioParameter === 'event-duration') {
+            console.log("Editting Duration:");
+            const parameterEvent = await Event.findById(parameterId2);
+            const duration = await new Duration({method: 'fixedValue', fixedValue: changedValue}).save();
+            parameterEvent._id = new mongoose.Types.ObjectId();
+            parameterEvent.duration = duration;
+            parameterEvent.isNew = true;
+            parameterEvent.save();
+            // Replace original event in events list with new event with adjusted Duration.
+            scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+            scenario.name = (scenario.name + " - Duration=" +  changedValue);
+        }
+
+        /* Check for Second Parameter  */
+        if (scenarioParameter2 !== null) {
+            if (scenarioParameter2 === 'event-start-year') {
+                console.log("Editting Start Year:");
+                const parameterEvent = await Event.findById(parameterId2);
+                const startYear = await new StartYear({method: 'fixedValue', fixedValue: changedValue2}).save();
+                parameterEvent._id = new mongoose.Types.ObjectId();
+                parameterEvent.startYear = startYear;
+                parameterEvent.isNew = true;
+                parameterEvent.save();
+                // Replace original event in events list with new event with adjusted Start Year.
+                scenario.events[scenario.events.indexOf(parameterId2)] = parameterEvent._id;
+                scenario.name = (scenario.name + " - StartYear=" +  changedValue);
+            }
+        }
+        scenario.isNew = true;
+        scenario.save();
+        res.json({
+            success: true,
+            scenarioId: scenario._id,
+            message: `Sucessfully created duplicated scenario ${originalScenarioId} as ${scenario._id}.`,
+       });
+    }
+    catch (error) {
+        console.error('Error duplicating and editing existing Scenario: ', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to duplicate and edit Scenario.',
+            details: error.message
+        });
+    }
+})
+
+// Delete a temporary Scenario that was editted for 1D exploration any other duplicated/edited documents.
+app.delete('/simulation/explore-scenario/remove', async (req, res) => {
+    try {
+        const temporaryScenarioId = req.body.scenarioId;
+        const scenarioParameter = req.body.scenarioParameter;
+        if (scenarioParameter === 'event-start-year') {
+            const parameterEvent = await Event.findById(parameterId);
+            await StartYear.findByIdAndDelete(parameterEvent.startYear);
+            await Event.findByIdAndDelete(parameterEvent._id);
+        }
+        Scenario.findByIdAndDelete(temporaryScenarioId);
+        // TODO: Get back to this and check scenario parameter to remove any new nested documents potentially created by some of the modes.
+
+        res.json({
+            success: true,
+            message: `Sucessfully removed duplicated scenario ${temporaryScenarioId}.`,
+       })
+    }
+    catch (error) {
+        console.error('Error deleting temporary scenario:' , error);
+        res.status(500).json({ error: 'Error deleting temporary scenario.' });
+    }
+})
 
 // Function to seed default tax data if none exists
 async function seedDefaultTaxData() {
