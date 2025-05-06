@@ -10,10 +10,10 @@
  */
 
 const { simulateYear } = require('./SimulationEngine/SimulateYear'); // Import the external function
-const { sampleNormal, sampleUniform } = require('./SimulationEngine/Utils/CalculationUtils'); // Import sampling utilities
+const { sampleNormal, sampleUniform, calculateCurrentBaseAmount, mulberry32 } = require('./SimulationEngine/Utils/CalculationUtils'); // Import sampling utilities and mulberry32
 
 // --- Event Timing Calculation Helper ---
-function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsCache, processing = new Set()) {
+function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsCache, prng, processing = new Set()) {
     //console.log(`[Timing Calc] Enter: Calculating timing for "${eventName}"...`); // LOG: Function entry
 
     if (eventTimingsCache.has(eventName)) {
@@ -56,7 +56,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                 if (event.startYear.normalValue) {
                     const mean = event.startYear.normalValue.mean ?? currentYear + 1;
                     const sd = event.startYear.normalValue.sd ?? 1;
-                    startYear = Math.max(currentYear, Math.round(sampleNormal(mean, sd)));
+                    startYear = Math.max(currentYear, Math.round(sampleNormal(mean, sd, prng)));
                 } else {
                      //console.warn(`[Timing Calc] Warn: Method is normalValue but normalValue details are missing for "${eventName}". Using default.`);
                 }
@@ -65,7 +65,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                  if (event.startYear.uniformValue) {
                     const min = event.startYear.uniformValue.lowerBound ?? currentYear + 1;
                     const max = event.startYear.uniformValue.upperBound ?? currentYear + 5;
-                    startYear = Math.max(currentYear, Math.round(sampleUniform(min, max)));
+                    startYear = Math.max(currentYear, Math.round(sampleUniform(min, max, prng)));
                  } else {
                      //console.warn(`[Timing Calc] Warn: Method is uniformValue but uniformValue details are missing for "${eventName}". Using default.`);
                  }
@@ -75,7 +75,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                 if (refEventNameSame) {
                     try {
                         //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on SAME YEAR as "${refEventNameSame}". Making recursive call...`); // LOG: Before recursive call (same year)
-                        const refTiming = getOrCalculateEventTiming(refEventNameSame, events, currentYear, eventTimingsCache, processing);
+                        const refTiming = getOrCalculateEventTiming(refEventNameSame, events, currentYear, eventTimingsCache, prng, processing);
                         //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameSame}":`, refTiming); // LOG: After recursive call (same year)
                 startYear = refTiming.startYear;
             } catch (error) {
@@ -92,7 +92,7 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
                  if (refEventNameAfter) {
                     try {
                         //console.log(`[Timing Calc] Dependency: "${eventName}" start depends on YEAR AFTER end of "${refEventNameAfter}". Making recursive call...`); // LOG: Before recursive call (year after)
-                        const refTiming = getOrCalculateEventTiming(refEventNameAfter, events, currentYear, eventTimingsCache, processing);
+                        const refTiming = getOrCalculateEventTiming(refEventNameAfter, events, currentYear, eventTimingsCache, prng, processing);
                         //console.log(`[Timing Calc] Dependency Result: Received timing for "${refEventNameAfter}":`, refTiming); // LOG: After recursive call (year after)
                 startYear = refTiming.startYear + refTiming.duration;
             } catch (error) {
@@ -123,11 +123,11 @@ function getOrCalculateEventTiming(eventName, events, currentYear, eventTimingsC
         } else if (event.duration.normalValue) {
             const mean = event.duration.normalValue.mean ?? 1;
             const sd = event.duration.normalValue.sd ?? 0.5;
-            duration = Math.max(1, Math.round(sampleNormal(mean, sd)));
+            duration = Math.max(1, Math.round(sampleNormal(mean, sd, prng)));
         } else if (event.duration.uniformValue) {
             const min = event.duration.uniformValue.lowerBound ?? 1;
             const max = event.duration.uniformValue.upperBound ?? 5;
-            duration = Math.max(1, Math.round(sampleUniform(min, max)));
+            duration = Math.max(1, Math.round(sampleUniform(min, max, prng)));
         } else {
              //console.warn(`[Timing Calc] Warn: Unknown duration method "${method}" or missing details for "${eventName}". Using default.`);
         }
@@ -156,6 +156,7 @@ function runOneSimulation(modelData, simulationIndex) {
     let initialMaritalStatus = 'single';
     let userTargetAge = 0; 
     let spouseTargetAge = Infinity; // Default to infinite if single or missing data
+    let seededRNG = null; // Initialize seeded RNG to null
 
     let previousYearState = null; 
     const financialEventsLog = []; // <-- Initialize aggregated log array
@@ -168,6 +169,16 @@ function runOneSimulation(modelData, simulationIndex) {
         if (!scenario.simulationSettings || !scenario.simulationSettings.inflationAssumption) {
             throw new Error("inflationAssumption missing");
         }
+
+        // --- Create Seeded RNG if seed exists --- 
+        if (scenario.seed !== undefined && scenario.seed !== null && Number.isInteger(scenario.seed)) {
+            console.log(`---> [Sim #${simulationIndex + 1}] Using provided seed: ${scenario.seed}`);
+            seededRNG = mulberry32(scenario.seed); // Create the RNG function
+        } else {
+            // console.log(`---> [Sim #${simulationIndex + 1}] No seed provided, using Math.random.`);
+            seededRNG = Math.random; // Default to Math.random if no valid seed
+        }
+        const prng = seededRNG; // Use a shorter name for passing down
 
         // Log if Roth Optimizer is disabled - MOVED TO HERE
         if (!scenario.simulationSettings.rothOptimizerEnable) {
@@ -188,7 +199,7 @@ function runOneSimulation(modelData, simulationIndex) {
             const mean = scenario.lifeExpectancy.normalDistribution?.mean;
             const stdDev = scenario.lifeExpectancy.normalDistribution?.standardDeviation;
             if (mean != null && stdDev != null) {
-                userTargetAge = Math.round(sampleNormal(mean, stdDev));
+                userTargetAge = Math.round(sampleNormal(mean, stdDev, prng));
             } else {
                 console.warn(`Sim ${simulationIndex+1}: Missing mean/stdDev for user LE, using default age.`);
                 userTargetAge = currentUserAge + 30; // Fallback
@@ -208,7 +219,7 @@ function runOneSimulation(modelData, simulationIndex) {
                  const mean = scenario.spouseLifeExpectancy.normalDistribution?.mean;
                  const stdDev = scenario.spouseLifeExpectancy.normalDistribution?.standardDeviation;
                  if (mean != null && stdDev != null) {
-                    spouseTargetAge = Math.round(sampleNormal(mean, stdDev));
+                    spouseTargetAge = Math.round(sampleNormal(mean, stdDev, prng));
                     //console.log(`Simulation ${simulationIndex+1}: Spouse sampled target age: ${spouseTargetAge}`);
                  } else {
                     console.warn(`Sim ${simulationIndex+1}: Missing mean/stdDev for spouse LE, using default age.`);
@@ -273,13 +284,13 @@ function runOneSimulation(modelData, simulationIndex) {
                     const mean = (inflationSettings.normalPercentage?.mean ?? 4) / 100;
                     const sd = (inflationSettings.normalPercentage?.sd ?? 3) / 100;
                  if (sd < 0) throw new Error("Standard deviation for normal inflation cannot be negative.");
-                    sampledRate = sampleNormal(mean, sd);
+                    sampledRate = sampleNormal(mean, sd, prng);
                 break;
             case 'uniformPercentage':
                     const lower = (inflationSettings.uniformPercentage?.lowerBound ?? 1) / 100;
                     const upper = (inflationSettings.uniformPercentage?.upperBound ?? 5) / 100;
                 if (lower > upper) throw new Error("Lower bound for uniform inflation cannot exceed upper bound.");
-                    sampledRate = sampleUniform(lower, upper);
+                    sampledRate = sampleUniform(lower, upper, prng);
                 break;
             default:
                     if (i === 0) { // Log warning only once per simulation
@@ -315,7 +326,7 @@ function runOneSimulation(modelData, simulationIndex) {
     try {
         // Process each event to determine when it occurs using the helper function
         events.forEach(event => {
-            const timing = getOrCalculateEventTiming(event.name, events, currentYear, eventTimingsCache);
+            const timing = getOrCalculateEventTiming(event.name, events, currentYear, eventTimingsCache, prng);
             
             // --- DEBUG: Log calculated timing for each event ---
             //console.log(`Sim ${simulationIndex + 1} - Event: "${event.name}", Calculated Start: ${timing.startYear}, Calculated Duration: ${timing.duration}`);
@@ -680,9 +691,8 @@ function runOneSimulation(modelData, simulationIndex) {
                 inflationArray,     // Pass the pre-calculated array
                 maritalStatusArray, // Pass the pre-calculated array
                 i,                  // Pass the current year index
-                previousYearState   // Pass the state from the previous year
-                // Note: We don't pass the result arrays themselves to simulateYear,
-                // as it calculates the state *for* the current year.
+                previousYearState,  // Pass the state from the previous year
+                prng                // <-- Pass the prng function
             );
             
             // Store results needed for the final output/analysis
