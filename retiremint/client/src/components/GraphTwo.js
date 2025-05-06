@@ -12,7 +12,6 @@ import {
   Tooltip,
 } from 'chart.js';
 
-// Register Chart.js components
 ChartJS.register(
   LineController,
   LineElement,
