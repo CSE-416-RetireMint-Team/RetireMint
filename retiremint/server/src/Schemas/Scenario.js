@@ -104,8 +104,12 @@ const ScenarioSchema = new Schema({
   report: { 
     type: Schema.Types.ObjectId, 
     ref: 'Report'
-  } 
-
+  },
+  seed: {
+    type: Number,
+    required: false,
+    default: null // Default to null if not provided
+  }
   
 });
 

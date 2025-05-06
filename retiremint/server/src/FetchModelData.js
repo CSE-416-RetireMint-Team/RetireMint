@@ -52,6 +52,7 @@ async function fetchAndLogModelData(scenarioId) {
     const scenario = await Scenario.findById(scenarioId)
       .populate('lifeExpectancy') 
       .populate('spouseLifeExpectancy')
+      .populate('stateTaxes')
       .populate({
         path: 'simulationSettings',
         populate: {
