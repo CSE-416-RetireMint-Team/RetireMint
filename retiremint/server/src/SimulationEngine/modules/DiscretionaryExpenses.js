@@ -28,7 +28,8 @@ const { calculateCurrentBaseAmount, sampleNormal, sampleUniform } = require('../
  * @param {string} maritalStatusThisYear - 'single' or 'married'.
  * @param {number} currentInflationFactor - The cumulative inflation factor for the year.
  * @param {Object} yearState - The current year's state object (will be modified).
- * @param {Object} previousEventStates - State of discretionary expense events from the previous year.
+ * @param {Object} previousExpenseStates - State of discretionary expense events from the previous year.
+ * @param {Function} [prng=Math.random] - Optional seeded random number generator.
  * @returns {Object} - { updatedYearState: Object, paidDiscExpenses: Object, expenseEventStates: Object }
  */
 function processDiscretionaryExpenses(
@@ -41,7 +42,8 @@ function processDiscretionaryExpenses(
     maritalStatusThisYear,
     currentInflationFactor,
     yearState,
-    previousEventStates = {}
+    previousExpenseStates = {},
+    prng = Math.random
 ) {
     const scenario = modelData.scenario;
     const paidDiscExpenses = {}; // Track expenses actually paid
@@ -68,30 +70,27 @@ function processDiscretionaryExpenses(
         const event = allEvents.find(e => e.name === eventName);
         if (event && event.type === 'expense' && event.expense?.isDiscretionary) {
             const expenseDetails = event.expense;
-            const previousState = previousEventStates[eventName] || null;
-            // Use a consistent property name like 'baseAmount' or 'currentAmount'
-            // Let's assume 'baseAmount' was intended for the UNINFLATED base carried forward
-            const previousBaseAmount = previousState ? previousState.baseAmount : expenseDetails.initialAmount; 
+            const previousState = previousExpenseStates[eventName] || null;
+            const previousBaseAmount = previousState ? previousState.baseAmount : expenseDetails.initialAmount;
             
-            // Calculate the uninflated base amount for the current year using the imported function
-            // ** This section needs the calculateCurrentBaseAmount function again **
-            // ** We need to either re-import it OR copy the logic here if it's simple enough **
-            // Let's copy the logic for now to avoid potential circular dependencies
-            // Re-importing it now that it's in Utils
-            let currentBaseAmount = calculateCurrentBaseAmount(expenseDetails.expectedAnnualChange, previousBaseAmount);
+            // Calculate the current year's uninflated base amount using the utility
+            const currentBaseAmount = calculateCurrentBaseAmount(expenseDetails.expectedAnnualChange, previousBaseAmount, prng); // Pass prng
+            
+            let inflatedCurrentAmount = 0;
 
             // Inflate if necessary
-            let potentialAmountThisYear = currentBaseAmount;
             if (expenseDetails.inflationAdjustment) {
-                potentialAmountThisYear *= currentInflationFactor;
+                inflatedCurrentAmount = currentBaseAmount * currentInflationFactor;
+            } else {
+                inflatedCurrentAmount = currentBaseAmount;
             }
             
             // Adjust for marital status if applicable
             if (maritalStatusThisYear === 'married' && expenseDetails.marriedPercentage != null) {
-                 potentialAmountThisYear *= (expenseDetails.marriedPercentage / 100);
+                 inflatedCurrentAmount *= (expenseDetails.marriedPercentage / 100);
             } // If single, use 100%
             
-            potentialSpendingMap.set(eventName, potentialAmountThisYear); // Store the calculated potential amount
+            potentialSpendingMap.set(eventName, inflatedCurrentAmount); // Store the calculated potential amount
             
             // Update state for next year (store uninflated base)
             if (!updatedDiscExpenseEventStates[eventName]) {

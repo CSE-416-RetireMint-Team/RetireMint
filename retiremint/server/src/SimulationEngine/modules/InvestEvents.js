@@ -66,7 +66,7 @@ function processInvestEvents(currentYearEventsLog, currentInvestStrategyInfo, ye
             totalAllocated += purchaseAmount; // Track allocation
         }
     };
-    
+
     // Calculate renormalization factor excluding pre-tax
     let renormalizeFactor = 1.0;
     if (strategy.taxStatusAllocation) {

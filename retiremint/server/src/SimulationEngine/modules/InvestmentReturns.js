@@ -114,12 +114,13 @@ function updateInvestmentValue(investment/*, yearState*/) {
 
 /**
  * Process all investments to update values and track income
+ * @param {Function} [prng=Math.random] - Optional seeded random number generator.
  * @param {Object} investmentStrategy - Optional investment strategy object (currently unused in this specific module).
  * @param {Object} yearState - The current state of the simulation year (will be modified).
  * @returns {Object} - Object containing the updated year state and a breakdown of investment income.
  *                     { updatedYearState: Object, investmentIncomeBreakdown: Object }
  */
-function processInvestmentReturns(investmentStrategy, yearState) {
+function processInvestmentReturns(prng = Math.random, investmentStrategy, yearState) {
     
     let totalTaxableIncomeFromInvestments = 0;
     let totalNonTaxableIncomeFromInvestments = 0; // E.g., tax-exempt interest
@@ -155,9 +156,9 @@ function processInvestmentReturns(investmentStrategy, yearState) {
                     const sdReturn = returnConfig.normalPercentage?.sd ?? 0;
                     if (sdReturn < 0) {
                          console.warn(`Year ${yearState.year}: Negative SD for return on ${investment.name}. Using 0.`);
-                         expectedReturnRate = sampleNormal(meanReturn / 100, 0);
+                         expectedReturnRate = sampleNormal(meanReturn / 100, 0, prng);
                     } else {
-                        expectedReturnRate = sampleNormal(meanReturn / 100, sdReturn / 100);
+                        expectedReturnRate = sampleNormal(meanReturn / 100, sdReturn / 100, prng);
                     }
                     break;
                 case 'uniformPercentage':
@@ -167,7 +168,7 @@ function processInvestmentReturns(investmentStrategy, yearState) {
                         console.warn(`Year ${yearState.year}: Lower bound > upper bound for return on ${investment.name}. Using lower bound.`);
                          expectedReturnRate = lowerReturn / 100;
                     } else {
-                        expectedReturnRate = sampleUniform(lowerReturn / 100, upperReturn / 100);
+                        expectedReturnRate = sampleUniform(lowerReturn / 100, upperReturn / 100, prng);
                     }
                     break;
                 default:
@@ -199,9 +200,9 @@ function processInvestmentReturns(investmentStrategy, yearState) {
                     const sdIncome = incomeConfig.normalPercentage?.sd ?? 0;
                     if (sdIncome < 0) {
                          console.warn(`Year ${yearState.year}: Negative SD for income on ${investment.name}. Using 0.`);
-                         expectedIncomeRate = sampleNormal(meanIncome / 100, 0);
+                         expectedIncomeRate = sampleNormal(meanIncome / 100, 0, prng);
                     } else {
-                         expectedIncomeRate = sampleNormal(meanIncome / 100, sdIncome / 100);
+                         expectedIncomeRate = sampleNormal(meanIncome / 100, sdIncome / 100, prng);
                     }
                     break;
                 case 'uniformPercentage':
@@ -211,7 +212,7 @@ function processInvestmentReturns(investmentStrategy, yearState) {
                          console.warn(`Year ${yearState.year}: Lower bound > upper bound for income on ${investment.name}. Using lower bound.`);
                          expectedIncomeRate = lowerIncome / 100;
                      } else {
-                         expectedIncomeRate = sampleUniform(lowerIncome / 100, upperIncome / 100);
+                         expectedIncomeRate = sampleUniform(lowerIncome / 100, upperIncome / 100, prng);
                      }
                     break;
                 default:
