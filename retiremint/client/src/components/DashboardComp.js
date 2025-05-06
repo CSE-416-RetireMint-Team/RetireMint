@@ -26,8 +26,7 @@ function Dashboard() {
     const [shareError, setShareError] = useState(null);
     const [showImportOptions, setShowImportOptions] = useState(false);
     const [openMenuId, setOpenMenuId] = useState(null);
-
-
+    const [shareReport, setShareReport] = useState(null);
 
     const navigate = useNavigate();
 
@@ -126,8 +125,8 @@ function Dashboard() {
             try {
                 await axios.delete(`http://localhost:8000/simulation/report/${reportId}`);
                 setReports(reports.filter(report => report._id !== reportId));
-            } catch (err) {
-                console.error('Error deleting report:', err);
+            } catch (error) {
+                console.error('Error deleting report:', error);
                 setError('Failed to delete the report. Please try again later.');
             }
         }
@@ -140,8 +139,8 @@ function Dashboard() {
                 await axios.delete(`http://localhost:8000/simulation/scenario/${scenarioId}`);
                 setScenarios(scenarios.filter(scenario => scenario._id !== scenarioId));
                 console.log("Successfully deleted scenario ", scenarioId);
-            } catch (err) {
-                console.error('Error deleting scenario:', err);
+            } catch (error) {
+                console.error('Error deleting scenario:', error);
                 setError('Failed to delete the scenario. Please try again later.');
             }
         }
@@ -155,7 +154,7 @@ function Dashboard() {
             setShowShareMenu(true);
         }
         catch (error) { 
-            console.error('Error opening share menu:', err);
+            console.error('Error opening share menu:', error);
             setError('Failed to open the share menu. Please try again later.');
         }
     }
@@ -168,7 +167,7 @@ function Dashboard() {
             setShowShareMenu(true);
         }
         catch (error) { 
-            console.error('Error opening share menu:', err);
+            console.error('Error opening share menu:', error);
             setError('Failed to open the share menu. Please try again later.');
         }
     }
@@ -186,7 +185,7 @@ function Dashboard() {
             }   
             catch (error) {
                 console.error("Share Error");
-                setShareError(error.response.data.error);
+                setShareError(error.response?.data?.error);
             }
         }
         else {
@@ -207,7 +206,7 @@ function Dashboard() {
             }   
             catch (error) {
                 console.error("Share Error");
-                setShareError(error.response.data.error);
+                setShareError(error.response?.data?.error);
             }
         }
         else {
@@ -227,7 +226,7 @@ function Dashboard() {
             }   
             catch (error) {
                 console.error("Remove Shared User Error");
-                setShareError(error.response.data.error);
+                setShareError(error.response?.data?.error);
             }
         }
         else {
@@ -348,8 +347,8 @@ function Dashboard() {
             alert("Scenario imported successfully!");
             console.log(response.data);
             fetchUserData(); 
-        } catch (err) {
-            console.error("Error importing scenario:", err);
+        } catch (error) {
+            console.error("Error importing scenario:", error);
             alert("Failed to import scenario. Check the YAML file and try again.");
         } finally {
             // Always hide the import box whether success or failure
