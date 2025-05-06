@@ -12,7 +12,7 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
   const [scenario, setScenario] = useState(null);
   const [events, setEvents] = useState([]);
   const [settings, setSettings] = useState(null);
-  const [exploreMode, setExploreMode] = useState('one-dimensional');
+  const [exploreMode, setExploreMode] = useState('none');
 
   const [scenarioParameter, setScenarioParameter] = useState('');
   const [scenarioParameter2, setScenarioParameter2] = useState('');
@@ -292,13 +292,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
             <label>Scenario Parameter</label>
             <select value={scenarioParameter} onChange={(e) => setScenarioParameter(e.target.value)}>
               <option value={''}>--Choose a Scenario Parameter--</option>
-              {settings !== null && settings.rothOptimizerEnable === true && (
-                <option value={"roth-optimizer"}>Roth Optimizer</option>
-              )}
               <option value={"event-start-year"}>Event Series Start Year</option>
               <option value={"event-duration"}>Event Series Duration</option>
-              <option value={"event-initial-amount"}>Event Series Initial Amount</option>
-              <option value={"investment-allocation"}>Investment Allocation Percentage</option>
             </select>
           </div>
           <div>
@@ -340,16 +335,6 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
                   </>
                 )}
 
-                {(scenarioParameter === 'investment-allocation') && (
-                  <>
-                    <label>Choose Invest Event</label>
-                    <select>
-                      <option value={''}>-- Choose --</option>
-                      {(events.filter((event) => (event.type === 'invest'))).map((event,index) => (<option key={index} value={event._id}>{event.name}</option>))}
-                      {/* Return to this */}
-                    </select>
-                  </>
-                )}
                 </>
               )
             }
@@ -361,13 +346,8 @@ const RunSimulation = ({ scenarioId, scenarioName }) => {
               <label>Second Scenario Parameter</label>
               <select value={scenarioParameter2} onChange={(e) => setScenarioParameter2(e.target.value)}>
                 <option value={''}>--Choose a Second Scenario Parameter--</option>
-                {settings !== null && settings.rothOptimizerEnable === true && (
-                  <option value={"roth-optimizer"}>Roth Optimizer</option>
-                )}
                 <option value={"event-start-year"}>Event Series Start Year</option>
                 <option value={"event-duration"}>Event Series Duration</option>
-                <option value={"event-initial-amount"}>Event Series Initial Amount</option>
-                <option value={"investment-allocation"}>Investment Allocation Percentage</option>
               </select>
             </div>
 

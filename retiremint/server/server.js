@@ -1195,7 +1195,16 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
             scenario.name = (scenario.name + " - Duration=" +  changedValue);
         }
         else if (scenarioParameter === 'event-initial-amount'){
-
+            console.log("Editting Initial Amount:");
+            const parameterEvent = await Event.findById(parameterId);
+            const duration = await new Duration({method: 'fixedValue', fixedValue: changedValue}).save();
+            parameterEvent._id = new mongoose.Types.ObjectId();
+            parameterEvent.duration = duration;
+            parameterEvent.isNew = true;
+            await parameterEvent.save();
+            // Replace original event in events list with new event with adjusted Duration.
+            scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+            scenario.name = (scenario.name + " - Duration=" +  changedValue);
         }
 
         /* Check for Second Parameter  */
@@ -1212,6 +1221,21 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
                 scenario.events[scenario.events.indexOf(parameterId2)] = parameterEvent._id;
                 scenario.name = (scenario.name + " - StartYear=" +  changedValue);
             }
+            else if (scenarioParameter2 === 'event-duration') {
+                console.log("Editting Duration:");
+                const parameterEvent = await Event.findById(parameterId2);
+                const duration = await new Duration({method: 'fixedValue', fixedValue: changedValue2}).save();
+                parameterEvent._id = new mongoose.Types.ObjectId();
+                parameterEvent.duration = duration;
+                parameterEvent.isNew = true;
+                await parameterEvent.save();
+                // Replace original event in events list with new event with adjusted Duration.
+                scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+                scenario.name = (scenario.name + " - Duration=" +  changedValue);
+            }
+            
+            
+
         }
         scenario.isNew = true;
         await scenario.save();
