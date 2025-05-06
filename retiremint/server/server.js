@@ -1176,7 +1176,7 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
             parameterEvent._id = new mongoose.Types.ObjectId();
             parameterEvent.startYear = startYear;
             parameterEvent.isNew = true;
-            parameterEvent.save();
+            await parameterEvent.save();
             // Replace original event in events list with new event with adjusted Start Year.
             scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
             scenario.name = (scenario.name + " - StartYear=" +  changedValue);
@@ -1184,15 +1184,18 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
         }
         else if (scenarioParameter === 'event-duration') {
             console.log("Editting Duration:");
-            const parameterEvent = await Event.findById(parameterId2);
+            const parameterEvent = await Event.findById(parameterId);
             const duration = await new Duration({method: 'fixedValue', fixedValue: changedValue}).save();
             parameterEvent._id = new mongoose.Types.ObjectId();
             parameterEvent.duration = duration;
             parameterEvent.isNew = true;
-            parameterEvent.save();
+            await parameterEvent.save();
             // Replace original event in events list with new event with adjusted Duration.
             scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
             scenario.name = (scenario.name + " - Duration=" +  changedValue);
+        }
+        else if (scenarioParameter === 'event-initial-amount'){
+
         }
 
         /* Check for Second Parameter  */
@@ -1204,14 +1207,14 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
                 parameterEvent._id = new mongoose.Types.ObjectId();
                 parameterEvent.startYear = startYear;
                 parameterEvent.isNew = true;
-                parameterEvent.save();
+                await parameterEvent.save();
                 // Replace original event in events list with new event with adjusted Start Year.
                 scenario.events[scenario.events.indexOf(parameterId2)] = parameterEvent._id;
                 scenario.name = (scenario.name + " - StartYear=" +  changedValue);
             }
         }
         scenario.isNew = true;
-        scenario.save();
+        await scenario.save();
         res.json({
             success: true,
             scenarioId: scenario._id,
