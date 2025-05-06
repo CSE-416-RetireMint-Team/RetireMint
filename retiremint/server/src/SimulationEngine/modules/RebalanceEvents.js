@@ -36,29 +36,29 @@ function calculateTargetValues(investments, strategy) {
         const totalValueToRebalance = rebalancableInvestments.reduce((sum, inv) => sum + (inv?.value || 0), 0);
 
         if (totalValueToRebalance > 0) {
-            const { 
-                taxStatusAllocation, 
+    const { 
+        taxStatusAllocation, 
                 // preTaxAllocation, // Handled separately below
-                afterTaxAllocation, 
-                nonRetirementAllocation, 
-                taxExemptAllocation 
-            } = strategy;
+        afterTaxAllocation, 
+        nonRetirementAllocation, 
+        taxExemptAllocation 
+    } = strategy;
 
-            // Helper to distribute value within a category based on sub-allocation
+    // Helper to distribute value within a category based on sub-allocation
             // This helper now only operates on the rebalancable investments
-            const distributeValue = (allocationMap, totalCategoryValue, categoryInvestments) => {
+    const distributeValue = (allocationMap, totalCategoryValue, categoryInvestments) => {
                  // No need to filter RMD/Roth/PreTax here as categoryInvestments comes from rebalancableInvestments
                  if (categoryInvestments.length === 0 || totalCategoryValue <= 0) return; // Skip if no investments in category or no value to distribute
                 
                  if (!allocationMap || Object.keys(allocationMap).length === 0) {
                     // Distribute equally among eligible investments in this category if no specific map
-                    const perInvestmentValue = totalCategoryValue / categoryInvestments.length;
-                    categoryInvestments.forEach(inv => {
+            const perInvestmentValue = totalCategoryValue / categoryInvestments.length;
+            categoryInvestments.forEach(inv => {
                         // Add to target, don't overwrite potential preTaxAllocation target set later
-                        targets[inv.name] = (targets[inv.name] || 0) + perInvestmentValue; 
-                    });
-                    return;
-                 }
+                targets[inv.name] = (targets[inv.name] || 0) + perInvestmentValue;
+            });
+            return;
+        }
 
                  // Calculate sumPct based only on investments present in the category investments
                  let relevantSumPct = 0;
@@ -82,11 +82,11 @@ function calculateTargetValues(investments, strategy) {
                  for (const [name, percent] of relevantEntries) {
                      // Add to target, don't overwrite potential preTaxAllocation target set later
                      targets[name] = (targets[name] || 0) + totalCategoryValue * ((percent || 0) / relevantSumPct);
-                 }
-             };
-            
+        }
+    };
+    
             // Create investment groups from rebalancable investments ONLY
-            const investmentGroups = {
+    const investmentGroups = {
                 // 'pre-tax': [], // Excluded from this calculation
                 'after-tax': rebalancableInvestments.filter(inv => inv.accountTaxStatus === 'after-tax'),
                 'non-retirement': rebalancableInvestments.filter(inv => inv.accountTaxStatus === 'non-retirement'),
