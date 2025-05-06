@@ -139,7 +139,7 @@ router.get('/reports/:userId', async (req, res) => {
 // Run simulation for a scenario
 router.post('/run', async (req, res) => {
   try {
-    const { scenarioId, numSimulations, userId, reportName, exploreMode} = req.body;
+    const { scenarioId, numSimulations, userId, reportName } = req.body;
     
     // --- Fetch User Data --- 
     let user = null;
@@ -335,19 +335,6 @@ router.post('/run', async (req, res) => {
     }
     
     fs.writeFileSync(logFile, logContent);
-    
-    // If this is a regular simulation, create a Report.
-    if (exploreMode === 'one-dimensional' || exploreMode === 'two-dimensional') {
-      return res.json({
-        success: true,
-        status: 'simulation_completed',
-        message: 'Simulation completed successfully',
-        scenarioId: scenarioId,
-        reportId: null,
-        report: null,
-        results: result.aggregatedResults
-      });
-    }
 
     // Save the report to the database
     console.log(`Creating and saving report for scenario: ${scenario.name}`);

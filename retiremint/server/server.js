@@ -1159,32 +1159,64 @@ app.post('/simulation/explore-scenario/create', async (req, res) => {
     try {
         const originalScenarioId = req.body.scenarioId;
         const scenarioParameter = req.body.scenarioParameter;
-        const parameterEventId = req.body.parameterEventId;
+        const scenarioParameter2 = req.body.scenarioParameter2;
+        const parameterId = req.body.parameterId;
+        const parameterId2 = req.body.parameterId2;
         const changedValue = req.body.changedValue;
+        const changedValue2 = req.body.changedValue2;
+
 
         const scenario = await Scenario.findById(originalScenarioId);
         scenario._id = new mongoose.Types.ObjectId();
 
         if (scenarioParameter === 'event-start-year') {
             console.log("Editting Start Year:");
-            const parameterEvent = await Event.findById(parameterEventId);
+            const parameterEvent = await Event.findById(parameterId);
             const startYear = await new StartYear({method: 'fixedValue', fixedValue: changedValue}).save();
             parameterEvent._id = new mongoose.Types.ObjectId();
             parameterEvent.startYear = startYear;
             parameterEvent.isNew = true;
             parameterEvent.save();
             // Replace original event in events list with new event with adjusted Start Year.
-            scenario.events[scenario.events.indexOf(parameterEventId)] = parameterEvent._id;
+            scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+            scenario.name = (scenario.name + " - StartYear=" +  changedValue);
+
+        }
+        else if (scenarioParameter === 'event-duration') {
+            console.log("Editting Duration:");
+            const parameterEvent = await Event.findById(parameterId2);
+            const duration = await new Duration({method: 'fixedValue', fixedValue: changedValue}).save();
+            parameterEvent._id = new mongoose.Types.ObjectId();
+            parameterEvent.duration = duration;
+            parameterEvent.isNew = true;
+            parameterEvent.save();
+            // Replace original event in events list with new event with adjusted Duration.
+            scenario.events[scenario.events.indexOf(parameterId)] = parameterEvent._id;
+            scenario.name = (scenario.name + " - Duration=" +  changedValue);
         }
 
-        scenario.name = "wawaweewa!";
+        /* Check for Second Parameter  */
+        if (scenarioParameter2 !== null) {
+            if (scenarioParameter2 === 'event-start-year') {
+                console.log("Editting Start Year:");
+                const parameterEvent = await Event.findById(parameterId2);
+                const startYear = await new StartYear({method: 'fixedValue', fixedValue: changedValue2}).save();
+                parameterEvent._id = new mongoose.Types.ObjectId();
+                parameterEvent.startYear = startYear;
+                parameterEvent.isNew = true;
+                parameterEvent.save();
+                // Replace original event in events list with new event with adjusted Start Year.
+                scenario.events[scenario.events.indexOf(parameterId2)] = parameterEvent._id;
+                scenario.name = (scenario.name + " - StartYear=" +  changedValue);
+            }
+        }
         scenario.isNew = true;
         scenario.save();
         res.json({
             success: true,
             scenarioId: scenario._id,
-            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${scenario._id}.`,
-       })
+            message: `Sucessfully created duplicated scenario ${originalScenarioId} as ${scenario._id}.`,
+       });
     }
     catch (error) {
         console.error('Error duplicating and editing existing Scenario: ', error);
@@ -1202,17 +1234,16 @@ app.delete('/simulation/explore-scenario/remove', async (req, res) => {
         const temporaryScenarioId = req.body.scenarioId;
         const scenarioParameter = req.body.scenarioParameter;
         if (scenarioParameter === 'event-start-year') {
-            const parameterEvent = await Event.findById(parameterEventId);
+            const parameterEvent = await Event.findById(parameterId);
             await StartYear.findByIdAndDelete(parameterEvent.startYear);
-            await Event.findByIdAndDelete(parameterEventId);
+            await Event.findByIdAndDelete(parameterEvent._id);
         }
-
         Scenario.findByIdAndDelete(temporaryScenarioId);
         // TODO: Get back to this and check scenario parameter to remove any new nested documents potentially created by some of the modes.
 
         res.json({
             success: true,
-            message: `Sucessfully removed duplicated scenario ${originalScenarioId} as ${originalScenario._id}.`,
+            message: `Sucessfully removed duplicated scenario ${temporaryScenarioId}.`,
        })
     }
     catch (error) {

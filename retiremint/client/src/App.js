@@ -9,6 +9,8 @@ import SimulationResults from './components/SimulationResults';
 import { useState, useEffect } from 'react';
 import React from 'react';
 import OneDimensionalSimulationResults from './components/OneDimensionalSimulationResults';
+import TwoDimensionalSimulationResults from './components/TwoDimensionalSimulationResults';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -51,6 +53,7 @@ function App() {
         <Route path="/simulation-results" element={<SimulationResults />} />
         <Route path="/simulation-results/:reportId" element={<SimulationResults />} />
         <Route path="/one-dimensional-simulation-results" element={<OneDimensionalSimulationResults />} />
+        <Route path="/two-dimensional-simulation-results" element={<TwoDimensionalSimulationResults />} />
       </Routes>
     </Router>
   );
